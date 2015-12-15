@@ -1,0 +1,92 @@
+//
+//  UrlParser.swift
+//  EnterpriseSwift
+//
+//  Created by Ira Rosen on 4/11/15.
+//  Copyright © 2015 IBM. All rights reserved.
+//
+
+import sys
+
+public class UrlParser : CustomStringConvertible {
+
+    public var schema: String?
+    public var host: String?
+    public var path: String?
+    public var query: String?
+    public var fragment: String?
+    public var userinfo: String?
+    public var port: UInt16?
+    public var queryParams: [String:String] = [:]
+    
+    
+    public var description: String {
+        var desc = ""
+        
+        if let schema = schema {
+            desc += "schema: \(schema) "
+        }
+        if let host = host {
+            desc += "host: \(host) "
+        }
+        if let port = port {
+            desc += "port: \(port) "
+        }
+        if let path = path {
+            desc += "path: \(path) "
+        }
+        if let query = query {
+            desc += "query: \(query) "
+            desc += "parsed query: \(queryParams) "
+        }
+        if let fragment = fragment {
+            desc += "fragment: \(fragment) "
+        }
+        if let userinfo = userinfo {
+            desc += "userinfo: \(userinfo) "
+        }
+        
+        return desc
+    }
+    
+    
+    public init (url: [UInt8], isConnect: Bool) {
+        var parsedUrl = http_parser_url_url()
+        memset(&parsedUrl, 0, sizeof(http_parser_url))
+        if http_parser_parse_url_url(UnsafePointer<Int8>(url), url.count, isConnect ? 1 : 0 , &parsedUrl) == 0 {
+            let (s, h, ps, p, q, f, u) = parsedUrl.field_data
+            schema = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
+            host = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
+            let portString = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
+            path = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
+            query = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
+            fragment = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
+            userinfo = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
+
+            if let _ = portString {
+                port = parsedUrl.port
+            }
+            
+            if let query = query {
+                let pairs = query.componentsSeparatedByString("&")
+                for pair in pairs {
+                    let pairArr = pair.componentsSeparatedByString("=")
+                    if pairArr.count == 2 {
+                        queryParams[pairArr[0]] = pairArr[1]
+                    }
+                }
+            }
+        }
+    }
+    
+    private func getValueFromUrl(url: [UInt8], fieldSet: UInt16, fieldIndex: UInt16, fieldData: http_parser_url_field_data) -> String? {
+        if fieldSet & (1 << fieldIndex) != 0 {
+            let start = Int(fieldData.off)
+            let length = Int(fieldData.len)
+            return StringUtils.fromUtf8String(UnsafePointer<UInt8>(url)+start, withLength: length)
+        }
+        return nil
+    }
+
+}
+
