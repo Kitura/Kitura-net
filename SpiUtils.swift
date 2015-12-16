@@ -7,6 +7,8 @@
 //
 
 
+import Foundation
+
 class SpiUtils {
     
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "jul", "Aug", "sep", "Oct", "Nov", "Dec"]

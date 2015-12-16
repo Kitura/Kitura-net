@@ -9,7 +9,8 @@
 import io
 import sys
 
-import curl
+//import curl
+import CurlHelpers
 
 
 public class ClientRequest: Writer {
