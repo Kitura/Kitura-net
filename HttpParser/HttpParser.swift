@@ -32,7 +32,7 @@ class HttpParser {
         settings = http_parser_settings()
 
         settings.on_url = { (parser, chunk, length) -> Int32 in
-            let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
             var arr = [UInt8](count: length, repeatedValue: 0)
             memcpy(&arr, chunk, length)
             let url = StringUtils.fromUtf8String(arr, withLength: length)
@@ -42,7 +42,7 @@ class HttpParser {
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             if let data = StringUtils.fromUtf8String(UnsafePointer<UInt8>(chunk), withLength: length) {
-                let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+                let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
                 p.memory?.onHeaderField(data as String)
             }
             return 0
@@ -50,14 +50,14 @@ class HttpParser {
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             if let data = StringUtils.fromUtf8String(UnsafePointer<UInt8>(chunk), withLength: length) {
-                let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+                let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
                 p.memory?.onHeaderValue(data as String)
             }
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
-            let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
             var arr = [UInt8](count: length, repeatedValue: 0)
             memcpy(&arr, chunk, length)
             p.memory?.onBody(arr)
@@ -66,7 +66,7 @@ class HttpParser {
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
-            let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
             let method = StringUtils.fromUtf8String(UnsafePointer<UInt8>(get_method(parser)))
             p.memory?.onHeadersComplete(method!, versionMajor: parser.memory.http_major, versionMinor: parser.memory.http_minor)
             
@@ -74,14 +74,14 @@ class HttpParser {
         }
         
         settings.on_message_begin = { (parser) -> Int32 in
-            let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
             p.memory?.onMessageBegin()
             
             return 0
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
-            let p = UnsafeMutablePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
             if get_status_code(parser) == 100 {
                 p.memory?.reset()
             }
