@@ -6,12 +6,6 @@
 //  Copyright © 2015 IBM. All rights reserved.
 //
 
-#if os(OSX)
-    import Darwin
-#else
-    import Glibc
-#endif
-
 class HttpServerSpi {
     
     weak var delegate: HttpServerSpiDelegate?
@@ -28,14 +22,6 @@ class HttpServerSpi {
                 }
             }
         }
-    }
-    
-    private func sockaddr_cast(p: UnsafePointer<sockaddr_in>) -> UnsafePointer<sockaddr> {
-        return UnsafePointer<sockaddr>(p)
-    }
-    
-    private func mutable_sockaddr_cast(p: UnsafePointer<sockaddr_in>) -> UnsafeMutablePointer<sockaddr> {
-        return UnsafeMutablePointer<sockaddr>(p)
     }
 }
 
