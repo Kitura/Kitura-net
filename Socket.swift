@@ -62,7 +62,7 @@ class Socket : FileDescriptor {
             return Socket(fd: sock)
         }
         else {
-            print("Error creating socket \(StringUtils.fromUtf8String(strerror(errno)))")
+            print("Error creating socket \(Socket.lastError()).")
             return nil
         }
     }
@@ -88,12 +88,12 @@ class Socket : FileDescriptor {
                 return true
             }
             else {
-                print("Error listening to port \(port). \(StringUtils.fromUtf8String(strerror(errno)))")
+                print("Error listening to port \(port). \(Socket.lastError()).")
                 return false
             }
         }
         else {
-            print("Error binding to port \(port). \(StringUtils.fromUtf8String(strerror(errno)))")
+            print("Error binding to port \(port). \(Socket.lastError()).")
             return false
         }
     }
@@ -102,11 +102,16 @@ class Socket : FileDescriptor {
         var remoteAddr: sockaddr_in = sockaddr_in()
         var remoteAddrSize: socklen_t = 0
         
-        #if os(Linux)
-            let clientSocket = Glibc.accept(fd, mutable_sockaddr_cast(&remoteAddr), &remoteAddrSize)
-        #else
-            let clientSocket = Darwin.accept(fd, mutable_sockaddr_cast(&remoteAddr), &remoteAddrSize)
-        #endif
+        var clientSocket: Int32
+        
+        repeat {
+            #if os(Linux)
+                clientSocket = Glibc.accept(fd, mutable_sockaddr_cast(&remoteAddr), &remoteAddrSize)
+            #else
+                clientSocket = Darwin.accept(fd, mutable_sockaddr_cast(&remoteAddr), &remoteAddrSize)
+            #endif
+        } while clientSocket == -1  &&  errno == EINTR
+        
         if (-1 != clientSocket) {
             //let remoteAddrAscii = inet_ntoa(remoteAddr.sin_addr)
             //let remoteAddrStr = StringUtils.fromUtf8String(UnsafePointer<UInt8>(remoteAddrAscii))
@@ -114,7 +119,7 @@ class Socket : FileDescriptor {
             return Socket(fd: clientSocket)
         }
         else {
-            print("Failed to accept a client on port \(port)")
+            print("Failed to accept a client on port \(port!). \(Socket.lastError()).")
             return nil
         }
     }
@@ -129,4 +134,12 @@ class Socket : FileDescriptor {
         return UnsafeMutablePointer<sockaddr>(p)
     }
     
+    private static func lastError() -> String {
+        if  let str = String(UTF8String: strerror(errno))  {
+            return str
+        }
+        else {
+            return ""
+        }
+    }
 }

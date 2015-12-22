@@ -8,6 +8,8 @@
 
 import io
 
+import Foundation
+
 public class ServerResponse : Writer {
     private var socket: Socket?
     
@@ -63,10 +65,10 @@ public class ServerResponse : Writer {
         }
     }
     
-    public func writeBuffer(inout buffer: [UInt8], withLength length: Int) throws {
+    public func writeData(data: NSData) throws {
         if  let s = socket {
             try flushStart()
-            try s.writeBuffer(&buffer, withLength: length)
+            try s.writeData(data)
         }
     }
     

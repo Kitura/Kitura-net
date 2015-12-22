@@ -7,7 +7,11 @@
 //
 
 
-import Foundation
+#if os(OSX)
+    import Darwin
+#elseif os(Linux)
+    import Glibc
+#endif
 
 class SpiUtils {
     

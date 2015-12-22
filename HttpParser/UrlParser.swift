@@ -7,8 +7,9 @@
 //
 
 import sys
-//import Chttp_parser
 import http_parser_helper
+
+import Foundation
 
 public class UrlParser : CustomStringConvertible {
 
@@ -52,10 +53,10 @@ public class UrlParser : CustomStringConvertible {
     }
     
     
-    public init (url: [UInt8], isConnect: Bool) {
+    public init (url: NSData, isConnect: Bool) {
         var parsedUrl = http_parser_url_url()
         memset(&parsedUrl, 0, sizeof(http_parser_url))
-        if http_parser_parse_url_url(UnsafePointer<Int8>(url), url.count, isConnect ? 1 : 0 , &parsedUrl) == 0 {
+        if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedUrl) == 0 {
             let (s, h, ps, p, q, f, u) = parsedUrl.field_data
             schema = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
             host = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
@@ -81,11 +82,12 @@ public class UrlParser : CustomStringConvertible {
         }
     }
     
-    private func getValueFromUrl(url: [UInt8], fieldSet: UInt16, fieldIndex: UInt16, fieldData: http_parser_url_field_data) -> String? {
+    private func getValueFromUrl(url: NSData, fieldSet: UInt16, fieldIndex: UInt16, fieldData: http_parser_url_field_data) -> String? {
         if fieldSet & (1 << fieldIndex) != 0 {
             let start = Int(fieldData.off)
             let length = Int(fieldData.len)
-            return StringUtils.fromUtf8String(UnsafePointer<UInt8>(url)+start, withLength: length)
+            let data = NSData(bytes: UnsafeMutablePointer<UInt8>(url.bytes)+start, length: length)
+            return StringUtils.fromUtf8String(data)
         }
         return nil
     }

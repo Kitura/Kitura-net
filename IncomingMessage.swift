@@ -10,9 +10,11 @@ import io
 import sys
 import SwiftyJSON
 
+import Foundation
+
 public class IncomingMessage : HttpParserDelegate, Reader {
     
-    private let BUFFER_SIZE = 2000
+    private static let BUFFER_SIZE = 2000
     
     public var httpVersionMajor: UInt16?
     
@@ -26,15 +28,15 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     
     public var urlString = ""
     
-    public var url: [UInt8] = []
+    public var url = NSMutableData()
         
     // TODO: trailers
     
-    private var lastHeaderWasAValue = true
+    private var lastHeaderWasAValue = false
     
-    private var lastHeaderField: String = ""
+    private var lastHeaderField = NSMutableData()
     
-    private var lastHeaderValue: String = ""
+    private var lastHeaderValue = NSMutableData()
     
     private var httpParser: HttpParser?
     
@@ -44,8 +46,8 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     
     private var helper: IncomingMessageHelper?
     
-    private var ioBuffer: [UInt8]
-    private var buffer: [UInt8]
+    private var ioBuffer = NSMutableData(capacity: BUFFER_SIZE)
+    private var buffer = NSMutableData(capacity: BUFFER_SIZE)
     
     
     private enum Status {
@@ -65,8 +67,6 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     
     
     init (isRequest: Bool) {
-        ioBuffer = [UInt8](count: BUFFER_SIZE, repeatedValue: 0)
-        buffer = [UInt8](count: BUFFER_SIZE, repeatedValue: 0)
         httpParser = HttpParser(isRequest: isRequest)
         httpParser!.delegate = self
     }
@@ -80,9 +80,10 @@ public class IncomingMessage : HttpParserDelegate, Reader {
         if let parser = httpParser where status == .Initial {
             while status == .Initial {
                 do {
-                    let length = try helper!.readBufferHelper(&ioBuffer)
+                    ioBuffer!.length = 0
+                    let length = try helper!.readDataHelper(ioBuffer!)
                     if length > 0 {
-                        let (nparsed, upgrade) = parser.execute(ioBuffer, length: length)
+                        let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
                         if upgrade == 1 {
                             // TODO handle new protocol
                         }
@@ -109,14 +110,15 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     }
     
     
-    public func readBuffer(inout buffer: [UInt8]) throws -> Int {
-        var count = bodyChunk.fillBuffer(&buffer)
+    public func readData(data: NSMutableData) throws -> Int {
+        var count = bodyChunk.fillData(data)
         if count == 0 {
             if let parser = httpParser where status == .HeadersComplete {
                 do {
-                    count = try helper!.readBufferHelper(&ioBuffer)
+                    ioBuffer!.length = 0
+                    count = try helper!.readDataHelper(ioBuffer!)
                     if count > 0 {
-                        let (nparsed, upgrade) = parser.execute(ioBuffer, length: count)
+                        let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
                         if upgrade == 1 {
                             // TODO: handle new protocol
                         }
@@ -126,7 +128,7 @@ public class IncomingMessage : HttpParserDelegate, Reader {
                             status = .Error
                         }
                         else {
-                            count = bodyChunk.fillBuffer(&buffer)
+                            count = bodyChunk.fillData(buffer!)
                         }
                     }
                     else {
@@ -147,9 +149,10 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     
     
     public func readString() throws -> String? {
-        let length = try readBuffer(&buffer)
+        buffer!.length = 0
+        let length = try readData(buffer!)
         if length > 0 {
-            return StringUtils.fromUtf8String(buffer, withLength: length)
+            return StringUtils.fromUtf8String(buffer!)
         }
         else {
             return nil
@@ -163,50 +166,40 @@ public class IncomingMessage : HttpParserDelegate, Reader {
     }
     
     
-    func onUrl(url: [UInt8], urlString: String?) {
-        self.url += url
-        if let urlString = urlString {
-            self.urlString += urlString
-        }
+    func onUrl(data: NSData) {
+        url.appendData(data)
     }
     
     
-    func onHeaderField (data: String) {
+    func onHeaderField (data: NSData) {
         if lastHeaderWasAValue {
-            headers[data] = ""
-            lastHeaderField = data
-            rawHeaders.append(data)
+            addHeader()
         }
-        else {
-            headers.removeValueForKey(lastHeaderField)
-            lastHeaderField += data
-            headers[lastHeaderField] = ""
-            rawHeaders[rawHeaders.count-1] = lastHeaderField
-        }
+        lastHeaderField.appendData(data)
         lastHeaderWasAValue = false
     }
     
     
-    func onHeaderValue (data: String) {
-        if lastHeaderWasAValue {
-            if let value = headers[lastHeaderField] {
-                let newValue = value + data
-                headers[lastHeaderField] = newValue
-                lastHeaderValue = newValue
-                rawHeaders[rawHeaders.count-1] = lastHeaderValue
-            }
-        }
-        else {
-            headers[lastHeaderField] = data
-            lastHeaderValue = data
-            rawHeaders.append(data)
-        }
+    func onHeaderValue (data: NSData) {
+        lastHeaderValue.appendData(data)
         lastHeaderWasAValue = true
     }
     
+    private func addHeader() {
+        let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
+        let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
+        
+        rawHeaders.append(headerKey)
+        rawHeaders.append(headerValue)
+        headers[headerKey] = headerValue
+        
+        lastHeaderField.length = 0
+        lastHeaderValue.length = 0
+    }
     
-    func onBody (data: [UInt8]) {
-        self.bodyChunk.addBuffer(data)
+    
+    func onBody (data: NSData) {
+        self.bodyChunk.appendData(data)
     }
     
     
@@ -214,6 +207,10 @@ public class IncomingMessage : HttpParserDelegate, Reader {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
+        
+        if  lastHeaderWasAValue  {
+            addHeader()
+        }
         
         status = .HeadersComplete
     }
@@ -234,5 +231,5 @@ public class IncomingMessage : HttpParserDelegate, Reader {
 }
 
 protocol IncomingMessageHelper {
-    func readBufferHelper(inout buffer: [UInt8]) throws -> Int
+    func readDataHelper(data: NSMutableData) throws -> Int
 }

@@ -7,7 +7,6 @@
 //
 
 import sys
-//import Chttp_parser
 import http_parser_helper
 
 class HttpParser {
@@ -33,41 +32,36 @@ class HttpParser {
 
         settings.on_url = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            var arr = [UInt8](count: length, repeatedValue: 0)
-            memcpy(&arr, chunk, length)
-            let url = StringUtils.fromUtf8String(arr, withLength: length)
-            p.memory?.onUrl(arr, urlString: url)
+            let data = NSData(bytes: chunk, length: length)
+            p.memory?.onUrl(data)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
-            if let data = StringUtils.fromUtf8String(UnsafePointer<UInt8>(chunk), withLength: length) {
-                let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-                p.memory?.onHeaderField(data as String)
-            }
+            let data = NSData(bytes: chunk, length: length)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            p.memory?.onHeaderField(data)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
-            if let data = StringUtils.fromUtf8String(UnsafePointer<UInt8>(chunk), withLength: length) {
-                let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-                p.memory?.onHeaderValue(data as String)
-            }
+            let data = NSData(bytes: chunk, length: length)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            p.memory?.onHeaderValue(data)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            var arr = [UInt8](count: length, repeatedValue: 0)
-            memcpy(&arr, chunk, length)
-            p.memory?.onBody(arr)
+            let data = NSData(bytes: chunk, length: length)
+            p.memory?.onBody(data)
            
             return 0
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            let method = StringUtils.fromUtf8String(UnsafePointer<UInt8>(get_method(parser)))
+            let method = String(UTF8String: get_method(parser))
             p.memory?.onHeadersComplete(method!, versionMajor: parser.memory.http_major, versionMinor: parser.memory.http_minor)
             
             return 0
@@ -97,8 +91,8 @@ class HttpParser {
     }
     
     
-    func execute (data: [UInt8], length: Int) -> (Int, UInt32) {
-        let nparsed = http_parser_execute(&parser, &settings, UnsafePointer<Int8>(data), length)
+    func execute (data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
+        let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
     }    
@@ -106,12 +100,12 @@ class HttpParser {
 
 
 protocol HttpParserDelegate: class {
-    func onUrl(url:[UInt8], urlString: String?)
-    func onHeaderField(url: String)
-    func onHeaderValue(url: String)
+    func onUrl(url:NSData)
+    func onHeaderField(data: NSData)
+    func onHeaderValue(data: NSData)
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16)
     func onMessageBegin()
     func onMessageComplete()
-    func onBody(body: [UInt8])
+    func onBody(body: NSData)
     func reset()
 }

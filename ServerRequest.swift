@@ -6,6 +6,8 @@
 //  Copyright © 2015 IBM. All rights reserved.
 //
 
+import Foundation
+
 public class ServerRequest: IncomingMessage {
     private var socket: Socket
     
@@ -18,7 +20,7 @@ public class ServerRequest: IncomingMessage {
 }
 
 extension ServerRequest: IncomingMessageHelper {
-    func readBufferHelper(inout buffer: [UInt8]) throws -> Int {
-        return try socket.readBuffer(&buffer)
+    func readDataHelper(data: NSMutableData) throws -> Int {
+        return try socket.readData(data)
     }
 }

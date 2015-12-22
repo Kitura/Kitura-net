@@ -8,10 +8,9 @@
 
 import io
 import sys
-
-//import curl
 import CurlHelpers
 
+import Foundation
 
 public class ClientRequest: Writer {
     
@@ -82,18 +81,14 @@ public class ClientRequest: Writer {
         }
     }
     
-    public func writeString(data: String) {
-        var buffer = StringUtils.toUtf8String(data)
-        if  buffer != nil {
-            let length = Int(strlen(UnsafePointer<Int8>(buffer!)))
-            writeBuffer(&buffer!, withLength: length)
+    public func writeString(str: String) {
+        if  let data = StringUtils.toUtf8String(str)  {
+            writeData(data)
         }
     }
     
-    public func writeBuffer(inout buffer: [UInt8], withLength length: Int) {
-        let buf = [UInt8](count: length, repeatedValue: 0)
-        memcpy(UnsafeMutablePointer<UInt8>(buf), buffer, length)
-        writeBuffers.addBuffer(buf)
+    public func writeData(data: NSData) {
+        writeBuffers.appendData(data)
     }
     
     public func end(data: String) {
@@ -107,9 +102,9 @@ public class ClientRequest: Writer {
         }
         
         var callCallback = true
-        var urlBuf = StringUtils.toUtf8String(url)
+        let urlBuf = StringUtils.toNullTerminatedUtf8String(url)
         if  let _ = urlBuf {
-            prepareHandle(&urlBuf!)
+            prepareHandle(urlBuf!)
             
             let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
             invoker.delegate = self
@@ -135,9 +130,9 @@ public class ClientRequest: Writer {
         }
     }
     
-    private func prepareHandle(inout urlBuf: [UInt8]) {
+    private func prepareHandle(urlBuf: NSData) {
         handle = curl_easy_init()
-        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf))
+        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf.bytes))
         setMethod()
         let count = writeBuffers.count
         if  count != 0  {
@@ -156,16 +151,16 @@ public class ClientRequest: Writer {
             case "PUT":
                 curlHelperSetOptBool(handle!, CURLOPT_PUT, CURL_TRUE)
             default:
-                let methodCstring = StringUtils.toUtf8String(methodUpperCase)!
-                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring))
+                let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
+                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
     }
     
     private func setupHeaders() {
         for (headerKey, headerValue) in headers {
-            let headerString = StringUtils.toUtf8String("\(headerKey): \(headerValue)")
+            let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
-                headersList = curl_slist_append(headersList, UnsafePointer<Int8>(headerString))
+                headersList = curl_slist_append(headersList, UnsafeMutablePointer<Int8>(headerString.bytes))
             }
         }
         curlHelperSetOptHeaders(handle!, headersList)
@@ -174,9 +169,7 @@ public class ClientRequest: Writer {
 
 extension ClientRequest: CurlInvokerDelegate {
     private func curlWriteCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
-        let buffer = [UInt8](count: size, repeatedValue: 0)
-        memcpy(UnsafeMutablePointer<UInt8>(buffer), buf, size)
-        response.responseBuffers.addBuffer(buffer)
+        response.responseBuffers.appendBytes(UnsafePointer<UInt8>(buf), length: size)
         return size
     }
     
@@ -263,3 +256,4 @@ private protocol CurlInvokerDelegate: class {
     func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func prepareForRedirect()
 }
+

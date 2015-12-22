@@ -8,6 +8,8 @@
 
 import io
 
+import Foundation
+
 public class ClientResponse: IncomingMessage {
     
     init() {
@@ -26,7 +28,7 @@ public class ClientResponse: IncomingMessage {
 }
 
 extension ClientResponse: IncomingMessageHelper {
-    func readBufferHelper(inout buffer: [UInt8]) -> Int {
-        return responseBuffers.fillBuffer(&buffer)
+    func readDataHelper(data: NSMutableData) -> Int {
+        return responseBuffers.fillData(data)
     }
 }
