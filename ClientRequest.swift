@@ -96,6 +96,11 @@ public class ClientRequest: Writer {
         end()
     }
     
+    public func end(data: NSData) {
+        writeData(data)
+        end()
+    }
+    
     public func end() {
         SysUtils.doOnce(&ClientRequest.lock) {
             curl_global_init(Int(CURL_GLOBAL_SSL))
@@ -132,6 +137,8 @@ public class ClientRequest: Writer {
     
     private func prepareHandle(urlBuf: NSData) {
         handle = curl_easy_init()
+        // HTTP parser does the decoding
+        curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
         curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf.bytes))
         setMethod()
         let count = writeBuffers.count
