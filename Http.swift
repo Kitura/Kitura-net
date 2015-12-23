@@ -6,6 +6,7 @@
 //  Copyright © 2015 IBM. All rights reserved.
 //
 
+import Foundation
 
 public class Http {
     
@@ -44,6 +45,15 @@ public class Http {
         let req = ClientRequest(url: url, callback: callback)
         req.end()
         return req
+    }
+
+    private static let allowedCharacterSet =  NSCharacterSet(charactersInString:"\"#%/<>?@\\^`{|}").invertedSet
+    
+    public static func escapeUrl(url: String) -> String {
+        if let escaped = url.stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
+            return escaped
+        }
+        return url
     }
 }
 
