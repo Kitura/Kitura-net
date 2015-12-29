@@ -181,9 +181,7 @@ extension ClientRequest: CurlInvokerDelegate {
     }
     
     private func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
-        var lclBuffer = [UInt8](count: size, repeatedValue: 0)
-        let count = writeBuffers.fillBuffer(&lclBuffer)
-        memcpy(buf, UnsafePointer<UInt8>(lclBuffer), count)
+        let count = writeBuffers.fillBuffer(UnsafeMutablePointer<UInt8>(buf), length: size)
         return count
     }
     
