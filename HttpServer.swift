@@ -38,15 +38,21 @@ public class HttpServer {
     }
     
     
-    public func listen(port: Int) {
+    public func listen(port: Int, notOnMainQueue: Bool=false) {
     
         self._port = port
         self.listenSocket = Socket.create(.INET, type: .STREAM, proto: .TCP)
         
-        Queue.queueIfFirstOnMain(HttpServer.listenerQueue!) {
+        let queuedBlock = {
             self.spi.spiListen(self.listenSocket, port: self._port!)
         }
-            
+        
+        if  notOnMainQueue  {
+            HttpServer.listenerQueue!.queueAsync(queuedBlock)
+        }
+        else {
+            Queue.queueIfFirstOnMain(HttpServer.listenerQueue!, block: queuedBlock)
+        }
     }
 }
 
