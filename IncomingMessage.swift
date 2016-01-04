@@ -128,7 +128,7 @@ public class IncomingMessage : HttpParserDelegate, Reader {
                             status = .Error
                         }
                         else {
-                            count = bodyChunk.fillData(buffer!)
+                            count = bodyChunk.fillData(data)
                         }
                     }
                     else {
