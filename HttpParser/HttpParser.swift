@@ -8,6 +8,7 @@
 
 import sys
 import http_parser_helper
+import Foundation
 
 class HttpParser {
     

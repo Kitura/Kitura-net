@@ -8,7 +8,6 @@
 
 import io
 import sys
-import SwiftyJSON
 
 import Foundation
 
