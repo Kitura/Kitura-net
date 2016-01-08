@@ -11,6 +11,12 @@ import http_parser_helper
 
 import Foundation
 
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin
+#endif
+
 public class UrlParser : CustomStringConvertible {
 
     public var schema: String?
