@@ -135,11 +135,8 @@ class Socket : FileDescriptor {
     }
     
     private static func lastError() -> String {
-        if  let str = String(UTF8String: strerror(errno))  {
-            return str
-        }
-        else {
-            return ""
-        }
+         let str = String( strerror(errno)) 
+         return str
+        
     }
 }
