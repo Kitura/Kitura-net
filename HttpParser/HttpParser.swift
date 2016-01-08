@@ -62,8 +62,8 @@ class HttpParser {
         
         settings.on_headers_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            let method = String(UTF8String: get_method(parser))
-            p.memory?.onHeadersComplete(method!, versionMajor: parser.memory.http_major, versionMinor: parser.memory.http_minor)
+            let method = String( get_method(parser))
+            p.memory?.onHeadersComplete(method, versionMajor: parser.memory.http_major, versionMinor: parser.memory.http_minor)
             
             return 0
         }
