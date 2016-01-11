@@ -46,7 +46,7 @@ enum SocketProtocol {
     func valueOf() -> Int32 {
         switch(self) {
             case .TCP:
-                return IPPROTO_TCP
+                return Int32(IPPROTO_TCP)
         }
     }
 }
