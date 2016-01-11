@@ -29,13 +29,16 @@ enum SocketProtocolFamily {
     }
 }
 
+// MARK: Socket type corresponds to /sys/bits/socket_type.h
 enum SocketType {
-    case STREAM
+    case STREAM, DGRAM
     
     func valueOf() -> Int32 {
         switch(self) {
             case .STREAM:
-                return SOCK_STREAM
+                return 1
+	    case .DGRAM:
+		return 2
         }
     }
 }
@@ -43,6 +46,7 @@ enum SocketType {
 enum SocketProtocol {
     case TCP
     
+	// MARK: Perhaps should be handled differently on each platform
     func valueOf() -> Int32 {
         switch(self) {
             case .TCP:
@@ -71,9 +75,19 @@ class Socket : FileDescriptor {
     func listen(port: Int16) -> Bool {
         var addr: sockaddr_in = sockaddr_in()
         memset(&addr, 0, sizeof(sockaddr_in))
+        
+        #if os(OSX)
         addr.sin_family = UInt8(AF_INET)
+        #else
+        addr.sin_family = UInt16(AF_INET)
+        #endif
+
         addr.sin_port = UInt16(port).bigEndian
-        addr.sin_len = UInt8(sizeof(addr.dynamicType))
+
+        // MARK: not sure if Linux needs this or not
+        #if os(OSX)
+            addr.sin_len = UInt8(sizeof(addr.dynamicType))
+        #endif
         
         let addrSize: socklen_t = socklen_t(sizeof(addr.dynamicType))
         
