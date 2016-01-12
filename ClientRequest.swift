@@ -227,7 +227,7 @@ private class CurlInvoker {
                                 curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
                                 redirected = true
                                 delegate?.prepareForRedirect()
-                                redirectCount++
+                                redirectCount+=1
                             }
                             else {
                                 redirected = false
