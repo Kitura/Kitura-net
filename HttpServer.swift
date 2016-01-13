@@ -26,7 +26,7 @@ public class HttpServer {
     
     private var listenSocket: Socket?
     
-    init() {
+    public init() {
         spi = HttpServerSpi()
         
         spi.delegate = self
