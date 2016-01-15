@@ -77,9 +77,9 @@ public class UrlParser : CustomStringConvertible {
             }
             
             if let query = query {
-                let pairs = query.bridge().componentsSeparatedByString("&")
+                let pairs = query.bridgeTo().componentsSeparatedByString("&")
                 for pair in pairs {
-                    let pairArr = pair.bridge().componentsSeparatedByString("=")
+                    let pairArr = pair.bridgeTo().componentsSeparatedByString("=")
                     if pairArr.count == 2 {
                         queryParams[pairArr[0]] = pairArr[1]
                     }

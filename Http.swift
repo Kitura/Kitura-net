@@ -50,7 +50,7 @@ public class Http {
     private static let allowedCharacterSet =  NSCharacterSet(charactersInString:"\"#%/<>?@\\^`{|}").invertedSet
     
     public static func escapeUrl(url: String) -> String {
-        if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
+        if let escaped = url.bridgeTo().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
             return escaped
         }
         return url
