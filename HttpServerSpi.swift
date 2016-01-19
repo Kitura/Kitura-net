@@ -6,25 +6,45 @@
 //  Copyright © 2015 IBM. All rights reserved.
 //
 
+import ETSocket
+
 class HttpServerSpi {
     
     weak var delegate: HttpServerSpiDelegate?
 
-    func spiListen(socket: Socket?, port: Int) {
-        
-        if  let s = socket, let d = delegate {
-            if  s.listen(Int16(port))  {
-            
-                print("Listening on port \(port)")
-                
-                while  let clientSocket = s.accept() {
-                    d.handleClientRequest(clientSocket)
-                }
-            }
-        }
+    func spiListen(socket: ETSocket?, port: Int) {
+		
+		do {
+			
+			if  let s = socket, let d = delegate {
+				
+				try s.listenOn(port)
+				
+				print("Listening on port \(port)")
+				
+				// TODO: Figure out a way to shutdown the server...
+				repeat {
+				
+					let clientSocket = try s.acceptConnectionAndKeepListening()
+				
+					print("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
+					
+					d.handleClientRequest(clientSocket)
+				
+				} while true
+			}
+			
+		} catch let error as ETSocketError {
+			
+			print("Error reported:\n \(error.description)")
+			
+		} catch {
+			
+			print("Unexpected error...")
+		}
     }
 }
 
 protocol HttpServerSpiDelegate: class {
-    func handleClientRequest(socket: Socket)
+	func handleClientRequest(socket: ETSocket)
 }

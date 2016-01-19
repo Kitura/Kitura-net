@@ -7,6 +7,7 @@
 //
 
 import sys
+import ETSocket
 
 public class HttpServer {
     
@@ -24,7 +25,7 @@ public class HttpServer {
         get { return _port }
     }
     
-    private var listenSocket: Socket?
+    private var listenSocket: ETSocket?
     
     public init() {
         spi = HttpServerSpi()
@@ -41,24 +42,36 @@ public class HttpServer {
     public func listen(port: Int, notOnMainQueue: Bool=false) {
     
         self._port = port
-        self.listenSocket = Socket.create(.INET, type: .STREAM, proto: .TCP)
-        
-        let queuedBlock = {
-            self.spi.spiListen(self.listenSocket, port: self._port!)
-        }
-        
-        if  notOnMainQueue  {
-            HttpServer.listenerQueue!.queueAsync(queuedBlock)
-        }
-        else {
-            Queue.queueIfFirstOnMain(HttpServer.listenerQueue!, block: queuedBlock)
-        }
+		
+		do {
+			
+			self.listenSocket = try ETSocket.defaultConfigured()
+			
+		} catch let error as ETSocketError {
+			
+			print("Error reported:\n \(error.description)")
+				
+		} catch {
+			
+			print("Unexpected error...")
+		}
+		
+		let queuedBlock = {
+			self.spi.spiListen(self.listenSocket, port: self._port!)
+		}
+		
+		if  notOnMainQueue  {
+			HttpServer.listenerQueue!.queueAsync(queuedBlock)
+		}
+		else {
+			Queue.queueIfFirstOnMain(HttpServer.listenerQueue!, block: queuedBlock)
+		}
     }
 }
 
 
 extension HttpServer : HttpServerSpiDelegate {
-    func handleClientRequest(clientSocket: Socket) {
+    func handleClientRequest(clientSocket: ETSocket) {
         if  let d = delegate  {
             HttpServer.clientHandlerQueue!.queueAsync() {
                 let response = ServerResponse(socket: clientSocket)

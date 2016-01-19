@@ -7,11 +7,12 @@
 //
 
 import io
+import ETSocket
 
 import Foundation
 
-public class ServerResponse : Writer {
-    private var socket: Socket?
+public class ServerResponse : ETWriter {
+    private var socket: ETSocket?
     
     private var startFlushed = false
     
@@ -30,7 +31,7 @@ public class ServerResponse : Writer {
         }
     }
     
-    init(socket: Socket) {
+    init(socket: ETSocket) {
         self.socket = socket
         setHeader("Date", value: SpiUtils.httpDate())
     }

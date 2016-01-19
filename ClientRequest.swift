@@ -9,10 +9,11 @@
 import io
 import sys
 import CurlHelpers
+import ETSocket
 
 import Foundation
 
-public class ClientRequest: Writer {
+public class ClientRequest: ETWriter {
     
     static private var lock = 0
 
@@ -172,6 +173,7 @@ public class ClientRequest: Writer {
         }
         curlHelperSetOptHeaders(handle!, headersList)
     }
+	
 }
 
 extension ClientRequest: CurlInvokerDelegate {

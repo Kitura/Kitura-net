@@ -8,10 +8,12 @@
 
 import Foundation
 
+import ETSocket
+
 public class ServerRequest: IncomingMessage {
-    private var socket: Socket
+    private var socket: ETSocket
     
-    init (socket: Socket) {
+    init (socket: ETSocket) {
         self.socket = socket
         super.init(isRequest: true)
         

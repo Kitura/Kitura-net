@@ -8,10 +8,11 @@
 
 import io
 import sys
+import ETSocket
 
 import Foundation
 
-public class IncomingMessage : HttpParserDelegate, Reader {
+public class IncomingMessage : HttpParserDelegate, ETReader {
     
     private static let BUFFER_SIZE = 2000
     
