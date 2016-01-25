@@ -6,7 +6,6 @@
 //  Copyright © 2015 IBM. All rights reserved.
 //
 
-import io
 import ETSocket
 
 import Foundation

@@ -6,7 +6,6 @@
 //
 //
 
-import io
 import sys
 import CurlHelpers
 import ETSocket
