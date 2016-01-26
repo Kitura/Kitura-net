@@ -13,43 +13,43 @@ import ETSocket
 import Foundation
 
 public class ClientRequest: ETWriter {
-    
+
     static private var lock = 0
 
     public var headers = [String: String]()
-    
+
     private var url: String
     private var method: String = "get"
     private var userName: String? = nil
     private var password: String? = nil
-    
+
     private var maxRedirects = 10
     private var handle: UnsafeMutablePointer<Void>?
     private var headersList: UnsafeMutablePointer<curl_slist> = nil
     private var writeBuffers = BufferList()
-    
+
     private var response = ClientResponse()
     private var callback: ClientRequestCallback
-    
+
     init(url: String, callback: ClientRequestCallback) {
         self.url = url
         self.callback = callback
     }
-    
+
     init(options: [ClientRequestOptions], callback: ClientRequestCallback) {
         self.callback = callback
-        
-        var theProtocol = "http://"
+
+        var theSchema = "http://"
         var hostName = "localhost"
         var path = "/"
         var port:Int16 = 80
-        
+
         for  option in options  {
             switch(option) {
                 case .Method(let method):
                     self.method = method
-                case .Protocol(let prot):
-                    theProtocol = prot
+                case .Schema(let schema):
+                    theSchema = schema
                 case .Hostname(let host):
                     hostName = host
                 case .Port(let thePort):
@@ -68,10 +68,10 @@ public class ClientRequest: ETWriter {
                     self.maxRedirects = maxRedirects
             }
         }
-        
-        url = theProtocol + hostName + ":" + String(port) + path
+
+        url = theSchema + hostName + ":" + String(port) + path
     }
-    
+
     deinit {
         if  let handle = handle  {
             curl_easy_cleanup(handle)
@@ -80,37 +80,37 @@ public class ClientRequest: ETWriter {
             curl_slist_free_all(headersList)
         }
     }
-    
+
     public func writeString(str: String) {
         if  let data = StringUtils.toUtf8String(str)  {
             writeData(data)
         }
     }
-    
+
     public func writeData(data: NSData) {
         writeBuffers.appendData(data)
     }
-    
+
     public func end(data: String) {
         writeString(data)
         end()
     }
-    
+
     public func end(data: NSData) {
         writeData(data)
         end()
     }
-    
+
     public func end() {
         SysUtils.doOnce(&ClientRequest.lock) {
             curl_global_init(Int(CURL_GLOBAL_SSL))
         }
-        
+
         var callCallback = true
         let urlBuf = StringUtils.toNullTerminatedUtf8String(url)
         if  let _ = urlBuf {
             prepareHandle(urlBuf!)
-            
+
             let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
             invoker.delegate = self
 
@@ -123,18 +123,22 @@ public class ClientRequest: ETWriter {
                             case .Success:
                                 self.callback(response: self.response)
                                 callCallback = false
-                    
-                            default: break
+
+                            default:
+                                print("ClientRequest error. Failed to parse response. status=\(status)")
                         }
                     }
                 }
+            }
+            else {
+                print("ClientRequest Error. CURL Return code=\(code)")
             }
         }
         if  callCallback  {
             callback(response: nil)
         }
     }
-    
+
     private func prepareHandle(urlBuf: NSData) {
         handle = curl_easy_init()
         // HTTP parser does the decoding
@@ -147,7 +151,7 @@ public class ClientRequest: ETWriter {
         }
         setupHeaders()
     }
-    
+
     private func setMethod() {
         let methodUpperCase = method.uppercaseString
         switch(methodUpperCase) {
@@ -162,7 +166,7 @@ public class ClientRequest: ETWriter {
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
     }
-    
+
     private func setupHeaders() {
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
@@ -172,7 +176,7 @@ public class ClientRequest: ETWriter {
         }
         curlHelperSetOptHeaders(handle!, headersList)
     }
-	
+
 }
 
 extension ClientRequest: CurlInvokerDelegate {
@@ -180,12 +184,12 @@ extension ClientRequest: CurlInvokerDelegate {
         response.responseBuffers.appendBytes(UnsafePointer<UInt8>(buf), length: size)
         return size
     }
-    
+
     private func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         let count = writeBuffers.fillBuffer(UnsafeMutablePointer<UInt8>(buf), length: size)
         return count
     }
-    
+
     private func prepareForRedirect() {
         response.responseBuffers.reset()
         writeBuffers.rewind()
@@ -193,7 +197,7 @@ extension ClientRequest: CurlInvokerDelegate {
 }
 
 public enum ClientRequestOptions {
-    case Method(String), Protocol(String), Hostname(String), Port(Int16), Path(String),
+    case Method(String), Schema(String), Hostname(String), Port(Int16), Path(String),
     Headers([String: String]), Username(String), Password(String), MaxRedirects(Int)
 }
 
@@ -203,23 +207,23 @@ private class CurlInvoker {
     private var handle: UnsafeMutablePointer<Void>
     private weak var delegate: CurlInvokerDelegate? = nil
     private let maxRedirects: Int
-    
+
     private init(handle: UnsafeMutablePointer<Void>, maxRedirects: Int) {
         self.handle = handle
         self.maxRedirects = maxRedirects
     }
-    
+
     private func invoke() -> CURLcode {
         var rc: CURLcode = CURLE_FAILED_INIT
         if  let _ = delegate {
             withUnsafeMutablePointer(&delegate) {ptr in
                 self.prepareHandle(ptr)
-        
+
                 var redirected = false
                 var redirectCount = 0
                 repeat {
                     rc = curl_easy_perform(handle)
-        
+
                     if  rc == CURLE_OK  {
                         var redirectUrl: UnsafeMutablePointer<Int8> = nil
                         let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
@@ -242,15 +246,15 @@ private class CurlInvoker {
     }
 
     private func prepareHandle(ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
-        
+
         curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
-                    
+
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
                 return (p.memory?.curlReadCallback(buf, size: size*nMemb))!
         }
-                
+
         curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
-                    
+
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
                 return (p.memory?.curlWriteCallback(buf, size: size*nMemb))!
         }
@@ -262,4 +266,3 @@ private protocol CurlInvokerDelegate: class {
     func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func prepareForRedirect()
 }
-
