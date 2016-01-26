@@ -13,69 +13,69 @@ import ETSocket
 import Foundation
 
 public class IncomingMessage : HttpParserDelegate, ETReader {
-    
+
     private static let BUFFER_SIZE = 2000
-    
+
     public var httpVersionMajor: UInt16?
-    
+
     public var httpVersionMinor: UInt16?
-    
+
     public var headers = [String:String]()
-    
+
     public var rawHeaders = [String]()
-    
+
     public var method: String = "" // TODO: enum?
-    
+
     public var urlString = ""
-    
+
     public var url = NSMutableData()
-        
+
     // TODO: trailers
-    
+
     private var lastHeaderWasAValue = false
-    
+
     private var lastHeaderField = NSMutableData()
-    
+
     private var lastHeaderValue = NSMutableData()
-    
+
     private var httpParser: HttpParser?
-    
+
     private var status = Status.Initial
-    
+
     private var bodyChunk = BufferList()
-    
+
     private var helper: IncomingMessageHelper?
-    
+
     private var ioBuffer = NSMutableData(capacity: BUFFER_SIZE)
     private var buffer = NSMutableData(capacity: BUFFER_SIZE)
-    
-    
+
+
     private enum Status {
         case Initial
         case HeadersComplete
         case MessageComplete
         case Error
     }
-    
-    
+
+
     public enum HttpParserErrorType {
         case Success
         case ParsedLessThanRead
         case UnexpectedEOF
         case InternalError // TODO
     }
-    
-    
+
+
     init (isRequest: Bool) {
         httpParser = HttpParser(isRequest: isRequest)
         httpParser!.delegate = self
     }
-    
+
     func setup(helper: IncomingMessageHelper) {
         self.helper = helper
     }
-    
-    
+
+
     func parse (callback: (HttpParserErrorType) -> Void) {
         if let parser = httpParser where status == .Initial {
             while status == .Initial {
@@ -90,6 +90,7 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
                         else if (nparsed != length) {
                             /* Handle error. Usually just close the connection. */
                             freeHttpParser()
+                            status = .Error
                             callback(.ParsedLessThanRead)
                         }
                     }
@@ -97,10 +98,11 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
                 catch {
                     /* Handle error. Usually just close the connection. */
                     freeHttpParser()
+                    status = .Error
                     callback(.UnexpectedEOF)
                 }
             }
-            
+
             callback(.Success)
         }
         else {
@@ -108,8 +110,8 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
             callback(.InternalError)
         }
     }
-    
-    
+
+
     public func readData(data: NSMutableData) throws -> Int {
         var count = bodyChunk.fillData(data)
         if count == 0 {
@@ -146,8 +148,8 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
         }
         return count
     }
-    
-    
+
+
     public func readString() throws -> String? {
         buffer!.length = 0
         let length = try readData(buffer!)
@@ -158,19 +160,19 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
             return nil
         }
     }
-    
-    
+
+
     private func freeHttpParser () {
         httpParser?.delegate = nil
         httpParser = nil
     }
-    
-    
+
+
     func onUrl(data: NSData) {
         url.appendData(data)
     }
-    
-    
+
+
     func onHeaderField (data: NSData) {
         if lastHeaderWasAValue {
             addHeader()
@@ -178,56 +180,56 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
         lastHeaderField.appendData(data)
         lastHeaderWasAValue = false
     }
-    
-    
+
+
     func onHeaderValue (data: NSData) {
         lastHeaderValue.appendData(data)
         lastHeaderWasAValue = true
     }
-    
+
     private func addHeader() {
         let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
         let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
-        
+
         rawHeaders.append(headerKey)
         rawHeaders.append(headerValue)
         headers[headerKey] = headerValue
-        
+
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
     }
-    
-    
+
+
     func onBody (data: NSData) {
         self.bodyChunk.appendData(data)
     }
-    
-    
+
+
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16) {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
-        
+
         if  lastHeaderWasAValue  {
             addHeader()
         }
-        
+
         status = .HeadersComplete
     }
-    
-    
+
+
     func onMessageBegin() {
     }
-    
-    
+
+
     func onMessageComplete() {
         status = .MessageComplete
         freeHttpParser()
     }
-    
+
     func reset() {
     }
-    
+
 }
 
 protocol IncomingMessageHelper {
