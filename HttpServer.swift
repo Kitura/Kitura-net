@@ -71,6 +71,7 @@ public class HttpServer {
     public func stop() {
         if let socket = listenSocket {
             socket.close()
+            print("is closed")
         }
     }
 }
