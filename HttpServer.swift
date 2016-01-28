@@ -67,6 +67,12 @@ public class HttpServer {
 			Queue.queueIfFirstOnMain(HttpServer.listenerQueue!, block: queuedBlock)
 		}
     }
+
+    public func stop() {
+        if let socket = listenSocket {
+            socket.close()
+        }
+    }
 }
 
 
