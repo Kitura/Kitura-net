@@ -11,7 +11,7 @@ import Foundation
 import ETSocket
 
 public class ServerRequest: IncomingMessage {
-    private var socket: ETSocket
+    private let socket: ETSocket
     
     init (socket: ETSocket) {
         self.socket = socket
