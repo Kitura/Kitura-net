@@ -69,7 +69,15 @@ public class ClientRequest: ETWriter {
             }
         }
 
-        url = theSchema + hostName + ":" + String(port) + path
+        // Adding support for Basic HTTP authentication
+        let user = self.userName != nil ? self.userName! : ""
+        let pwd = self.password != nil ? self.password! : ""
+        var authenticationClause = ""
+        if (!user.isEmpty && !pwd.isEmpty) {
+          authenticationClause = "\(user):\(pwd)@"
+        }
+        let portNumber = String(port)
+        url = "\(theSchema)\(authenticationClause)\(hostName):\(portNumber)\(path)"
     }
 
     deinit {
