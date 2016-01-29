@@ -74,6 +74,14 @@ public class HttpServer {
             print("is closed")
         }
     }
+
+    public static func listen(port: Int, delegate: HttpServerDelegate, notOnMainQueue: Bool=false) -> HttpServer {
+        let server = Http.createServer()
+        server.delegate = delegate
+        server.listen(port, notOnMainQueue: notOnMainQueue)
+        return server
+
+    }
 }
 
 
