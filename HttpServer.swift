@@ -67,7 +67,6 @@ public class HttpServer {
         server.delegate = delegate
         server.listen(port, notOnMainQueue: notOnMainQueue)
         return server
-
     }
 }
 
