@@ -12,8 +12,8 @@ import ETSocket
 public class HttpServer {
     
     private static var onceLock : Int = 0
-    private static var listenerQueue: Queue?
-    private static var clientHandlerQueue: Queue?
+    private static var listenerQueue = Queue(type: .PARALLEL, label: "HttpServer.listenerQueue")
+    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHAndlerQueue")
 
     
     public weak var delegate: HttpServerDelegate?
@@ -29,31 +29,18 @@ public class HttpServer {
     
     public init() {
         spi = HttpServerSpi()
-        
         spi.delegate = self
-        
-        SysUtils.doOnce(&HttpServer.onceLock) {
-            HttpServer.listenerQueue = Queue(type: .PARALLEL, label: "HttpServer.listenerQueue")
-            HttpServer.clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHAndlerQueue")
-        }
     }
-    
-    
+
     public func listen(port: Int, notOnMainQueue: Bool=false) {
-    
         self._port = port
 		
 		do {
-			
 			self.listenSocket = try ETSocket.defaultConfigured()
-			
 		} catch let error as ETSocketError {
-			
 			print("Error reported:\n \(error.description)")
-				
 		} catch {
-			
-			print("Unexpected error...")
+            print("Unexpected error...")
 		}
 		
 		let queuedBlock = {
@@ -61,10 +48,10 @@ public class HttpServer {
 		}
 		
 		if  notOnMainQueue  {
-			HttpServer.listenerQueue!.queueAsync(queuedBlock)
+			HttpServer.listenerQueue.queueAsync(queuedBlock)
 		}
 		else {
-			Queue.queueIfFirstOnMain(HttpServer.listenerQueue!, block: queuedBlock)
+			Queue.queueIfFirstOnMain(HttpServer.listenerQueue, block: queuedBlock)
 		}
     }
 
@@ -87,14 +74,14 @@ public class HttpServer {
 
 extension HttpServer : HttpServerSpiDelegate {
     func handleClientRequest(clientSocket: ETSocket) {
-        if  let d = delegate  {
-            HttpServer.clientHandlerQueue!.queueAsync() {
+        if  let delegate = delegate  {
+            HttpServer.clientHandlerQueue.queueAsync() {
                 let response = ServerResponse(socket: clientSocket)
                 let request = ServerRequest(socket: clientSocket)
                 request.parse() { status in
                     switch status {
                     case .Success:
-                        d.handleRequest(request, response: response)
+                        delegate.handleRequest(request, response: response)
                     case .ParsedLessThanRead:
                         print("ParsedLessThanRead")
                     case .UnexpectedEOF:

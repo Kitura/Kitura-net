@@ -24,8 +24,8 @@ public class ServerResponse : ETWriter {
             return HttpStatusCode(rawValue: status)
         }
         set (newValue) {
-            if  !startFlushed  &&  newValue != nil {
-                status = newValue!.rawValue
+            if let newValue = newValue where !startFlushed {
+                status = newValue.rawValue
             }
         }
     }
@@ -59,16 +59,16 @@ public class ServerResponse : ETWriter {
     }
     
     public func writeString(text: String) throws {
-        if  let s = socket {
+        if  let socket = socket {
             try flushStart()
-            try s.writeString(text)
+            try socket.writeString(text)
         }
     }
     
     public func writeData(data: NSData) throws {
-        if  let s = socket {
+        if  let socket = socket {
             try flushStart()
-            try s.writeData(data)
+            try socket.writeData(data)
         }
     }
     
@@ -78,42 +78,42 @@ public class ServerResponse : ETWriter {
     }
     
     public func end() throws {
-        if  let s = socket {
+        if  let socket = socket {
             try flushStart()
-            s.close()
-            socket = nil
+            socket.close()
         }
+        socket = nil
     }
     
     private func flushStart() throws {
-        if  !startFlushed  {
+        if  let socket = socket where !startFlushed  {
             
-            try socket!.writeString("HTTP/1.1 ")
-            try socket!.writeString(String(status))
-            try socket!.writeString(" ")
+            try socket.writeString("HTTP/1.1 ")
+            try socket.writeString(String(status))
+            try socket.writeString(" ")
             var statusText = Http.statusCodes[status]
             if  statusText == nil {
                 statusText = ""
             }
-            try socket!.writeString(statusText!)
-            try socket!.writeString("\r\n")
+            try socket.writeString(statusText!)
+            try socket.writeString("\r\n")
             
             for (key, value) in singleHeaders {
-                try socket!.writeString(key)
-                try socket!.writeString(": ")
-                try socket!.writeString(value)
-                try socket!.writeString("\r\n")
+                try socket.writeString(key)
+                try socket.writeString(": ")
+                try socket.writeString(value)
+                try socket.writeString("\r\n")
             }
             for (key, valueSet) in multiHeaders {
                 for value in valueSet {
-                    try socket!.writeString(key)
-                    try socket!.writeString(": ")
-                    try socket!.writeString(value)
-                    try socket!.writeString("\r\n")
+                    try socket.writeString(key)
+                    try socket.writeString(": ")
+                    try socket.writeString(value)
+                    try socket.writeString("\r\n")
                 }
             }
             
-            try socket!.writeString("\r\n")
+            try socket.writeString("\r\n")
             
             startFlushed = true
         }
