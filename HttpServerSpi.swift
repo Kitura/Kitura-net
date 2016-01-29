@@ -7,40 +7,30 @@
 //
 
 import ETSocket
+import utils
 
 class HttpServerSpi {
     
     weak var delegate: HttpServerSpiDelegate?
 
     func spiListen(socket: ETSocket?, port: Int) {
-		
 		do {
-			
-			if  let s = socket, let d = delegate {
-				
-				try s.listenOn(port)
-				
-				print("Listening on port \(port)")
+			if  let socket = socket, let delegate = delegate {
+				try socket.listenOn(port)
+				Logger.info("Listening on port \(port)")
 				
 				// TODO: Figure out a way to shutdown the server...
 				repeat {
-				
-					let clientSocket = try s.acceptConnectionAndKeepListening()
-				
-					print("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
+					let clientSocket = try socket.acceptConnectionAndKeepListening()
+					Logger.info("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
 					
-					d.handleClientRequest(clientSocket)
-				
+					delegate.handleClientRequest(clientSocket)
 				} while true
 			}
-			
 		} catch let error as ETSocketError {
-			
-			print("Error reported:\n \(error.description)")
-			
+			Logger.error("Error reported:\n \(error.description)")
 		} catch {
-			
-			print("Unexpected error...")
+			Logger.error("Unexpected error...")
 		}
     }
 }
