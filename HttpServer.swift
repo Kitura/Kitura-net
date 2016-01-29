@@ -57,7 +57,6 @@ public class HttpServer {
     public func stop() {
         if let socket = listenSocket {
             socket.close()
-            print("is closed")
         }
     }
 
@@ -82,6 +81,13 @@ extension HttpServer : HttpServerSpiDelegate {
                         delegate.handleRequest(request, response: response)
                     case .ParsedLessThanRead:
                         print("ParsedLessThanRead")
+                        response.statusCode = .BAD_REQUEST
+                        do {
+                            try response.end()
+                        }
+                        catch {
+                            // handle error in connection
+                        }
                     case .UnexpectedEOF:
                         print("UnexpectedEOF")
                     case .InternalError:

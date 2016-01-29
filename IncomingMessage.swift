@@ -102,8 +102,9 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
                     callback(.UnexpectedEOF)
                 }
             }
-
-            callback(.Success)
+            if status != .Error {
+                callback(.Success)
+            }
         }
         else {
             freeHttpParser()
