@@ -11,7 +11,6 @@ import ETSocket
 
 public class HttpServer {
     
-    private static var onceLock : Int = 0
     private static var listenerQueue = Queue(type: .PARALLEL, label: "HttpServer.listenerQueue")
     private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHAndlerQueue")
 
