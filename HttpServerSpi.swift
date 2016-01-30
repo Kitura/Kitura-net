@@ -7,7 +7,7 @@
 //
 
 import ETSocket
-import utils
+import Logger
 
 class HttpServerSpi {
     
