@@ -7,7 +7,7 @@
 //
 
 import ETSocket
-import Logger
+import HeliumLogger
 
 class HttpServerSpi {
     
