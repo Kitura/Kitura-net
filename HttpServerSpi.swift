@@ -17,20 +17,20 @@ class HttpServerSpi {
 		do {
 			if  let socket = socket, let delegate = delegate {
 				try socket.listenOn(port)
-				Logger.info("Listening on port \(port)")
+				Log.info("Listening on port \(port)")
 				
 				// TODO: Figure out a way to shutdown the server...
 				repeat {
 					let clientSocket = try socket.acceptConnectionAndKeepListening()
-					Logger.info("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
+					Log.info("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
 					
 					delegate.handleClientRequest(clientSocket)
 				} while true
 			}
 		} catch let error as ETSocketError {
-			Logger.error("Error reported:\n \(error.description)")
+			Log.error("Error reported:\n \(error.description)")
 		} catch {
-			Logger.error("Unexpected error...")
+			Log.error("Unexpected error...")
 		}
     }
 }
