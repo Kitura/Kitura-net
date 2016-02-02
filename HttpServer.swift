@@ -41,7 +41,7 @@ public class HttpServer {
 		} catch {
             print("Unexpected error...")
 		}
-		
+
 		let queuedBlock = {
 			self.spi.spiListen(self.listenSocket, port: self._port!)
 		}
@@ -55,8 +55,9 @@ public class HttpServer {
     }
 
     public func stop() {
-        if let socket = listenSocket {
-            socket.close()
+        spi.stop = true
+        if let listenSocket = listenSocket {
+            listenSocket.close()
         }
     }
 

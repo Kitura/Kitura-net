@@ -19,7 +19,7 @@ class HttpServerSpi {
 				try socket.listenOn(port)
 				Log.info("Listening on port \(port)")
 				
-				// TODO: Figure out a way to shutdown the server...
+				// TODO: Change server exit to not rely on error being thrown
 				repeat {
 					let clientSocket = try socket.acceptConnectionAndKeepListening()
 					Log.info("Accepted connection from: \(clientSocket.remoteHostName) on port \(clientSocket.remotePort)")
