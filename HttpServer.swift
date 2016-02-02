@@ -55,7 +55,6 @@ public class HttpServer {
     }
 
     public func stop() {
-        spi.stop = true
         if let listenSocket = listenSocket {
             listenSocket.close()
         }
