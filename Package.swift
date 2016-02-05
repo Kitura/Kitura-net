@@ -18,14 +18,13 @@ import PackageDescription
 
 let package = Package(
     name: "net",
-        dependencies: [
-            .Package(url: "git@github.ibm.com:ibmswift/ETSocket.git", majorVersion: 1),
-            .Package(url: "git@github.ibm.com:ibmswift/HeliumLogger.git", majorVersion: 1),
-            .Package(url: "git@github.ibm.com:ibmswift/PhoenixCurlHelpers.git", majorVersion: 1),
-            .Package(url: "git@github.ibm.com:ibmswift/PhoenixHttpParserHelper.git", majorVersion: 1),
-        ],
-    testDependencies: [
-        .Package(url: "git@github.ibm.com:ibmswift/PhoenixTestFramework.git", majorVersion: 0)
-        ]
+    dependencies: [
+        .Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 1),
+        .Package(url: "https://github.com/IBM-Swift/ETSocket.git", majorVersion: 1),
+        .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git", majorVersion: 1),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 1),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 1),
+    ]
+    
 )
 
