@@ -15,7 +15,7 @@
  **/
 
 import BlueSocket
-import HeliumLogger
+import LoggerAPI
 
 class HttpServerSpi {
     
