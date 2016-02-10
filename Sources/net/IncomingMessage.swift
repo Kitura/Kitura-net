@@ -52,7 +52,7 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
 
     private var bodyChunk = BufferList()
 
-    private var helper: IncomingMessageHelper?
+    private weak var helper: IncomingMessageHelper?
 
     private var ioBuffer = NSMutableData(capacity: BUFFER_SIZE)
     private var buffer = NSMutableData(capacity: BUFFER_SIZE)
@@ -241,6 +241,6 @@ public class IncomingMessage : HttpParserDelegate, ETReader {
 
 }
 
-protocol IncomingMessageHelper {
+protocol IncomingMessageHelper: class {
     func readDataHelper(data: NSMutableData) throws -> Int
 }
