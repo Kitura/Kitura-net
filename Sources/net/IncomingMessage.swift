@@ -20,7 +20,7 @@ import BlueSocket
 
 import Foundation
 
-public class IncomingMessage : HttpParserDelegate, ETReader {
+public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
 
     private static let BUFFER_SIZE = 2000
 

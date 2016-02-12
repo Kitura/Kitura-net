@@ -32,7 +32,7 @@ public class HttpServer {
         get { return _port }
     }
     
-    private var listenSocket: ETSocket?
+    private var listenSocket: BlueSocket?
     
     public init() {
         spi = HttpServerSpi()
@@ -43,8 +43,8 @@ public class HttpServer {
         self._port = port
 		
 		do {
-			self.listenSocket = try ETSocket.defaultConfigured()
-		} catch let error as ETSocketError {
+			self.listenSocket = try BlueSocket.defaultConfigured()
+		} catch let error as BlueSocketError {
 			print("Error reported:\n \(error.description)")
 		} catch {
             print("Unexpected error...")
@@ -79,7 +79,7 @@ public class HttpServer {
 
 
 extension HttpServer : HttpServerSpiDelegate {
-    func handleClientRequest(clientSocket: ETSocket) {
+    func handleClientRequest(clientSocket: BlueSocket) {
         if  let delegate = delegate  {
             HttpServer.clientHandlerQueue.queueAsync() {
                 let response = ServerResponse(socket: clientSocket)

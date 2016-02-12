@@ -19,9 +19,9 @@ import Foundation
 import BlueSocket
 
 public class ServerRequest: IncomingMessage {
-    private let socket: ETSocket
+    private let socket: BlueSocket
     
-    init (socket: ETSocket) {
+    init (socket: BlueSocket) {
         self.socket = socket
         super.init(isRequest: true)
         

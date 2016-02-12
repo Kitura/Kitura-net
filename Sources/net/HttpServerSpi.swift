@@ -22,7 +22,7 @@ class HttpServerSpi {
     weak var delegate: HttpServerSpiDelegate?
     var stopped = false
 
-    func spiListen(socket: ETSocket?, port: Int) {
+    func spiListen(socket: BlueSocket?, port: Int) {
 		do {
 			if  let socket = socket, let delegate = delegate {
 				try socket.listenOn(port)
@@ -36,7 +36,7 @@ class HttpServerSpi {
 					delegate.handleClientRequest(clientSocket)
 				} while true
 			}
-		} catch let error as ETSocketError {
+		} catch let error as BlueSocketError {
             if stopped && error.errorCode == -9994 {
                 Log.info("Server has stopped listening")
             }
@@ -50,5 +50,5 @@ class HttpServerSpi {
 }
 
 protocol HttpServerSpiDelegate: class {
-	func handleClientRequest(socket: ETSocket)
+	func handleClientRequest(socket: BlueSocket)
 }

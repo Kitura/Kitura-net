@@ -20,7 +20,7 @@ import BlueSocket
 
 import Foundation
 
-public class ClientRequest: ETWriter {
+public class ClientRequest: BlueSocketWriter {
 
     static private var lock = 0
 

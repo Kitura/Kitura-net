@@ -18,8 +18,8 @@ import BlueSocket
 
 import Foundation
 
-public class ServerResponse : ETWriter {
-    private var socket: ETSocket?
+public class ServerResponse : BlueSocketWriter {
+    private var socket: BlueSocket?
     
     private var startFlushed = false
     
@@ -38,7 +38,7 @@ public class ServerResponse : ETWriter {
         }
     }
     
-    init(socket: ETSocket) {
+    init(socket: BlueSocket) {
         self.socket = socket
         setHeader("Date", value: SpiUtils.httpDate())
     }
