@@ -20,6 +20,7 @@ import LoggerAPI
 class HttpServerSpi {
     
     weak var delegate: HttpServerSpiDelegate?
+    var stopped = false
 
     func spiListen(socket: ETSocket?, port: Int) {
 		do {
@@ -36,7 +37,12 @@ class HttpServerSpi {
 				} while true
 			}
 		} catch let error as ETSocketError {
-			Log.error("Error reported:\n \(error.description)")
+            if stopped && error.errorCode == -9994 {
+                Log.info("Server has stopped listening")
+            }
+            else {
+                Log.error("Error reported:\n \(error.description)")
+            }
 		} catch {
 			Log.error("Unexpected error...")
 		}
