@@ -18,24 +18,50 @@ import sys
 import http_parser_helper
 import Foundation
 
+// MARK: HttpParser
+
 class HttpParser {
     
+    ///
+    /// A Handle to the HttpParser C-library
+    ///
     var parser: http_parser
+    
+    ///
+    /// Settings used for HttpParser
+    ///
     var settings: http_parser_settings
     
+    ///
+    /// Delegate used for the parsing
+    ///
     var delegate: HttpParserDelegate? {
+        
         didSet {
             if let _ = delegate {
-                withUnsafeMutablePointer(&delegate) { ptr in
+                withUnsafeMutablePointer(&delegate) {
+                    ptr in
                     self.parser.data = UnsafeMutablePointer<Void>(ptr)
                 }
             }
         }
+        
     }
     
+    ///
+    /// Whether to upgrade the HTTP connection to HTTP 1.1
+    ///
     var upgrade = 1
 
+    ///
+    /// Initializes a HttpParser instance
+    ///
+    /// - Parameter isRequest: whether or not this HTTP message is a request
+    ///
+    /// - Returns: an HttpParser instance
+    ///
     init(isRequest: Bool) {
+        
         parser = http_parser()
         settings = http_parser_settings()
 
@@ -79,7 +105,8 @@ class HttpParser {
                 message += String(UnicodeScalar(UInt8((po+i).memory)))
                 i += 1
             }
-            p.memory?.onHeadersComplete(message, versionMajor: parser.memory.http_major, versionMinor: parser.memory.http_minor)
+            p.memory?.onHeadersComplete(message, versionMajor: parser.memory.http_major,
+                versionMinor: parser.memory.http_minor)
             
             return 0
         }
@@ -107,7 +134,14 @@ class HttpParser {
 
     }
     
-    
+    ///
+    /// Executes the parsing on the byte array
+    ///
+    /// - Parameter data: pointer to a byte array
+    /// - Parameter length: length of the byte array
+    ///
+    /// - Returns: ???
+    ///
     func execute (data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
         let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
@@ -115,8 +149,11 @@ class HttpParser {
     }    
 }
 
-
+///
+/// Delegate protocol for HTTP parsing stages
+///
 protocol HttpParserDelegate: class {
+    
     func onUrl(url:NSData)
     func onHeaderField(data: NSData)
     func onHeaderValue(data: NSData)
@@ -125,4 +162,5 @@ protocol HttpParserDelegate: class {
     func onMessageComplete()
     func onBody(body: NSData)
     func reset()
+    
 }

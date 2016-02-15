@@ -25,19 +25,55 @@ import Foundation
     import Darwin
 #endif
 
+// MARK: UrlParser
+
 public class UrlParser : CustomStringConvertible {
 
+    /// 
+    /// Schema
+    ///
     public var schema: String?
+
+    /// 
+    /// Hostname
+    ///
     public var host: String?
+    
+    ///
+    /// Routing path
+    ///
     public var path: String?
+    
+    ///
+    /// TODO: ???
+    ///
     public var query: String?
+    
+    ///
+    /// TODO: ???
+    ///
     public var fragment: String?
+    
+    ///
+    /// TODO: ???
+    ///
     public var userinfo: String?
+    
+    ///
+    /// TODO: ???
+    ///
     public var port: UInt16?
+    
+    ///
+    /// TODO: ???
+    ///
     public var queryParams: [String:String] = [:]
     
-    
+    ///
+    /// Nicely formatted description of the parsed result
+    ///
     public var description: String {
+        
         var desc = ""
         
         if let schema = schema {
@@ -67,10 +103,19 @@ public class UrlParser : CustomStringConvertible {
     }
     
     
+    ///
+    /// Initializes a new UrlParser instance
+    ///
+    /// - Parameter url: url to be parsed
+    /// - Parameter isConnect: whether or not a connection has been established
+    ///
     public init (url: NSData, isConnect: Bool) {
+        
         var parsedUrl = http_parser_url_url()
         memset(&parsedUrl, 0, sizeof(http_parser_url))
+        
         if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedUrl) == 0 {
+            
             let (s, h, ps, p, q, f, u) = parsedUrl.field_data
             schema = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
             host = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
@@ -85,25 +130,37 @@ public class UrlParser : CustomStringConvertible {
             }
             
             if let query = query {
+                
                 let pairs = query.bridge().componentsSeparatedByString("&")
                 for pair in pairs {
+                    
                     let pairArr = pair.bridge().componentsSeparatedByString("=")
                     if pairArr.count == 2 {
                         queryParams[pairArr[0]] = pairArr[1]
                     }
+                    
                 }
+                
             }
         }
     }
     
-    private func getValueFromUrl(url: NSData, fieldSet: UInt16, fieldIndex: UInt16, fieldData: http_parser_url_field_data) -> String? {
+    ///
+    /// TODO: ???
+    ///
+    ///
+    private func getValueFromUrl(url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
+        fieldData: http_parser_url_field_data) -> String? {
+        
         if fieldSet & (1 << fieldIndex) != 0 {
             let start = Int(fieldData.off)
             let length = Int(fieldData.len)
             let data = NSData(bytes: UnsafeMutablePointer<UInt8>(url.bytes)+start, length: length)
             return StringUtils.fromUtf8String(data)
         }
+        
         return nil
+        
     }
 
 }
