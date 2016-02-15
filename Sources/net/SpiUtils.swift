@@ -21,12 +21,28 @@
     import Glibc
 #endif
 
+// MARK: SpiUtils
+
 class SpiUtils {
     
-    private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "jul", "Aug", "sep", "Oct", "Nov", "Dec"]
+    ///
+    /// Abbreviations for month names
+    ///
+    private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "jul", "Aug", "sep", "Oct", "Nov", "Dec"]
+    
+    ///
+    /// Abbreviations for days of the week
+    ///
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
+    ///
+    /// Format the current time for use in HTTP
+    ///
+    /// - Returns: string representation of timestamp
+    ///
     static func httpDate() -> String {
+        
         var theTime = time(nil)
         var timeStruct: tm = tm()
         gmtime_r(&theTime, &timeStruct)
@@ -38,9 +54,17 @@ class SpiUtils {
         let min = Int(timeStruct.tm_min)
         let sec = Int(timeStruct.tm_sec)
         return "\(days[wday]), \(twoDigit(mday)) \(months[mon]) \(timeStruct.tm_year+1900) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
+        
     }
     
+    ///
+    /// Prepends a zero to a 2 digit number if necessary
+    ///
+    /// - Parameter num: the number
+    ///
     private static func twoDigit(num: Int) -> String {
+        
         return (num < 10 ? "0" : "") + String(num)
+        
     }
 }

@@ -18,10 +18,22 @@ import Foundation
 
 import BlueSocket
 
+// MARK: ServerRequest
+
 public class ServerRequest: IncomingMessage {
+
+    ///
+    /// Socket for the request
+    ///
     private let socket: BlueSocket
     
+    ///
+    /// Initializes a ServerRequest
+    ///
+    /// - Parameter socket: the socket 
+    ///
     init (socket: BlueSocket) {
+        
         self.socket = socket
         super.init(isRequest: true)
         
@@ -29,8 +41,16 @@ public class ServerRequest: IncomingMessage {
     }
 }
 
+/// IncomingMessageHelper protocol extension
 extension ServerRequest: IncomingMessageHelper {
+    
+    ///
+    /// TODO: ???
+    ///
     func readDataHelper(data: NSMutableData) throws -> Int {
+        
         return try socket.readData(data)
+        
     }
+    
 }
