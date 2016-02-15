@@ -17,25 +17,60 @@
 
 import Foundation
 
+// MARK: ClientResponse
+
 public class ClientResponse: IncomingMessage {
     
+    ///
+    /// Initializes a ClientResponse instance
+    ///
+    /// - Returns: a ClientResponse instance
+    ///
     init() {
+        
         super.init(isRequest: false)
         setup(self)
+        
     }
     
+    ///
+    /// HTTP Status code
+    ///
     public internal(set) var status = -1 {
+        
         didSet {
             statusCode = HttpStatusCode(rawValue: status)!
         }
+        
     }
+    
+    /// 
+    /// HTTP Status code
     public internal(set) var statusCode: HttpStatusCode = HttpStatusCode.UNKNOWN
+    
+    ///
+    /// BufferList instance for storing the response 
+    ///
     var responseBuffers = BufferList()
     
 }
 
+
+// MARK: protocol extension for IncomingMessageHelper
+
 extension ClientResponse: IncomingMessageHelper {
+    
+    ///
+    ///  Calls the response buffer to fill the buffer with data
+    ///
+    /// - Parameter data: data to be stored in the buffer
+    ///
+    /// - Returns: ???
+    ///
     func readDataHelper(data: NSMutableData) -> Int {
+        
         return responseBuffers.fillData(data)
+        
     }
+    
 }
