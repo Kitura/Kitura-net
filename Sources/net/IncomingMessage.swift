@@ -184,6 +184,12 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
                             callback(.ParsedLessThanRead)
                         }
                     }
+                    else {
+                        /* Handle unexpected EOF. Usually just close the connection. */
+                        freeHttpParser()
+                        status = .Error
+                        callback(.UnexpectedEOF)
+                    }
                 }
                 catch {
                     /* Handle error. Usually just close the connection. */
