@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-import sys
+import KituraSys
 import http_parser_helper
 
 import Foundation

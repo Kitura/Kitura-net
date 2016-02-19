@@ -14,18 +14,18 @@
  * limitations under the License.
  **/
 
-import sys
+import KituraSys
 import BlueSocket
 
 // MARK: HttpServer
 
 public class HttpServer {
 
-    /// 
+    ///
     /// Queue for listening and establishing new connections
     ///
     private static var listenerQueue = Queue(type: .PARALLEL, label: "HttpServer.listenerQueue")
-    
+
     ///
     /// Queue for handling client requests
     ///

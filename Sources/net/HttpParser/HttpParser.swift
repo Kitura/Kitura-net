@@ -14,29 +14,29 @@
  * limitations under the License.
  **/
 
-import sys
+import KituraSys
 import http_parser_helper
 import Foundation
 
 // MARK: HttpParser
 
 class HttpParser {
-    
+
     ///
     /// A Handle to the HttpParser C-library
     ///
     var parser: http_parser
-    
+
     ///
     /// Settings used for HttpParser
     ///
     var settings: http_parser_settings
-    
+
     ///
     /// Delegate used for the parsing
     ///
     var delegate: HttpParserDelegate? {
-        
+
         didSet {
             if let _ = delegate {
                 withUnsafeMutablePointer(&delegate) {
