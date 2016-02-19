@@ -17,7 +17,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "net",
+    name: "KituraNet",
     dependencies: [
         //.Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 0),
         .Package(url: "git@github.com:IBM-Swift/Kitura-sys.git", majorVersion: 0),
@@ -31,4 +31,3 @@ let package = Package(
         .Package(url: "git@github.com:IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
     ]
 )
-
