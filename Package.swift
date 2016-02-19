@@ -19,15 +19,15 @@ import PackageDescription
 let package = Package(
     name: "KituraNet",
     dependencies: [
-        //.Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 0),
-        .Package(url: "git@github.com:IBM-Swift/Kitura-sys.git", majorVersion: 0),
-        //.Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0),
-        .Package(url: "git@github.com:IBM-Swift/BlueSocket.git", majorVersion: 0),
-        //.Package(url: "https://github.com/IBM-Swift/LoggerAPI.git", majorVersion: 0),
-        .Package(url: "git@github.com:IBM-Swift/LoggerAPI.git", majorVersion: 0),
-        //.Package(url: "https://github.com/IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 0),
-        .Package(url: "git@github.com:IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 0),
-        //.Package(url: "https://github.com/IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
-        .Package(url: "git@github.com:IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 0),
+        //.Package(url: "git@github.com:IBM-Swift/Kitura-sys.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0),
+        //.Package(url: "git@github.com:IBM-Swift/BlueSocket.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/LoggerAPI.git", majorVersion: 0),
+        //.Package(url: "git@github.com:IBM-Swift/LoggerAPI.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 0),
+        //.Package(url: "git@github.com:IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
+        //.Package(url: "git@github.com:IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
     ]
 )
