@@ -16,18 +16,16 @@
 
 #import <Cocoa/Cocoa.h>
 
-//! Project version number for net.
-FOUNDATION_EXPORT double netVersionNumber;
+//! Project version number for KituraNet.
+FOUNDATION_EXPORT double KituraNetVersionNumber;
 
-//! Project version string for net.
-FOUNDATION_EXPORT const unsigned char netVersionString[];
+//! Project version string for KituraNet.
+FOUNDATION_EXPORT const unsigned char KituraNetVersionString[];
 
-// In this header, you should import all the public headers of your framework using statements like #import <net/PublicHeader.h>
+// In this header, you should import all the public headers of your framework using statements like #import <KituraNet/PublicHeader.h>
 
 #import "http_parser.h"
 
 #import "utils.h"
 
 #import "CurlHelpers.h"
-
-
