@@ -29,7 +29,7 @@ class SpiUtils {
     /// Abbreviations for month names
     ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "jul", "Aug", "sep", "Oct", "Nov", "Dec"]
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
     ///
     /// Abbreviations for days of the week
