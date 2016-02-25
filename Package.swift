@@ -17,17 +17,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "KituraNet",
+    name: "Kitura-net",
     dependencies: [
         .Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", versions: Version(0,3,0)..<Version(0,4,0)),
-        //.Package(url: "git@github.com:IBM-Swift/Kitura-sys.git", majorVersion: 0),
         .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0),
-        //.Package(url: "git@github.com:IBM-Swift/BlueSocket.git", majorVersion: 0),
         .Package(url: "https://github.com/IBM-Swift/LoggerAPI.git", versions: Version(0,2,0)..<Version(0,3,0)),
-        //.Package(url: "git@github.com:IBM-Swift/LoggerAPI.git", majorVersion: 0),
         .Package(url: "https://github.com/IBM-Swift/Kitura-CurlHelpers.git", versions: Version(0,2,0)..<Version(0,3,0)),
-        //.Package(url: "git@github.com:IBM-Swift/Kitura-CurlHelpers.git", majorVersion: 0),
-        .Package(url: "https://github.com/IBM-Swift/Kitura-HttpParserHelper.git", versions: Version(0,2,0)..<Version(0,3,0)),
-        //.Package(url: "git@github.com:IBM-Swift/Kitura-HttpParserHelper.git", majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/Kitura-HttpParserHelper.git", versions: Version(0,2,0)..<Version(0,3,0))
     ]
 )
