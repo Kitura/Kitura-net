@@ -28,7 +28,7 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME),Darwin)
 CLANG_EXTRA=-mmacosx-version-min=10.10
-EXTRA_LINK=
+EXTRA_LINK= -Xlinker -L/usr/local/lib
 else
 CLANG_EXTRA=
 EXTRA_LINK=-Xlinker -ldispatch
@@ -41,7 +41,7 @@ setup:
 
 kitura: $(BUILD_DIR)/libcurlHelpers.a $(BUILD_DIR)/libhttpParserHelper.a 
 # Runs the swift build for the right system 
-	swift build -Xcc -fblocks -Xlinker -L${BUILD_DIR} ${EXTRA_LINK}
+	swift build -Xcc -fblocks -Xswiftc -I${INCLUDE_DIR} -Xlinker -L${BUILD_DIR} ${EXTRA_LINK}
 
 $(BUILD_DIR)/libcurlHelpers.a:
 	clang -c -fPIC ${CLANG_EXTRA} ${CURL_MODULE}/CurlHelpers.c -o ${BUILD_DIR}/CurlHelpers.o
@@ -62,5 +62,3 @@ clean:
 	mkdir ${BUILD_DIR}
 
 .PHONY: clean
-
-
