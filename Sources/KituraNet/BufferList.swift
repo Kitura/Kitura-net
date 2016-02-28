@@ -88,7 +88,7 @@ public class BufferList {
     public func fillArray(inout buffer: [UInt8]) -> Int {
         
         let result = min(buffer.count, lclData!.length-byteIndex)
-        memcpy(UnsafeMutablePointer<UInt8>(buffer), lclData!.bytes+byteIndex, result)
+        memcpy(UnsafeMutablePointer<UInt8>(buffer), lclData!.bytes+byteIndex, UInt(result))
         byteIndex += result
         
         return result
@@ -106,7 +106,7 @@ public class BufferList {
     public func fillBuffer(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
         
         let result = min(length, lclData!.length-byteIndex)
-        memcpy(buffer, lclData!.bytes+byteIndex, result)
+        memcpy(buffer, lclData!.bytes+byteIndex, UInt(result))
         byteIndex += result
         
         return result
