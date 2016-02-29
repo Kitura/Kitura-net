@@ -47,12 +47,12 @@ public class ClientRequest: BlueSocketWriter {
     ///
     /// Username if using Basic Auth 
     ///
-    private var userName: String? = nil
+    private var userName: String?
     
     /// 
     /// Password if using Basic Auth 
     ///
-    private var password: String? = nil
+    private var password: String?
 
     ///
     /// Maximum number of redirects before failure
@@ -141,8 +141,8 @@ public class ClientRequest: BlueSocketWriter {
         }
 
         // Adding support for Basic HTTP authentication
-        let user = self.userName != nil ? self.userName! : ""
-        let pwd = self.password != nil ? self.password! : ""
+        let user = self.userName ?? ""
+        let pwd = self.password ?? ""
         var authenticationClause = ""
         if (!user.isEmpty && !pwd.isEmpty) {
             
@@ -381,7 +381,7 @@ private class CurlInvoker {
     ///
     /// Delegate that can have a read or write callback
     ///
-    private weak var delegate: CurlInvokerDelegate? = nil
+    private weak var delegate: CurlInvokerDelegate?
     
     ///
     /// Maximum number of redirects 
