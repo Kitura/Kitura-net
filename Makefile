@@ -28,7 +28,7 @@ UNAME := $(shell uname)
 
 ifeq ($(UNAME),Darwin)
 CLANG_EXTRA=-mmacosx-version-min=10.10
-EXTRA_LINK=-Xlinker -L/usr/local/lib
+EXTRA_LINK=
 else
 CLANG_EXTRA=
 EXTRA_LINK=-Xlinker -ldispatch
