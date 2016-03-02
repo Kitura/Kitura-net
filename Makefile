@@ -41,7 +41,7 @@ setup:
 
 kitura: $(BUILD_DIR)/libcurlHelpers.a $(BUILD_DIR)/libhttpParserHelper.a 
 # Runs the swift build for the right system 
-	swift build -Xcc -fblocks -Xlinker -I${INCLUDE_DIR} -L${BUILD_DIR} ${EXTRA_LINK}
+	swift build -Xcc -fblocks -I${INCLUDE_DIR} -Xlinker -L${BUILD_DIR} ${EXTRA_LINK}
 
 $(BUILD_DIR)/libcurlHelpers.a:
 	clang -c -fPIC ${CLANG_EXTRA} ${CURL_MODULE}/CurlHelpers.c -o ${BUILD_DIR}/CurlHelpers.o
