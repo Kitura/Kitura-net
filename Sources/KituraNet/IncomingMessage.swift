@@ -209,10 +209,10 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     }
 
     ///
-    /// Read the data in the message
+    /// Read data in the message
     ///
-    /// - Parameter data: the data in the message
-    /// 
+    /// - Parameter data: An NSMutableData to hold the data in the message
+    ///
     /// - Returns: the number of bytes read
     ///
     public func readData(data: NSMutableData) throws -> Int {
@@ -249,8 +249,25 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
                 }
             }
         }
-        
+
         return count
+    }
+
+    ///
+    /// Read all data in the message
+    ///
+    /// - Parameter data: An NSMutableData to hold the data in the message
+    ///
+    /// - Returns: the number of bytes read
+    ///
+    public func readAllData(data: NSMutableData) throws -> Int {
+        var length = try readData(data)
+        var bytesRead = length
+        while length != 0 {
+            length = try readData(data)
+            bytesRead += length
+        }
+        return bytesRead
     }
 
     ///
@@ -260,7 +277,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// - Returns: an Optional string
     ///
     public func readString() throws -> String? {
-        
+
         buffer!.length = 0
         let length = try readData(buffer!)
         if length > 0 {
