@@ -1,4 +1,4 @@
-# Kitura-net
+# Kitura-net [![codebeat](https://codebeat.co/badges/ca2e2c7c-dbff-4ebd-82c4-1465f633a99b)](https://codebeat.co/projects/github-com-ibm-swift-kitura-net)
 
 This is the KituraNet module for the Kitura project. Full details on the project can be found in the [main repo](https://github.com/IBM-Swift/Kitura).
 
