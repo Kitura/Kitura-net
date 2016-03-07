@@ -11,7 +11,7 @@ branches:
 before_install:
   - git submodule init
   - git submodule update
-  - cd Kitura-CI && git checkout master && cd $TRAVIS_BUILD_DIR
+  - cd Kitura-CI && git checkout $TRAVIS_BRANCH && cd $TRAVIS_BUILD_DIR
 
 script:
   - echo "About to trigger build for the Kitura repository..."
