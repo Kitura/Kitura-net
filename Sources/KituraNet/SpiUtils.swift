@@ -21,15 +21,17 @@
     import Glibc
 #endif
 
+import Foundation
+
 // MARK: SpiUtils
 
-class SpiUtils {
+public class SpiUtils {
     
     ///
     /// Abbreviations for month names
     ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "jul", "Aug", "sep", "Oct", "Nov", "Dec"]
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
     ///
     /// Abbreviations for days of the week
@@ -41,7 +43,7 @@ class SpiUtils {
     ///
     /// - Returns: string representation of timestamp
     ///
-    static func httpDate() -> String {
+    public static func httpDate() -> String {
         
         var theTime = time(nil)
         var timeStruct: tm = tm()
@@ -54,6 +56,32 @@ class SpiUtils {
         let min = Int(timeStruct.tm_min)
         let sec = Int(timeStruct.tm_sec)
         return "\(days[wday]), \(twoDigit(mday)) \(months[mon]) \(timeStruct.tm_year+1900) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
+        
+    }
+    
+    ///
+    /// Format the given date for use in HTTP
+    ///
+    /// - Parameter date: the date
+    ///
+    /// - Returns: string representation of timestamp
+    ///
+    public static func httpDate(date: NSDate) -> String {
+        
+        let unitFlags: NSCalendarUnit = [.Hour, .Day, .Month, .Year, .Weekday, .Minute, .Second]
+        let temp = NSCalendar.currentCalendar().components(unitFlags, fromDate: date)
+#if os(Linux)
+        let components = temp!
+#else
+        let components = temp
+#endif
+        let wday = Int(components.weekday)
+        let mday = Int(components.day)
+        let mon = Int(components.month)
+        let hour = Int(components.hour)
+        let min = Int(components.minute)
+        let sec = Int(components.second)
+        return "\(days[wday]), \(twoDigit(mday)) \(months[mon]) \(components.year+1900) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
         
     }
     
