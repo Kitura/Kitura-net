@@ -69,7 +69,12 @@ public class SpiUtils {
     public static func httpDate(date: NSDate) -> String {
         
         let unitFlags: NSCalendarUnit = [.Hour, .Day, .Month, .Year, .Weekday, .Minute, .Second]
-        let components = NSCalendar.currentCalendar().components(unitFlags, fromDate: date)
+        let temp = NSCalendar.currentCalendar().components(unitFlags, fromDate: date)
+#if os(Linux)
+        let components = temp!
+#else
+        let components = temp
+#endif
         let wday = Int(components.weekday)
         let mday = Int(components.day)
         let mon = Int(components.month)
