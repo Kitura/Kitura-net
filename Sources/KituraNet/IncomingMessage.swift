@@ -377,6 +377,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
+        urlString = StringUtils.fromUtf8String(url) ?? ""
 
         if  lastHeaderWasAValue  {
             addHeader()
