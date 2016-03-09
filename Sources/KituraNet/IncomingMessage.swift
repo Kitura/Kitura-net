@@ -32,37 +32,37 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// 
     /// Major version for HTTP 
     ///
-    public var httpVersionMajor: UInt16?
+    public private(set) var httpVersionMajor: UInt16?
 
     ///
     /// Minor version for HTTP
     ///
-    public var httpVersionMinor: UInt16?
+    public private(set) var httpVersionMinor: UInt16?
 
     ///
     /// List of String to String tuples
     ///
-    public var headers = [String:String]()
+    public private(set) var headers = [String:String]()
 
     ///
     /// Raw headers before processing
     ///
-    public var rawHeaders = [String]()
+    public private(set) var rawHeaders = [String]()
 
     ///
     /// Method
     ///
-    public var method: String = "" // TODO: enum?
+    public private(set) var method: String = "" // TODO: enum?
 
     ///
     /// URL
     ///
-    public var urlString = ""
+    public private(set) var urlString = ""
 
     ///
     /// Raw URL
     ///
-    public var url = NSMutableData()
+    public private(set) var url = NSMutableData()
 
     // MARK: - Private
     
