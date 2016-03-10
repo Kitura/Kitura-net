@@ -15,7 +15,7 @@
  **/
 
 import KituraSys
-import http_parser_helper
+import CHttpParser
 import Foundation
 
 // MARK: HttpParser

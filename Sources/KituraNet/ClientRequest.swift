@@ -15,7 +15,7 @@
  **/
 
 import KituraSys
-import CurlHelpers
+import CCurl
 import BlueSocket
 
 import Foundation
