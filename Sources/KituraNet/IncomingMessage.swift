@@ -167,44 +167,43 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// - Parameter callback: (HttpParserErrorType) -> Void closure
     ///
     func parse (callback: (HttpParserErrorType) -> Void) {
-        if let parser = httpParser where status == .Initial {
-            while status == .Initial {
-                do {
-                    ioBuffer!.length = 0
-                    let length = try helper!.readDataHelper(ioBuffer!)
-                    if length > 0 {
-                        let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
-                        if upgrade == 1 {
-                            // TODO handle new protocol
-                        }
-                        else if (nparsed != length) {
-                            /* Handle error. Usually just close the connection. */
-                            freeHttpParser()
-                            status = .Error
-                            callback(.ParsedLessThanRead)
-                        }
+        guard let parser = httpParser where status == .Initial else {
+            freeHttpParser()
+            callback(.InternalError)
+        }
+
+        while status == .Initial {
+            do {
+                ioBuffer!.length = 0
+                let length = try helper!.readDataHelper(ioBuffer!)
+                if length > 0 {
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+                    if upgrade == 1 {
+                        // TODO handle new protocol
                     }
-                    else {
-                        /* Handle unexpected EOF. Usually just close the connection. */
+                    else if (nparsed != length) {
+                        /* Handle error. Usually just close the connection. */
                         freeHttpParser()
                         status = .Error
-                        callback(.UnexpectedEOF)
+                        callback(.ParsedLessThanRead)
                     }
                 }
-                catch {
-                    /* Handle error. Usually just close the connection. */
+                else {
+                    /* Handle unexpected EOF. Usually just close the connection. */
                     freeHttpParser()
                     status = .Error
                     callback(.UnexpectedEOF)
                 }
             }
-            if status != .Error {
-                callback(.Success)
+            catch {
+                /* Handle error. Usually just close the connection. */
+                freeHttpParser()
+                status = .Error
+                callback(.UnexpectedEOF)
             }
         }
-        else {
-            freeHttpParser()
-            callback(.InternalError)
+        if status != .Error {
+            callback(.Success)
         }
     }
 
