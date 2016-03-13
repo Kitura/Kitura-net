@@ -170,6 +170,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
         guard let parser = httpParser where status == .Initial else {
             freeHttpParser()
             callback(.InternalError)
+            return
         }
 
         while status == .Initial {
