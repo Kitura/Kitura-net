@@ -51,7 +51,7 @@ class HttpServerSpi {
             repeat {
                 let clientSocket = try socket.acceptConnectionAndKeepListening()
                 Log.info("Accepted connection from: \(clientSocket.remoteHostName)" +
-                    "on port \(clientSocket.remotePort)")
+                    " on port \(clientSocket.remotePort)")
 
                 delegate.handleClientRequest(clientSocket)
             } while true
