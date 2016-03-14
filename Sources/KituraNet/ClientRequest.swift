@@ -15,7 +15,7 @@
  **/
 
 import KituraSys
-import CurlHelpers
+import CCurl
 import BlueSocket
 
 import Foundation
@@ -404,40 +404,40 @@ private class CurlInvoker {
     /// - Returns: a status code for the success of the operation
     ///
     private func invoke() -> CURLcode {
-        
+
         var rc: CURLcode = CURLE_FAILED_INIT
-        if  let _ = delegate {
-            
-            withUnsafeMutablePointer(&delegate) {ptr in
-                self.prepareHandle(ptr)
+        if delegate == nil {
+            return rc
+        }
 
-                var redirected = false
-                var redirectCount = 0
-                repeat {
-                    rc = curl_easy_perform(handle)
+        withUnsafeMutablePointer(&delegate) {ptr in
+            self.prepareHandle(ptr)
 
-                    if  rc == CURLE_OK  {
-                        var redirectUrl: UnsafeMutablePointer<Int8> = nil
-                        let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
-                        if  infoRc == CURLE_OK {
-                            if  redirectUrl != nil  {
-                                curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
-                                redirected = true
-                                delegate?.prepareForRedirect()
-                                redirectCount+=1
-                            }
-                            else {
-                                redirected = false
-                            }
+            var redirected = false
+            var redirectCount = 0
+            repeat {
+                rc = curl_easy_perform(handle)
+
+                if  rc == CURLE_OK  {
+                    var redirectUrl: UnsafeMutablePointer<Int8> = nil
+                    let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
+                    if  infoRc == CURLE_OK {
+                        if  redirectUrl != nil  {
+                            curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
+                            redirected = true
+                            delegate?.prepareForRedirect()
+                            redirectCount+=1
+                        }
+                        else {
+                            redirected = false
                         }
                     }
-                    
-                } while  rc == CURLE_OK  &&  redirected  &&  redirectCount < maxRedirects
-            }
+                }
+
+            } while  rc == CURLE_OK  &&  redirected  &&  redirectCount < maxRedirects
         }
-        
+
         return rc
-        
     }
 
     ///

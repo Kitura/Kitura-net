@@ -32,37 +32,37 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// 
     /// Major version for HTTP 
     ///
-    public var httpVersionMajor: UInt16?
+    public private(set) var httpVersionMajor: UInt16?
 
     ///
     /// Minor version for HTTP
     ///
-    public var httpVersionMinor: UInt16?
+    public private(set) var httpVersionMinor: UInt16?
 
     ///
     /// List of String to String tuples
     ///
-    public var headers = [String:String]()
+    public private(set) var headers = [String:String]()
 
     ///
     /// Raw headers before processing
     ///
-    public var rawHeaders = [String]()
+    public private(set) var rawHeaders = [String]()
 
     ///
     /// Method
     ///
-    public var method: String = "" // TODO: enum?
+    public private(set) var method: String = "" // TODO: enum?
 
     ///
     /// URL
     ///
-    public var urlString = ""
+    public private(set) var urlString = ""
 
     ///
     /// Raw URL
     ///
-    public var url = NSMutableData()
+    public private(set) var url = NSMutableData()
 
     // MARK: - Private
     
@@ -167,44 +167,44 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// - Parameter callback: (HttpParserErrorType) -> Void closure
     ///
     func parse (callback: (HttpParserErrorType) -> Void) {
-        if let parser = httpParser where status == .Initial {
-            while status == .Initial {
-                do {
-                    ioBuffer!.length = 0
-                    let length = try helper!.readDataHelper(ioBuffer!)
-                    if length > 0 {
-                        let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
-                        if upgrade == 1 {
-                            // TODO handle new protocol
-                        }
-                        else if (nparsed != length) {
-                            /* Handle error. Usually just close the connection. */
-                            freeHttpParser()
-                            status = .Error
-                            callback(.ParsedLessThanRead)
-                        }
+        guard let parser = httpParser where status == .Initial else {
+            freeHttpParser()
+            callback(.InternalError)
+            return
+        }
+
+        while status == .Initial {
+            do {
+                ioBuffer!.length = 0
+                let length = try helper!.readDataHelper(ioBuffer!)
+                if length > 0 {
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+                    if upgrade == 1 {
+                        // TODO handle new protocol
                     }
-                    else {
-                        /* Handle unexpected EOF. Usually just close the connection. */
+                    else if (nparsed != length) {
+                        /* Handle error. Usually just close the connection. */
                         freeHttpParser()
                         status = .Error
-                        callback(.UnexpectedEOF)
+                        callback(.ParsedLessThanRead)
                     }
                 }
-                catch {
-                    /* Handle error. Usually just close the connection. */
+                else {
+                    /* Handle unexpected EOF. Usually just close the connection. */
                     freeHttpParser()
                     status = .Error
                     callback(.UnexpectedEOF)
                 }
             }
-            if status != .Error {
-                callback(.Success)
+            catch {
+                /* Handle error. Usually just close the connection. */
+                freeHttpParser()
+                status = .Error
+                callback(.UnexpectedEOF)
             }
         }
-        else {
-            freeHttpParser()
-            callback(.InternalError)
+        if status != .Error {
+            callback(.Success)
         }
     }
 

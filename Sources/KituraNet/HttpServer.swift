@@ -133,51 +133,51 @@ public class HttpServer {
 
 // MARK: HttpServerSpiDelegate extension
 extension HttpServer : HttpServerSpiDelegate {
-    
+
     ///
-    /// Handle a new client Http request 
+    /// Handle a new client Http request
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
     func handleClientRequest(clientSocket: BlueSocket) {
-        
-        if  let delegate = delegate  {
-            HttpServer.clientHandlerQueue.queueAsync() {
-                
-                let response = ServerResponse(socket: clientSocket)
-                let request = ServerRequest(socket: clientSocket)
-                request.parse() { status in
-                    switch status {
-                    case .Success:
-                        delegate.handleRequest(request, response: response)
-                    case .ParsedLessThanRead:
-                        print("ParsedLessThanRead")
-                        response.statusCode = .BAD_REQUEST
-                        do {
-                            try response.end()
-                        }
-                        catch {
-                            // handle error in connection
-                        }
-                    case .UnexpectedEOF:
-                        print("UnexpectedEOF")
-                    case .InternalError:
-                        print("InternalError")
-                    }
-                }
-                
-            }
+
+        guard let delegate = delegate else {
+            return
         }
         
+        HttpServer.clientHandlerQueue.queueAsync() {
+
+            let response = ServerResponse(socket: clientSocket)
+            let request = ServerRequest(socket: clientSocket)
+            request.parse() { status in
+                switch status {
+                case .Success:
+                    delegate.handleRequest(request, response: response)
+                case .ParsedLessThanRead:
+                    print("ParsedLessThanRead")
+                    response.statusCode = .BAD_REQUEST
+                    do {
+                        try response.end()
+                    }
+                    catch {
+                        // handle error in connection
+                    }
+                case .UnexpectedEOF:
+                    print("UnexpectedEOF")
+                case .InternalError:
+                    print("InternalError")
+                }
+            }
+
+        }
     }
-    
 }
 
 ///
 /// Delegate protocol for an HttpServer
 ///
 public protocol HttpServerDelegate: class {
-    
+
     func handleRequest(request: ServerRequest, response: ServerResponse)
     
 }

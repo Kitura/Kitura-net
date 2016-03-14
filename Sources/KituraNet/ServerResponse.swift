@@ -190,41 +190,40 @@ public class ServerResponse : BlueSocketWriter {
     /// - Throws: ???
     ///
     private func flushStart() throws {
-        
-        if  let socket = socket where !startFlushed  {
-            
-            try socket.writeString("HTTP/1.1 ")
-            try socket.writeString(String(status))
-            try socket.writeString(" ")
-            var statusText = Http.statusCodes[status]
-            
-            if  statusText == nil {
-                statusText = ""
-            }
-            
-            try socket.writeString(statusText!)
+
+        guard let socket = socket where !startFlushed else {
+            return
+        }
+
+        try socket.writeString("HTTP/1.1 ")
+        try socket.writeString(String(status))
+        try socket.writeString(" ")
+        var statusText = Http.statusCodes[status]
+
+        if  statusText == nil {
+            statusText = ""
+        }
+
+        try socket.writeString(statusText!)
+        try socket.writeString("\r\n")
+
+        for (key, value) in singleHeaders {
+            try socket.writeString(key)
+            try socket.writeString(": ")
+            try socket.writeString(value)
             try socket.writeString("\r\n")
-            
-            for (key, value) in singleHeaders {
+        }
+
+        for (key, valueSet) in multiHeaders {
+            for value in valueSet {
                 try socket.writeString(key)
                 try socket.writeString(": ")
                 try socket.writeString(value)
                 try socket.writeString("\r\n")
             }
-            
-            for (key, valueSet) in multiHeaders {
-                for value in valueSet {
-                    try socket.writeString(key)
-                    try socket.writeString(": ")
-                    try socket.writeString(value)
-                    try socket.writeString("\r\n")
-                }
-            }
-            
-            try socket.writeString("\r\n")
-            
-            startFlushed = true
         }
-        
+
+        try socket.writeString("\r\n")
+        startFlushed = true
     }
 }

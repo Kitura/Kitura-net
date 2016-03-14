@@ -39,23 +39,24 @@ class HttpServerSpi {
     ///
     func spiListen(socket: BlueSocket?, port: Int) {
         
-		do {
-			if  let socket = socket, let delegate = delegate {
-                
-				try socket.listenOn(port)
-				Log.info("Listening on port \(port)")
-				
-				// TODO: Change server exit to not rely on error being thrown
-				repeat {
-					let clientSocket = try socket.acceptConnectionAndKeepListening()
-					Log.info("Accepted connection from: \(clientSocket.remoteHostName)" +
-                        "on port \(clientSocket.remotePort)")
-					
-					delegate.handleClientRequest(clientSocket)
-				} while true
-			}
+        do {
+            guard let socket = socket, let delegate = delegate else {
+                return
+            }
+
+            try socket.listenOn(port)
+            Log.info("Listening on port \(port)")
+
+            // TODO: Change server exit to not rely on error being thrown
+            repeat {
+                let clientSocket = try socket.acceptConnectionAndKeepListening()
+                Log.info("Accepted connection from: \(clientSocket.remoteHostName)" +
+                    "on port \(clientSocket.remotePort)")
+
+                delegate.handleClientRequest(clientSocket)
+            } while true
             
-		} catch let error as BlueSocketError {
+        } catch let error as BlueSocketError {
             
             if stopped && error.errorCode == Int32(BlueSocket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
