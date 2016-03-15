@@ -14,6 +14,12 @@
  * limitations under the License.
  **/
 
+#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+	import Darwin
+#elseif os(Linux)
+	import Glibc
+#endif
+
 import BlueSocket
 import LoggerAPI
 
@@ -43,6 +49,9 @@ class HttpServerSpi {
             guard let socket = socket, let delegate = delegate else {
                 return
             }
+
+            var optval = 1
+            setsockopt(socket.socketfd, SOL_SOCKET, SO_NOSIGPIPE, &optval, socklen_t(sizeof(Int)))
 
             try socket.listenOn(port)
             Log.info("Listening on port \(port)")
