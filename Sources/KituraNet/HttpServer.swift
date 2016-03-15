@@ -80,7 +80,7 @@ public class HttpServer {
             
 			self.listenSocket = try BlueSocket.defaultConfigured()
             
-		} catch let error as BlueSocketError {
+		} catch let error as BlueSocket.Error {
 			print("Error reported:\n \(error.description)")
 		} catch {
             print("Unexpected error...")
