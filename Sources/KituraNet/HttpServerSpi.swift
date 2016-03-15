@@ -50,9 +50,8 @@ class HttpServerSpi {
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptConnectionAndKeepListening()
-                Log.info("Accepted connection from: \(clientSocket.remoteHostName)" +
-                    " on port \(clientSocket.remotePort)")
-
+                Log.info("Accepted connection from: " +
+                         "\(clientSocket.remoteHostName):\(clientSocket.remotePort)")
                 delegate.handleClientRequest(clientSocket)
             } while true
             
