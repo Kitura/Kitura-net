@@ -67,9 +67,8 @@ public class SpiUtils {
     /// - Returns: string representation of timestamp
     ///
     public static func httpDate(date: NSDate) -> String {
-        
-        let unitFlags: NSCalendarUnit = [.Hour, .Day, .Month, .Year, .Weekday, .Minute, .Second]
-        let temp = NSCalendar.currentCalendar().components(unitFlags, fromDate: date)
+
+        let temp = NSCalendar.currentCalendar().componentsInTimeZone(NSTimeZone(abbreviation: "UTC")!, fromDate: date)
 #if os(Linux)
         let components = temp!
 #else
@@ -81,18 +80,18 @@ public class SpiUtils {
         let hour = Int(components.hour)
         let min = Int(components.minute)
         let sec = Int(components.second)
-        return "\(days[wday]), \(twoDigit(mday)) \(months[mon]) \(components.year+1900) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
-        
+        return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(components.year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
+
     }
-    
+
     ///
     /// Prepends a zero to a 2 digit number if necessary
     ///
     /// - Parameter num: the number
     ///
     private static func twoDigit(num: Int) -> String {
-        
+
         return (num < 10 ? "0" : "") + String(num)
-        
+
     }
 }
