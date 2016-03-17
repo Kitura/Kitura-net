@@ -55,7 +55,11 @@ class HttpServerSpi {
                 delegate.handleClientRequest(clientSocket)
             } while true
             
+<<<<<<< HEAD
         } catch let error as BlueSocketError {
+=======
+		} catch let error as BlueSocket.Error {
+>>>>>>> master
             
             if stopped && error.errorCode == Int32(BlueSocket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
