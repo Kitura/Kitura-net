@@ -29,7 +29,7 @@ public class HttpServer {
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHAndlerQueue")
+    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHandlerQueue")
 
     ///
     /// HttpServerDelegate
