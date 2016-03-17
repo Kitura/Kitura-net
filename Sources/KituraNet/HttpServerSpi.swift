@@ -55,7 +55,7 @@ class HttpServerSpi {
 				} while true
 			}
             
-		} catch let error as BlueSocket.Error {
+		} catch let error as BlueSocketError {
             
             if stopped && error.errorCode == -9994 {
                 Log.info("Server has stopped listening")
