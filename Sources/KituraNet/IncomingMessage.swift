@@ -493,9 +493,10 @@ public class SimpleHeaders {
     }
 
     public subscript(key: String) -> String? {
-        var result = storage.simpleHeaders[key]
+        let keyLowercase = key.bridge().lowercaseString
+        var result = storage.simpleHeaders[keyLowercase]
         if  result == nil  {
-            if  let entry = storage.arrayHeaders[key]  {
+            if  let entry = storage.arrayHeaders[keyLowercase]  {
                 result = entry[0]
             }
         }
@@ -545,9 +546,10 @@ public class ArrayHeaders {
     }
 
     public subscript(key: String) -> [String]? {
-        var result = storage.arrayHeaders[key]
+        let keyLowercase = key.bridge().lowercaseString
+        var result = storage.arrayHeaders[keyLowercase]
         if  result == nil  {
-            if  let entry = storage.simpleHeaders[key]  {
+            if  let entry = storage.simpleHeaders[keyLowercase]  {
                 result = entry.bridge().componentsSeparatedByString(", ")
             }
         }
