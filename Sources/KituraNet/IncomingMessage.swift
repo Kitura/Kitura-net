@@ -39,10 +39,20 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     ///
     public private(set) var httpVersionMinor: UInt16?
 
+    //
+    // Storage for headers
+    //
+    private let headerStorage = HeaderStorage()
+
     ///
-    /// List of String to String tuples
+    /// Set of headers who's value is a String
     ///
-    public private(set) var headers = [String:String]()
+    public private(set) var headers: SimpleHeaders
+
+    ///
+    /// Set of headers who's value is an Array
+    ///
+    public private(set) var headersAsArrays: ArrayHeaders
 
     ///
     /// Raw headers before processing
@@ -50,7 +60,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     public private(set) var rawHeaders = [String]()
 
     ///
-    /// Method
+    /// HTTP Method
     ///
     public private(set) var method: String = "" // TODO: enum?
 
@@ -148,6 +158,10 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     ///
     init (isRequest: Bool) {
         httpParser = HttpParser(isRequest: isRequest)
+
+        headers = SimpleHeaders(storage: headerStorage)
+        headersAsArrays = ArrayHeaders(storage: headerStorage)
+
         httpParser!.delegate = self
     }
 
@@ -331,38 +345,39 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// - Parameter data: the data
     ///
     func onHeaderValue (data: NSData) {
-        
+
         lastHeaderValue.appendData(data)
         lastHeaderWasAValue = true
-        
+
     }
 
     ///
-    /// Set the header key-value pair 
+    /// Set the header key-value pair
     ///
     private func addHeader() {
-        
+
         let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
         let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
 
         rawHeaders.append(headerKey)
         rawHeaders.append(headerValue)
-        headers[headerKey] = headerValue
+
+        headerStorage.addHeader(headerKey, headerValue: headerValue)
 
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
-        
+
     }
 
-    /// 
-    /// Instructions for when reading the body of the message 
+    ///
+    /// Instructions for when reading the body of the message
     ///
     /// - Parameter data: the data
     ///
     func onBody (data: NSData) {
-        
+
         self.bodyChunk.appendData(data)
-        
+
     }
 
     ///
@@ -413,13 +428,171 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
 
 }
 
+//
+// Private class for Header storage
+//
+internal class HeaderStorage {
+    //
+    // Storage for headers who's value is a String
+    //
+    internal var simpleHeaders = [String:String]()
+
+    //
+    // Storage for headers who's value is an Array of Strings
+    //
+    internal var arrayHeaders = [String: [String]]()
+
+    func addHeader(headerKey: String, headerValue: String) {
+        let headerKeyLowerCase = headerKey.bridge().lowercaseString
+        // Determine how to handle the header (i.e. simple header array header,...)
+        switch(headerKeyLowerCase) {
+
+            // Headers with an array value (can appear multiple times, but can't be merged)
+            //
+            case "set-cookie":
+                var oldArray = arrayHeaders[headerKeyLowerCase] ?? [String]()
+                oldArray.append(headerValue)
+                arrayHeaders[headerKeyLowerCase] = oldArray
+                break
+
+            // Headers with a simple value that are not merged (i.e. duplicates dropped)
+            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
+            //
+            case "content-type", "content-length", "user-agent", "referer", "host",
+                    "authorization", "proxy-authorization", "if-modified-since",
+                    "if-unmodified-since", "from", "location", "max-forwards",
+                    "retry-after", "etag", "last-modified", "server", "age", "expires":
+                if  simpleHeaders[headerKeyLowerCase]  == nil  {
+                    // ignore the header if we already had one with this key
+                    simpleHeaders[headerKeyLowerCase] = headerValue
+                }
+                break
+
+            // Headers with a simple value that can be merged
+            //
+            default:
+                if  let oldValue = simpleHeaders[headerKeyLowerCase]  {
+                    simpleHeaders[headerKeyLowerCase] = oldValue + ", " + headerValue
+                }
+                else {
+                    simpleHeaders[headerKeyLowerCase] = headerValue
+                }
+                break
+        }
+    }
+}
+
+//
+// Class to "simulate" Dictionary access of headers with simple values
+//
+public class SimpleHeaders {
+    internal let storage: HeaderStorage
+
+    private init(storage: HeaderStorage) {
+        self.storage = storage
+    }
+
+    public subscript(key: String) -> String? {
+        var result = storage.simpleHeaders[key]
+        if  result == nil  {
+            if  let entry = storage.arrayHeaders[key]  {
+                result = entry[0]
+            }
+        }
+        return result
+    }
+}
+
+extension SimpleHeaders: SequenceType {
+    public typealias Generator = SimpleHeadersGenerator
+
+    public func generate() -> SimpleHeaders.Generator {
+        return SimpleHeaders.Generator(self)
+    }
+}
+
+public struct SimpleHeadersGenerator: GeneratorType {
+    public typealias Element = (String, String)
+
+    private var simpleGenerator: DictionaryGenerator<String, String>
+    private var arrayGenerator: DictionaryGenerator<String, [String]>
+
+    init(_ simpleHeaders: SimpleHeaders) {
+        simpleGenerator = simpleHeaders.storage.simpleHeaders.generate()
+        arrayGenerator = simpleHeaders.storage.arrayHeaders.generate()
+    }
+
+    public mutating func next() -> SimpleHeadersGenerator.Element? {
+        var result = simpleGenerator.next()
+        if  result == nil  {
+            if  let arrayElem = arrayGenerator.next()  {
+                let (arrayKey, arrayValue) = arrayElem
+                result = (arrayKey, arrayValue[0])
+            }
+        }
+        return result
+    }
+}
+
+//
+// Class to "simulate" Dictionary access of headers with array values
+//
+public class ArrayHeaders {
+    private let storage: HeaderStorage
+
+    private init(storage: HeaderStorage) {
+        self.storage = storage
+    }
+
+    public subscript(key: String) -> [String]? {
+        var result = storage.arrayHeaders[key]
+        if  result == nil  {
+            if  let entry = storage.simpleHeaders[key]  {
+                result = entry.bridge().componentsSeparatedByString(", ")
+            }
+        }
+        return result
+    }
+}
+
+extension ArrayHeaders: SequenceType {
+    public typealias Generator = ArrayHeadersGenerator
+
+    public func generate() -> ArrayHeaders.Generator {
+        return ArrayHeaders.Generator(self)
+    }
+}
+
+public struct ArrayHeadersGenerator: GeneratorType {
+    public typealias Element = (String, [String])
+
+    private var arrayGenerator: DictionaryGenerator<String, [String]>
+    private var simpleGenerator: DictionaryGenerator<String, String>
+
+    init(_ arrayHeaders: ArrayHeaders) {
+        arrayGenerator = arrayHeaders.storage.arrayHeaders.generate()
+        simpleGenerator = arrayHeaders.storage.simpleHeaders.generate()
+    }
+
+    public mutating func next() -> ArrayHeadersGenerator.Element? {
+        var result = arrayGenerator.next()
+        if  result == nil  {
+            if  let simpleElem = simpleGenerator.next()  {
+                let (simpleKey, simpleValue) = simpleElem
+                result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
+            }
+        }
+        return result
+    }
+}
+
 ///
 /// Protocol for IncomingMessageHelper
 protocol IncomingMessageHelper: class {
-    
+
     ///
     /// TODO: ???
     ///
     func readDataHelper(data: NSMutableData) throws -> Int
-    
+
 }
