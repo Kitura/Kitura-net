@@ -452,13 +452,13 @@ private class CurlInvoker {
         curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.memory?.curlReadCallback(buf, size: size*nMemb))!
+                return (p.pointee?.curlReadCallback(buf, size: size*nMemb))!
         }
 
         curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.memory?.curlWriteCallback(buf, size: size*nMemb))!
+                return (p.pointee?.curlWriteCallback(buf, size: size*nMemb))!
         }
     }
     
