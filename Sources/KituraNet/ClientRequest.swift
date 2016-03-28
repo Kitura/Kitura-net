@@ -106,17 +106,17 @@ public class ClientRequest: BlueSocketWriter {
     /// - Returns: a ClientRequest instance
     ///
     init(options: [ClientRequestOptions], callback: ClientRequestCallback) {
-        
+
         self.callback = callback
 
         var theSchema = "http://"
         var hostName = "localhost"
         var path = "/"
-        var port:Int16 = 80
+        var port:Int16 = -1
 
         for option in options  {
             switch(option) {
-                
+
                 case .Method(let method):
                     self.method = method
                 case .Schema(let schema):
@@ -145,29 +145,31 @@ public class ClientRequest: BlueSocketWriter {
         let pwd = self.password ?? ""
         var authenticationClause = ""
         if (!user.isEmpty && !pwd.isEmpty) {
-            
           authenticationClause = "\(user):\(pwd)@"
-            
         }
-        
-        let portNumber = String(port)
-        url = "\(theSchema)\(authenticationClause)\(hostName):\(portNumber)\(path)"
-        
+
+        var portClause = ""
+        if  port != -1  {
+            portClause = ":\(String(port))"
+        }
+
+        url = "\(theSchema)\(authenticationClause)\(hostName)\(portClause)\(path)"
+
     }
 
     ///
     /// Instance destruction
     ///
     deinit {
-        
+
         if  let handle = handle  {
             curl_easy_cleanup(handle)
         }
-        
+
         if  headersList != nil  {
             curl_slist_free_all(headersList)
         }
-        
+
     }
 
     ///
