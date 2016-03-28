@@ -296,7 +296,7 @@ public class ClientRequest: SocketWriter {
     ///
     private func setMethod() {
         
-        let methodUpperCase = method.uppercaseString
+        let methodUpperCase = method.uppercased()
         switch(methodUpperCase) {
             case "GET":
                 curlHelperSetOptBool(handle!, CURLOPT_HTTPGET, CURL_TRUE)
