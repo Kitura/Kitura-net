@@ -177,10 +177,10 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter str: String to be written
     ///
-    public func writeString(str: String) {
+    public func write(from string: String) {
         
-        if  let data = StringUtils.toUtf8String(str)  {
-            writeData(data)
+        if  let data = StringUtils.toUtf8String(string)  {
+            write(from: data)
         }
         
     }
@@ -190,7 +190,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter data: NSData to be written
     ///
-    public func writeData(data: NSData) {
+    public func write(from data: NSData) {
         
         writeBuffers.appendData(data)
         
@@ -203,7 +203,7 @@ public class ClientRequest: SocketWriter {
     ///
     public func end(data: String) {
         
-        writeString(data)
+        write(from: data)
         end()
         
     }
@@ -215,7 +215,7 @@ public class ClientRequest: SocketWriter {
     ///
     public func end(data: NSData) {
         
-        writeData(data)
+        write(from: data)
         end()
         
     }

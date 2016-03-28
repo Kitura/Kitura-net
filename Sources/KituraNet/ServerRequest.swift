@@ -49,7 +49,7 @@ extension ServerRequest: IncomingMessageHelper {
     ///
     func readDataHelper(data: NSMutableData) throws -> Int {
         
-        return try socket.readData(data)
+        return try socket.read(into: data)
         
     }
     

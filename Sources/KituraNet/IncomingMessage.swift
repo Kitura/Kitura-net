@@ -229,7 +229,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Returns: the number of bytes read
     ///
-    public func readData(data: NSMutableData) throws -> Int {
+    public func read(into data: NSMutableData) throws -> Int {
         var count = bodyChunk.fillData(data)
         if count == 0 {
             if let parser = httpParser where status == .HeadersComplete {
@@ -275,10 +275,10 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Returns: the number of bytes read
     ///
     public func readAllData(data: NSMutableData) throws -> Int {
-        var length = try readData(data)
+        var length = try read(into: data)
         var bytesRead = length
         while length != 0 {
-            length = try readData(data)
+            length = try read(into: data)
             bytesRead += length
         }
         return bytesRead
@@ -293,7 +293,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     public func readString() throws -> String? {
 
         buffer!.length = 0
-        let length = try readData(buffer!)
+        let length = try read(into: buffer!)
         if length > 0 {
             return StringUtils.fromUtf8String(buffer!)
         }
