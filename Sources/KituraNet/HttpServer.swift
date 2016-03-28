@@ -78,7 +78,7 @@ public class HttpServer {
 		
 		do {
             
-			self.listenSocket = try Socket.defaultConfigured()
+			self.listenSocket = try Socket.makeDefault()
             
 		} catch let error as Socket.Error {
 			print("Error reported:\n \(error.description)")
