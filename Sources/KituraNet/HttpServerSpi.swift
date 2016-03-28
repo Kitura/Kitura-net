@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-import BlueSocket
+import Socket
 import LoggerAPI
 
 // MARK: HttpServerSpi
@@ -37,26 +37,26 @@ class HttpServerSpi {
     /// - Parameter socket: socket to use for connecting 
     /// - Parameter port: number to listen on
     ///
-    func spiListen(socket: BlueSocket?, port: Int) {
+    func spiListen(socket: Socket?, port: Int) {
         
         do {
             guard let socket = socket, let delegate = delegate else {
                 return
             }
 
-            try socket.listenOn(port)
+            try socket.listen(on: port)
             Log.info("Listening on port \(port)")
 
             // TODO: Change server exit to not rely on error being thrown
             repeat {
-                let clientSocket = try socket.acceptConnectionAndKeepListening()
+                let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
-                         "\(clientSocket.remoteHostName):\(clientSocket.remotePort)")
+                         "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
                 delegate.handleClientRequest(clientSocket)
             } while true
-		} catch let error as BlueSocket.Error {
+		} catch let error as Socket.Error {
             
-            if stopped && error.errorCode == Int32(BlueSocket.SOCKET_ERR_ACCEPT_FAILED) {
+            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
             }
             else {
@@ -79,6 +79,6 @@ protocol HttpServerSpiDelegate: class {
     ///
     /// - Parameter socket: the socket
     ///
-	func handleClientRequest(socket: BlueSocket)
+	func handleClientRequest(socket: Socket)
     
 }

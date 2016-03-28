@@ -16,13 +16,13 @@
 
 
 import KituraSys
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: IncomingMessage
 
-public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
+public class IncomingMessage : HttpParserDelegate, SocketReader {
 
     ///
     /// Default buffer size used for creating a BufferList
@@ -229,7 +229,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     ///
     /// - Returns: the number of bytes read
     ///
-    public func readData(data: NSMutableData) throws -> Int {
+    public func read(into data: NSMutableData) throws -> Int {
         var count = bodyChunk.fillData(data)
         if count == 0 {
             if let parser = httpParser where status == .HeadersComplete {
@@ -275,10 +275,10 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     /// - Returns: the number of bytes read
     ///
     public func readAllData(data: NSMutableData) throws -> Int {
-        var length = try readData(data)
+        var length = try read(into: data)
         var bytesRead = length
         while length != 0 {
-            length = try readData(data)
+            length = try read(into: data)
             bytesRead += length
         }
         return bytesRead
@@ -293,7 +293,7 @@ public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
     public func readString() throws -> String? {
 
         buffer!.length = 0
-        let length = try readData(buffer!)
+        let length = try read(into: buffer!)
         if length > 0 {
             return StringUtils.fromUtf8String(buffer!)
         }
@@ -504,29 +504,29 @@ public class SimpleHeaders {
     }
 }
 
-extension SimpleHeaders: SequenceType {
-    public typealias Generator = SimpleHeadersGenerator
+extension SimpleHeaders: Sequence {
+    public typealias Iterator = SimpleHeadersIterator
 
-    public func generate() -> SimpleHeaders.Generator {
-        return SimpleHeaders.Generator(self)
+    public func makeIterator() -> SimpleHeaders.Iterator {
+        return SimpleHeaders.Iterator(self)
     }
 }
 
-public struct SimpleHeadersGenerator: GeneratorType {
+public struct SimpleHeadersIterator: IteratorProtocol {
     public typealias Element = (String, String)
 
-    private var simpleGenerator: DictionaryGenerator<String, String>
-    private var arrayGenerator: DictionaryGenerator<String, [String]>
+    private var simpleIterator: DictionaryIterator<String, String>
+    private var arrayIterator: DictionaryIterator<String, [String]>
 
     init(_ simpleHeaders: SimpleHeaders) {
-        simpleGenerator = simpleHeaders.storage.simpleHeaders.generate()
-        arrayGenerator = simpleHeaders.storage.arrayHeaders.generate()
+        simpleIterator = simpleHeaders.storage.simpleHeaders.makeIterator()
+        arrayIterator = simpleHeaders.storage.arrayHeaders.makeIterator()
     }
 
-    public mutating func next() -> SimpleHeadersGenerator.Element? {
-        var result = simpleGenerator.next()
+    public mutating func next() -> SimpleHeadersIterator.Element? {
+        var result = simpleIterator.next()
         if  result == nil  {
-            if  let arrayElem = arrayGenerator.next()  {
+            if  let arrayElem = arrayIterator.next()  {
                 let (arrayKey, arrayValue) = arrayElem
                 result = (arrayKey, arrayValue[0])
             }
@@ -557,29 +557,29 @@ public class ArrayHeaders {
     }
 }
 
-extension ArrayHeaders: SequenceType {
-    public typealias Generator = ArrayHeadersGenerator
+extension ArrayHeaders: Sequence {
+    public typealias Iterator = ArrayHeadersIterator
 
-    public func generate() -> ArrayHeaders.Generator {
-        return ArrayHeaders.Generator(self)
+    public func makeIterator() -> ArrayHeaders.Iterator {
+        return ArrayHeaders.Iterator(self)
     }
 }
 
-public struct ArrayHeadersGenerator: GeneratorType {
+public struct ArrayHeadersIterator: IteratorProtocol {
     public typealias Element = (String, [String])
 
-    private var arrayGenerator: DictionaryGenerator<String, [String]>
-    private var simpleGenerator: DictionaryGenerator<String, String>
+    private var arrayIterator: DictionaryIterator<String, [String]>
+    private var simpleIterator: DictionaryIterator<String, String>
 
     init(_ arrayHeaders: ArrayHeaders) {
-        arrayGenerator = arrayHeaders.storage.arrayHeaders.generate()
-        simpleGenerator = arrayHeaders.storage.simpleHeaders.generate()
+        arrayIterator = arrayHeaders.storage.arrayHeaders.makeIterator()
+        simpleIterator = arrayHeaders.storage.simpleHeaders.makeIterator()
     }
 
-    public mutating func next() -> ArrayHeadersGenerator.Element? {
-        var result = arrayGenerator.next()
+    public mutating func next() -> ArrayHeadersIterator.Element? {
+        var result = arrayIterator.next()
         if  result == nil  {
-            if  let simpleElem = simpleGenerator.next()  {
+            if  let simpleElem = simpleIterator.next()  {
                 let (simpleKey, simpleValue) = simpleElem
                 result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
             }
