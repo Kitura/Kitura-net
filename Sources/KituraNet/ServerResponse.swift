@@ -103,7 +103,7 @@ public class ServerResponse : SocketWriter {
     ///
     public func setHeader(key: String, value: String) {
         singleHeaders[key] = value
-        multiHeaders.removeValueForKey(key)
+        multiHeaders.removeValue(forKey: key)
     }
 
     ///
@@ -114,7 +114,7 @@ public class ServerResponse : SocketWriter {
     ///
     public func setHeader(key: String, value: [String]) {
         multiHeaders[key] = value
-        singleHeaders.removeValueForKey(key)
+        singleHeaders.removeValue(forKey: key)
     }
     
     ///
@@ -123,8 +123,8 @@ public class ServerResponse : SocketWriter {
     /// - Parameter key: key
     ///
     public func removeHeader(key: String) {
-        singleHeaders.removeValueForKey(key)
-        multiHeaders.removeValueForKey(key)
+        singleHeaders.removeValue(forKey: key)
+        multiHeaders.removeValue(forKey: key)
     }
     
     ///
