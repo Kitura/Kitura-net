@@ -15,7 +15,7 @@
  **/
 
 import KituraSys
-import BlueSocket
+import Socket
 
 // MARK: HttpServer
 
@@ -52,7 +52,7 @@ public class HttpServer {
     /// 
     /// TCP socket used for listening for new connections
     ///
-    private var listenSocket: BlueSocket?
+    private var listenSocket: Socket?
     
     ///
     /// Initializes an HttpServer instance
@@ -78,9 +78,9 @@ public class HttpServer {
 		
 		do {
             
-			self.listenSocket = try BlueSocket.defaultConfigured()
+			self.listenSocket = try Socket.defaultConfigured()
             
-		} catch let error as BlueSocket.Error {
+		} catch let error as Socket.Error {
 			print("Error reported:\n \(error.description)")
 		} catch {
             print("Unexpected error...")
@@ -139,7 +139,7 @@ extension HttpServer : HttpServerSpiDelegate {
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
-    func handleClientRequest(clientSocket: BlueSocket) {
+    func handleClientRequest(clientSocket: Socket) {
 
         guard let delegate = delegate else {
             return

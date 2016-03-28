@@ -16,13 +16,13 @@
 
 
 import KituraSys
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: IncomingMessage
 
-public class IncomingMessage : HttpParserDelegate, BlueSocketReader {
+public class IncomingMessage : HttpParserDelegate, SocketReader {
 
     ///
     /// Default buffer size used for creating a BufferList

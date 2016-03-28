@@ -16,7 +16,7 @@
 
 import Foundation
 
-import BlueSocket
+import Socket
 
 // MARK: ServerRequest
 
@@ -25,14 +25,14 @@ public class ServerRequest: IncomingMessage {
     ///
     /// Socket for the request
     ///
-    private let socket: BlueSocket
+    private let socket: Socket
     
     ///
     /// Initializes a ServerRequest
     ///
     /// - Parameter socket: the socket 
     ///
-    init (socket: BlueSocket) {
+    init (socket: Socket) {
         
         self.socket = socket
         super.init(isRequest: true)

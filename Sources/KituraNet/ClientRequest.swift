@@ -16,13 +16,13 @@
 
 import KituraSys
 import CCurl
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: ClientRequest
 
-public class ClientRequest: BlueSocketWriter {
+public class ClientRequest: SocketWriter {
 
     ///
     /// Internal lock to the request

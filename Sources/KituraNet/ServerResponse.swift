@@ -14,18 +14,18 @@
  * limitations under the License.
  **/
 
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: ServerResponse
 
-public class ServerResponse : BlueSocketWriter {
+public class ServerResponse : SocketWriter {
 
     ///
     /// Socket for the ServerResponse
     ///
-    private var socket: BlueSocket?
+    private var socket: Socket?
     
     ///
     /// TODO: ???
@@ -64,7 +64,7 @@ public class ServerResponse : BlueSocketWriter {
     ///
     /// Initializes a ServerResponse instance
     ///
-    init(socket: BlueSocket) {
+    init(socket: Socket) {
         
         self.socket = socket
         setHeader("Date", value: SpiUtils.httpDate())
