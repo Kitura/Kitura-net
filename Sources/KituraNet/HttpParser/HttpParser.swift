@@ -66,65 +66,65 @@ class HttpParser {
         settings = http_parser_settings()
 
         settings.on_url = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
-            p.memory?.onUrl(data)
+            p.pointee?.onUrl(data)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            p.memory?.onHeaderField(data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            p.pointee?.onHeaderField(data)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            p.memory?.onHeaderValue(data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            p.pointee?.onHeaderValue(data)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
-            p.memory?.onBody(data)
+            p.pointee?.onBody(data)
            
             return 0
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             // TODO: Clean and refactor
             //let method = String( get_method(parser))
             let po =  get_method(parser)
             var message = ""
             var i = 0
-            while((po+i).memory != Int8(0)) {
-                message += String(UnicodeScalar(UInt8((po+i).memory)))
+            while((po+i).pointee != Int8(0)) {
+                message += String(UnicodeScalar(UInt8((po+i).pointee)))
                 i += 1
             }
-            p.memory?.onHeadersComplete(message, versionMajor: parser.memory.http_major,
-                versionMinor: parser.memory.http_minor)
+            p.pointee?.onHeadersComplete(message, versionMajor: parser.pointee.http_major,
+                versionMinor: parser.pointee.http_minor)
             
             return 0
         }
         
         settings.on_message_begin = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
-            p.memory?.onMessageBegin()
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            p.pointee?.onMessageBegin()
             
             return 0
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.memory.data)
+            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             if get_status_code(parser) == 100 {
-                p.memory?.reset()
+                p.pointee?.reset()
             }
             else {
-                p.memory?.onMessageComplete()
+                p.pointee?.onMessageComplete()
             }
             
             return 0
