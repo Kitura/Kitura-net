@@ -68,7 +68,7 @@ public class SpiUtils {
     ///
     public static func httpDate(date: NSDate) -> String {
 
-        let calendar = NSCalendar.currentCalendar()
+        let calendar = NSCalendar.current()
         calendar.timeZone = NSTimeZone(name: "UTC")!
         let temp = calendar.components([.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday], fromDate: date)
 #if os(Linux)

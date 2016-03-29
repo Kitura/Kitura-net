@@ -320,7 +320,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onUrl(data: NSData) {
-        url.appendData(data)
+        url.append(data)
     }
 
 
@@ -334,7 +334,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         if lastHeaderWasAValue {
             addHeader()
         }
-        lastHeaderField.appendData(data)
+        lastHeaderField.append(data)
         lastHeaderWasAValue = false
         
     }
@@ -346,7 +346,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     func onHeaderValue (data: NSData) {
 
-        lastHeaderValue.appendData(data)
+        lastHeaderValue.append(data)
         lastHeaderWasAValue = true
 
     }
@@ -443,7 +443,7 @@ internal class HeaderStorage {
     internal var arrayHeaders = [String: [String]]()
 
     func addHeader(headerKey: String, headerValue: String) {
-        let headerKeyLowerCase = headerKey.bridge().lowercaseString
+        let headerKeyLowerCase = headerKey.bridge().lowercased
         // Determine how to handle the header (i.e. simple header array header,...)
         switch(headerKeyLowerCase) {
 
