@@ -320,7 +320,11 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onUrl(data: NSData) {
+        #if os(Linux)
+        url.appendData(data)
+        #else
         url.append(data)
+        #endif
     }
 
 
@@ -334,7 +338,11 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         if lastHeaderWasAValue {
             addHeader()
         }
+        #if os(Linux)
+        lastHeaderField.appendData(data)
+        #else
         lastHeaderField.append(data)
+        #endif
         lastHeaderWasAValue = false
         
     }
@@ -346,7 +354,11 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     func onHeaderValue (data: NSData) {
 
+        #if os(Linux)
+        lastHeaderValue.appendData(data)
+        #else
         lastHeaderValue.append(data)
+        #endif
         lastHeaderWasAValue = true
 
     }
@@ -443,7 +455,11 @@ internal class HeaderStorage {
     internal var arrayHeaders = [String: [String]]()
 
     func addHeader(headerKey: String, headerValue: String) {
-        let headerKeyLowerCase = headerKey.bridge().lowercased
+        #if os(Linux)
+        let headerKeyLowerCase = headerKey.bridge().lowercaseString
+        #else
+        let headerKeyLowerCase = headerKey.lowercased()
+        #endif
         // Determine how to handle the header (i.e. simple header array header,...)
         switch(headerKeyLowerCase) {
 
@@ -493,7 +509,11 @@ public class SimpleHeaders {
     }
 
     public subscript(key: String) -> String? {
+        #if os(Linux)
         let keyLowercase = key.bridge().lowercaseString
+        #else
+        let keyLowercase = key.lowercased()
+        #endif
         var result = storage.simpleHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.arrayHeaders[keyLowercase]  {
@@ -546,11 +566,19 @@ public class ArrayHeaders {
     }
 
     public subscript(key: String) -> [String]? {
+        #if os(Linux)
         let keyLowercase = key.bridge().lowercaseString
+        #else
+        let keyLowercase = key.lowercased()
+        #endif
         var result = storage.arrayHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.simpleHeaders[keyLowercase]  {
+                #if os(Linux)
                 result = entry.bridge().componentsSeparatedByString(", ")
+                #else
+                result = entry.componentsSeparated(by: ", ")
+                #endif
             }
         }
         return result
@@ -581,7 +609,11 @@ public struct ArrayHeadersIterator: IteratorProtocol {
         if  result == nil  {
             if  let simpleElem = simpleIterator.next()  {
                 let (simpleKey, simpleValue) = simpleElem
+                #if os(Linux)
                 result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
+                #else
+                result = (simpleKey, simpleValue.componentsSeparated(by: ", "))
+                #endif
             }
         }
         return result
