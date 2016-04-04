@@ -131,10 +131,18 @@ public class UrlParser : CustomStringConvertible {
             
             if let query = query {
                 
+                #if os(Linux)
                 let pairs = query.bridge().componentsSeparatedByString("&")
+                #else
+                let pairs = query.componentsSeparated(by: "&")
+                #endif
                 for pair in pairs {
                     
+                    #if os(Linux)
                     let pairArr = pair.bridge().componentsSeparatedByString("=")
+                    #else
+                    let pairArr = pair.componentsSeparated(by: "=")
+                    #endif
                     if pairArr.count == 2 {
                         queryParams[pairArr[0]] = pairArr[1]
                     }
