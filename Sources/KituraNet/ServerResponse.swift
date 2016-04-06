@@ -116,6 +116,46 @@ public class ServerResponse : SocketWriter {
         multiHeaders[key] = value
         singleHeaders.removeValue(forKey: key)
     }
+
+    ///
+    /// Append a value to the header
+    ///
+    /// - Parameter key: the header key
+    /// - Parameter value: string value
+    ///
+    public func append(key: String, value: String) {
+
+        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
+            multiHeaders[key] = [singleValue, value]
+            singleHeaders.removeValue(forKey: key)
+        } else if let _ = multiHeaders[key] {
+            multiHeaders[key]!.append(value)
+        } else {
+            setHeader(key, value: value)
+        }
+    }
+
+    ///
+    /// Append values to the header
+    ///
+    /// - Parameter key: the header key
+    /// - Parameter value: array of string values
+    ///
+    public func append(key: String, value: [String]) {
+
+        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
+            multiHeaders[key] = [singleValue] + value
+            singleHeaders.removeValue(forKey: key)
+        } else if let _ = multiHeaders[key] {
+            multiHeaders[key]! = multiHeaders[key]! + value
+        } else {
+            if value.count == 1 {
+                setHeader(key, value: value.first!)
+            } else {
+                setHeader(key, value: value)
+            }
+        }
+    }
     
     ///
     /// Remove a key from the header
