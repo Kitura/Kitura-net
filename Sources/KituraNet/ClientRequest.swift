@@ -112,7 +112,7 @@ public class ClientRequest: SocketWriter {
         var theSchema = "http://"
         var hostName = "localhost"
         var path = "/"
-        var port:Int16 = -1
+        var port: Int16? = nil
 
         for option in options  {
             switch(option) {
@@ -149,7 +149,7 @@ public class ClientRequest: SocketWriter {
         }
 
         var portClause = ""
-        if  port != -1  {
+        if  let port = port  {
             portClause = ":\(String(port))"
         }
 
