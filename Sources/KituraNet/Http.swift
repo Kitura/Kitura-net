@@ -102,7 +102,11 @@ public class Http {
     ///
     /// A set of characters that are valid in requests
     ///
+    #if os(Linux)
     private static let allowedCharacterSet =  NSCharacterSet(charactersInString:"\"#%/<>?@\\^`{|}").invertedSet
+    #else
+    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").inverted
+    #endif
     
     ///
     /// Transform the URL into escaped characters
@@ -112,9 +116,15 @@ public class Http {
     ///
     public static func escapeUrl(url: String) -> String {
         
+        #if os(Linux)
         if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
             return escaped
         }
+        #else
+        if let escaped = url.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
+            return escaped
+        }
+        #endif
         
         return url
     }

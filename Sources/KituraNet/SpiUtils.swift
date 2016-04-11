@@ -68,12 +68,18 @@ public class SpiUtils {
     ///
     public static func httpDate(date: NSDate) -> String {
 
-        let calendar = NSCalendar.currentCalendar()
-        calendar.timeZone = NSTimeZone(name: "UTC")!
-        let temp = calendar.components([.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday], fromDate: date)
 #if os(Linux)
+        let calendar = NSCalendar.currentCalendar()
+#else
+        let calendar = NSCalendar.current()
+#endif
+        calendar.timeZone = NSTimeZone(name: "UTC")!
+        
+#if os(Linux)
+        let temp = calendar.components([.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday], fromDate: date)
         let components = temp!
 #else
+        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
         let components = temp
 #endif
         let wday = Int(components.weekday)

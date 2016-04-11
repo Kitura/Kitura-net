@@ -14,18 +14,18 @@
  * limitations under the License.
  **/
 
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: ServerResponse
 
-public class ServerResponse : BlueSocketWriter {
+public class ServerResponse : SocketWriter {
 
     ///
     /// Socket for the ServerResponse
     ///
-    private var socket: BlueSocket?
+    private var socket: Socket?
     
     ///
     /// TODO: ???
@@ -64,7 +64,7 @@ public class ServerResponse : BlueSocketWriter {
     ///
     /// Initializes a ServerResponse instance
     ///
-    init(socket: BlueSocket) {
+    init(socket: Socket) {
         
         self.socket = socket
         setHeader("Date", value: SpiUtils.httpDate())
@@ -103,7 +103,7 @@ public class ServerResponse : BlueSocketWriter {
     ///
     public func setHeader(key: String, value: String) {
         singleHeaders[key] = value
-        multiHeaders.removeValueForKey(key)
+        multiHeaders.removeValue(forKey: key)
     }
 
     ///
@@ -114,7 +114,47 @@ public class ServerResponse : BlueSocketWriter {
     ///
     public func setHeader(key: String, value: [String]) {
         multiHeaders[key] = value
-        singleHeaders.removeValueForKey(key)
+        singleHeaders.removeValue(forKey: key)
+    }
+
+    ///
+    /// Append a value to the header
+    ///
+    /// - Parameter key: the header key
+    /// - Parameter value: string value
+    ///
+    public func append(key: String, value: String) {
+
+        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
+            multiHeaders[key] = [singleValue, value]
+            singleHeaders.removeValue(forKey: key)
+        } else if let _ = multiHeaders[key] {
+            multiHeaders[key]!.append(value)
+        } else {
+            setHeader(key, value: value)
+        }
+    }
+
+    ///
+    /// Append values to the header
+    ///
+    /// - Parameter key: the header key
+    /// - Parameter value: array of string values
+    ///
+    public func append(key: String, value: [String]) {
+
+        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
+            multiHeaders[key] = [singleValue] + value
+            singleHeaders.removeValue(forKey: key)
+        } else if let _ = multiHeaders[key] {
+            multiHeaders[key]! = multiHeaders[key]! + value
+        } else {
+            if value.count == 1 {
+                setHeader(key, value: value.first!)
+            } else {
+                setHeader(key, value: value)
+            }
+        }
     }
     
     ///
@@ -123,22 +163,22 @@ public class ServerResponse : BlueSocketWriter {
     /// - Parameter key: key
     ///
     public func removeHeader(key: String) {
-        singleHeaders.removeValueForKey(key)
-        multiHeaders.removeValueForKey(key)
+        singleHeaders.removeValue(forKey: key)
+        multiHeaders.removeValue(forKey: key)
     }
     
     ///
     /// Write a string as a response 
     ///
-    /// - Parameter text: String to write out socket
+    /// - Parameter string: String data to be written.
     ///
     /// - Throws: ???
     ///
-    public func writeString(text: String) throws {
+    public func write(from string: String) throws {
         
         if  let socket = socket {
             try flushStart()
-            try socket.writeString(text)
+            try socket.write(from: string)
         }
         
     }
@@ -146,15 +186,17 @@ public class ServerResponse : BlueSocketWriter {
     ///
     /// Write data as a response
     ///
-    /// - Parameter data: data to write out socket
+    /// - Parameter data: NSMutableData object to contain read data.
+    ///
+    /// - Returns: Integer representing the number of bytes read.
     ///
     /// - Throws: ???
     ///
-    public func writeData(data: NSData) throws {
+    public func write(from data: NSData) throws {
         
         if  let socket = socket {
             try flushStart()
-            try socket.writeData(data)
+            try socket.write(from: data)
         }
         
     }
@@ -167,7 +209,7 @@ public class ServerResponse : BlueSocketWriter {
     /// - Throws: ???
     ///
     public func end(text: String) throws {
-        try writeString(text)
+        try write(from: text)
         try end()
     }
     
@@ -195,35 +237,35 @@ public class ServerResponse : BlueSocketWriter {
             return
         }
 
-        try socket.writeString("HTTP/1.1 ")
-        try socket.writeString(String(status))
-        try socket.writeString(" ")
+        try socket.write(from: "HTTP/1.1 ")
+        try socket.write(from: String(status))
+        try socket.write(from: " ")
         var statusText = Http.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
         }
 
-        try socket.writeString(statusText!)
-        try socket.writeString("\r\n")
+        try socket.write(from: statusText!)
+        try socket.write(from: "\r\n")
 
         for (key, value) in singleHeaders {
-            try socket.writeString(key)
-            try socket.writeString(": ")
-            try socket.writeString(value)
-            try socket.writeString("\r\n")
+            try socket.write(from: key)
+            try socket.write(from: ": ")
+            try socket.write(from: value)
+            try socket.write(from: "\r\n")
         }
 
         for (key, valueSet) in multiHeaders {
             for value in valueSet {
-                try socket.writeString(key)
-                try socket.writeString(": ")
-                try socket.writeString(value)
-                try socket.writeString("\r\n")
+                try socket.write(from: key)
+                try socket.write(from: ": ")
+                try socket.write(from: value)
+                try socket.write(from: "\r\n")
             }
         }
 
-        try socket.writeString("\r\n")
+        try socket.write(from: "\r\n")
         startFlushed = true
     }
 }

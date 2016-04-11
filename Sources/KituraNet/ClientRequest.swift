@@ -16,13 +16,13 @@
 
 import KituraSys
 import CCurl
-import BlueSocket
+import Socket
 
 import Foundation
 
 // MARK: ClientRequest
 
-public class ClientRequest: BlueSocketWriter {
+public class ClientRequest: SocketWriter {
 
     ///
     /// Internal lock to the request
@@ -106,17 +106,17 @@ public class ClientRequest: BlueSocketWriter {
     /// - Returns: a ClientRequest instance
     ///
     init(options: [ClientRequestOptions], callback: ClientRequestCallback) {
-        
+
         self.callback = callback
 
         var theSchema = "http://"
         var hostName = "localhost"
         var path = "/"
-        var port:Int16 = 80
+        var port: Int16? = nil
 
         for option in options  {
             switch(option) {
-                
+
                 case .Method(let method):
                     self.method = method
                 case .Schema(let schema):
@@ -145,29 +145,31 @@ public class ClientRequest: BlueSocketWriter {
         let pwd = self.password ?? ""
         var authenticationClause = ""
         if (!user.isEmpty && !pwd.isEmpty) {
-            
           authenticationClause = "\(user):\(pwd)@"
-            
         }
-        
-        let portNumber = String(port)
-        url = "\(theSchema)\(authenticationClause)\(hostName):\(portNumber)\(path)"
-        
+
+        var portClause = ""
+        if  let port = port  {
+            portClause = ":\(String(port))"
+        }
+
+        url = "\(theSchema)\(authenticationClause)\(hostName)\(portClause)\(path)"
+
     }
 
     ///
     /// Instance destruction
     ///
     deinit {
-        
+
         if  let handle = handle  {
             curl_easy_cleanup(handle)
         }
-        
+
         if  headersList != nil  {
             curl_slist_free_all(headersList)
         }
-        
+
     }
 
     ///
@@ -175,10 +177,10 @@ public class ClientRequest: BlueSocketWriter {
     ///
     /// - Parameter str: String to be written
     ///
-    public func writeString(str: String) {
+    public func write(from string: String) {
         
-        if  let data = StringUtils.toUtf8String(str)  {
-            writeData(data)
+        if  let data = StringUtils.toUtf8String(string)  {
+            write(from: data)
         }
         
     }
@@ -188,7 +190,7 @@ public class ClientRequest: BlueSocketWriter {
     ///
     /// - Parameter data: NSData to be written
     ///
-    public func writeData(data: NSData) {
+    public func write(from data: NSData) {
         
         writeBuffers.appendData(data)
         
@@ -201,7 +203,7 @@ public class ClientRequest: BlueSocketWriter {
     ///
     public func end(data: String) {
         
-        writeString(data)
+        write(from: data)
         end()
         
     }
@@ -213,7 +215,7 @@ public class ClientRequest: BlueSocketWriter {
     ///
     public func end(data: NSData) {
         
-        writeData(data)
+        write(from: data)
         end()
         
     }
@@ -294,7 +296,7 @@ public class ClientRequest: BlueSocketWriter {
     ///
     private func setMethod() {
         
-        let methodUpperCase = method.uppercaseString
+        let methodUpperCase = method.uppercased()
         switch(methodUpperCase) {
             case "GET":
                 curlHelperSetOptBool(handle!, CURLOPT_HTTPGET, CURL_TRUE)
@@ -450,13 +452,13 @@ private class CurlInvoker {
         curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.memory?.curlReadCallback(buf, size: size*nMemb))!
+                return (p.pointee?.curlReadCallback(buf, size: size*nMemb))!
         }
 
         curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.memory?.curlWriteCallback(buf, size: size*nMemb))!
+                return (p.pointee?.curlWriteCallback(buf, size: size*nMemb))!
         }
     }
     
