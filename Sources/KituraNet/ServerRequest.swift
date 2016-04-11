@@ -26,6 +26,13 @@ public class ServerRequest: IncomingMessage {
     /// Socket for the request
     ///
     private let socket: Socket
+
+    ///
+    /// server IP address pulled from socket
+    ///
+    public var remoteAddress: String {
+        return socket.remoteHostname
+    }
     
     ///
     /// Initializes a ServerRequest
