@@ -68,28 +68,28 @@ class HttpParser {
         settings.on_url = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
-            p.pointee?.onUrl(data)
+            p?.pointee?.onUrl(data)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
-            p.pointee?.onHeaderField(data)
+            p?.pointee?.onHeaderField(data)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
-            p.pointee?.onHeaderValue(data)
+            p?.pointee?.onHeaderValue(data)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
-            p.pointee?.onBody(data)
+            p?.pointee?.onBody(data)
            
             return 0
         }
@@ -105,7 +105,7 @@ class HttpParser {
                 message += String(UnicodeScalar(UInt8((po+i).pointee)))
                 i += 1
             }
-            p.pointee?.onHeadersComplete(message, versionMajor: parser.pointee.http_major,
+            p?.pointee?.onHeadersComplete(method: message, versionMajor: parser.pointee.http_major,
                 versionMinor: parser.pointee.http_minor)
             
             return 0
@@ -113,7 +113,7 @@ class HttpParser {
         
         settings.on_message_begin = { (parser) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
-            p.pointee?.onMessageBegin()
+            p?.pointee?.onMessageBegin()
             
             return 0
         }
@@ -121,10 +121,10 @@ class HttpParser {
         settings.on_message_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
             if get_status_code(parser) == 100 {
-                p.pointee?.reset()
+                p?.pointee?.reset()
             }
             else {
-                p.pointee?.onMessageComplete()
+                p?.pointee?.onMessageComplete()
             }
             
             return 0
@@ -142,7 +142,7 @@ class HttpParser {
     ///
     /// - Returns: ???
     ///
-    func execute (data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
+    func execute (_ data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
         let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
@@ -154,13 +154,13 @@ class HttpParser {
 ///
 protocol HttpParserDelegate: class {
     
-    func onUrl(url:NSData)
-    func onHeaderField(data: NSData)
-    func onHeaderValue(data: NSData)
+    func onUrl(_ url:NSData)
+    func onHeaderField(_ data: NSData)
+    func onHeaderValue(_ data: NSData)
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16)
     func onMessageBegin()
     func onMessageComplete()
-    func onBody(body: NSData)
+    func onBody(_ body: NSData)
     func reset()
     
 }

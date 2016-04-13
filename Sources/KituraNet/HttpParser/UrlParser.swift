@@ -134,14 +134,14 @@ public class UrlParser : CustomStringConvertible {
                 #if os(Linux)
                 let pairs = query.bridge().componentsSeparatedByString("&")
                 #else
-                let pairs = query.componentsSeparated(by: "&")
+                let pairs = query.components(separatedBy: "&")
                 #endif
                 for pair in pairs {
                     
                     #if os(Linux)
                     let pairArr = pair.bridge().componentsSeparatedByString("=")
                     #else
-                    let pairArr = pair.componentsSeparated(by: "=")
+                    let pairArr = pair.components(separatedBy: "=")
                     #endif
                     if pairArr.count == 2 {
                         queryParams[pairArr[0]] = pairArr[1]
@@ -157,7 +157,7 @@ public class UrlParser : CustomStringConvertible {
     /// TODO: ???
     ///
     ///
-    private func getValueFromUrl(url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
+    private func getValueFromUrl(_ url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
         fieldData: http_parser_url_field_data) -> String? {
         
         if fieldSet & (1 << fieldIndex) != 0 {

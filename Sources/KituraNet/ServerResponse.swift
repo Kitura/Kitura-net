@@ -67,7 +67,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
         
         self.socket = socket
-        setHeader("Date", value: SpiUtils.httpDate())
+        setHeader(key: "Date", value: SpiUtils.httpDate())
         
     }
     
@@ -131,7 +131,7 @@ public class ServerResponse : SocketWriter {
         } else if let _ = multiHeaders[key] {
             multiHeaders[key]!.append(value)
         } else {
-            setHeader(key, value: value)
+            setHeader(key: key, value: value)
         }
     }
 
@@ -150,9 +150,9 @@ public class ServerResponse : SocketWriter {
             multiHeaders[key]! = multiHeaders[key]! + value
         } else {
             if value.count == 1 {
-                setHeader(key, value: value.first!)
+                setHeader(key: key, value: value.first!)
             } else {
-                setHeader(key, value: value)
+                setHeader(key: key, value: value)
             }
         }
     }

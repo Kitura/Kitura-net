@@ -97,7 +97,7 @@ public class SpiUtils {
     ///
     /// - Parameter num: the number
     ///
-    private static func twoDigit(num: Int) -> String {
+    private static func twoDigit(_ num: Int) -> String {
 
         return (num < 10 ? "0" : "") + String(num)
 

@@ -44,7 +44,7 @@ public class ServerRequest: IncomingMessage {
         self.socket = socket
         super.init(isRequest: true)
         
-        setup(self)
+        setup(helper: self)
     }
 }
 

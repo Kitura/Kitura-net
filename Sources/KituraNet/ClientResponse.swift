@@ -29,7 +29,7 @@ public class ClientResponse: IncomingMessage {
     init() {
         
         super.init(isRequest: false)
-        setup(self)
+        setup(helper: self)
         
     }
     
@@ -69,7 +69,7 @@ extension ClientResponse: IncomingMessageHelper {
     ///
     func readDataHelper(data: NSMutableData) -> Int {
         
-        return responseBuffers.fillData(data)
+        return responseBuffers.fill(data: data)
         
     }
     
