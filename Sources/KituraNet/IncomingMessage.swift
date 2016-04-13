@@ -190,7 +190,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         while status == .Initial {
             do {
                 ioBuffer!.length = 0
-                let length = try helper!.read(into: ioBuffer!)
+                let length = try helper!.readHelper(into: ioBuffer!)
                 if length > 0 {
                     let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
                     if upgrade == 1 {
@@ -235,7 +235,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
             if let parser = httpParser where status == .HeadersComplete {
                 do {
                     ioBuffer!.length = 0
-                    count = try helper!.read(into: ioBuffer!)
+                    count = try helper!.readHelper(into: ioBuffer!)
                     if count > 0 {
                         let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
                         if upgrade == 1 {
@@ -627,6 +627,6 @@ protocol IncomingMessageHelper: class {
     ///
     /// TODO: ???
     ///
-    func read(into data: NSMutableData) throws -> Int
+    func readHelper(into data: NSMutableData) throws -> Int
 
 }
