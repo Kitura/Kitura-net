@@ -274,7 +274,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Returns: the number of bytes read
     ///
-    public func readAllData(data: NSMutableData) throws -> Int {
+    public func readAllData(into data: NSMutableData) throws -> Int {
         var length = try read(into: data)
         var bytesRead = length
         while length != 0 {

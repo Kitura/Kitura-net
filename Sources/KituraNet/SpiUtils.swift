@@ -66,7 +66,7 @@ public class SpiUtils {
     ///
     /// - Returns: string representation of timestamp
     ///
-    public static func httpDate(date: NSDate) -> String {
+    public static func httpDate(_ date: NSDate) -> String {
 
 #if os(Linux)
         let calendar = NSCalendar.currentCalendar()

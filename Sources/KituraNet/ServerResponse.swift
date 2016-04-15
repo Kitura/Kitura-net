@@ -67,7 +67,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
         
         self.socket = socket
-        setHeader(key: "Date", value: SpiUtils.httpDate())
+        setHeader("Date", value: SpiUtils.httpDate())
         
     }
     
@@ -76,7 +76,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// - Parameter key: the header key
     ///
-    public func getHeader(key: String) -> String? {
+    public func getHeader(_ key: String) -> String? {
         
         return singleHeaders[key]
         
@@ -89,7 +89,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// - Returns: a list of String values
     ///
-    public func getHeaders(key: String) -> [String]? {
+    public func getHeaders(_ key: String) -> [String]? {
         
         return multiHeaders[key]
         
@@ -101,7 +101,7 @@ public class ServerResponse : SocketWriter {
     /// - Parameter key: key 
     /// - Parameter value: the value
     ///
-    public func setHeader(key: String, value: String) {
+    public func setHeader(_ key: String, value: String) {
         singleHeaders[key] = value
         multiHeaders.removeValue(forKey: key)
     }
@@ -112,7 +112,7 @@ public class ServerResponse : SocketWriter {
     /// - Parameter key: key
     /// - Parameter value: the value
     ///
-    public func setHeader(key: String, value: [String]) {
+    public func setHeader(_ key: String, value: [String]) {
         multiHeaders[key] = value
         singleHeaders.removeValue(forKey: key)
     }
@@ -131,7 +131,7 @@ public class ServerResponse : SocketWriter {
         } else if let _ = multiHeaders[key] {
             multiHeaders[key]!.append(value)
         } else {
-            setHeader(key: key, value: value)
+            setHeader(key, value: value)
         }
     }
 
@@ -150,9 +150,9 @@ public class ServerResponse : SocketWriter {
             multiHeaders[key]! = multiHeaders[key]! + value
         } else {
             if value.count == 1 {
-                setHeader(key: key, value: value.first!)
+                setHeader(key, value: value.first!)
             } else {
-                setHeader(key: key, value: value)
+                setHeader(key, value: value)
             }
         }
     }
