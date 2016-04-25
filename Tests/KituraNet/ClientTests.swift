@@ -32,9 +32,9 @@ class ClientTests: XCTestCase {
         _ = Http.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
             XCTAssertEqual(response!.statusCode, HttpStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
-            let contentType = response!.headers["Content-Type"]
+            let contentType = response!.headers.getHeader("Content-Type")
             XCTAssertNotNil(contentType, "No ContentType header in response")
-            XCTAssertEqual(contentType!, "text/html", "Content-Type header wasn't `text/html`")
+            XCTAssertEqual(contentType!, ["text/html"], "Content-Type header wasn't `text/html`")
         }
     }
 }

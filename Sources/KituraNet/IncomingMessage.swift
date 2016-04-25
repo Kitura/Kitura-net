@@ -39,25 +39,10 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     public private(set) var httpVersionMinor: UInt16?
 
-    //
-    // Storage for headers
-    //
-    private let headerStorage = HeaderStorage()
-
     ///
-    /// Set of headers who's value is a String
+    /// Set of headers
     ///
-    public private(set) var headers: SimpleHeaders
-
-    ///
-    /// Set of headers who's value is an Array
-    ///
-    public private(set) var headersAsArrays: ArrayHeaders
-
-    ///
-    /// Raw headers before processing
-    ///
-    public private(set) var rawHeaders = [String]()
+    public private(set) var headers = Headers()
 
     ///
     /// HTTP Method
@@ -158,9 +143,6 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     init (isRequest: Bool) {
         httpParser = HttpParser(isRequest: isRequest)
-
-        headers = SimpleHeaders(storage: headerStorage)
-        headersAsArrays = ArrayHeaders(storage: headerStorage)
 
         httpParser!.delegate = self
     }
@@ -371,10 +353,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
         let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
 
-        rawHeaders.append(headerKey)
-        rawHeaders.append(headerValue)
-
-        headerStorage.addHeader(headerKey, headerValue: headerValue)
+        headers.append(headerKey, value: headerValue)
 
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
@@ -438,186 +417,6 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     func reset() {
     }
 
-}
-
-//
-// Private class for Header storage
-//
-internal class HeaderStorage {
-    //
-    // Storage for headers who's value is a String
-    //
-    internal var simpleHeaders = [String:String]()
-
-    //
-    // Storage for headers who's value is an Array of Strings
-    //
-    internal var arrayHeaders = [String: [String]]()
-
-    func addHeader(headerKey: String, headerValue: String) {
-        #if os(Linux)
-        let headerKeyLowerCase = headerKey.bridge().lowercaseString
-        #else
-        let headerKeyLowerCase = headerKey.lowercased()
-        #endif
-        // Determine how to handle the header (i.e. simple header array header,...)
-        switch(headerKeyLowerCase) {
-
-            // Headers with an array value (can appear multiple times, but can't be merged)
-            //
-            case "set-cookie":
-                var oldArray = arrayHeaders[headerKeyLowerCase] ?? [String]()
-                oldArray.append(headerValue)
-                arrayHeaders[headerKeyLowerCase] = oldArray
-                break
-
-            // Headers with a simple value that are not merged (i.e. duplicates dropped)
-            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
-            //
-            case "content-type", "content-length", "user-agent", "referer", "host",
-                    "authorization", "proxy-authorization", "if-modified-since",
-                    "if-unmodified-since", "from", "location", "max-forwards",
-                    "retry-after", "etag", "last-modified", "server", "age", "expires":
-                if  simpleHeaders[headerKeyLowerCase]  == nil  {
-                    // ignore the header if we already had one with this key
-                    simpleHeaders[headerKeyLowerCase] = headerValue
-                }
-                break
-
-            // Headers with a simple value that can be merged
-            //
-            default:
-                if  let oldValue = simpleHeaders[headerKeyLowerCase]  {
-                    simpleHeaders[headerKeyLowerCase] = oldValue + ", " + headerValue
-                }
-                else {
-                    simpleHeaders[headerKeyLowerCase] = headerValue
-                }
-                break
-        }
-    }
-}
-
-//
-// Class to "simulate" Dictionary access of headers with simple values
-//
-public class SimpleHeaders {
-    internal let storage: HeaderStorage
-
-    private init(storage: HeaderStorage) {
-        self.storage = storage
-    }
-
-    public subscript(key: String) -> String? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
-        let keyLowercase = key.lowercased()
-        #endif
-        var result = storage.simpleHeaders[keyLowercase]
-        if  result == nil  {
-            if  let entry = storage.arrayHeaders[keyLowercase]  {
-                result = entry[0]
-            }
-        }
-        return result
-    }
-}
-
-extension SimpleHeaders: Sequence {
-    public typealias Iterator = SimpleHeadersIterator
-
-    public func makeIterator() -> SimpleHeaders.Iterator {
-        return SimpleHeaders.Iterator(self)
-    }
-}
-
-public struct SimpleHeadersIterator: IteratorProtocol {
-    public typealias Element = (String, String)
-
-    private var simpleIterator: DictionaryIterator<String, String>
-    private var arrayIterator: DictionaryIterator<String, [String]>
-
-    init(_ simpleHeaders: SimpleHeaders) {
-        simpleIterator = simpleHeaders.storage.simpleHeaders.makeIterator()
-        arrayIterator = simpleHeaders.storage.arrayHeaders.makeIterator()
-    }
-
-    public mutating func next() -> SimpleHeadersIterator.Element? {
-        var result = simpleIterator.next()
-        if  result == nil  {
-            if  let arrayElem = arrayIterator.next()  {
-                let (arrayKey, arrayValue) = arrayElem
-                result = (arrayKey, arrayValue[0])
-            }
-        }
-        return result
-    }
-}
-
-//
-// Class to "simulate" Dictionary access of headers with array values
-//
-public class ArrayHeaders {
-    private let storage: HeaderStorage
-
-    private init(storage: HeaderStorage) {
-        self.storage = storage
-    }
-
-    public subscript(key: String) -> [String]? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
-        let keyLowercase = key.lowercased()
-        #endif
-        var result = storage.arrayHeaders[keyLowercase]
-        if  result == nil  {
-            if  let entry = storage.simpleHeaders[keyLowercase]  {
-                #if os(Linux)
-                result = entry.bridge().componentsSeparatedByString(", ")
-                #else
-                result = entry.componentsSeparated(by: ", ")
-                #endif
-            }
-        }
-        return result
-    }
-}
-
-extension ArrayHeaders: Sequence {
-    public typealias Iterator = ArrayHeadersIterator
-
-    public func makeIterator() -> ArrayHeaders.Iterator {
-        return ArrayHeaders.Iterator(self)
-    }
-}
-
-public struct ArrayHeadersIterator: IteratorProtocol {
-    public typealias Element = (String, [String])
-
-    private var arrayIterator: DictionaryIterator<String, [String]>
-    private var simpleIterator: DictionaryIterator<String, String>
-
-    init(_ arrayHeaders: ArrayHeaders) {
-        arrayIterator = arrayHeaders.storage.arrayHeaders.makeIterator()
-        simpleIterator = arrayHeaders.storage.simpleHeaders.makeIterator()
-    }
-
-    public mutating func next() -> ArrayHeadersIterator.Element? {
-        var result = arrayIterator.next()
-        if  result == nil  {
-            if  let simpleElem = simpleIterator.next()  {
-                let (simpleKey, simpleValue) = simpleElem
-                #if os(Linux)
-                result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
-                #else
-                result = (simpleKey, simpleValue.componentsSeparated(by: ", "))
-                #endif
-            }
-        }
-        return result
-    }
 }
 
 ///
