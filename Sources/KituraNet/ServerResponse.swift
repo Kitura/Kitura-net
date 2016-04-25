@@ -35,7 +35,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// TODO: ???
     ///
-    public var headers: [String: [String]] = [:]
+    public var headers = Headers()
     
     ///
     /// Status code
@@ -62,8 +62,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
         
         self.socket = socket
-        headers["Date"] = [SpiUtils.httpDate()]
-        
+        headers.setHeader("Date", value: [SpiUtils.httpDate()])
     }
     
     ///
@@ -148,7 +147,7 @@ public class ServerResponse : SocketWriter {
         try socket.write(from: statusText!)
         try socket.write(from: "\r\n")
 
-        for (key, valueSet) in headers {
+        for (key, valueSet) in headers.headers {
             for value in valueSet {
                 try socket.write(from: key)
                 try socket.write(from: ": ")
