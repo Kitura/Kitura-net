@@ -62,7 +62,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
         
         self.socket = socket
-        headers.setHeader("Date", value: [SpiUtils.httpDate()])
+        headers.set("Date", value: [SpiUtils.httpDate()])
     }
     
     ///
