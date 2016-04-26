@@ -7,7 +7,8 @@ branches:
     - develop
 
 notifications:
-  slack: ibmswift:RHkwcHYh4kkYVRVzm9nZk5TF
+  slack:
+    secure: "rbi1R2Icz5jsIo5YsFmRFyhjb+sJgAXHYQEdRE508oRjANhvOJ0JwIbDLLOT4w3lN1AAIWFaEP/el3UN9F/ZNCUqYiduXfpS3clagYVlG3gjFruLOnVIT85ubazYcLqMNvbhGRJvMyHUroCIIg3qPeCoF77UkA6WKhsgfbD1Oa6PkO+o1R4TAb2h5YUZbuvRan/4MUu6eSUj7bQ0qbB+viSAYDZCn0saMcj7v4n3HI+RiQkVN1HFkaSUBSRGLJYGd+kGwEAp3sqN0lSkAWPyteblzaXAvpobO+fQrTiBGVJoln+1ITesCvPMlEbXW2g+Yldb+wtr2dsDMLtcj7PVlKKanmEfz7bst0hw2SXShoarnW2LBo9AzQNpl/XF6GuGu3VT/KdP4M9hg6wuXCmmFSrPLM8mSdcenIlCOdO1h7nV+LRaSGLJzKIQGDUdFPpw6WoKJ/WKMWd7E6q9JLDffRY5C8IeekC7tLxMn5ZKMPZaM6yAzBkS/USlR34BuyrTQcvv707aJF/UaZXmhDZ72/3uN2zMdSpVWXVWwGmayRnDNrTeGe2wMe2AdnZC43V0MmS3a88AQGl3E1IDgrVBtIZJ0wTax/rCFU1ePNH/KErdFcaJ4s4v0Pv4WR4I2JYKQ6rSblV477DBi2ZJv+G/yaOXhwE+6gRqIHy73pG4YTU="
 
 matrix:
   include:
@@ -15,7 +16,7 @@ matrix:
       services: docker
       sudo: required
     - os: osx
-      osx_image: xcode7.2
+      osx_image: xcode7.3
       sudo: required
 
 before_install:
