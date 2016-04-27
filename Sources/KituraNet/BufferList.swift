@@ -66,11 +66,7 @@ public class BufferList {
     /// Parameter length: number of bytes in the array
     ///
     public func append(bytes: UnsafePointer<UInt8>, length: Int) {
-    #if os(Linux)
-        lclData!.appendBytes(bytes, length: length)
-    #else
         lclData!.append(bytes, length: length)
-    #endif
     }
     
     ///
@@ -79,11 +75,7 @@ public class BufferList {
     /// Parameter data: The data to append
     ///
     public func append(data: NSData) {
-    #if os(Linux)
-        lclData!.appendBytes(data.bytes, length: data.length)
-    #else
         lclData!.append(data.bytes, length: data.length)
-    #endif
     }
     
     ///
@@ -131,11 +123,7 @@ public class BufferList {
     public func fill(data: NSMutableData) -> Int {
         
         let result = lclData!.length-byteIndex
-    #if os(Linux)
-        data.appendBytes(lclData!.bytes+byteIndex, length: result)
-    #else
         data.append(lclData!.bytes+byteIndex, length: result)
-    #endif
         byteIndex += result
         return result
         

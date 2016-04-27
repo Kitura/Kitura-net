@@ -320,11 +320,8 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onUrl(_ data: NSData) {
-        #if os(Linux)
-        url.appendData(data)
-        #else
+
         url.append(data)
-        #endif
     }
 
 
@@ -338,11 +335,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         if lastHeaderWasAValue {
             addHeader()
         }
-        #if os(Linux)
-        lastHeaderField.appendData(data)
-        #else
         lastHeaderField.append(data)
-        #endif
         lastHeaderWasAValue = false
         
     }
@@ -354,11 +347,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     func onHeaderValue (_ data: NSData) {
 
-        #if os(Linux)
-        lastHeaderValue.appendData(data)
-        #else
         lastHeaderValue.append(data)
-        #endif
         lastHeaderWasAValue = true
 
     }
