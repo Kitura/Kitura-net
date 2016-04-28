@@ -114,7 +114,7 @@ public class Http {
     /// *Note*: URLS can only be sent over the Internet using the ASCII character set, so character escaping will
     /// transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
     ///
-    public static func escapeUrl(url: String) -> String {
+    public static func escapeUrl(_ url: String) -> String {
         
         #if os(Linux)
         if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {

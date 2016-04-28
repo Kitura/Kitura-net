@@ -201,7 +201,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter data: string to send before ending
     ///
-    public func end(data: String) {
+    public func end(_ data: String) {
         
         write(from: data)
         end()
@@ -213,7 +213,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter data: data to send before ending
     ///
-    public func end(data: NSData) {
+    public func end(_ data: NSData) {
         
         write(from: data)
         end()

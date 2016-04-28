@@ -170,7 +170,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter helper: the IncomingMessageHelper
     ///
-    func setup(helper: IncomingMessageHelper) {
+    func setup(_ helper: IncomingMessageHelper) {
         self.helper = helper
     }
 
@@ -180,7 +180,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter callback: (HttpParserErrorType) -> Void closure
     ///
-    func parse (callback: (HttpParserErrorType) -> Void) {
+    func parse (_ callback: (HttpParserErrorType) -> Void) {
         guard let parser = httpParser where status == .Initial else {
             freeHttpParser()
             callback(.InternalError)
