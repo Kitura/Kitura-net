@@ -29,7 +29,7 @@ public class ClientResponse: IncomingMessage {
     init() {
         
         super.init(isRequest: false)
-        setup(helper: self)
+        setup(self)
         
     }
     
