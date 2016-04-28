@@ -7,7 +7,8 @@ branches:
     - develop
 
 notifications:
-  slack: ibmswift:RHkwcHYh4kkYVRVzm9nZk5TF
+  slack:
+    secure: "rbi1R2Icz5jsIo5YsFmRFyhjb+sJgAXHYQEdRE508oRjANhvOJ0JwIbDLLOT4w3lN1$
 
 matrix:
   include:
