@@ -45,7 +45,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// Status code
     ///
-    public var status = HttpStatusCode.OK.rawValue
+    private var status = HttpStatusCode.OK.rawValue
     
     ///
     /// Status code
