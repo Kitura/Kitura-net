@@ -65,8 +65,8 @@ public class BufferList {
     /// Parameter bytes: a pointer to the array
     /// Parameter length: number of bytes in the array
     ///
-    public func appendBytes(bytes: UnsafePointer<UInt8>, length: Int) {
-        lclData!.appendBytes(bytes, length: length)
+    public func append(bytes: UnsafePointer<UInt8>, length: Int) {
+        lclData!.append(bytes, length: length)
     }
     
     ///
@@ -74,8 +74,8 @@ public class BufferList {
     /// 
     /// Parameter data: The data to append
     ///
-    public func appendData(data: NSData) {
-        lclData!.appendBytes(data.bytes, length: data.length)
+    public func append(data: NSData) {
+        lclData!.append(data.bytes, length: data.length)
     }
     
     ///
@@ -85,10 +85,10 @@ public class BufferList {
     ///
     /// - Returns:
     ///
-    public func fillArray(buffer: inout [UInt8]) -> Int {
+    public func fill(array: inout [UInt8]) -> Int {
         
-        let result = min(buffer.count, lclData!.length-byteIndex)
-        memcpy(UnsafeMutablePointer<UInt8>(buffer), lclData!.bytes+byteIndex, Int(result))
+        let result = min(array.count, lclData!.length-byteIndex)
+        memcpy(UnsafeMutablePointer<UInt8>(array), lclData!.bytes+byteIndex, Int(result))
         byteIndex += result
         
         return result
@@ -103,7 +103,7 @@ public class BufferList {
     ///
     /// - Returns:
     ///
-    public func fillBuffer(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
+    public func fill(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
         
         let result = min(length, lclData!.length-byteIndex)
         memcpy(buffer, lclData!.bytes+byteIndex, Int(result))
@@ -120,10 +120,10 @@ public class BufferList {
     ///
     /// - Returns: 
     ///
-    public func fillData(data: NSMutableData) -> Int {
+    public func fill(data: NSMutableData) -> Int {
         
         let result = lclData!.length-byteIndex
-        data.appendBytes(lclData!.bytes+byteIndex, length: result)
+        data.append(lclData!.bytes+byteIndex, length: result)
         byteIndex += result
         return result
         

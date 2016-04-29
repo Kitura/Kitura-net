@@ -67,9 +67,9 @@ extension ClientResponse: IncomingMessageHelper {
     ///
     /// - Returns: ???
     ///
-    func readDataHelper(data: NSMutableData) -> Int {
+    func readHelper(into data: NSMutableData) -> Int {
         
-        return responseBuffers.fillData(data)
+        return responseBuffers.fill(data: data)
         
     }
     

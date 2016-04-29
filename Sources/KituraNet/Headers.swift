@@ -35,7 +35,7 @@ public struct Headers {
     ///
     /// - Returns: the value for the key
     ///
-    public func get(key: String) -> [String]? {
+    public func get(_ key: String) -> [String]? {
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             return headers[headerKey]
         }
@@ -51,7 +51,7 @@ public struct Headers {
     ///
     /// - Returns: the value for the key as a list
     ///
-    public mutating func set(key: String, value: [String]) {
+    public mutating func set(_ key: String, value: [String]) {
         
         headers[key] = value
         caseInsensitiveMap[key.lowercased()] = key
@@ -65,7 +65,7 @@ public struct Headers {
     ///
     /// - Returns: the value for the key as a list
     ///
-    public mutating func set(key: String, value: String) {
+    public mutating func set(_ key: String, value: String) {
         
         set(key, value: [value])
     }
@@ -76,7 +76,7 @@ public struct Headers {
     /// - Parameter key: the key
     /// - Parameter value: the value
     ///
-    public mutating func append(key: String, value: [String]) {
+    public mutating func append(_ key: String, value: [String]) {
         
         if headers[key] != nil {
             headers[key]? += value
@@ -92,7 +92,7 @@ public struct Headers {
     /// - Parameter key: the key
     /// - Parameter value: the value
     ///
-    public mutating func append(key: String, value: String) {
+    public mutating func append(_ key: String, value: String) {
         
         append(key, value: [value])
     }
@@ -102,7 +102,7 @@ public struct Headers {
     ///
     /// - Parameter key: the key
     ///
-    public mutating func remove(key: String) {
+    public mutating func remove(_ key: String) {
         
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             headers[headerKey] = nil

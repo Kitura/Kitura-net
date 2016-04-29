@@ -62,7 +62,7 @@ public class Http {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func request(url: String, callback: ClientRequestCallback) -> ClientRequest {
+    public static func request(_ url: String, callback: ClientRequestCallback) -> ClientRequest {
         
         return ClientRequest(url: url, callback: callback)
         
@@ -76,7 +76,7 @@ public class Http {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func request(options: [ClientRequestOptions], callback: ClientRequestCallback) -> ClientRequest {
+    public static func request(_ options: [ClientRequestOptions], callback: ClientRequestCallback) -> ClientRequest {
         
         return ClientRequest(options: options, callback: callback)
         
@@ -91,7 +91,7 @@ public class Http {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func get(url: String, callback: ClientRequestCallback) -> ClientRequest {
+    public static func get(_ url: String, callback: ClientRequestCallback) -> ClientRequest {
         
         let req = ClientRequest(url: url, callback: callback)
         req.end()
@@ -114,7 +114,7 @@ public class Http {
     /// *Note*: URLS can only be sent over the Internet using the ASCII character set, so character escaping will
     /// transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
     ///
-    public static func escapeUrl(url: String) -> String {
+    public static func escapeUrl(_ url: String) -> String {
         
         #if os(Linux)
         if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
