@@ -45,14 +45,14 @@ public class ServerResponse : SocketWriter {
     ///
     /// Status code
     ///
-    private var status = HttpStatusCode.OK.rawValue
+    private var status = HTTPStatusCode.OK.rawValue
     
     ///
     /// Status code
     ///
-    public var statusCode: HttpStatusCode? {
+    public var statusCode: HTTPStatusCode? {
         get {
-            return HttpStatusCode(rawValue: status)
+            return HTTPStatusCode(rawValue: status)
         }
         set (newValue) {
             if let newValue = newValue where !startFlushed {
@@ -67,7 +67,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
         
         self.socket = socket
-        setHeader("Date", value: SpiUtils.httpDate())
+        setHeader("Date", value: SPIUtils.httpDate())
         
     }
     
@@ -240,7 +240,7 @@ public class ServerResponse : SocketWriter {
         try socket.write(from: "HTTP/1.1 ")
         try socket.write(from: String(status))
         try socket.write(from: " ")
-        var statusText = Http.statusCodes[status]
+        var statusText = HTTP.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""

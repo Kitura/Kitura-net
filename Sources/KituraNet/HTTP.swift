@@ -16,9 +16,9 @@
 
 import Foundation
 
-// MARK: Http
+// MARK: HTTP
 
-public class Http {
+public class HTTP {
     
     ///
     /// Mapping of integer status codes to the String description
@@ -44,13 +44,13 @@ public class Http {
     ]
     
     ///
-    /// Creates a new Http server
+    /// Creates a new HTTP server
     /// 
-    /// - Returns: an instance of HttpServer
+    /// - Returns: an instance of HTTPServer
     ///
-    public static func createServer() -> HttpServer {
+    public static func createServer() -> HTTPServer {
         
-        return HttpServer()
+        return HTTPServer()
         
     }
     
@@ -134,7 +134,7 @@ public class Http {
 ///
 /// HTTP status codes and numbers
 ///
-public enum HttpStatusCode: Int {
+public enum HTTPStatusCode: Int {
     
     case ACCEPTED = 202, BAD_GATEWAY = 502, BAD_REQUEST = 400, CONFLICT = 409, CONTINUE = 100, CREATED = 201
     case EXPECTATION_FAILED = 417, FAILED_DEPENDENCY  = 424, FORBIDDEN = 403, GATEWAY_TIMEOUT = 504, GONE = 410

@@ -25,9 +25,9 @@ import Foundation
     import Darwin
 #endif
 
-// MARK: UrlParser
+// MARK: URLParser
 
-public class UrlParser : CustomStringConvertible {
+public class URLParser : CustomStringConvertible {
 
     /// 
     /// Schema
@@ -104,7 +104,7 @@ public class UrlParser : CustomStringConvertible {
     
     
     ///
-    /// Initializes a new UrlParser instance
+    /// Initializes a new URLParser instance
     ///
     /// - Parameter url: url to be parsed
     /// - Parameter isConnect: whether or not a connection has been established

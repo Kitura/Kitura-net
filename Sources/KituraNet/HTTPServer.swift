@@ -17,29 +17,29 @@
 import KituraSys
 import Socket
 
-// MARK: HttpServer
+// MARK: HTTPServer
 
-public class HttpServer {
+public class HTTPServer {
 
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static var listenerQueue = Queue(type: .PARALLEL, label: "HttpServer.listenerQueue")
+    private static var listenerQueue = Queue(type: .PARALLEL, label: "HTTPServer.listenerQueue")
 
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HttpServer.clientHandlerQueue")
+    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HTTPServer.clientHandlerQueue")
 
     ///
-    /// HttpServerDelegate
+    /// HTTPServerDelegate
     ///
-    public weak var delegate: HttpServerDelegate?
+    public weak var delegate: HTTPServerDelegate?
     
     ///
-    /// Http service provider interface
+    /// HTTP service provider interface
     ///
-    private let spi: HttpServerSpi
+    private let spi: HTTPServerSPI
     
     /// 
     /// Port number for listening for new connections
@@ -55,13 +55,13 @@ public class HttpServer {
     private var listenSocket: Socket?
     
     ///
-    /// Initializes an HttpServer instance
+    /// Initializes an HTTPServer instance
     ///
-    /// - Returns: an HttpServer instance
+    /// - Returns: an HTTPServer instance
     ///
     public init() {
         
-        spi = HttpServerSpi()
+        spi = HTTPServerSPI()
         spi.delegate = self
         
     }
@@ -91,10 +91,10 @@ public class HttpServer {
 		}
 		
 		if notOnMainQueue {
-			HttpServer.listenerQueue.queueAsync(queuedBlock)
+			HTTPServer.listenerQueue.queueAsync(queuedBlock)
 		}
 		else {
-			Queue.queueIfFirstOnMain(queue: HttpServer.listenerQueue, block: queuedBlock)
+			Queue.queueIfFirstOnMain(queue: HTTPServer.listenerQueue, block: queuedBlock)
 		}
         
     }
@@ -112,17 +112,17 @@ public class HttpServer {
     }
 
     ///
-    /// Static method to create a new HttpServer and have it listen for conenctions
+    /// Static method to create a new HTTPServer and have it listen for conenctions
     ///
     /// - Parameter port: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for Http connections
+    /// - Parameter delegate: the delegate handler for HTTP connections
     /// - Parameter notOnMainQueue: whether to listen for new connections on the main Queue
     ///
-    /// - Returns: a new HttpServer instance
+    /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: HttpServerDelegate, notOnMainQueue: Bool=false) -> HttpServer {
+    public static func listen(port: Int, delegate: HTTPServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
         
-        let server = Http.createServer()
+        let server = HTTP.createServer()
         server.delegate = delegate
         server.listen(port: port, notOnMainQueue: notOnMainQueue)
         return server
@@ -131,11 +131,11 @@ public class HttpServer {
     
 }
 
-// MARK: HttpServerSpiDelegate extension
-extension HttpServer : HttpServerSpiDelegate {
+// MARK: HTTPServerSPIDelegate extension
+extension HTTPServer : HTTPServerSPIDelegate {
 
     ///
-    /// Handle a new client Http request
+    /// Handle a new client HTTP request
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
@@ -145,7 +145,7 @@ extension HttpServer : HttpServerSpiDelegate {
             return
         }
         
-        HttpServer.clientHandlerQueue.queueAsync() {
+        HTTPServer.clientHandlerQueue.queueAsync() {
 
             let response = ServerResponse(socket: clientSocket)
             let request = ServerRequest(socket: clientSocket)
@@ -174,9 +174,9 @@ extension HttpServer : HttpServerSpiDelegate {
 }
 
 ///
-/// Delegate protocol for an HttpServer
+/// Delegate protocol for an HTTPServer
 ///
-public protocol HttpServerDelegate: class {
+public protocol HTTPServerDelegate: class {
 
     func handle(request: ServerRequest, response: ServerResponse)
     
