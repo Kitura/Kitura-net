@@ -28,7 +28,7 @@ public struct Headers {
     ///
     private var caseInsensitiveMap: [String: String] = [:]
     
-    subscript(key: String) -> [String]? {
+    public subscript(key: String) -> [String]? {
         get {
             return get(key)
         }
