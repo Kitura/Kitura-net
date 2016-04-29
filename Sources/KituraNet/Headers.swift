@@ -28,6 +28,18 @@ public struct Headers {
     ///
     private var caseInsensitiveMap: [String: String] = [:]
     
+    subscript(key: String) -> [String]? {
+        get {
+            return get(key)
+        }
+        
+        set(newValue) {
+            if let newValue = newValue {
+                set(key, value: newValue)
+            }
+        }
+    }
+    
     ///
     /// Gets the header (case insensitive)
     ///
