@@ -155,7 +155,7 @@ extension HTTPServer : HTTPServerSPIDelegate {
                     delegate.handle(request: request, response: response)
                 case .ParsedLessThanRead:
                     print("ParsedLessThanRead")
-                    response.statusCode = .BAD_REQUEST
+                    response.statusCode = .BadRequest
                     do {
                         try response.end()
                     }
