@@ -288,14 +288,18 @@ public class ClientRequest: SocketWriter {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
         setupHeaders()
-        
+        let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
+
+        // To see the messages sent by libCurl, uncomment the next line of code
+        //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
     ///
     /// Sets the HTTP method in libCurl to the one specified in method
     ///
     private func setMethod() {
-        
+
         let methodUpperCase = method.uppercased()
         switch(methodUpperCase) {
             case "GET":
