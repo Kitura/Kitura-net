@@ -308,18 +308,20 @@ public class ClientRequest: SocketWriter {
                 curlHelperSetOptBool(handle!, CURLOPT_POST, CURL_TRUE)
             case "PUT":
                 curlHelperSetOptBool(handle!, CURLOPT_PUT, CURL_TRUE)
+            case "HEAD":
+                curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
                 let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
-        
+
     }
 
     ///
-    /// Sets the headers in libCurl to the ones in headers 
+    /// Sets the headers in libCurl to the ones in headers
     ///
     private func setupHeaders() {
-        
+
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
