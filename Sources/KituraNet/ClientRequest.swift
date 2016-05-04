@@ -67,7 +67,7 @@ public class ClientRequest: SocketWriter {
     /// 
     /// List of header information
     ///
-    private var headersList: UnsafeMutablePointer<curl_slist> = nil
+    private var headersList: UnsafeMutablePointer<curl_slist>?
     
     ///
     /// BufferList to store bytes to be written
@@ -192,7 +192,7 @@ public class ClientRequest: SocketWriter {
     ///
     public func write(from data: NSData) {
         
-        writeBuffers.appendData(data)
+        writeBuffers.append(data: data)
         
     }
 
@@ -201,7 +201,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter data: string to send before ending
     ///
-    public func end(data: String) {
+    public func end(_ data: String) {
         
         write(from: data)
         end()
@@ -213,7 +213,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Parameter data: data to send before ending
     ///
-    public func end(data: NSData) {
+    public func end(_ data: NSData) {
         
         write(from: data)
         end()
@@ -276,7 +276,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// Parameter urlBuf: ???
     ///
-    private func prepareHandle(urlBuf: NSData) {
+    private func prepareHandle(_ urlBuf: NSData) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
@@ -288,14 +288,18 @@ public class ClientRequest: SocketWriter {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
         setupHeaders()
-        
+        let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
+
+        // To see the messages sent by libCurl, uncomment the next line of code
+        //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
     ///
     /// Sets the HTTP method in libCurl to the one specified in method
     ///
     private func setMethod() {
-        
+
         let methodUpperCase = method.uppercased()
         switch(methodUpperCase) {
             case "GET":
@@ -304,18 +308,20 @@ public class ClientRequest: SocketWriter {
                 curlHelperSetOptBool(handle!, CURLOPT_POST, CURL_TRUE)
             case "PUT":
                 curlHelperSetOptBool(handle!, CURLOPT_PUT, CURL_TRUE)
+            case "HEAD":
+                curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
                 let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
-        
+
     }
 
     ///
-    /// Sets the headers in libCurl to the ones in headers 
+    /// Sets the headers in libCurl to the ones in headers
     ///
     private func setupHeaders() {
-        
+
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
@@ -333,16 +339,16 @@ extension ClientRequest: CurlInvokerDelegate {
     
     ///
     ///
-    private func curlWriteCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
+    private func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        response.responseBuffers.appendBytes(UnsafePointer<UInt8>(buf), length: size)
+        response.responseBuffers.append(bytes: UnsafePointer<UInt8>(buf), length: size)
         return size
         
     }
 
-    private func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
+    private func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        let count = writeBuffers.fillBuffer(UnsafeMutablePointer<UInt8>(buf), length: size)
+        let count = writeBuffers.fill(buffer: UnsafeMutablePointer<UInt8>(buf), length: size)
         return count
         
     }
@@ -421,7 +427,7 @@ private class CurlInvoker {
                 rc = curl_easy_perform(handle)
 
                 if  rc == CURLE_OK  {
-                    var redirectUrl: UnsafeMutablePointer<Int8> = nil
+                    var redirectUrl: UnsafeMutablePointer<Int8>? = nil
                     let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
                     if  infoRc == CURLE_OK {
                         if  redirectUrl != nil  {
@@ -447,18 +453,18 @@ private class CurlInvoker {
     ///
     /// - Parameter ptr: pointer to the CurlInvokerDelegate
     ///
-    private func prepareHandle(ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
+    private func prepareHandle(_ ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
 
-        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
+        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.pointee?.curlReadCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlReadCallback(buf, size: size*nMemb))!
         }
 
-        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>) -> Int in
+        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p.pointee?.curlWriteCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlWriteCallback(buf, size: size*nMemb))!
         }
     }
     
@@ -469,8 +475,8 @@ private class CurlInvoker {
 ///
 private protocol CurlInvokerDelegate: class {
     
-    func curlWriteCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
-    func curlReadCallback(buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
+    func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
+    func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func prepareForRedirect()
     
 }

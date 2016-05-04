@@ -52,7 +52,7 @@ class HttpServerSpi {
                 let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
                          "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
-                delegate.handleClientRequest(clientSocket)
+                delegate.handleClientRequest(socket: clientSocket)
             } while true
 		} catch let error as Socket.Error {
             

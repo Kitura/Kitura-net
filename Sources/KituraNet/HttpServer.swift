@@ -78,7 +78,7 @@ public class HttpServer {
 		
 		do {
             
-			self.listenSocket = try Socket.makeDefault()
+			self.listenSocket = try Socket.create()
             
 		} catch let error as Socket.Error {
 			print("Error reported:\n \(error.description)")
@@ -87,14 +87,14 @@ public class HttpServer {
 		}
 
 		let queuedBlock = {
-			self.spi.spiListen(self.listenSocket, port: self._port!)
+			self.spi.spiListen(socket: self.listenSocket, port: self._port!)
 		}
 		
 		if notOnMainQueue {
 			HttpServer.listenerQueue.queueAsync(queuedBlock)
 		}
 		else {
-			Queue.queueIfFirstOnMain(HttpServer.listenerQueue, block: queuedBlock)
+			Queue.queueIfFirstOnMain(queue: HttpServer.listenerQueue, block: queuedBlock)
 		}
         
     }
@@ -124,7 +124,7 @@ public class HttpServer {
         
         let server = Http.createServer()
         server.delegate = delegate
-        server.listen(port, notOnMainQueue: notOnMainQueue)
+        server.listen(port: port, notOnMainQueue: notOnMainQueue)
         return server
         
     }
@@ -139,7 +139,7 @@ extension HttpServer : HttpServerSpiDelegate {
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
-    func handleClientRequest(clientSocket: Socket) {
+    func handleClientRequest(socket clientSocket: Socket) {
 
         guard let delegate = delegate else {
             return
@@ -152,7 +152,7 @@ extension HttpServer : HttpServerSpiDelegate {
             request.parse() { status in
                 switch status {
                 case .Success:
-                    delegate.handleRequest(request, response: response)
+                    delegate.handle(request: request, response: response)
                 case .ParsedLessThanRead:
                     print("ParsedLessThanRead")
                     response.statusCode = .BAD_REQUEST
@@ -178,6 +178,6 @@ extension HttpServer : HttpServerSpiDelegate {
 ///
 public protocol HttpServerDelegate: class {
 
-    func handleRequest(request: ServerRequest, response: ServerResponse)
+    func handle(request: ServerRequest, response: ServerResponse)
     
 }

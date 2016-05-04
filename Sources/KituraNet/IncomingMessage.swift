@@ -170,7 +170,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter helper: the IncomingMessageHelper
     ///
-    func setup(helper: IncomingMessageHelper) {
+    func setup(_ helper: IncomingMessageHelper) {
         self.helper = helper
     }
 
@@ -180,7 +180,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter callback: (HttpParserErrorType) -> Void closure
     ///
-    func parse (callback: (HttpParserErrorType) -> Void) {
+    func parse (_ callback: (HttpParserErrorType) -> Void) {
         guard let parser = httpParser where status == .Initial else {
             freeHttpParser()
             callback(.InternalError)
@@ -190,7 +190,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         while status == .Initial {
             do {
                 ioBuffer!.length = 0
-                let length = try helper!.readDataHelper(ioBuffer!)
+                let length = try helper!.readHelper(into: ioBuffer!)
                 if length > 0 {
                     let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
                     if upgrade == 1 {
@@ -230,12 +230,12 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Returns: the number of bytes read
     ///
     public func read(into data: NSMutableData) throws -> Int {
-        var count = bodyChunk.fillData(data)
+        var count = bodyChunk.fill(data: data)
         if count == 0 {
             if let parser = httpParser where status == .HeadersComplete {
                 do {
                     ioBuffer!.length = 0
-                    count = try helper!.readDataHelper(ioBuffer!)
+                    count = try helper!.readHelper(into: ioBuffer!)
                     if count > 0 {
                         let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
                         if upgrade == 1 {
@@ -247,7 +247,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
                             status = .Error
                         }
                         else {
-                            count = bodyChunk.fillData(data)
+                            count = bodyChunk.fill(data: data)
                         }
                     }
                     else {
@@ -274,7 +274,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Returns: the number of bytes read
     ///
-    public func readAllData(data: NSMutableData) throws -> Int {
+    public func readAllData(into data: NSMutableData) throws -> Int {
         var length = try read(into: data)
         var bytesRead = length
         while length != 0 {
@@ -319,12 +319,9 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter data: the data
     ///
-    func onUrl(data: NSData) {
-        #if os(Linux)
-        url.appendData(data)
-        #else
+    func onUrl(_ data: NSData) {
+
         url.append(data)
-        #endif
     }
 
 
@@ -333,16 +330,12 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter data: the data
     ///
-    func onHeaderField (data: NSData) {
+    func onHeaderField (_ data: NSData) {
         
         if lastHeaderWasAValue {
             addHeader()
         }
-        #if os(Linux)
-        lastHeaderField.appendData(data)
-        #else
         lastHeaderField.append(data)
-        #endif
         lastHeaderWasAValue = false
         
     }
@@ -352,13 +345,9 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter data: the data
     ///
-    func onHeaderValue (data: NSData) {
+    func onHeaderValue (_ data: NSData) {
 
-        #if os(Linux)
-        lastHeaderValue.appendData(data)
-        #else
         lastHeaderValue.append(data)
-        #endif
         lastHeaderWasAValue = true
 
     }
@@ -374,7 +363,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         rawHeaders.append(headerKey)
         rawHeaders.append(headerValue)
 
-        headerStorage.addHeader(headerKey, headerValue: headerValue)
+        headerStorage.addHeader(key: headerKey, value: headerValue)
 
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
@@ -386,9 +375,9 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// - Parameter data: the data
     ///
-    func onBody (data: NSData) {
+    func onBody (_ data: NSData) {
 
-        self.bodyChunk.appendData(data)
+        self.bodyChunk.append(data: data)
 
     }
 
@@ -454,7 +443,7 @@ internal class HeaderStorage {
     //
     internal var arrayHeaders = [String: [String]]()
 
-    func addHeader(headerKey: String, headerValue: String) {
+    func addHeader(key headerKey: String, value headerValue: String) {
         #if os(Linux)
         let headerKeyLowerCase = headerKey.bridge().lowercaseString
         #else
@@ -577,7 +566,7 @@ public class ArrayHeaders {
                 #if os(Linux)
                 result = entry.bridge().componentsSeparatedByString(", ")
                 #else
-                result = entry.componentsSeparated(by: ", ")
+                result = entry.components(separatedBy: ", ")
                 #endif
             }
         }
@@ -612,7 +601,7 @@ public struct ArrayHeadersIterator: IteratorProtocol {
                 #if os(Linux)
                 result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
                 #else
-                result = (simpleKey, simpleValue.componentsSeparated(by: ", "))
+                result = (simpleKey, simpleValue.components(separatedBy: ", "))
                 #endif
             }
         }
@@ -627,6 +616,6 @@ protocol IncomingMessageHelper: class {
     ///
     /// TODO: ???
     ///
-    func readDataHelper(data: NSMutableData) throws -> Int
+    func readHelper(into data: NSMutableData) throws -> Int
 
 }
