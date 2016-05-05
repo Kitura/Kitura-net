@@ -104,7 +104,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     private var status = Status.Initial
 
     ///
-    /// TODO: ???
+    /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     ///
     private var bodyChunk = BufferList()
 
@@ -132,6 +132,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         case Initial
         case HeadersComplete
         case MessageComplete
+        case Reset
         case Error
         
     }
@@ -197,14 +198,21 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
                         // TODO handle new protocol
                     }
                     else if (nparsed != length) {
-                        /* Handle error. Usually just close the connection. */
-                        freeHttpParser()
-                        status = .Error
+
+			if  status == .Reset  {
+			    // Apparently the short message was a Continue. Let's just keep on parsing
+			    status = .Initial
+			}
+			else {
+                            /* Handle error. Usually just close the connection. */
+                            freeHttpParser()
+                            status = .Error
 print("IncomingMessage: parse: buffer length=\(length). bytes parsed=\(nparsed)")
 print(String(data: ioBuffer!, encoding: NSUTF8StringEncoding) ?? "")
 print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-                        callback(.ParsedLessThanRead)
-                    }
+                            callback(.ParsedLessThanRead)
+                        }
+		    }
                 }
                 else {
                     /* Handle unexpected EOF. Usually just close the connection. */
@@ -428,6 +436,10 @@ print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
     /// instructions for when reading is reset
     ///
     func reset() {
+	lastHeaderWasAValue = false
+        headerStorage.reset()
+	url.length = 0
+	status = .Reset
     }
 
 }
@@ -487,6 +499,11 @@ internal class HeaderStorage {
                 }
                 break
         }
+    }
+
+    func reset() {
+        simpleHeaders.removeAll()
+        arrayHeaders.removeAll()
     }
 }
 
