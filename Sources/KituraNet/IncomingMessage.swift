@@ -188,12 +188,18 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
             return
         }
 
+	var start = 0
+	var length = 0
         while status == .Initial {
             do {
                 ioBuffer!.length = 0
-                let length = try helper!.readHelper(into: ioBuffer!)
-                if length > 0 {
-                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+                if  start == 0  {
+		    length = try helper!.readHelper(into: ioBuffer!)
+		}
+		if length > 0 {
+		    let offset = start
+		    start = 0
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
                     if upgrade == 1 {
                         // TODO handle new protocol
                     }
@@ -202,6 +208,8 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
 			if  status == .Reset  {
 			    // Apparently the short message was a Continue. Let's just keep on parsing
 			    status = .Initial
+			    start = nparsed
+			    length -= nparsed
 			}
 			else {
                             /* Handle error. Usually just close the connection. */
