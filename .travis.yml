@@ -8,7 +8,7 @@ branches:
 
 notifications:
   slack:
-    secure: "rbi1R2Icz5jsIo5YsFmRFyhjb+sJgAXHYQEdRE508oRjANhvOJ0JwIbDLLOT4w3lN1$
+    secure: "rbi1R2Icz5jsIo5YsFmRFyhjb+sJgAXHYQEdRE508oRjANhvOJ0JwIbDLLOT4w3lN1$"
 
 matrix:
   include:
