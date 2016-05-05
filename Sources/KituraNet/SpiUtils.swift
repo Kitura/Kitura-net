@@ -75,11 +75,10 @@ public class SpiUtils {
 #endif
         calendar.timeZone = NSTimeZone(name: "UTC")!
         
+        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
 #if os(Linux)
-        let temp = calendar.components([.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday], fromDate: date)
         let components = temp!
 #else
-        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
         let components = temp
 #endif
         let wday = Int(components.weekday)

@@ -444,13 +444,11 @@ internal class HeaderStorage {
     internal var arrayHeaders = [String: [String]]()
 
     func addHeader(key headerKey: String, value headerValue: String) {
-        #if os(Linux)
-        let headerKeyLowerCase = headerKey.bridge().lowercaseString
-        #else
+
         let headerKeyLowerCase = headerKey.lowercased()
-        #endif
+
         // Determine how to handle the header (i.e. simple header array header,...)
-        switch(headerKeyLowerCase) {
+        switch(headerKey.lowercased()) {
 
             // Headers with an array value (can appear multiple times, but can't be merged)
             //
@@ -498,11 +496,7 @@ public class SimpleHeaders {
     }
 
     public subscript(key: String) -> String? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
         let keyLowercase = key.lowercased()
-        #endif
         var result = storage.simpleHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.arrayHeaders[keyLowercase]  {
@@ -555,19 +549,11 @@ public class ArrayHeaders {
     }
 
     public subscript(key: String) -> [String]? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
         let keyLowercase = key.lowercased()
-        #endif
         var result = storage.arrayHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.simpleHeaders[keyLowercase]  {
-                #if os(Linux)
-                result = entry.bridge().componentsSeparatedByString(", ")
-                #else
                 result = entry.components(separatedBy: ", ")
-                #endif
             }
         }
         return result
@@ -598,11 +584,7 @@ public struct ArrayHeadersIterator: IteratorProtocol {
         if  result == nil  {
             if  let simpleElem = simpleIterator.next()  {
                 let (simpleKey, simpleValue) = simpleElem
-                #if os(Linux)
-                result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
-                #else
                 result = (simpleKey, simpleValue.components(separatedBy: ", "))
-                #endif
             }
         }
         return result
