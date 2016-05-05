@@ -200,6 +200,9 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
                         /* Handle error. Usually just close the connection. */
                         freeHttpParser()
                         status = .Error
+print("IncomingMessage: parse: buffer length=\(length). bytes parsed=\(nparsed)")
+print(String(data: ioBuffer!, encoding: NSUTF8StringEncoding) ?? "")
+print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                         callback(.ParsedLessThanRead)
                     }
                 }
