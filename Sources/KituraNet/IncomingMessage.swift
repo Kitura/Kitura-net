@@ -350,7 +350,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
                  "authorization", "proxy-authorization", "if-modified-since",
                  "if-unmodified-since", "from", "location", "max-forwards",
                  "retry-after", "etag", "last-modified", "server", "age", "expires":
-                if let _ = headers.get(headerKey.lowercased()) {
+                if let _ = headers.get(headerKey) {
                     break
                 }
                 fallthrough
