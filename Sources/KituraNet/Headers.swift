@@ -90,7 +90,7 @@ public struct Headers {
     ///
     public mutating func append(_ key: String, value: [String]) {
         
-        // Determine how to handle the header (append, replace or merge)
+        // Determine how to handle the header (append or merge)
         switch(key.lowercased()) {
             
             // Headers with an array value (can appear multiple times, but can't be merged)
@@ -102,14 +102,6 @@ public struct Headers {
                     set(key, value: value)
                 }
             
-            // Headers with a simple value that are not merged (i.e. duplicates dropped)
-            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
-            //
-            case "content-type", "content-length", "user-agent", "referer", "host",
-                 "authorization", "proxy-authorization", "if-modified-since",
-                 "if-unmodified-since", "from", "location", "max-forwards",
-                 "retry-after", "etag", "last-modified", "server", "age", "expires":
-                set(key, value: value)
                 
             // Headers with a simple value that can be merged
             //

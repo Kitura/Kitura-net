@@ -341,8 +341,22 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
 
         let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
         let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
-
-        headers.append(headerKey, value: headerValue)
+        
+        switch(headerKey.lowercased()) {
+            // Headers with a simple value that are not merged (i.e. duplicates dropped)
+            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
+            //
+            case "content-type", "content-length", "user-agent", "referer", "host",
+                 "authorization", "proxy-authorization", "if-modified-since",
+                 "if-unmodified-since", "from", "location", "max-forwards",
+                 "retry-after", "etag", "last-modified", "server", "age", "expires":
+                if let _ = headers.get(headerKey.lowercased()) {
+                    break
+                }
+                fallthrough
+            default:
+                headers.append(headerKey, value: headerValue)
+        }
 
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
