@@ -90,11 +90,36 @@ public struct Headers {
     ///
     public mutating func append(_ key: String, value: [String]) {
         
-        if headers[key] != nil {
-            headers[key]? += value
-        }
-        else {
-            set(key, value: value)
+        // Determine how to handle the header (append, replace or merge)
+        switch(key.lowercased()) {
+            
+            // Headers with an array value (can appear multiple times, but can't be merged)
+            //
+            case "set-cookie":
+                if let headerKey = caseInsensitiveMap[key.lowercased()] {
+                    headers[headerKey]? += value
+                } else {
+                    set(key, value: value)
+                }
+            
+            // Headers with a simple value that are not merged (i.e. duplicates dropped)
+            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
+            //
+            case "content-type", "content-length", "user-agent", "referer", "host",
+                 "authorization", "proxy-authorization", "if-modified-since",
+                 "if-unmodified-since", "from", "location", "max-forwards",
+                 "retry-after", "etag", "last-modified", "server", "age", "expires":
+                set(key, value: value)
+                
+            // Headers with a simple value that can be merged
+            //
+            default:
+                guard let headerKey = caseInsensitiveMap[key.lowercased()], let oldValue = headers[headerKey]?.first else {
+                    set(key, value: value)
+                    return
+                }
+                let newValue = oldValue + ", " + value.joined(separator: ", ")
+                headers[headerKey]?[0] = newValue
         }
     }
     
