@@ -14,6 +14,7 @@
  * limitations under the License.
  **/
 
+import KituraSys
 import Socket
 
 import Foundation
@@ -26,12 +27,22 @@ public class ServerResponse : SocketWriter {
     /// Socket for the ServerResponse
     ///
     private var socket: Socket?
-    
+
     ///
-    /// TODO: ???
+    /// Size of buffer
+    ///
+    private let BUFFER_SIZE = 2000
+
+    ///
+    /// Buffer for HTTP response line, headers, and short bodies
+    ///
+    private var buffer: NSMutableData
+
+    ///
+    /// Whether or not the HTTP response line and headers have been flushed.
     ///
     private var startFlushed = false
-    
+
     ///
     /// TODO: ???
     ///
@@ -41,7 +52,7 @@ public class ServerResponse : SocketWriter {
     /// Status code
     ///
     private var status = HttpStatusCode.OK.rawValue
-    
+
     ///
     /// Status code
     ///
@@ -55,32 +66,33 @@ public class ServerResponse : SocketWriter {
             }
         }
     }
-    
+
     ///
     /// Initializes a ServerResponse instance
     ///
     init(socket: Socket) {
-        
+
         self.socket = socket
-        headers.set("Date", value: [SpiUtils.httpDate()])
+        buffer = NSMutableData(capacity: BUFFER_SIZE)!
+        headers["Date"] = [SpiUtils.httpDate()]
     }
-    
+
     ///
-    /// Write a string as a response 
+    /// Write a string as a response
     ///
     /// - Parameter string: String data to be written.
     ///
     /// - Throws: ???
     ///
     public func write(from string: String) throws {
-        
-        if  let socket = socket {
+
+        if  socket != nil  {
             try flushStart()
-            try socket.write(from: string)
+            try writeToSocketThroughBuffer(text: string)
         }
-        
+
     }
-    
+
     ///
     /// Write data as a response
     ///
@@ -91,14 +103,23 @@ public class ServerResponse : SocketWriter {
     /// - Throws: ???
     ///
     public func write(from data: NSData) throws {
-        
+
         if  let socket = socket {
             try flushStart()
-            try socket.write(from: data)
+            if  buffer.length + data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+                try socket.write(from: buffer)
+                buffer.length = 0
+            }
+            if  data.length > BUFFER_SIZE {
+                try socket.write(from: data)
+            }
+            else {
+                buffer.append(data)
+            }
         }
-        
+
     }
-    
+
     ///
     /// End the response
     ///
@@ -119,11 +140,14 @@ public class ServerResponse : SocketWriter {
     public func end() throws {
         if  let socket = socket {
             try flushStart()
+            if  buffer.length > 0  {
+                try socket.write(from: buffer)
+            }
             socket.close()
         }
         socket = nil
     }
-    
+
     ///
     /// Begin flushing the buffer
     ///
@@ -131,32 +155,53 @@ public class ServerResponse : SocketWriter {
     ///
     private func flushStart() throws {
 
-        guard let socket = socket where !startFlushed else {
+        if  socket == nil  ||  startFlushed  {
             return
         }
 
-        try socket.write(from: "HTTP/1.1 ")
-        try socket.write(from: String(status))
-        try socket.write(from: " ")
+        try writeToSocketThroughBuffer(text: "HTTP/1.1 ")
+        try writeToSocketThroughBuffer(text: String(status))
+        try writeToSocketThroughBuffer(text: " ")
         var statusText = Http.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
         }
 
-        try socket.write(from: statusText!)
-        try socket.write(from: "\r\n")
+        try writeToSocketThroughBuffer(text: statusText!)
+        try writeToSocketThroughBuffer(text: "\r\n")
 
         for (key, valueSet) in headers.headers {
             for value in valueSet {
-                try socket.write(from: key)
-                try socket.write(from: ": ")
-                try socket.write(from: value)
-                try socket.write(from: "\r\n")
+                try writeToSocketThroughBuffer(text: key)
+                try writeToSocketThroughBuffer(text: ": ")
+                try writeToSocketThroughBuffer(text: value)
+                try writeToSocketThroughBuffer(text: "\r\n")
             }
         }
 
-        try socket.write(from: "\r\n")
+        try writeToSocketThroughBuffer(text: "\r\n")
         startFlushed = true
+    }
+
+    ///
+    /// Function to write Strings to the socket through the buffer
+    ///
+    private func writeToSocketThroughBuffer(text: String) throws {
+        guard let socket = socket,
+              let utf8Data = StringUtils.toUtf8String(text) else {
+            return
+        }
+
+        if  buffer.length + utf8Data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+            try socket.write(from: buffer)
+            buffer.length = 0
+        }
+        if  utf8Data.length > BUFFER_SIZE {
+            try socket.write(from: utf8Data)
+        }
+        else {
+            buffer.append(utf8Data)
+        }
     }
 }

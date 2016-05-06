@@ -288,14 +288,18 @@ public class ClientRequest: SocketWriter {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
         setupHeaders()
-        
+        let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
+
+        // To see the messages sent by libCurl, uncomment the next line of code
+        //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
     ///
     /// Sets the HTTP method in libCurl to the one specified in method
     ///
     private func setMethod() {
-        
+
         let methodUpperCase = method.uppercased()
         switch(methodUpperCase) {
             case "GET":
@@ -304,18 +308,20 @@ public class ClientRequest: SocketWriter {
                 curlHelperSetOptBool(handle!, CURLOPT_POST, CURL_TRUE)
             case "PUT":
                 curlHelperSetOptBool(handle!, CURLOPT_PUT, CURL_TRUE)
+            case "HEAD":
+                curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
                 let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
-        
+
     }
 
     ///
-    /// Sets the headers in libCurl to the ones in headers 
+    /// Sets the headers in libCurl to the ones in headers
     ///
     private func setupHeaders() {
-        
+
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
