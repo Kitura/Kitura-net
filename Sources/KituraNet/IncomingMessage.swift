@@ -104,7 +104,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     private var status = Status.Initial
 
     ///
-    /// TODO: ???
+    /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     ///
     private var bodyChunk = BufferList()
 
@@ -133,6 +133,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
         case HeadersComplete
         case MessageComplete
         case Error
+        case Reset
         
     }
 
@@ -187,20 +188,36 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
             return
         }
 
+	var start = 0
+	var length = 0
         while status == .Initial {
             do {
-                ioBuffer!.length = 0
-                let length = try helper!.readHelper(into: ioBuffer!)
+                if  start == 0  {
+                    ioBuffer!.length = 0
+		    length = try helper!.readHelper(into: ioBuffer!)
+		}
                 if length > 0 {
-                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+		    let offset = start
+		    start = 0
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
                     if upgrade == 1 {
                         // TODO handle new protocol
                     }
                     else if (nparsed != length) {
-                        /* Handle error. Usually just close the connection. */
-                        freeHttpParser()
-                        status = .Error
-                        callback(.ParsedLessThanRead)
+
+			if  status == .Reset  {
+			    // Apparently the short message was a Continue. Let's just keep on parsing
+			    status = .Initial
+			    start = nparsed
+			    length -= nparsed
+                            parser.reset()
+			}
+			else {
+                            /* Handle error. Usually just close the connection. */
+                            freeHttpParser()
+                            status = .Error
+                            callback(.ParsedLessThanRead)
+                        }
                     }
                 }
                 else {
@@ -425,6 +442,10 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// instructions for when reading is reset
     ///
     func reset() {
+	lastHeaderWasAValue = false
+        headerStorage.reset()
+	url.length = 0
+	status = .Reset
     }
 
 }
@@ -482,6 +503,11 @@ internal class HeaderStorage {
                 }
                 break
         }
+    }
+
+    func reset() {
+        simpleHeaders.removeAll()
+        arrayHeaders.removeAll()
     }
 }
 
