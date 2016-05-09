@@ -16,9 +16,9 @@
 
 import Foundation
 
-// MARK: Http
+// MARK: HTTP
 
-public class Http {
+public class HTTP {
     
     ///
     /// Mapping of integer status codes to the String description
@@ -44,13 +44,13 @@ public class Http {
     ]
     
     ///
-    /// Creates a new Http server
+    /// Creates a new HTTP server
     /// 
-    /// - Returns: an instance of HttpServer
+    /// - Returns: an instance of HTTPServer
     ///
-    public static func createServer() -> HttpServer {
+    public static func createServer() -> HTTPServer {
         
-        return HttpServer()
+        return HTTPServer()
         
     }
     
@@ -134,20 +134,20 @@ public class Http {
 ///
 /// HTTP status codes and numbers
 ///
-public enum HttpStatusCode: Int {
+public enum HTTPStatusCode: Int {
     
-    case ACCEPTED = 202, BAD_GATEWAY = 502, BAD_REQUEST = 400, CONFLICT = 409, CONTINUE = 100, CREATED = 201
-    case EXPECTATION_FAILED = 417, FAILED_DEPENDENCY  = 424, FORBIDDEN = 403, GATEWAY_TIMEOUT = 504, GONE = 410
-    case HTTP_VERSION_NOT_SUPPORTED = 505, INSUFFICIENT_SPACE_ON_RESOURCE = 419, INSUFFICIENT_STORAGE = 507
-    case INTERNAL_SERVER_ERROR = 500, LENGTH_REQUIRED = 411, METHOD_FAILURE = 420, METHOD_NOT_ALLOWED = 405
-    case MOVED_PERMANENTLY = 301, MOVED_TEMPORARILY = 302, MULTI_STATUS = 207, MULTIPLE_CHOICES = 300
-    case NETWORK_AUTHENTICATION_REQUIRED = 511, NO_CONTENT = 204, NON_AUTHORITATIVE_INFORMATION = 203
-    case NOT_ACCEPTABLE = 406, NOT_FOUND = 404, NOT_IMPLEMENTED = 501, NOT_MODIFIED = 304, OK = 200
-    case PARTIAL_CONTENT = 206, PAYMENT_REQUIRED = 402, PRECONDITION_FAILED = 412, PRECONDITION_REQUIRED = 428
-    case PROXY_AUTHENTICATION_REQUIRED = 407, PROCESSING = 102, REQUEST_HEADER_FIELDS_TOO_LARGE = 431
-    case REQUEST_TIMEOUT = 408, REQUEST_TOO_LONG = 413, REQUEST_URI_TOO_LONG = 414, REQUESTED_RANGE_NOT_SATISFIABLE = 416
-    case RESET_CONTENT = 205, SEE_OTHER = 303, SERVICE_UNAVAILABLE = 503, SWITCHING_PROTOCOLS = 101
-    case TEMPORARY_REDIRECT = 307, TOO_MANY_REQUESTS = 429, UNAUTHORIZED = 401, UNPROCESSABLE_ENTITY = 422
-    case UNSUPPORTED_MEDIA_TYPE = 415, USE_PROXY = 305, UNKNOWN = -1
+    case Accepted = 202, BadGateway = 502, BadRequest = 400, Conflict = 409, Continue = 100, Created = 201
+    case ExpectationFailed = 417, FailedDependency  = 424, Forbidden = 403, GatewayTimeout = 504, Gone = 410
+    case HTTPVersionNotSupported = 505, InsufficientSpaceOnResource = 419, InsufficientStorage = 507
+    case InternalServerError = 500, LengthRequired = 411, MethodFailure = 420, MethodNotAllowed = 405
+    case MovedPermanently = 301, MovedTemporarily = 302, MultiStatus = 207, MultipleChoices = 300
+    case NetworkAuthenticationRequired = 511, NoContent = 204, NonAuthoritativeInformation = 203
+    case NotAcceptable = 406, NotFound = 404, NotImplemented = 501, NotModified = 304, OK = 200
+    case PartialContent = 206, PaymentRequired = 402, PreconditionFailed = 412, PreconditionRequired = 428
+    case ProxyAuthenticationRequired = 407, Processing = 102, RequestHeaderFieldsTooLarge = 431
+    case RequestTimeout = 408, RequestTooLong = 413, RequestURITooLong = 414, RequestedRangeNotSatisfiable = 416
+    case ResetContent = 205, SeeOther = 303, ServiceUnavailable = 503, SwitchingProtocols = 101
+    case TemporaryRedirect = 307, TooManyRequests = 429, Unauthorized = 401, UnprocessableEntity = 422
+    case UnsupportedMediaType = 415, UseProxy = 305, Unknown = -1
     
 }

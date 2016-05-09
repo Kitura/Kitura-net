@@ -18,17 +18,17 @@ import KituraSys
 import CHttpParser
 import Foundation
 
-// MARK: HttpParser
+// MARK: HTTPParser
 
-class HttpParser {
+class HTTPParser {
 
     ///
-    /// A Handle to the HttpParser C-library
+    /// A Handle to the HTTPParser C-library
     ///
     var parser: http_parser
 
     ///
-    /// Settings used for HttpParser
+    /// Settings used for HTTPParser
     ///
     var settings: http_parser_settings
 
@@ -40,7 +40,7 @@ class HttpParser {
     ///
     /// Delegate used for the parsing
     ///
-    var delegate: HttpParserDelegate? {
+    var delegate: HTTPParserDelegate? {
 
         didSet {
             if let _ = delegate {
@@ -59,11 +59,11 @@ class HttpParser {
     var upgrade = 1
 
     ///
-    /// Initializes a HttpParser instance
+    /// Initializes a HTTPParser instance
     ///
     /// - Parameter isRequest: whether or not this HTTP message is a request
     ///
-    /// - Returns: an HttpParser instance
+    /// - Returns: an HTTPParser instance
     ///
     init(isRequest: Bool) {
     
@@ -73,7 +73,7 @@ class HttpParser {
         settings = http_parser_settings()
 
         settings.on_url = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
             p?.pointee?.onUrl(data)
             return 0
@@ -81,20 +81,20 @@ class HttpParser {
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             p?.pointee?.onHeaderField(data)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             p?.pointee?.onHeaderValue(data)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             let data = NSData(bytes: chunk, length: length)
             p?.pointee?.onBody(data)
            
@@ -102,7 +102,7 @@ class HttpParser {
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             // TODO: Clean and refactor
             //let method = String( get_method(parser))
             let po =  get_method(parser)
@@ -119,14 +119,14 @@ class HttpParser {
         }
         
         settings.on_message_begin = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             p?.pointee?.onMessageBegin()
             
             return 0
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HttpParserDelegate?>(parser.pointee.data)
+            let p = UnsafePointer<HTTPParserDelegate?>(parser.pointee.data)
             if get_status_code(parser) == 100 {
                 p?.pointee?.reset()
             }
@@ -165,7 +165,7 @@ class HttpParser {
 ///
 /// Delegate protocol for HTTP parsing stages
 ///
-protocol HttpParserDelegate: class {
+protocol HTTPParserDelegate: class {
     
     func onUrl(_ url:NSData)
     func onHeaderField(_ data: NSData)

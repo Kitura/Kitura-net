@@ -39,14 +39,14 @@ public class ClientResponse: IncomingMessage {
     public internal(set) var status = -1 {
         
         didSet {
-            statusCode = HttpStatusCode(rawValue: status)!
+            statusCode = HTTPStatusCode(rawValue: status)!
         }
         
     }
     
     /// 
     /// HTTP Status code
-    public internal(set) var statusCode: HttpStatusCode = HttpStatusCode.UNKNOWN
+    public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.Unknown
     
     ///
     /// BufferList instance for storing the response 

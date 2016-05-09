@@ -56,14 +56,14 @@ public class ServerResponse : SocketWriter {
     ///
     /// Status code
     ///
-    private var status = HttpStatusCode.OK.rawValue
+    private var status = HTTPStatusCode.OK.rawValue
 
     ///
     /// Status code
     ///
-    public var statusCode: HttpStatusCode? {
+    public var statusCode: HTTPStatusCode? {
         get {
-            return HttpStatusCode(rawValue: status)
+            return HTTPStatusCode(rawValue: status)
         }
         set (newValue) {
             if let newValue = newValue where !startFlushed {
@@ -79,7 +79,7 @@ public class ServerResponse : SocketWriter {
 
         self.socket = socket
         buffer = NSMutableData(capacity: BUFFER_SIZE)!
-        setHeader("Date", value: SpiUtils.httpDate())
+        setHeader("Date", value: SPIUtils.httpDate())
 
     }
 
@@ -264,7 +264,7 @@ public class ServerResponse : SocketWriter {
         try writeToSocketThroughBuffer(text: "HTTP/1.1 ")
         try writeToSocketThroughBuffer(text: String(status))
         try writeToSocketThroughBuffer(text: " ")
-        var statusText = Http.statusCodes[status]
+        var statusText = HTTP.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
