@@ -33,6 +33,11 @@ class HTTPParser {
     var settings: http_parser_settings
 
     ///
+    /// Parsing a request? (or a response)
+    ///
+    var isRequest = true
+
+    ///
     /// Delegate used for the parsing
     ///
     var delegate: HTTPParserDelegate? {
@@ -61,6 +66,8 @@ class HTTPParser {
     /// - Returns: an HTTPParser instance
     ///
     init(isRequest: Bool) {
+    
+	self.isRequest = isRequest
         
         parser = http_parser()
         settings = http_parser_settings()
@@ -130,8 +137,7 @@ class HTTPParser {
             return 0
         }
         
-        http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
-
+        reset()	
     }
     
     ///
@@ -147,6 +153,13 @@ class HTTPParser {
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
     }    
+
+    ///
+    /// Reset the http_parser context structure.
+    ///
+    func reset() {
+        http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
+    }
 }
 
 ///

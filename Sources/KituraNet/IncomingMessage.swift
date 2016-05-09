@@ -104,7 +104,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     private var status = Status.Initial
 
     ///
-    /// TODO: ???
+    /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     ///
     private var bodyChunk = BufferList()
 
@@ -133,6 +133,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
         case HeadersComplete
         case MessageComplete
         case Error
+        case Reset
         
     }
 
@@ -187,20 +188,36 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
             return
         }
 
+	var start = 0
+	var length = 0
         while status == .Initial {
             do {
-                ioBuffer!.length = 0
-                let length = try helper!.readHelper(into: ioBuffer!)
+                if  start == 0  {
+                    ioBuffer!.length = 0
+		    length = try helper!.readHelper(into: ioBuffer!)
+		}
                 if length > 0 {
-                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+		    let offset = start
+		    start = 0
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
                     if upgrade == 1 {
                         // TODO handle new protocol
                     }
                     else if (nparsed != length) {
-                        /* Handle error. Usually just close the connection. */
-                        freeHTTPParser()
-                        status = .Error
-                        callback(.ParsedLessThanRead)
+
+                        if  status == .Reset  {
+                            // Apparently the short message was a Continue. Let's just keep on parsing
+                            status = .Initial
+                            start = nparsed
+                            length -= nparsed
+                                        parser.reset()
+                        }
+                        else {
+                            /* Handle error. Usually just close the connection. */
+                            freeHTTPParser()
+                            status = .Error
+                            callback(.ParsedLessThanRead)
+                        }
                     }
                 }
                 else {
@@ -425,6 +442,10 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     /// instructions for when reading is reset
     ///
     func reset() {
+	lastHeaderWasAValue = false
+        headerStorage.reset()
+	url.length = 0
+	status = .Reset
     }
 
 }
@@ -444,13 +465,11 @@ internal class HeaderStorage {
     internal var arrayHeaders = [String: [String]]()
 
     func addHeader(key headerKey: String, value headerValue: String) {
-        #if os(Linux)
-        let headerKeyLowerCase = headerKey.bridge().lowercaseString
-        #else
+
         let headerKeyLowerCase = headerKey.lowercased()
-        #endif
+
         // Determine how to handle the header (i.e. simple header array header,...)
-        switch(headerKeyLowerCase) {
+        switch(headerKey.lowercased()) {
 
             // Headers with an array value (can appear multiple times, but can't be merged)
             //
@@ -485,6 +504,11 @@ internal class HeaderStorage {
                 break
         }
     }
+
+    func reset() {
+        simpleHeaders.removeAll()
+        arrayHeaders.removeAll()
+    }
 }
 
 //
@@ -498,11 +522,7 @@ public class SimpleHeaders {
     }
 
     public subscript(key: String) -> String? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
         let keyLowercase = key.lowercased()
-        #endif
         var result = storage.simpleHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.arrayHeaders[keyLowercase]  {
@@ -555,19 +575,11 @@ public class ArrayHeaders {
     }
 
     public subscript(key: String) -> [String]? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
         let keyLowercase = key.lowercased()
-        #endif
         var result = storage.arrayHeaders[keyLowercase]
         if  result == nil  {
             if  let entry = storage.simpleHeaders[keyLowercase]  {
-                #if os(Linux)
-                result = entry.bridge().componentsSeparatedByString(", ")
-                #else
                 result = entry.components(separatedBy: ", ")
-                #endif
             }
         }
         return result
@@ -598,11 +610,7 @@ public struct ArrayHeadersIterator: IteratorProtocol {
         if  result == nil  {
             if  let simpleElem = simpleIterator.next()  {
                 let (simpleKey, simpleValue) = simpleElem
-                #if os(Linux)
-                result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
-                #else
                 result = (simpleKey, simpleValue.components(separatedBy: ", "))
-                #endif
             }
         }
         return result

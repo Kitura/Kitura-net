@@ -103,7 +103,7 @@ public class HTTP {
     /// A set of characters that are valid in requests
     ///
     #if os(Linux)
-    private static let allowedCharacterSet =  NSCharacterSet(charactersInString:"\"#%/<>?@\\^`{|}").invertedSet
+    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").invertedSet
     #else
     private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").inverted
     #endif
