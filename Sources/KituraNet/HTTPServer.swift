@@ -151,20 +151,20 @@ extension HTTPServer : HTTPServerSPIDelegate {
             let request = ServerRequest(socket: clientSocket)
             request.parse() { status in
                 switch status {
-                case .Success:
+                case .success:
                     delegate.handle(request: request, response: response)
-                case .ParsedLessThanRead:
+                case .parsedLessThanRead:
                     print("ParsedLessThanRead")
-                    response.statusCode = .BadRequest
+                    response.statusCode = .badRequest
                     do {
                         try response.end()
                     }
                     catch {
                         // handle error in connection
                     }
-                case .UnexpectedEOF:
+                case .unexpectedEOF:
                     print("UnexpectedEOF")
-                case .InternalError:
+                case .internalError:
                     print("InternalError")
                 }
             }
