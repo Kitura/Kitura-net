@@ -117,25 +117,25 @@ public class ClientRequest: SocketWriter {
         for option in options  {
             switch(option) {
 
-                case .Method(let method):
+                case .method(let method):
                     self.method = method
-                case .Schema(let schema):
+                case .schema(let schema):
                     theSchema = schema
-                case .Hostname(let host):
+                case .hostname(let host):
                     hostName = host
-                case .Port(let thePort):
+                case .port(let thePort):
                     port = thePort
-                case .Path(let thePath):
+                case .path(let thePath):
                     path = thePath
-                case .Headers(let headers):
+                case .headers(let headers):
                     for (key, value) in headers {
                         self.headers[key] = value
                     }
-                case .Username(let userName):
+                case .username(let userName):
                     self.userName = userName
-                case .Password(let password):
+                case .password(let password):
                     self.password = password
-                case .MaxRedirects(let maxRedirects):
+                case .maxRedirects(let maxRedirects):
                     self.maxRedirects = maxRedirects
             }
         }
@@ -248,7 +248,7 @@ public class ClientRequest: SocketWriter {
                 if  code == CURLE_OK  {
                     response.parse() {status in
                         switch(status) {
-                            case .Success:
+                            case .success:
                                 self.callback(response: self.response)
                                 callCallback = false
 
@@ -366,8 +366,8 @@ extension ClientRequest: CurlInvokerDelegate {
 ///
 public enum ClientRequestOptions {
     
-    case Method(String), Schema(String), Hostname(String), Port(Int16), Path(String),
-    Headers([String: String]), Username(String), Password(String), MaxRedirects(Int)
+    case method(String), schema(String), hostname(String), port(Int16), path(String),
+    headers([String: String]), username(String), password(String), maxRedirects(Int)
     
 }
 
