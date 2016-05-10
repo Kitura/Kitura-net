@@ -31,7 +31,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// Size of buffer
     ///
-    private let BUFFER_SIZE = 2000
+    private static let bufferSize = 2000
 
     ///
     /// Buffer for HTTP response line, headers, and short bodies
@@ -78,7 +78,7 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
 
         self.socket = socket
-        buffer = NSMutableData(capacity: BUFFER_SIZE)!
+        buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
         setHeader("Date", value: SPIUtils.httpDate())
 
     }
@@ -208,11 +208,11 @@ public class ServerResponse : SocketWriter {
 
         if  let socket = socket {
             try flushStart()
-            if  buffer.length + data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+            if  buffer.length + data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
                 try socket.write(from: buffer)
                 buffer.length = 0
             }
-            if  data.length > BUFFER_SIZE {
+            if  data.length > ServerResponse.bufferSize {
                 try socket.write(from: data)
             }
             else {
@@ -302,11 +302,11 @@ public class ServerResponse : SocketWriter {
             return
         }
 
-        if  buffer.length + utf8Data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+        if  buffer.length + utf8Data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
             try socket.write(from: buffer)
             buffer.length = 0
         }
-        if  utf8Data.length > BUFFER_SIZE {
+        if  utf8Data.length > ServerResponse.bufferSize {
             try socket.write(from: utf8Data)
         }
         else {

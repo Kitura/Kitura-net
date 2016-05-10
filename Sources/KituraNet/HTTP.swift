@@ -136,18 +136,18 @@ public class HTTP {
 ///
 public enum HTTPStatusCode: Int {
     
-    case Accepted = 202, BadGateway = 502, BadRequest = 400, Conflict = 409, Continue = 100, Created = 201
-    case ExpectationFailed = 417, FailedDependency  = 424, Forbidden = 403, GatewayTimeout = 504, Gone = 410
-    case HTTPVersionNotSupported = 505, InsufficientSpaceOnResource = 419, InsufficientStorage = 507
-    case InternalServerError = 500, LengthRequired = 411, MethodFailure = 420, MethodNotAllowed = 405
-    case MovedPermanently = 301, MovedTemporarily = 302, MultiStatus = 207, MultipleChoices = 300
-    case NetworkAuthenticationRequired = 511, NoContent = 204, NonAuthoritativeInformation = 203
-    case NotAcceptable = 406, NotFound = 404, NotImplemented = 501, NotModified = 304, OK = 200
-    case PartialContent = 206, PaymentRequired = 402, PreconditionFailed = 412, PreconditionRequired = 428
-    case ProxyAuthenticationRequired = 407, Processing = 102, RequestHeaderFieldsTooLarge = 431
-    case RequestTimeout = 408, RequestTooLong = 413, RequestURITooLong = 414, RequestedRangeNotSatisfiable = 416
-    case ResetContent = 205, SeeOther = 303, ServiceUnavailable = 503, SwitchingProtocols = 101
-    case TemporaryRedirect = 307, TooManyRequests = 429, Unauthorized = 401, UnprocessableEntity = 422
-    case UnsupportedMediaType = 415, UseProxy = 305, Unknown = -1
+    case accepted = 202, badGateway = 502, badRequest = 400, conflict = 409, `continue` = 100, created = 201
+    case expectationFailed = 417, failedDependency  = 424, forbidden = 403, gatewayTimeout = 504, gone = 410
+    case httpVersionNotSupported = 505, insufficientSpaceOnResource = 419, insufficientStorage = 507
+    case internalServerError = 500, lengthRequired = 411, methodFailure = 420, methodNotAllowed = 405
+    case movedPermanently = 301, movedTemporarily = 302, multiStatus = 207, multipleChoices = 300
+    case networkAuthenticationRequired = 511, noContent = 204, nonAuthoritativeInformation = 203
+    case notAcceptable = 406, notFound = 404, notImplemented = 501, notModified = 304, OK = 200
+    case partialContent = 206, paymentRequired = 402, preconditionFailed = 412, preconditionRequired = 428
+    case proxyAuthenticationRequired = 407, processing = 102, requestHeaderFieldsTooLarge = 431
+    case requestTimeout = 408, requestTooLong = 413, requestURITooLong = 414, requestedRangeNotSatisfiable = 416
+    case resetContent = 205, seeOther = 303, serviceUnavailable = 503, switchingProtocols = 101
+    case temporaryRedirect = 307, tooManyRequests = 429, unauthorized = 401, unprocessableEntity = 422
+    case unsupportedMediaType = 415, useProxy = 305, unknown = -1
     
 }

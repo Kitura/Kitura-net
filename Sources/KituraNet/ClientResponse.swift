@@ -46,7 +46,7 @@ public class ClientResponse: IncomingMessage {
     
     /// 
     /// HTTP Status code
-    public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.Unknown
+    public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.unknown
     
     ///
     /// BufferList instance for storing the response 
