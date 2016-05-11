@@ -25,9 +25,9 @@ import Foundation
     import Darwin
 #endif
 
-// MARK: UrlParser
+// MARK: URLParser
 
-public class UrlParser : CustomStringConvertible {
+public class URLParser : CustomStringConvertible {
 
     /// 
     /// Schema
@@ -104,7 +104,7 @@ public class UrlParser : CustomStringConvertible {
     
     
     ///
-    /// Initializes a new UrlParser instance
+    /// Initializes a new URLParser instance
     ///
     /// - Parameter url: url to be parsed
     /// - Parameter isConnect: whether or not a connection has been established
@@ -117,13 +117,13 @@ public class UrlParser : CustomStringConvertible {
         if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedUrl) == 0 {
             
             let (s, h, ps, p, q, f, u) = parsedUrl.field_data
-            schema = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
-            host = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
-            let portString = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
-            path = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
-            query = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
-            fragment = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
-            userinfo = getValueFromUrl(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
+            schema = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
+            host = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
+            let portString = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
+            path = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
+            query = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
+            fragment = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
+            userinfo = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
 
             if let _ = portString {
                 port = parsedUrl.port
@@ -149,7 +149,7 @@ public class UrlParser : CustomStringConvertible {
     /// TODO: ???
     ///
     ///
-    private func getValueFromUrl(_ url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
+    private func getValueFromURL(_ url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
         fieldData: http_parser_url_field_data) -> String? {
         
         if fieldSet & (1 << fieldIndex) != 0 {

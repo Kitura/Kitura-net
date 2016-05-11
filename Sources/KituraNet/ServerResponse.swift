@@ -31,7 +31,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// Size of buffer
     ///
-    private let BUFFER_SIZE = 2000
+    private static let bufferSize = 2000
 
     ///
     /// Buffer for HTTP response line, headers, and short bodies
@@ -51,14 +51,14 @@ public class ServerResponse : SocketWriter {
     ///
     /// Status code
     ///
-    private var status = HttpStatusCode.OK.rawValue
+    private var status = HTTPStatusCode.OK.rawValue
 
     ///
     /// Status code
     ///
-    public var statusCode: HttpStatusCode? {
+    public var statusCode: HTTPStatusCode? {
         get {
-            return HttpStatusCode(rawValue: status)
+            return HTTPStatusCode(rawValue: status)
         }
         set (newValue) {
             if let newValue = newValue where !startFlushed {
@@ -73,8 +73,8 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
 
         self.socket = socket
-        buffer = NSMutableData(capacity: BUFFER_SIZE)!
-        headers["Date"] = [SpiUtils.httpDate()]
+        buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
+        headers["Date"] = [SPIUtils.httpDate()]
     }
 
     ///
@@ -106,11 +106,11 @@ public class ServerResponse : SocketWriter {
 
         if  let socket = socket {
             try flushStart()
-            if  buffer.length + data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+            if  buffer.length + data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
                 try socket.write(from: buffer)
                 buffer.length = 0
             }
-            if  data.length > BUFFER_SIZE {
+            if  data.length > ServerResponse.bufferSize {
                 try socket.write(from: data)
             }
             else {
@@ -162,7 +162,7 @@ public class ServerResponse : SocketWriter {
         try writeToSocketThroughBuffer(text: "HTTP/1.1 ")
         try writeToSocketThroughBuffer(text: String(status))
         try writeToSocketThroughBuffer(text: " ")
-        var statusText = Http.statusCodes[status]
+        var statusText = HTTP.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
@@ -193,11 +193,11 @@ public class ServerResponse : SocketWriter {
             return
         }
 
-        if  buffer.length + utf8Data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+        if  buffer.length + utf8Data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
             try socket.write(from: buffer)
             buffer.length = 0
         }
-        if  utf8Data.length > BUFFER_SIZE {
+        if  utf8Data.length > ServerResponse.bufferSize {
             try socket.write(from: utf8Data)
         }
         else {
