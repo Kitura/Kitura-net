@@ -24,12 +24,12 @@ public class HTTPServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static var listenerQueue = Queue(type: .PARALLEL, label: "HTTPServer.listenerQueue")
+    private static var listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
 
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .PARALLEL, label: "HTTPServer.clientHandlerQueue")
+    private static var clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
 
     ///
     /// HTTPServerDelegate
