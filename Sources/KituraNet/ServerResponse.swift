@@ -46,7 +46,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// TODO: ???
     ///
-    public var headers = Headers()
+    public var headers = HeadersContainer()
     
     ///
     /// Status code

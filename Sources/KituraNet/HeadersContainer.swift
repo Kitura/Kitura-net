@@ -16,7 +16,7 @@
 
 import Foundation
 
-public struct Headers {
+public class HeadersContainer {
     
     ///
     /// The header storage
@@ -63,7 +63,7 @@ public struct Headers {
     ///
     /// - Returns: the value for the key as a list
     ///
-    public mutating func set(_ key: String, value: [String]) {
+    public func set(_ key: String, value: [String]) {
         
         headers[key] = value
         caseInsensitiveMap[key.lowercased()] = key
@@ -77,7 +77,7 @@ public struct Headers {
     ///
     /// - Returns: the value for the key as a list
     ///
-    public mutating func set(_ key: String, value: String) {
+    public func set(_ key: String, value: String) {
         
         set(key, value: [value])
     }
@@ -88,7 +88,7 @@ public struct Headers {
     /// - Parameter key: the key
     /// - Parameter value: the value
     ///
-    public mutating func append(_ key: String, value: [String]) {
+    public func append(_ key: String, value: [String]) {
         
         // Determine how to handle the header (append or merge)
         switch(key.lowercased()) {
@@ -121,7 +121,7 @@ public struct Headers {
     /// - Parameter key: the key
     /// - Parameter value: the value
     ///
-    public mutating func append(_ key: String, value: String) {
+    public func append(_ key: String, value: String) {
         
         append(key, value: [value])
     }
@@ -131,7 +131,7 @@ public struct Headers {
     ///
     /// - Parameter key: the key
     ///
-    public mutating func remove(_ key: String) {
+    public func remove(_ key: String) {
         
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             headers[headerKey] = nil

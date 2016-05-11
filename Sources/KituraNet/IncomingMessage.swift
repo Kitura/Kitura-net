@@ -42,7 +42,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// Set of headers
     ///
-    public private(set) var headers = Headers()
+    public var headers = HeadersContainer()
 
     ///
     /// HTTP Method
