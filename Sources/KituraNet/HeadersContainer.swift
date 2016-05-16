@@ -54,8 +54,7 @@ public class HeadersContainer {
         // Determine how to handle the header (append or merge)
         switch(key.lowercased()) {
             
-            // Headers with an array value (can appear multiple times, but can't be merged)
-        //
+        // Headers with an array value (can appear multiple times, but can't be merged)
         case "set-cookie":
             if let headerKey = caseInsensitiveMap[key.lowercased()] {
                 headers[headerKey]? += value
@@ -64,8 +63,7 @@ public class HeadersContainer {
             }
             
             
-            // Headers with a simple value that can be merged
-        //
+        // Headers with a simple value that can be merged
         default:
             guard let headerKey = caseInsensitiveMap[key.lowercased()], let oldValue = headers[headerKey]?.first else {
                 set(key, value: value)
@@ -74,6 +72,13 @@ public class HeadersContainer {
             let newValue = oldValue + ", " + value.joined(separator: ", ")
             headers[headerKey]?[0] = newValue
         }
+    }
+    
+    ///
+    /// Creates an iterator of the underlying dictionary
+    ///
+    public func makeIterator() -> DictionaryIterator<String, Array<String>> {
+        return headers.makeIterator()
     }
     
     ///
