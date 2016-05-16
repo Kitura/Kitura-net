@@ -82,7 +82,7 @@ public class ClientRequest: SocketWriter {
     
     private var callback: ClientRequestCallback
     
-    private var curlOptions: [(CURLoption, Int)]?
+    private var disableSSLVerification = false
 
     ///
     /// Initializes a ClientRequest instance
@@ -139,8 +139,8 @@ public class ClientRequest: SocketWriter {
                     self.password = password
                 case .maxRedirects(let maxRedirects):
                     self.maxRedirects = maxRedirects
-                case .curlOptions(let curlOptions):
-                    self.curlOptions = curlOptions
+                case .disableSSLVerification:
+                    self.disableSSLVerification = true
             }
         }
 
@@ -286,10 +286,9 @@ public class ClientRequest: SocketWriter {
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
         curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf.bytes))
-        if let curlOptions = curlOptions {
-            for (curlOption, value) in curlOptions {
-                curlHelperSetOptInt(handle!, curlOption, value)
-            }
+        if disableSSLVerification {
+            curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
+            curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
         }
         setMethod()
         let count = writeBuffers.count
@@ -376,7 +375,7 @@ extension ClientRequest: CurlInvokerDelegate {
 public enum ClientRequestOptions {
     
     case method(String), schema(String), hostname(String), port(Int16), path(String),
-    headers([String: String]), username(String), password(String), maxRedirects(Int), curlOptions([(CURLoption, Int)])
+    headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
     
 }
 
