@@ -117,19 +117,6 @@ public class HeadersContainer {
     }
     
     ///
-    /// Set the header value
-    ///
-    /// - Parameter key: the key
-    /// - Parameter value: the value
-    ///
-    /// - Returns: the value for the key as a list
-    ///
-    private func set(_ key: String, value: String) {
-        
-        set(key, value: [value])
-    }
-    
-    ///
     /// Remove the header by key (case insensitive)
     ///
     /// - Parameter key: the key
