@@ -37,49 +37,10 @@ public class HeadersContainer {
             if let newValue = newValue {
                 set(key, value: newValue)
             }
+            else {
+                remove(key)
+            }
         }
-    }
-    
-    ///
-    /// Gets the header (case insensitive)
-    ///
-    /// - Parameter key: the key
-    ///
-    /// - Returns: the value for the key
-    ///
-    public func get(_ key: String) -> [String]? {
-        if let headerKey = caseInsensitiveMap[key.lowercased()] {
-            return headers[headerKey]
-        }
-        
-        return nil
-    }
-    
-    ///
-    /// Set the header value
-    ///
-    /// - Parameter key: the key
-    /// - Parameter value: the value
-    ///
-    /// - Returns: the value for the key as a list
-    ///
-    public func set(_ key: String, value: [String]) {
-        
-        headers[key] = value
-        caseInsensitiveMap[key.lowercased()] = key
-    }
-    
-    ///
-    /// Set the header value
-    ///
-    /// - Parameter key: the key
-    /// - Parameter value: the value
-    ///
-    /// - Returns: the value for the key as a list
-    ///
-    public func set(_ key: String, value: String) {
-        
-        set(key, value: [value])
     }
     
     ///
@@ -94,24 +55,24 @@ public class HeadersContainer {
         switch(key.lowercased()) {
             
             // Headers with an array value (can appear multiple times, but can't be merged)
-            //
-            case "set-cookie":
-                if let headerKey = caseInsensitiveMap[key.lowercased()] {
-                    headers[headerKey]? += value
-                } else {
-                    set(key, value: value)
-                }
+        //
+        case "set-cookie":
+            if let headerKey = caseInsensitiveMap[key.lowercased()] {
+                headers[headerKey]? += value
+            } else {
+                set(key, value: value)
+            }
             
-                
+            
             // Headers with a simple value that can be merged
-            //
-            default:
-                guard let headerKey = caseInsensitiveMap[key.lowercased()], let oldValue = headers[headerKey]?.first else {
-                    set(key, value: value)
-                    return
-                }
-                let newValue = oldValue + ", " + value.joined(separator: ", ")
-                headers[headerKey]?[0] = newValue
+        //
+        default:
+            guard let headerKey = caseInsensitiveMap[key.lowercased()], let oldValue = headers[headerKey]?.first else {
+                set(key, value: value)
+                return
+            }
+            let newValue = oldValue + ", " + value.joined(separator: ", ")
+            headers[headerKey]?[0] = newValue
         }
     }
     
@@ -127,11 +88,53 @@ public class HeadersContainer {
     }
     
     ///
+    /// Gets the header (case insensitive)
+    ///
+    /// - Parameter key: the key
+    ///
+    /// - Returns: the value for the key
+    ///
+    private func get(_ key: String) -> [String]? {
+        if let headerKey = caseInsensitiveMap[key.lowercased()] {
+            return headers[headerKey]
+        }
+        
+        return nil
+    }
+    
+    ///
+    /// Set the header value
+    ///
+    /// - Parameter key: the key
+    /// - Parameter value: the value
+    ///
+    /// - Returns: the value for the key as a list
+    ///
+    private func set(_ key: String, value: [String]) {
+        
+        headers[key] = value
+        caseInsensitiveMap[key.lowercased()] = key
+    }
+    
+    ///
+    /// Set the header value
+    ///
+    /// - Parameter key: the key
+    /// - Parameter value: the value
+    ///
+    /// - Returns: the value for the key as a list
+    ///
+    private func set(_ key: String, value: String) {
+        
+        set(key, value: [value])
+    }
+    
+    ///
     /// Remove the header by key (case insensitive)
     ///
     /// - Parameter key: the key
     ///
-    public func remove(_ key: String) {
+    private func remove(_ key: String) {
         
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             headers[headerKey] = nil
