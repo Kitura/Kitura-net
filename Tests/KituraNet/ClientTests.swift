@@ -34,7 +34,7 @@ class ClientTests: XCTestCase {
             XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
             let contentType = response!.headers["Content-Type"]
             XCTAssertNotNil(contentType, "No ContentType header in response")
-            XCTAssertEqual(contentType!, "text/html", "Content-Type header wasn't `text/html`")
+            XCTAssertEqual(contentType!, ["text/html"], "Content-Type header wasn't `text/html`")
         }
     }
 }
