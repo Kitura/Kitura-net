@@ -75,13 +75,6 @@ public class HeadersContainer {
     }
     
     ///
-    /// Creates an iterator of the underlying dictionary
-    ///
-    public func makeIterator() -> DictionaryIterator<String, Array<String>> {
-        return headers.makeIterator()
-    }
-    
-    ///
     /// Append values to the header
     ///
     /// - Parameter key: the key
@@ -90,6 +83,13 @@ public class HeadersContainer {
     public func append(_ key: String, value: String) {
         
         append(key, value: [value])
+    }
+    
+    ///
+    /// Creates an iterator of the underlying dictionary
+    ///
+    public func makeIterator() -> DictionaryIterator<String, Array<String>> {
+        return headers.makeIterator()
     }
     
     ///
@@ -132,5 +132,23 @@ public class HeadersContainer {
             headers[headerKey] = nil
         }
         caseInsensitiveMap[key.lowercased()] = nil
+    }
+}
+
+/// Variables and methods to implement the Collection protocol
+extension HeadersContainer {
+    
+    public var startIndex:DictionaryIndex<String, [String]> { return headers.startIndex }
+    
+    public var endIndex:DictionaryIndex<String, [String]> { return headers.endIndex }
+    
+    public subscript(position: DictionaryIndex<String, [String]>) -> (key: String, value: [String]) {
+        get {
+            return headers[position]
+        }
+    }
+    
+    public func index(after i: DictionaryIndex<String, [String]>) -> DictionaryIndex<String, [String]> {
+        return headers.index(after: i)
     }
 }
