@@ -81,17 +81,10 @@ public class HeadersContainer {
     /// - Parameter value: the value
     ///
     public func append(_ key: String, value: String) {
-        
+
         append(key, value: [value])
     }
-    
-    ///
-    /// Creates an iterator of the underlying dictionary
-    ///
-    public func makeIterator() -> DictionaryIterator<String, Array<String>> {
-        return headers.makeIterator()
-    }
-    
+
     ///
     /// Gets the header (case insensitive)
     ///
@@ -137,18 +130,30 @@ public class HeadersContainer {
 
 /// Variables and methods to implement the Collection protocol
 extension HeadersContainer {
-    
+
     public var startIndex:DictionaryIndex<String, [String]> { return headers.startIndex }
-    
+
     public var endIndex:DictionaryIndex<String, [String]> { return headers.endIndex }
-    
+
     public subscript(position: DictionaryIndex<String, [String]>) -> (key: String, value: [String]) {
         get {
             return headers[position]
         }
     }
-    
+
     public func index(after i: DictionaryIndex<String, [String]>) -> DictionaryIndex<String, [String]> {
         return headers.index(after: i)
+    }
+}
+
+/// Implement the Sequence protocol
+extension HeadersContainer: Sequence {
+    public typealias Iterator = DictionaryIterator<String, Array<String>>
+
+    ///
+    /// Creates an iterator of the underlying dictionary
+    ///
+    public func makeIterator() -> HeadersContainer.Iterator {
+        return headers.makeIterator()
     }
 }
