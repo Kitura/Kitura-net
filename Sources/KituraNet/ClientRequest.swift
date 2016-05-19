@@ -81,6 +81,8 @@ public class ClientRequest: SocketWriter {
     
     
     private var callback: ClientRequestCallback
+    
+    private var disableSSLVerification = false
 
     ///
     /// Initializes a ClientRequest instance
@@ -117,26 +119,28 @@ public class ClientRequest: SocketWriter {
         for option in options  {
             switch(option) {
 
-                case .Method(let method):
+                case .method(let method):
                     self.method = method
-                case .Schema(let schema):
+                case .schema(let schema):
                     theSchema = schema
-                case .Hostname(let host):
+                case .hostname(let host):
                     hostName = host
-                case .Port(let thePort):
+                case .port(let thePort):
                     port = thePort
-                case .Path(let thePath):
+                case .path(let thePath):
                     path = thePath
-                case .Headers(let headers):
+                case .headers(let headers):
                     for (key, value) in headers {
                         self.headers[key] = value
                     }
-                case .Username(let userName):
+                case .username(let userName):
                     self.userName = userName
-                case .Password(let password):
+                case .password(let password):
                     self.password = password
-                case .MaxRedirects(let maxRedirects):
+                case .maxRedirects(let maxRedirects):
                     self.maxRedirects = maxRedirects
+                case .disableSSLVerification:
+                    self.disableSSLVerification = true
             }
         }
 
@@ -248,7 +252,7 @@ public class ClientRequest: SocketWriter {
                 if  code == CURLE_OK  {
                     response.parse() {status in
                         switch(status) {
-                            case .Success:
+                            case .success:
                                 self.callback(response: self.response)
                                 callCallback = false
 
@@ -282,6 +286,10 @@ public class ClientRequest: SocketWriter {
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
         curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf.bytes))
+        if disableSSLVerification {
+            curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
+            curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
+        }
         setMethod()
         let count = writeBuffers.count
         if  count != 0  {
@@ -366,8 +374,8 @@ extension ClientRequest: CurlInvokerDelegate {
 ///
 public enum ClientRequestOptions {
     
-    case Method(String), Schema(String), Hostname(String), Port(Int16), Path(String),
-    Headers([String: String]), Username(String), Password(String), MaxRedirects(Int)
+    case method(String), schema(String), hostname(String), port(Int16), path(String),
+    headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
     
 }
 

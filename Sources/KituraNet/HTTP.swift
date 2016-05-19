@@ -16,9 +16,9 @@
 
 import Foundation
 
-// MARK: Http
+// MARK: HTTP
 
-public class Http {
+public class HTTP {
     
     ///
     /// Mapping of integer status codes to the String description
@@ -44,13 +44,13 @@ public class Http {
     ]
     
     ///
-    /// Creates a new Http server
+    /// Creates a new HTTP server
     /// 
-    /// - Returns: an instance of HttpServer
+    /// - Returns: an instance of HTTPServer
     ///
-    public static func createServer() -> HttpServer {
+    public static func createServer() -> HTTPServer {
         
-        return HttpServer()
+        return HTTPServer()
         
     }
     
@@ -103,7 +103,7 @@ public class Http {
     /// A set of characters that are valid in requests
     ///
     #if os(Linux)
-    private static let allowedCharacterSet =  NSCharacterSet(charactersInString:"\"#%/<>?@\\^`{|}").invertedSet
+    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").invertedSet
     #else
     private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").inverted
     #endif
@@ -134,20 +134,20 @@ public class Http {
 ///
 /// HTTP status codes and numbers
 ///
-public enum HttpStatusCode: Int {
+public enum HTTPStatusCode: Int {
     
-    case ACCEPTED = 202, BAD_GATEWAY = 502, BAD_REQUEST = 400, CONFLICT = 409, CONTINUE = 100, CREATED = 201
-    case EXPECTATION_FAILED = 417, FAILED_DEPENDENCY  = 424, FORBIDDEN = 403, GATEWAY_TIMEOUT = 504, GONE = 410
-    case HTTP_VERSION_NOT_SUPPORTED = 505, INSUFFICIENT_SPACE_ON_RESOURCE = 419, INSUFFICIENT_STORAGE = 507
-    case INTERNAL_SERVER_ERROR = 500, LENGTH_REQUIRED = 411, METHOD_FAILURE = 420, METHOD_NOT_ALLOWED = 405
-    case MOVED_PERMANENTLY = 301, MOVED_TEMPORARILY = 302, MULTI_STATUS = 207, MULTIPLE_CHOICES = 300
-    case NETWORK_AUTHENTICATION_REQUIRED = 511, NO_CONTENT = 204, NON_AUTHORITATIVE_INFORMATION = 203
-    case NOT_ACCEPTABLE = 406, NOT_FOUND = 404, NOT_IMPLEMENTED = 501, NOT_MODIFIED = 304, OK = 200
-    case PARTIAL_CONTENT = 206, PAYMENT_REQUIRED = 402, PRECONDITION_FAILED = 412, PRECONDITION_REQUIRED = 428
-    case PROXY_AUTHENTICATION_REQUIRED = 407, PROCESSING = 102, REQUEST_HEADER_FIELDS_TOO_LARGE = 431
-    case REQUEST_TIMEOUT = 408, REQUEST_TOO_LONG = 413, REQUEST_URI_TOO_LONG = 414, REQUESTED_RANGE_NOT_SATISFIABLE = 416
-    case RESET_CONTENT = 205, SEE_OTHER = 303, SERVICE_UNAVAILABLE = 503, SWITCHING_PROTOCOLS = 101
-    case TEMPORARY_REDIRECT = 307, TOO_MANY_REQUESTS = 429, UNAUTHORIZED = 401, UNPROCESSABLE_ENTITY = 422
-    case UNSUPPORTED_MEDIA_TYPE = 415, USE_PROXY = 305, UNKNOWN = -1
+    case accepted = 202, badGateway = 502, badRequest = 400, conflict = 409, `continue` = 100, created = 201
+    case expectationFailed = 417, failedDependency  = 424, forbidden = 403, gatewayTimeout = 504, gone = 410
+    case httpVersionNotSupported = 505, insufficientSpaceOnResource = 419, insufficientStorage = 507
+    case internalServerError = 500, lengthRequired = 411, methodFailure = 420, methodNotAllowed = 405
+    case movedPermanently = 301, movedTemporarily = 302, multiStatus = 207, multipleChoices = 300
+    case networkAuthenticationRequired = 511, noContent = 204, nonAuthoritativeInformation = 203
+    case notAcceptable = 406, notFound = 404, notImplemented = 501, notModified = 304, OK = 200
+    case partialContent = 206, paymentRequired = 402, preconditionFailed = 412, preconditionRequired = 428
+    case proxyAuthenticationRequired = 407, processing = 102, requestHeaderFieldsTooLarge = 431
+    case requestTimeout = 408, requestTooLong = 413, requestURITooLong = 414, requestedRangeNotSatisfiable = 416
+    case resetContent = 205, seeOther = 303, serviceUnavailable = 503, switchingProtocols = 101
+    case temporaryRedirect = 307, tooManyRequests = 429, unauthorized = 401, unprocessableEntity = 422
+    case unsupportedMediaType = 415, useProxy = 305, unknown = -1
     
 }

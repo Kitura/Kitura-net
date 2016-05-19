@@ -10,7 +10,7 @@
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
+*   See the License for the specific language governing permissions and
 * limitations under the License.
 **/
 
@@ -23,9 +23,9 @@
 
 import Foundation
 
-// MARK: SpiUtils
+// MARK: SPIUtils
 
-public class SpiUtils {
+public class SPIUtils {
     
     ///
     /// Abbreviations for month names
@@ -75,11 +75,10 @@ public class SpiUtils {
 #endif
         calendar.timeZone = NSTimeZone(name: "UTC")!
         
+        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
 #if os(Linux)
-        let temp = calendar.components([.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday], fromDate: date)
         let components = temp!
 #else
-        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
         let components = temp
 #endif
         let wday = Int(components.weekday)

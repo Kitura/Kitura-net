@@ -17,17 +17,17 @@
 import Socket
 import LoggerAPI
 
-// MARK: HttpServerSpi
+// MARK: HTTPServerSPI
 
-class HttpServerSpi {
+class HTTPServerSPI {
     
     /// 
-    /// Delegate for handling the HttpServer connection 
+    /// Delegate for handling the HTTPServer connection 
     ///
-    weak var delegate: HttpServerSpiDelegate?
+    weak var delegate: HTTPServerSPIDelegate?
     
     ///
-    /// Whether the Http service provider handler has stopped runnign
+    /// Whether the HTTP service provider handler has stopped runnign
     ///
     var stopped = false
 
@@ -72,7 +72,7 @@ class HttpServerSpi {
 ///
 /// Delegate for a service provider interface
 ///
-protocol HttpServerSpiDelegate: class {
+protocol HTTPServerSPIDelegate: class {
     
     ///
     /// Handle the client request

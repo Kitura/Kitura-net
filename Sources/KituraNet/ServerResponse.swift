@@ -31,7 +31,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// Size of buffer
     ///
-    private let BUFFER_SIZE = 2000
+    private static let bufferSize = 2000
 
     ///
     /// Buffer for HTTP response line, headers, and short bodies
@@ -46,24 +46,19 @@ public class ServerResponse : SocketWriter {
     ///
     /// TODO: ???
     ///
-    private var singleHeaders: [String: String] = [:]
-
+    public var headers = HeadersContainer()
+    
     ///
-    /// TODO: ???
+    /// Status code
     ///
-    private var multiHeaders: [String: [String]] = [:]
+    private var status = HTTPStatusCode.OK.rawValue
 
     ///
     /// Status code
     ///
-    private var status = HttpStatusCode.OK.rawValue
-
-    ///
-    /// Status code
-    ///
-    public var statusCode: HttpStatusCode? {
+    public var statusCode: HTTPStatusCode? {
         get {
-            return HttpStatusCode(rawValue: status)
+            return HTTPStatusCode(rawValue: status)
         }
         set (newValue) {
             if let newValue = newValue where !startFlushed {
@@ -78,105 +73,8 @@ public class ServerResponse : SocketWriter {
     init(socket: Socket) {
 
         self.socket = socket
-        buffer = NSMutableData(capacity: BUFFER_SIZE)!
-        setHeader("Date", value: SpiUtils.httpDate())
-
-    }
-
-    ///
-    /// Get a specific headers for the response by key
-    ///
-    /// - Parameter key: the header key
-    ///
-    public func getHeader(_ key: String) -> String? {
-
-        return singleHeaders[key]
-
-    }
-
-    ///
-    /// Get all values on a specific key
-    ///
-    /// - Parameter key: the header key
-    ///
-    /// - Returns: a list of String values
-    ///
-    public func getHeaders(_ key: String) -> [String]? {
-        
-        return multiHeaders[key]
-        
-    }
-    
-    ///
-    /// Set the value for a header
-    ///
-    /// - Parameter key: key 
-    /// - Parameter value: the value
-    ///
-    public func setHeader(_ key: String, value: String) {
-        singleHeaders[key] = value
-        multiHeaders.removeValue(forKey: key)
-    }
-
-    ///
-    /// Set the value for a header (list)
-    ///
-    /// - Parameter key: key
-    /// - Parameter value: the value
-    ///
-    public func setHeader(_ key: String, value: [String]) {
-        multiHeaders[key] = value
-        singleHeaders.removeValue(forKey: key)
-    }
-
-    ///
-    /// Append a value to the header
-    ///
-    /// - Parameter key: the header key
-    /// - Parameter value: string value
-    ///
-    public func append(key: String, value: String) {
-
-        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
-            multiHeaders[key] = [singleValue, value]
-            singleHeaders.removeValue(forKey: key)
-        } else if let _ = multiHeaders[key] {
-            multiHeaders[key]!.append(value)
-        } else {
-            setHeader(key, value: value)
-        }
-    }
-
-    ///
-    /// Append values to the header
-    ///
-    /// - Parameter key: the header key
-    /// - Parameter value: array of string values
-    ///
-    public func append(key: String, value: [String]) {
-
-        if let singleValue = singleHeaders[key] where multiHeaders.count == 0 {
-            multiHeaders[key] = [singleValue] + value
-            singleHeaders.removeValue(forKey: key)
-        } else if let _ = multiHeaders[key] {
-            multiHeaders[key]! = multiHeaders[key]! + value
-        } else {
-            if value.count == 1 {
-                setHeader(key, value: value.first!)
-            } else {
-                setHeader(key, value: value)
-            }
-        }
-    }
-    
-    ///
-    /// Remove a key from the header
-    ///
-    /// - Parameter key: key
-    ///
-    public func removeHeader(key: String) {
-        singleHeaders.removeValue(forKey: key)
-        multiHeaders.removeValue(forKey: key)
+        buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
+        headers["Date"] = [SPIUtils.httpDate()]
     }
 
     ///
@@ -208,11 +106,11 @@ public class ServerResponse : SocketWriter {
 
         if  let socket = socket {
             try flushStart()
-            if  buffer.length + data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+            if  buffer.length + data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
                 try socket.write(from: buffer)
                 buffer.length = 0
             }
-            if  data.length > BUFFER_SIZE {
+            if  data.length > ServerResponse.bufferSize {
                 try socket.write(from: data)
             }
             else {
@@ -264,7 +162,7 @@ public class ServerResponse : SocketWriter {
         try writeToSocketThroughBuffer(text: "HTTP/1.1 ")
         try writeToSocketThroughBuffer(text: String(status))
         try writeToSocketThroughBuffer(text: " ")
-        var statusText = Http.statusCodes[status]
+        var statusText = HTTP.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
@@ -273,14 +171,7 @@ public class ServerResponse : SocketWriter {
         try writeToSocketThroughBuffer(text: statusText!)
         try writeToSocketThroughBuffer(text: "\r\n")
 
-        for (key, value) in singleHeaders {
-            try writeToSocketThroughBuffer(text: key)
-            try writeToSocketThroughBuffer(text: ": ")
-            try writeToSocketThroughBuffer(text: value)
-            try writeToSocketThroughBuffer(text: "\r\n")
-        }
-
-        for (key, valueSet) in multiHeaders {
+        for (key, valueSet) in headers.headers {
             for value in valueSet {
                 try writeToSocketThroughBuffer(text: key)
                 try writeToSocketThroughBuffer(text: ": ")
@@ -302,11 +193,11 @@ public class ServerResponse : SocketWriter {
             return
         }
 
-        if  buffer.length + utf8Data.length > BUFFER_SIZE  &&  buffer.length != 0  {
+        if  buffer.length + utf8Data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
             try socket.write(from: buffer)
             buffer.length = 0
         }
-        if  utf8Data.length > BUFFER_SIZE {
+        if  utf8Data.length > ServerResponse.bufferSize {
             try socket.write(from: utf8Data)
         }
         else {

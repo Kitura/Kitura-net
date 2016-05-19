@@ -22,12 +22,12 @@ import Foundation
 
 // MARK: IncomingMessage
 
-public class IncomingMessage : HttpParserDelegate, SocketReader {
+public class IncomingMessage : HTTPParserDelegate, SocketReader {
 
     ///
     /// Default buffer size used for creating a BufferList
     ///
-    private static let BUFFER_SIZE = 2000
+    private static let bufferSize = 2000
 
     /// 
     /// Major version for HTTP 
@@ -39,25 +39,10 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     public private(set) var httpVersionMinor: UInt16?
 
-    //
-    // Storage for headers
-    //
-    private let headerStorage = HeaderStorage()
-
     ///
-    /// Set of headers who's value is a String
+    /// Set of headers
     ///
-    public private(set) var headers: SimpleHeaders
-
-    ///
-    /// Set of headers who's value is an Array
-    ///
-    public private(set) var headersAsArrays: ArrayHeaders
-
-    ///
-    /// Raw headers before processing
-    ///
-    public private(set) var rawHeaders = [String]()
+    public var headers = HeadersContainer()
 
     ///
     /// HTTP Method
@@ -96,15 +81,15 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// TODO: ???
     ///
-    private var httpParser: HttpParser?
+    private var httpParser: HTTPParser?
 
     ///
     /// TODO: ???
     ///
-    private var status = Status.Initial
+    private var status = Status.initial
 
     ///
-    /// TODO: ???
+    /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     ///
     private var bodyChunk = BufferList()
 
@@ -116,12 +101,12 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// TODO: ???
     ///
-    private var ioBuffer = NSMutableData(capacity: BUFFER_SIZE)
+    private var ioBuffer = NSMutableData(capacity: IncomingMessage.bufferSize)
     
     ///
     /// TODO: ???
     ///
-    private var buffer = NSMutableData(capacity: BUFFER_SIZE)
+    private var buffer = NSMutableData(capacity: IncomingMessage.bufferSize)
 
 
     ///
@@ -129,23 +114,24 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     private enum Status {
         
-        case Initial
-        case HeadersComplete
-        case MessageComplete
-        case Error
+        case initial
+        case headersComplete
+        case messageComplete
+        case error
+        case reset
         
     }
 
 
     ///
-    /// Http parser error types
+    /// HTTP parser error types
     ///
-    public enum HttpParserErrorType {
+    public enum HTTPParserErrorType {
         
-        case Success
-        case ParsedLessThanRead
-        case UnexpectedEOF
-        case InternalError // TODO
+        case success
+        case parsedLessThanRead
+        case unexpectedEOF
+        case internalError // TODO
         
     }
 
@@ -157,10 +143,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// - Returns: an IncomingMessage instance
     ///
     init (isRequest: Bool) {
-        httpParser = HttpParser(isRequest: isRequest)
-
-        headers = SimpleHeaders(storage: headerStorage)
-        headersAsArrays = ArrayHeaders(storage: headerStorage)
+        httpParser = HTTPParser(isRequest: isRequest)
 
         httpParser!.delegate = self
     }
@@ -178,47 +161,63 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// Parse the message
     ///
-    /// - Parameter callback: (HttpParserErrorType) -> Void closure
+    /// - Parameter callback: (HTTPParserErrorType) -> Void closure
     ///
-    func parse (_ callback: (HttpParserErrorType) -> Void) {
-        guard let parser = httpParser where status == .Initial else {
-            freeHttpParser()
-            callback(.InternalError)
+    func parse (_ callback: (HTTPParserErrorType) -> Void) {
+        guard let parser = httpParser where status == .initial else {
+            freeHTTPParser()
+            callback(.internalError)
             return
         }
 
-        while status == .Initial {
+        var start = 0
+        var length = 0
+        while status == .initial {
             do {
-                ioBuffer!.length = 0
-                let length = try helper!.readHelper(into: ioBuffer!)
+                if  start == 0  {
+                    ioBuffer!.length = 0
+                    length = try helper!.readHelper(into: ioBuffer!)
+                }
                 if length > 0 {
-                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: length)
+                    let offset = start
+                    start = 0
+                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
                     if upgrade == 1 {
                         // TODO handle new protocol
                     }
                     else if (nparsed != length) {
-                        /* Handle error. Usually just close the connection. */
-                        freeHttpParser()
-                        status = .Error
-                        callback(.ParsedLessThanRead)
+
+                        if  status == .reset  {
+                            // Apparently the short message was a Continue. Let's just keep on parsing
+                            status = .initial
+                            start = nparsed
+                            length -= nparsed
+                            parser.reset()
+                        }
+                        else {
+                            /* Handle error. Usually just close the connection. */
+                            freeHTTPParser()
+                            status = .error
+                            callback(.parsedLessThanRead)
+                        }
                     }
                 }
                 else {
                     /* Handle unexpected EOF. Usually just close the connection. */
-                    freeHttpParser()
-                    status = .Error
-                    callback(.UnexpectedEOF)
+                    freeHTTPParser()
+                    status = .error
+                    callback(.unexpectedEOF)
                 }
             }
             catch {
                 /* Handle error. Usually just close the connection. */
-                freeHttpParser()
-                status = .Error
-                callback(.UnexpectedEOF)
+                freeHTTPParser()
+                status = .error
+                callback(.unexpectedEOF)
             }
         }
-        if status != .Error {
-            callback(.Success)
+        if status != .error {
+            callback(.success)
         }
     }
 
@@ -232,7 +231,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     public func read(into data: NSMutableData) throws -> Int {
         var count = bodyChunk.fill(data: data)
         if count == 0 {
-            if let parser = httpParser where status == .HeadersComplete {
+            if let parser = httpParser where status == .headersComplete {
                 do {
                     ioBuffer!.length = 0
                     count = try helper!.readHelper(into: ioBuffer!)
@@ -243,22 +242,22 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
                         }
                         else if (nparsed != count) {
                             /* Handle error. Usually just close the connection. */
-                            freeHttpParser()
-                            status = .Error
+                            freeHTTPParser()
+                            status = .error
                         }
                         else {
                             count = bodyChunk.fill(data: data)
                         }
                     }
                     else {
-                        status = .MessageComplete
-                        freeHttpParser()
+                        status = .messageComplete
+                        freeHTTPParser()
                     }
                 }
                 catch let error {
                     /* Handle error. Usually just close the connection. */
-                    freeHttpParser()
-                    status = .Error
+                    freeHTTPParser()
+                    status = .error
                     throw error
                 }
             }
@@ -306,7 +305,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     /// Free the httpParser from the IncomingMessage
     ///
-    private func freeHttpParser () {
+    private func freeHTTPParser () {
         
         httpParser?.delegate = nil
         httpParser = nil
@@ -359,11 +358,22 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
 
         let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
         let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
-
-        rawHeaders.append(headerKey)
-        rawHeaders.append(headerValue)
-
-        headerStorage.addHeader(key: headerKey, value: headerValue)
+        
+        switch(headerKey.lowercased()) {
+            // Headers with a simple value that are not merged (i.e. duplicates dropped)
+            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
+            //
+            case "content-type", "content-length", "user-agent", "referer", "host",
+                 "authorization", "proxy-authorization", "if-modified-since",
+                 "if-unmodified-since", "from", "location", "max-forwards",
+                 "retry-after", "etag", "last-modified", "server", "age", "expires":
+                if let _ = headers[headerKey] {
+                    break
+                }
+                fallthrough
+            default:
+                headers.append(headerKey, value: headerValue)
+        }
 
         lastHeaderField.length = 0
         lastHeaderValue.length = 0
@@ -399,7 +409,7 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
             addHeader()
         }
 
-        status = .HeadersComplete
+        status = .headersComplete
         
     }
 
@@ -416,8 +426,8 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     ///
     func onMessageComplete() {
         
-        status = .MessageComplete
-        freeHttpParser()
+        status = .messageComplete
+        freeHTTPParser()
         
     }
 
@@ -425,188 +435,11 @@ public class IncomingMessage : HttpParserDelegate, SocketReader {
     /// instructions for when reading is reset
     ///
     func reset() {
+        lastHeaderWasAValue = false
+        url.length = 0
+        status = .reset
     }
 
-}
-
-//
-// Private class for Header storage
-//
-internal class HeaderStorage {
-    //
-    // Storage for headers who's value is a String
-    //
-    internal var simpleHeaders = [String:String]()
-
-    //
-    // Storage for headers who's value is an Array of Strings
-    //
-    internal var arrayHeaders = [String: [String]]()
-
-    func addHeader(key headerKey: String, value headerValue: String) {
-        #if os(Linux)
-        let headerKeyLowerCase = headerKey.bridge().lowercaseString
-        #else
-        let headerKeyLowerCase = headerKey.lowercased()
-        #endif
-        // Determine how to handle the header (i.e. simple header array header,...)
-        switch(headerKeyLowerCase) {
-
-            // Headers with an array value (can appear multiple times, but can't be merged)
-            //
-            case "set-cookie":
-                var oldArray = arrayHeaders[headerKeyLowerCase] ?? [String]()
-                oldArray.append(headerValue)
-                arrayHeaders[headerKeyLowerCase] = oldArray
-                break
-
-            // Headers with a simple value that are not merged (i.e. duplicates dropped)
-            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
-            //
-            case "content-type", "content-length", "user-agent", "referer", "host",
-                    "authorization", "proxy-authorization", "if-modified-since",
-                    "if-unmodified-since", "from", "location", "max-forwards",
-                    "retry-after", "etag", "last-modified", "server", "age", "expires":
-                if  simpleHeaders[headerKeyLowerCase]  == nil  {
-                    // ignore the header if we already had one with this key
-                    simpleHeaders[headerKeyLowerCase] = headerValue
-                }
-                break
-
-            // Headers with a simple value that can be merged
-            //
-            default:
-                if  let oldValue = simpleHeaders[headerKeyLowerCase]  {
-                    simpleHeaders[headerKeyLowerCase] = oldValue + ", " + headerValue
-                }
-                else {
-                    simpleHeaders[headerKeyLowerCase] = headerValue
-                }
-                break
-        }
-    }
-}
-
-//
-// Class to "simulate" Dictionary access of headers with simple values
-//
-public class SimpleHeaders {
-    internal let storage: HeaderStorage
-
-    private init(storage: HeaderStorage) {
-        self.storage = storage
-    }
-
-    public subscript(key: String) -> String? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
-        let keyLowercase = key.lowercased()
-        #endif
-        var result = storage.simpleHeaders[keyLowercase]
-        if  result == nil  {
-            if  let entry = storage.arrayHeaders[keyLowercase]  {
-                result = entry[0]
-            }
-        }
-        return result
-    }
-}
-
-extension SimpleHeaders: Sequence {
-    public typealias Iterator = SimpleHeadersIterator
-
-    public func makeIterator() -> SimpleHeaders.Iterator {
-        return SimpleHeaders.Iterator(self)
-    }
-}
-
-public struct SimpleHeadersIterator: IteratorProtocol {
-    public typealias Element = (String, String)
-
-    private var simpleIterator: DictionaryIterator<String, String>
-    private var arrayIterator: DictionaryIterator<String, [String]>
-
-    init(_ simpleHeaders: SimpleHeaders) {
-        simpleIterator = simpleHeaders.storage.simpleHeaders.makeIterator()
-        arrayIterator = simpleHeaders.storage.arrayHeaders.makeIterator()
-    }
-
-    public mutating func next() -> SimpleHeadersIterator.Element? {
-        var result = simpleIterator.next()
-        if  result == nil  {
-            if  let arrayElem = arrayIterator.next()  {
-                let (arrayKey, arrayValue) = arrayElem
-                result = (arrayKey, arrayValue[0])
-            }
-        }
-        return result
-    }
-}
-
-//
-// Class to "simulate" Dictionary access of headers with array values
-//
-public class ArrayHeaders {
-    private let storage: HeaderStorage
-
-    private init(storage: HeaderStorage) {
-        self.storage = storage
-    }
-
-    public subscript(key: String) -> [String]? {
-        #if os(Linux)
-        let keyLowercase = key.bridge().lowercaseString
-        #else
-        let keyLowercase = key.lowercased()
-        #endif
-        var result = storage.arrayHeaders[keyLowercase]
-        if  result == nil  {
-            if  let entry = storage.simpleHeaders[keyLowercase]  {
-                #if os(Linux)
-                result = entry.bridge().componentsSeparatedByString(", ")
-                #else
-                result = entry.components(separatedBy: ", ")
-                #endif
-            }
-        }
-        return result
-    }
-}
-
-extension ArrayHeaders: Sequence {
-    public typealias Iterator = ArrayHeadersIterator
-
-    public func makeIterator() -> ArrayHeaders.Iterator {
-        return ArrayHeaders.Iterator(self)
-    }
-}
-
-public struct ArrayHeadersIterator: IteratorProtocol {
-    public typealias Element = (String, [String])
-
-    private var arrayIterator: DictionaryIterator<String, [String]>
-    private var simpleIterator: DictionaryIterator<String, String>
-
-    init(_ arrayHeaders: ArrayHeaders) {
-        arrayIterator = arrayHeaders.storage.arrayHeaders.makeIterator()
-        simpleIterator = arrayHeaders.storage.simpleHeaders.makeIterator()
-    }
-
-    public mutating func next() -> ArrayHeadersIterator.Element? {
-        var result = arrayIterator.next()
-        if  result == nil  {
-            if  let simpleElem = simpleIterator.next()  {
-                let (simpleKey, simpleValue) = simpleElem
-                #if os(Linux)
-                result = (simpleKey, simpleValue.bridge().componentsSeparatedByString(", "))
-                #else
-                result = (simpleKey, simpleValue.components(separatedBy: ", "))
-                #endif
-            }
-        }
-        return result
-    }
 }
 
 ///

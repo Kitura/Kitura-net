@@ -24,17 +24,17 @@ class ClientTests: XCTestCase {
 
     static var allTests : [(String, ClientTests -> () throws -> Void)] {
         return [
-            ("testSimpleHttpClient", testSimpleHttpClient)
+            ("testSimpleHTTPClient", testSimpleHTTPClient)
         ]
     }
     
-    func testSimpleHttpClient() {
-        _ = Http.get("http://www.ibm.com") {response in
+    func testSimpleHTTPClient() {
+        _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-            XCTAssertEqual(response!.statusCode, HttpStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+            XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
             let contentType = response!.headers["Content-Type"]
             XCTAssertNotNil(contentType, "No ContentType header in response")
-            XCTAssertEqual(contentType!, "text/html", "Content-Type header wasn't `text/html`")
+            XCTAssertEqual(contentType!, ["text/html"], "Content-Type header wasn't `text/html`")
         }
     }
 }
