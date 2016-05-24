@@ -66,9 +66,9 @@ class HTTPParser {
     /// - Returns: an HTTPParser instance
     ///
     init(isRequest: Bool) {
-    
-	self.isRequest = isRequest
-        
+
+        self.isRequest = isRequest
+
         parser = http_parser()
         settings = http_parser_settings()
 
@@ -161,6 +161,14 @@ class HTTPParser {
     func reset() {
         http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
     }
+
+    ///
+    /// Did the request include a Connection: keep-alive header?
+    ///
+    func isKeepAlive() -> Bool {
+        return isRequest && http_should_keep_alive(&parser) == 1
+    }
+
 }
 
 ///
