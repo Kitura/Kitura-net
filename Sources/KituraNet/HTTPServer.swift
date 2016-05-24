@@ -147,8 +147,8 @@ extension HTTPServer : HTTPServerSPIDelegate {
         
         HTTPServer.clientHandlerQueue.queueAsync() {
 
-            let response = ServerResponse(socket: clientSocket)
             let request = ServerRequest(socket: clientSocket)
+            let response = ServerResponse(socket: clientSocket, request: request)
             request.parse() { status in
                 switch status {
                 case .success:

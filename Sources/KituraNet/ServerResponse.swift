@@ -52,6 +52,11 @@ public class ServerResponse : SocketWriter {
     /// Status code
     ///
     private var status = HTTPStatusCode.OK.rawValue
+    
+    ///
+    /// Corresponding server request
+    ///
+    private weak var serverRequest : ServerRequest?
 
     ///
     /// Status code
@@ -70,9 +75,10 @@ public class ServerResponse : SocketWriter {
     ///
     /// Initializes a ServerResponse instance
     ///
-    init(socket: Socket) {
+    init(socket: Socket, request: ServerRequest) {
 
         self.socket = socket
+        serverRequest = request
         buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
@@ -138,6 +144,9 @@ public class ServerResponse : SocketWriter {
     /// - Throws: ???
     ///
     public func end() throws {
+        if let request = serverRequest {
+            request.drain()
+        }
         if  let socket = socket {
             try flushStart()
             if  buffer.length > 0  {

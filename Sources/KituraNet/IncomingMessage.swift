@@ -108,7 +108,11 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     private var buffer = NSMutableData(capacity: IncomingMessage.bufferSize)
 
-
+    ///
+    /// Indicates if the parser should save the message body and call onBody()
+    ///
+    var saveBody = true
+    
     ///
     /// List of status states
     ///
@@ -281,6 +285,37 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
             bytesRead += length
         }
         return bytesRead
+    }
+
+    
+    ///
+    /// Read message body without storing it anywhere
+    ///
+    func drain() {
+        if let parser = httpParser {
+            saveBody = false
+            while status == .headersComplete {
+                do {
+                    ioBuffer!.length = 0
+                    let count = try helper!.readHelper(into: ioBuffer!)
+                    if count > 0 {
+                        let (nparsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
+                        if (nparsed != count) {
+                            freeHTTPParser()
+                            status = .error
+                        }
+                    }
+                    else {
+                        status = .messageComplete
+                        freeHTTPParser()
+                    }
+                }
+                catch {
+                    freeHTTPParser()
+                    status = .error
+                }
+            }
+        }
     }
 
     ///
