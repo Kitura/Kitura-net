@@ -139,7 +139,7 @@ extension HTTPServer : HTTPServerSPIDelegate {
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
-    func handleClientRequest(socket clientSocket: Socket) {
+    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool) {
 
         guard let delegate = delegate else {
             return

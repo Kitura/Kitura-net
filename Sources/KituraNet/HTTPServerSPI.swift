@@ -52,7 +52,7 @@ class HTTPServerSPI {
                 let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
                          "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
-                delegate.handleClientRequest(socket: clientSocket)
+                delegate.handleClientRequest(socket: clientSocket, fromKeepAlive: false)
             } while true
 		} catch let error as Socket.Error {
             
@@ -78,7 +78,8 @@ protocol HTTPServerSPIDelegate: class {
     /// Handle the client request
     ///
     /// - Parameter socket: the socket
+    /// - Parameter fromKeepAlive - Was this from a socket being kept alive
     ///
-	func handleClientRequest(socket: Socket)
-    
+    func handleClientRequest(socket: Socket, fromKeepAlive: Bool)
+
 }
