@@ -113,21 +113,27 @@ public class ClientRequest: SocketWriter {
 
         var theSchema = "http://"
         var hostName = "localhost"
-        var path = "/"
-        var port: Int16? = nil
+        var path = ""
+        var port = ""
 
         for option in options  {
             switch(option) {
 
                 case .method(let method):
                     self.method = method
-                case .schema(let schema):
+                case .schema(var schema):
+                    if !schema.contains("://") {
+                      schema += "://"
+                    }
                     theSchema = schema
                 case .hostname(let host):
                     hostName = host
                 case .port(let thePort):
-                    port = thePort
-                case .path(let thePath):
+                    port = ":\(thePort)"
+                case .path(var thePath):
+                    if thePath.characters.first != "/" {
+                      thePath = "/" + thePath
+                    }
                     path = thePath
                 case .headers(let headers):
                     for (key, value) in headers {
@@ -152,12 +158,7 @@ public class ClientRequest: SocketWriter {
           authenticationClause = "\(user):\(pwd)@"
         }
 
-        var portClause = ""
-        if  let port = port  {
-            portClause = ":\(String(port))"
-        }
-
-        url = "\(theSchema)\(authenticationClause)\(hostName)\(portClause)\(path)"
+        url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
 
     }
 
