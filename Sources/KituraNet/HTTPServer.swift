@@ -44,10 +44,7 @@ public class HTTPServer {
     /// 
     /// Port number for listening for new connections
     ///
-    private var _port: Int?
-    public var port: Int? {
-        get { return _port }
-    }
+    public private(set) var port: Int?
     
     /// 
     /// TCP socket used for listening for new connections
@@ -74,7 +71,7 @@ public class HTTPServer {
     ///
     public func listen(port: Int, notOnMainQueue: Bool=false) {
         
-        self._port = port
+        self.port = port
 		
 		do {
             
@@ -87,7 +84,7 @@ public class HTTPServer {
 		}
 
 		let queuedBlock = {
-			self.spi.spiListen(socket: self.listenSocket, port: self._port!)
+			self.spi.spiListen(socket: self.listenSocket, port: self.port!)
 		}
 		
 		if notOnMainQueue {
