@@ -84,3 +84,18 @@ class ClientRequestTests: XCTestCase {
   }
   
 }
+
+extension ClientRequestTests {
+  static var allTests : [(String, ClientRequestTests -> () throws -> Void)] {
+    return [
+             ("testClientRequestWhenInitializedWithValidURL", testClientRequestWhenInitializedWithValidURL),
+             ("testClientRequestWhenInitializedWithSimpleSchema",
+              testClientRequestWhenInitializedWithSimpleSchema),
+             ("testClientRequestDefaultSchemaIsHTTP", testClientRequestDefaultSchemaIsHTTP),
+             ("testClientRequestDefaultMethodIsGET", testClientRequestDefaultMethodIsGET),
+             ("testClientRequestAppendsPathCorrectly", testClientRequestAppendsPathCorrectly),
+             ("testClientRequestAppendsMisformattedPathCorrectly", testClientRequestAppendsMisformattedPathCorrectly),
+             ("testClientRequestAppendsPort", testClientRequestAppendsPort)
+    ]
+  }
+}
