@@ -19,12 +19,12 @@ import Foundation
 // MARK: HTTP
 
 public class HTTP {
-    
+
     ///
     /// Mapping of integer status codes to the String description
     ///
     public static let statusCodes = [
-        
+
         100: "Continue", 101: "Switching Protocols", 102: "Processing",
         200: "OK", 201: "Created", 202: "Accepted", 203: "Non Authoritative Information",
         204: "No Content", 205: "Reset Content", 206: "Partial Content", 207: "Multi-Status",
@@ -42,18 +42,18 @@ public class HTTP {
         504: "Gateway Timeout", 505: "HTTP Version Not Supported", 507: "Insufficient Storage",
         511: "Network Authentication Required"
     ]
-    
+
     ///
     /// Creates a new HTTP server
-    /// 
+    ///
     /// - Returns: an instance of HTTPServer
     ///
     public static func createServer() -> HTTPServer {
-        
+
         return HTTPServer()
-        
+
     }
-    
+
     ///
     /// Creates a new ClientRequest using URL
     ///
@@ -63,11 +63,11 @@ public class HTTP {
     /// - Returns: a ClientRequest instance
     ///
     public static func request(_ url: String, callback: ClientRequest.Callback) -> ClientRequest {
-        
+
         return ClientRequest(url: url, callback: callback)
-        
+
     }
-    
+
     ///
     /// Creates a new ClientRequest using a list of options
     ///
@@ -79,43 +79,43 @@ public class HTTP {
     public static func request(_ options: [ClientRequest.Options], callback: ClientRequest.Callback) -> ClientRequest {
         
         return ClientRequest(options: options, callback: callback)
-        
+
     }
-    
+
     ///
     /// Creates a new ClientRequest using URL
     /// *Note*: This method will end the ClientRequest immediately after creation
     ///
     /// - Parameter url: URL address for the request
-    /// - Parameter callback: closure to run after the request 
+    /// - Parameter callback: closure to run after the request
     ///
     /// - Returns: a ClientRequest instance
     ///
     public static func get(_ url: String, callback: ClientRequest.Callback) -> ClientRequest {
-        
+
         let req = ClientRequest(url: url, callback: callback)
         req.end()
         return req
-        
+
     }
 
     ///
     /// A set of characters that are valid in requests
     ///
     #if os(Linux)
-    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").invertedSet
+    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|} ").invertedSet
     #else
-    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|}").inverted
+    private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|} ").inverted
     #endif
-    
+
     ///
     /// Transform the URL into escaped characters
-    /// 
+    ///
     /// *Note*: URLS can only be sent over the Internet using the ASCII character set, so character escaping will
     /// transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
     ///
     public static func escape(url: String) -> String {
-        
+
         #if os(Linux)
         if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
             return escaped
@@ -125,7 +125,7 @@ public class HTTP {
             return escaped
         }
         #endif
-        
+
         return url
     }
 }
@@ -135,7 +135,7 @@ public class HTTP {
 /// HTTP status codes and numbers
 ///
 public enum HTTPStatusCode: Int {
-    
+
     case accepted = 202, badGateway = 502, badRequest = 400, conflict = 409, `continue` = 100, created = 201
     case expectationFailed = 417, failedDependency  = 424, forbidden = 403, gatewayTimeout = 504, gone = 410
     case httpVersionNotSupported = 505, insufficientSpaceOnResource = 419, insufficientStorage = 507
@@ -149,5 +149,5 @@ public enum HTTPStatusCode: Int {
     case resetContent = 205, seeOther = 303, serviceUnavailable = 503, switchingProtocols = 101
     case temporaryRedirect = 307, tooManyRequests = 429, unauthorized = 401, unprocessableEntity = 422
     case unsupportedMediaType = 415, useProxy = 305, unknown = -1
-    
+
 }
