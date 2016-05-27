@@ -88,10 +88,10 @@ public class HTTPServer {
 		}
 		
 		if notOnMainQueue {
-			HTTPServer.listenerQueue.queueAsync(queuedBlock)
+			HTTPServer.listenerQueue.enqueueAsynchronously(queuedBlock)
 		}
 		else {
-			Queue.queueIfFirstOnMain(queue: HTTPServer.listenerQueue, block: queuedBlock)
+			Queue.enqueueIfFirstOnMain(queue: HTTPServer.listenerQueue, block: queuedBlock)
 		}
         
     }
@@ -142,7 +142,7 @@ extension HTTPServer : HTTPServerSPIDelegate {
             return
         }
         
-        HTTPServer.clientHandlerQueue.queueAsync() {
+        HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
 
             let request = ServerRequest(socket: clientSocket)
             let response = ServerResponse(socket: clientSocket, request: request)
