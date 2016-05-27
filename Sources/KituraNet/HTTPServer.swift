@@ -15,6 +15,7 @@
  **/
 
 import KituraSys
+import LoggerAPI
 import Socket
 
 // MARK: HTTPServer
@@ -36,11 +37,6 @@ public class HTTPServer {
     ///
     public weak var delegate: HTTPServerDelegate?
     
-    ///
-    /// HTTP service provider interface
-    ///
-    private let spi: HTTPServerSPI
-    
     /// 
     /// Port number for listening for new connections
     ///
@@ -52,16 +48,9 @@ public class HTTPServer {
     private var listenSocket: Socket?
     
     ///
-    /// Initializes an HTTPServer instance
+    /// Whether the HTTP server has stopped listening
     ///
-    /// - Returns: an HTTPServer instance
-    ///
-    public init() {
-        
-        spi = HTTPServerSPI()
-        spi.delegate = self
-        
-    }
+    var stopped = false
 
     ///
     /// Listens for connections on a socket
@@ -84,7 +73,7 @@ public class HTTPServer {
 		}
 
 		let queuedBlock = {
-			self.spi.spiListen(socket: self.listenSocket, port: self.port!)
+			self.listen(socket: self.listenSocket, port: self.port!)
 		}
 		
 		if notOnMainQueue {
@@ -102,7 +91,7 @@ public class HTTPServer {
     public func stop() {
         
         if let listenSocket = listenSocket {
-            spi.stopped = true
+            stopped = true
             listenSocket.close()
         }
         
@@ -126,17 +115,48 @@ public class HTTPServer {
         
     }
     
-}
-
-// MARK: HTTPServerSPIDelegate extension
-extension HTTPServer : HTTPServerSPIDelegate {
-
+    ///
+    /// Handles instructions for listening on a socket
+    ///
+    /// - Parameter socket: socket to use for connecting
+    /// - Parameter port: number to listen on
+    ///
+    func listen(socket: Socket?, port: Int) {
+        
+        do {
+            guard let socket = socket else {
+                return
+            }
+            
+            try socket.listen(on: port)
+            Log.info("Listening on port \(port)")
+            
+            // TODO: Change server exit to not rely on error being thrown
+            repeat {
+                let clientSocket = try socket.acceptClientConnection()
+                Log.info("Accepted connection from: " +
+                    "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
+                handleClientRequest(socket: clientSocket)
+            } while true
+        } catch let error as Socket.Error {
+            
+            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                Log.info("Server has stopped listening")
+            }
+            else {
+                Log.error("Error reported:\n \(error.description)")
+            }
+        } catch {
+            Log.error("Unexpected error...")
+        }
+    }
+    
     ///
     /// Handle a new client HTTP request
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
-    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool) {
+    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
 
         guard let delegate = delegate else {
             return
