@@ -40,12 +40,12 @@ public class URLParser : CustomStringConvertible {
     public var host: String?
     
     ///
-    /// Routing path
+    /// Path portion of the URL
     ///
     public var path: String?
     
     ///
-    /// TODO: ???
+    /// The entire query portion of the URL
     ///
     public var query: String?
     
@@ -55,19 +55,19 @@ public class URLParser : CustomStringConvertible {
     public var fragment: String?
     
     ///
-    /// TODO: ???
+    /// The userid and password if specified in the URL
     ///
     public var userinfo: String?
     
     ///
-    /// TODO: ???
+    /// The port specified, if any, in the URL
     ///
     public var port: UInt16?
     
     ///
-    /// TODO: ???
+    /// The query parameters brokenn out
     ///
-    public var queryParams: [String:String] = [:]
+    public var queryParameters: [String:String] = [:]
     
     ///
     /// Nicely formatted description of the parsed result
@@ -90,7 +90,7 @@ public class URLParser : CustomStringConvertible {
         }
         if let query = query {
             desc += "query: \(query) "
-            desc += "parsed query: \(queryParams) "
+            desc += "parsed query: \(queryParameters) "
         }
         if let fragment = fragment {
             desc += "fragment: \(fragment) "
@@ -111,22 +111,22 @@ public class URLParser : CustomStringConvertible {
     ///
     public init (url: NSData, isConnect: Bool) {
         
-        var parsedUrl = http_parser_url_url()
-        memset(&parsedUrl, 0, sizeof(http_parser_url))
+        var parsedURL = http_parser_url_url()
+        memset(&parsedURL, 0, sizeof(http_parser_url))
         
-        if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedUrl) == 0 {
+        if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedURL) == 0 {
             
-            let (s, h, ps, p, q, f, u) = parsedUrl.field_data
-            schema = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
-            host = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
-            let portString = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
-            path = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
-            query = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
-            fragment = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
-            userinfo = getValueFromURL(url, fieldSet: parsedUrl.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
+            let (s, h, ps, p, q, f, u) = parsedURL.field_data
+            schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
+            host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
+            let portString = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
+            path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
+            query = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
+            fragment = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
+            userinfo = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
 
             if let _ = portString {
-                port = parsedUrl.port
+                port = parsedURL.port
             }
             
             if let query = query {
@@ -134,9 +134,9 @@ public class URLParser : CustomStringConvertible {
                 let pairs = query.components(separatedBy: "&")
                 for pair in pairs {
                     
-                    let pairArr = pair.components(separatedBy: "=")
-                    if pairArr.count == 2 {
-                        queryParams[pairArr[0]] = pairArr[1]
+                    let pairArray = pair.components(separatedBy: "=")
+                    if pairArray.count == 2 {
+                        queryParameters[pairArray[0]] = pairArray[1]
                     }
                     
                 }
