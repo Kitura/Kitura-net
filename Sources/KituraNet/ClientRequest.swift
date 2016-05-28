@@ -122,7 +122,7 @@ public class ClientRequest: SocketWriter {
                 case .method(let method):
                     self.method = method
                 case .schema(var schema):
-                    if !schema.contains("://") {
+                    if !schema.contains("://") && !schema.isEmpty {
                       schema += "://"
                     }
                     theSchema = schema
