@@ -300,7 +300,7 @@ public class ClientRequest: SocketWriter {
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
 
         // To see the messages sent by libCurl, uncomment the next line of code
-        //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
+        curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
     ///
