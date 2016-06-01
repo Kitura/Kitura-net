@@ -154,7 +154,6 @@ extension HTTPServer : HTTPServerSPIDelegate {
                 case .success:
                     delegate.handle(request: request, response: response)
                 case .parsedLessThanRead:
-                    print("ParsedLessThanRead")
                     response.statusCode = .badRequest
                     do {
                         try response.end()
@@ -163,9 +162,9 @@ extension HTTPServer : HTTPServerSPIDelegate {
                         // handle error in connection
                     }
                 case .unexpectedEOF:
-                    print("UnexpectedEOF")
+                    break
                 case .internalError:
-                    print("InternalError")
+                    break
                 }
             }
 
