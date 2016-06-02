@@ -64,27 +64,27 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     // TODO: trailers
 
     ///
-    /// TODO: ???
+    /// State of callbacks from parser WRT headers
     ///
     private var lastHeaderWasAValue = false
 
     ///
-    /// TODO: ???
+    /// Bytes of a header key that was just parsed and returned in chunks by the pars
     ///
     private var lastHeaderField = NSMutableData()
 
     ///
-    /// TODO: ???
+    /// Bytes of a header value that was just parsed and returned in chunks by the parser
     ///
     private var lastHeaderValue = NSMutableData()
 
     ///
-    /// TODO: ???
+    /// The http_parser Swift wrapper
     ///
     private var httpParser: HTTPParser?
 
     ///
-    /// TODO: ???
+    /// State of incoming message handling
     ///
     private var status = Status.initial
 
@@ -94,7 +94,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     private var bodyChunk = BufferList()
 
     ///
-    /// TODO: ???
+    /// Reader helper, reads from underlying data source
     ///
     private weak var helper: IncomingMessageHelper?
 
@@ -108,7 +108,11 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     private var buffer = NSMutableData(capacity: IncomingMessage.bufferSize)
 
-
+    ///
+    /// Indicates if the parser should save the message body and call onBody()
+    ///
+    var saveBody = true
+    
     ///
     /// List of status states
     ///
@@ -276,11 +280,42 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     public func readAllData(into data: NSMutableData) throws -> Int {
         var length = try read(into: data)
         var bytesRead = length
-        while length != 0 {
+        while length > 0 {
             length = try read(into: data)
             bytesRead += length
         }
         return bytesRead
+    }
+
+    
+    ///
+    /// Read message body without storing it anywhere
+    ///
+    func drain() {
+        if let parser = httpParser {
+            saveBody = false
+            while status == .headersComplete {
+                do {
+                    ioBuffer!.length = 0
+                    let count = try helper!.readHelper(into: ioBuffer!)
+                    if count > 0 {
+                        let (nparsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
+                        if (nparsed != count) {
+                            freeHTTPParser()
+                            status = .error
+                        }
+                    }
+                    else {
+                        status = .messageComplete
+                        freeHTTPParser()
+                    }
+                }
+                catch {
+                    freeHTTPParser()
+                    status = .error
+                }
+            }
+        }
     }
 
     ///

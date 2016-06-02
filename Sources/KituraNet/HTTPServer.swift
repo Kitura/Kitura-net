@@ -139,7 +139,7 @@ extension HTTPServer : HTTPServerSPIDelegate {
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
-    func handleClientRequest(socket clientSocket: Socket) {
+    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool) {
 
         guard let delegate = delegate else {
             return
@@ -147,14 +147,13 @@ extension HTTPServer : HTTPServerSPIDelegate {
         
         HTTPServer.clientHandlerQueue.queueAsync() {
 
-            let response = ServerResponse(socket: clientSocket)
             let request = ServerRequest(socket: clientSocket)
+            let response = ServerResponse(socket: clientSocket, request: request)
             request.parse() { status in
                 switch status {
                 case .success:
                     delegate.handle(request: request, response: response)
                 case .parsedLessThanRead:
-                    print("ParsedLessThanRead")
                     response.statusCode = .badRequest
                     do {
                         try response.end()
@@ -163,9 +162,9 @@ extension HTTPServer : HTTPServerSPIDelegate {
                         // handle error in connection
                     }
                 case .unexpectedEOF:
-                    print("UnexpectedEOF")
+                    break
                 case .internalError:
-                    print("InternalError")
+                    break
                 }
             }
 
