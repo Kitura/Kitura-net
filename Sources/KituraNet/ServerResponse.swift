@@ -188,6 +188,8 @@ public class ServerResponse : SocketWriter {
                 try writeToSocketThroughBuffer(text: "\r\n")
             }
         }
+        // We currently don't support keep alive
+        try writeToSocketThroughBuffer(text: "Connection: Close\r\n")
 
         try writeToSocketThroughBuffer(text: "\r\n")
         startFlushed = true
