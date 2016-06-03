@@ -66,9 +66,9 @@ class HTTPParser {
     /// - Returns: an HTTPParser instance
     ///
     init(isRequest: Bool) {
-    
-	self.isRequest = isRequest
-        
+
+        self.isRequest = isRequest
+
         parser = http_parser()
         settings = http_parser_settings()
 
@@ -95,9 +95,10 @@ class HTTPParser {
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            let data = NSData(bytes: chunk, length: length)
-            p?.pointee?.onBody(data)
-           
+            if p?.pointee?.saveBody == true {
+                let data = NSData(bytes: chunk, length: length)
+                p?.pointee?.onBody(data)
+            }
             return 0
         }
         
@@ -160,13 +161,21 @@ class HTTPParser {
     func reset() {
         http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
     }
+
+    ///
+    /// Did the request include a Connection: keep-alive header?
+    ///
+    func isKeepAlive() -> Bool {
+        return isRequest && http_should_keep_alive(&parser) == 1
+    }
+
 }
 
 ///
 /// Delegate protocol for HTTP parsing stages
 ///
 protocol HTTPParserDelegate: class {
-    
+    var saveBody : Bool { get }
     func onUrl(_ url:NSData)
     func onHeaderField(_ data: NSData)
     func onHeaderValue(_ data: NSData)
@@ -174,6 +183,5 @@ protocol HTTPParserDelegate: class {
     func onMessageBegin()
     func onMessageComplete()
     func onBody(_ body: NSData)
-    func reset()
-    
+    func reset()    
 }

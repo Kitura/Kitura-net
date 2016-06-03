@@ -55,9 +55,9 @@ extension ServerRequest: IncomingMessageHelper {
     /// TODO: ???
     ///
     func readHelper(into data: NSMutableData) throws -> Int {
-        
-        return try socket.read(into: data)
-        
+
+        let length = try socket.read(into: data)
+        return length > 0 ? length : (socket.isConnected ? 0 : -1)
     }
     
 }
