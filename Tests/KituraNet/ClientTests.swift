@@ -22,7 +22,7 @@ import XCTest
 
 class ClientTests: XCTestCase {
 
-    static var allTests : [(String, ClientTests -> () throws -> Void)] {
+    static var allTests : [(String, (ClientTests) -> () throws -> Void)] {
         return [
             ("testSimpleHTTPClient", testSimpleHTTPClient)
         ]
