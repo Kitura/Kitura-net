@@ -20,9 +20,9 @@ import XCTest
 
 @testable import KituraNet
 
-class ClientTests: XCTestCase {
+class ClientE2ETests: XCTestCase {
 
-    static var allTests : [(String, (ClientTests) -> () throws -> Void)] {
+    static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
             ("testSimpleHTTPClient", testSimpleHTTPClient)
         ]
