@@ -75,7 +75,7 @@ class HTTPParser {
         settings.on_url = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             let data = NSData(bytes: chunk, length: length)
-            p?.pointee?.onUrl(data)
+            p?.pointee?.onURL(data)
             return 0
         }
         
@@ -176,7 +176,7 @@ class HTTPParser {
 ///
 protocol HTTPParserDelegate: class {
     var saveBody : Bool { get }
-    func onUrl(_ url:NSData)
+    func onURL(_ url:NSData)
     func onHeaderField(_ data: NSData)
     func onHeaderValue(_ data: NSData)
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16)

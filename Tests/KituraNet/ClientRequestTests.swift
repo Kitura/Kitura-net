@@ -12,11 +12,11 @@ import XCTest
 @testable import KituraNet
 
 class ClientRequestTests: XCTestCase {
-  let testCallback: ClientRequestCallback = {_ in }
+  let testCallback: ClientRequest.Callback = {_ in }
   
   // 1 test URL that is build when initializing with ClientRequestOptions
   func testClientRequestWhenInitializedWithValidURL() {
-    let options: [ClientRequestOptions] = [ .method("GET"),
+    let options: [ClientRequest.Options] = [ .method("GET"),
                                             .schema("https://"),
                                             .hostname("66o.tech")
                                             ]
@@ -26,7 +26,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestWhenInitializedWithSimpleSchema() {
-    let options: [ClientRequestOptions] = [ .method("GET"),
+    let options: [ClientRequest.Options] = [ .method("GET"),
                                             .schema("https"),
                                             .hostname("66o.tech")
     ]
@@ -36,7 +36,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestDefaultSchemaIsHTTP() {
-    let options: [ClientRequestOptions] = [ .method("GET"),
+    let options: [ClientRequest.Options] = [ .method("GET"),
                                             .hostname("66o.tech")
     ]
     let testRequest = ClientRequest(options: options, callback: testCallback)
@@ -45,7 +45,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestDefaultMethodIsGET() {
-    let options: [ClientRequestOptions] = [ .schema("https"),
+    let options: [ClientRequest.Options] = [ .schema("https"),
                                             .hostname("66o.tech")
     ]
     let testRequest = ClientRequest(options: options, callback: testCallback)
@@ -54,7 +54,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestAppendsPathCorrectly() {
-    let options: [ClientRequestOptions] = [ .schema("https"),
+    let options: [ClientRequest.Options] = [ .schema("https"),
                                             .hostname("66o.tech"),
                                             .path("path/to/resource")
     ]
@@ -64,7 +64,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestAppendsMisformattedPathCorrectly() {
-    let options: [ClientRequestOptions] = [ .schema("https"),
+    let options: [ClientRequest.Options] = [ .schema("https"),
                                             .hostname("66o.tech"),
                                             .path("/path/to/resource")
     ]
@@ -74,7 +74,7 @@ class ClientRequestTests: XCTestCase {
   }
   
   func testClientRequestAppendsPort() {
-    let options: [ClientRequestOptions] = [ .schema("https"),
+    let options: [ClientRequest.Options] = [ .schema("https"),
                                             .hostname("66o.tech"),
                                             .port(8080)
     ]
