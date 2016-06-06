@@ -37,27 +37,27 @@ public class ClientRequest: SocketWriter {
     ///
     /// URL used for the request
     ///
-    private var url: String
+    public private(set) var url: String
     
     /// 
     /// HTTP method (GET, POST, PUT, DELETE) for the request
     ///
-    private var method: String = "get"
+    public private(set) var method: String = "get"
     
     ///
     /// Username if using Basic Auth 
     ///
-    private var userName: String?
+    public private(set) var userName: String?
     
     /// 
     /// Password if using Basic Auth 
     ///
-    private var password: String?
+    public private(set) var password: String?
 
     ///
     /// Maximum number of redirects before failure
     ///
-    private var maxRedirects = 10
+    public private(set) var maxRedirects = 10
     
     /// 
     /// ???
@@ -128,21 +128,27 @@ public class ClientRequest: SocketWriter {
 
         var theSchema = "http://"
         var hostName = "localhost"
-        var path = "/"
-        var port: Int16? = nil
+        var path = ""
+        var port = ""
 
         for option in options  {
             switch(option) {
 
                 case .method(let method):
                     self.method = method
-                case .schema(let schema):
+                case .schema(var schema):
+                    if !schema.contains("://") && !schema.isEmpty {
+                      schema += "://"
+                    }
                     theSchema = schema
                 case .hostname(let host):
                     hostName = host
                 case .port(let thePort):
-                    port = thePort
-                case .path(let thePath):
+                    port = ":\(thePort)"
+                case .path(var thePath):
+                    if thePath.characters.first != "/" {
+                      thePath = "/" + thePath
+                    }
                     path = thePath
                 case .headers(let headers):
                     for (key, value) in headers {
@@ -167,12 +173,7 @@ public class ClientRequest: SocketWriter {
           authenticationClause = "\(user):\(pwd)@"
         }
 
-        var portClause = ""
-        if  let port = port  {
-            portClause = ":\(String(port))"
-        }
-
-        url = "\(theSchema)\(authenticationClause)\(hostName)\(portClause)\(path)"
+        url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
 
     }
 
@@ -463,16 +464,16 @@ private class CurlInvoker {
     ///
     private func prepareHandle(_ ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
 
-        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
+        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlReadCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlReadCallback(buf!, size: size*nMemb))!
         }
 
-        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
+        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlWriteCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlWriteCallback(buf!, size: size*nMemb))!
         }
     }
     

@@ -168,28 +168,32 @@ public class ServerResponse : SocketWriter {
             return
         }
 
-        try writeToSocketThroughBuffer(text: "HTTP/1.1 ")
-        try writeToSocketThroughBuffer(text: String(status))
-        try writeToSocketThroughBuffer(text: " ")
+        var headerData = ""
+        headerData.append("HTTP/1.1 ")
+        headerData.append(String(status))
+        headerData.append(" ")
         var statusText = HTTP.statusCodes[status]
 
         if  statusText == nil {
             statusText = ""
         }
 
-        try writeToSocketThroughBuffer(text: statusText!)
-        try writeToSocketThroughBuffer(text: "\r\n")
+        headerData.append(statusText!)
+        headerData.append("\r\n")
 
         for (key, valueSet) in headers.headers {
             for value in valueSet {
-                try writeToSocketThroughBuffer(text: key)
-                try writeToSocketThroughBuffer(text: ": ")
-                try writeToSocketThroughBuffer(text: value)
-                try writeToSocketThroughBuffer(text: "\r\n")
+                headerData.append(key)
+                headerData.append(": ")
+                headerData.append(value)
+                headerData.append("\r\n")
             }
         }
+        // We currently don't support keep alive
+        headerData.append("Connection: Close\r\n")
 
-        try writeToSocketThroughBuffer(text: "\r\n")
+        headerData.append("\r\n")
+        try writeToSocketThroughBuffer(text: headerData)
         startFlushed = true
     }
 

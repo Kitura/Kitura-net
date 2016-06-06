@@ -171,7 +171,6 @@ public class HTTPServer {
                 case .success:
                     delegate.handle(request: request, response: response)
                 case .parsedLessThanRead:
-                    print("ParsedLessThanRead")
                     response.statusCode = .badRequest
                     do {
                         try response.end()
@@ -180,9 +179,9 @@ public class HTTPServer {
                         // handle error in connection
                     }
                 case .unexpectedEOF:
-                    print("UnexpectedEOF")
+                    break
                 case .internalError:
-                    print("InternalError")
+                    break
                 }
             }
 
