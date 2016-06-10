@@ -5,6 +5,7 @@ branches:
   only:
     - master
     - develop
+    - 0531Migration
 
 notifications:
   slack:
