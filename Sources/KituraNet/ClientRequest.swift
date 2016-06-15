@@ -352,8 +352,7 @@ public class ClientRequest: SocketWriter {
                 headersList = curl_slist_append(headersList, UnsafeMutablePointer<Int8>(headerString.bytes))
             }
         }
-        curlHelperSetOptHeaders(handle!, headersList)
-        
+        curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
     }
 
 }
