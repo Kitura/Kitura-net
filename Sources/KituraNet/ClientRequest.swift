@@ -312,8 +312,7 @@ public class ClientRequest: SocketWriter {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
         setupHeaders()
-        let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
-        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
 
         // To see the messages sent by libCurl, uncomment the next line of code
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
@@ -335,8 +334,7 @@ public class ClientRequest: SocketWriter {
             case "HEAD":
                 curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
-                let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
-                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
+                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, methodUpperCase)
         }
 
     }
