@@ -58,6 +58,11 @@ public class ClientRequest: SocketWriter {
     /// Maximum number of redirects before failure
     ///
     public private(set) var maxRedirects = 10
+
+    ///
+    /// Send a POST with this data
+    ///
+    public private(set) var postFileds: String?
     
     /// 
     /// ???
@@ -90,7 +95,7 @@ public class ClientRequest: SocketWriter {
     public enum Options {
         
         case method(String), schema(String), hostname(String), port(Int16), path(String),
-        headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
+        headers([String: String]), username(String), password(String), maxRedirects(Int), postFileds(String), disableSSLVerification
         
     }
     
@@ -160,6 +165,8 @@ public class ClientRequest: SocketWriter {
                     self.password = password
                 case .maxRedirects(let maxRedirects):
                     self.maxRedirects = maxRedirects
+                case .postFileds(let postFileds):
+                    self.postFileds = postFileds
                 case .disableSSLVerification:
                     self.disableSSLVerification = true
             }
@@ -311,6 +318,7 @@ public class ClientRequest: SocketWriter {
         if  count != 0  {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
+        setupPostFileds()
         setupHeaders()
         let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
@@ -339,6 +347,15 @@ public class ClientRequest: SocketWriter {
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
         }
 
+    }
+
+    private func setupPostFileds() {
+        guard let postFileds = postFileds where method.uppercased() == "POST" else {
+            return
+        }
+        let postFiledsString = StringUtils.toNullTerminatedUtf8String(postFileds)!
+        curlHelperSetOptString(handle!, CURLOPT_POSTFIELDS, UnsafeMutablePointer<Int8>(postFiledsString.bytes))
+        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, postFiledsString.length)
     }
 
     ///
