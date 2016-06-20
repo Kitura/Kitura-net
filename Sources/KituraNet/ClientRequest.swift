@@ -37,27 +37,27 @@ public class ClientRequest: SocketWriter {
     ///
     /// URL used for the request
     ///
-    private var url: String
+    public private(set) var url: String
     
     /// 
     /// HTTP method (GET, POST, PUT, DELETE) for the request
     ///
-    private var method: String = "get"
+    public private(set) var method: String = "get"
     
     ///
     /// Username if using Basic Auth 
     ///
-    private var userName: String?
+    public private(set) var userName: String?
     
     /// 
     /// Password if using Basic Auth 
     ///
-    private var password: String?
+    public private(set) var password: String?
 
     ///
     /// Maximum number of redirects before failure
     ///
-    private var maxRedirects = 10
+    public private(set) var maxRedirects = 10
     
     /// 
     /// ???
@@ -80,9 +80,24 @@ public class ClientRequest: SocketWriter {
     private var response = ClientResponse()
     
     
-    private var callback: ClientRequestCallback
+    private var callback: Callback
     
     private var disableSSLVerification = false
+    
+    ///
+    /// Client request option values
+    ///
+    public enum Options {
+        
+        case method(String), schema(String), hostname(String), port(Int16), path(String),
+        headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
+        
+    }
+    
+    ///
+    /// Response callback closure
+    ///
+    public typealias Callback = (response: ClientResponse?) -> Void
 
     ///
     /// Initializes a ClientRequest instance
@@ -92,7 +107,7 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Returns: a ClientRequest instance 
     ///
-    init(url: String, callback: ClientRequestCallback) {
+    init(url: String, callback: Callback) {
         
         self.url = url
         self.callback = callback
@@ -107,27 +122,33 @@ public class ClientRequest: SocketWriter {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    init(options: [ClientRequestOptions], callback: ClientRequestCallback) {
+    init(options: [Options], callback: Callback) {
 
         self.callback = callback
 
         var theSchema = "http://"
         var hostName = "localhost"
-        var path = "/"
-        var port: Int16? = nil
+        var path = ""
+        var port = ""
 
         for option in options  {
             switch(option) {
 
                 case .method(let method):
                     self.method = method
-                case .schema(let schema):
+                case .schema(var schema):
+                    if !schema.contains("://") && !schema.isEmpty {
+                      schema += "://"
+                    }
                     theSchema = schema
                 case .hostname(let host):
                     hostName = host
                 case .port(let thePort):
-                    port = thePort
-                case .path(let thePath):
+                    port = ":\(thePort)"
+                case .path(var thePath):
+                    if thePath.characters.first != "/" {
+                      thePath = "/" + thePath
+                    }
                     path = thePath
                 case .headers(let headers):
                     for (key, value) in headers {
@@ -152,12 +173,7 @@ public class ClientRequest: SocketWriter {
           authenticationClause = "\(user):\(pwd)@"
         }
 
-        var portClause = ""
-        if  let port = port  {
-            portClause = ":\(String(port))"
-        }
-
-        url = "\(theSchema)\(authenticationClause)\(hostName)\(portClause)\(path)"
+        url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
 
     }
 
@@ -237,11 +253,11 @@ public class ClientRequest: SocketWriter {
         }
 
         var callCallback = true
-        let urlBuf = StringUtils.toNullTerminatedUtf8String(url)
+        let urlBuffer = StringUtils.toNullTerminatedUtf8String(url)
         
-        if  let _ = urlBuf {
+        if  let _ = urlBuffer {
             
-            prepareHandle(urlBuf!)
+            prepareHandle(using: urlBuffer!)
 
             let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
             invoker.delegate = self
@@ -278,14 +294,14 @@ public class ClientRequest: SocketWriter {
     ///
     /// Prepare the handle 
     ///
-    /// Parameter urlBuf: ???
+    /// Parameter using: The URL to use when preparing the handle
     ///
-    private func prepareHandle(_ urlBuf: NSData) {
+    private func prepareHandle(using urlBuffer: NSData) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuf.bytes))
+        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuffer.bytes))
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
@@ -296,8 +312,7 @@ public class ClientRequest: SocketWriter {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
         setupHeaders()
-        let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
-        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
 
         // To see the messages sent by libCurl, uncomment the next line of code
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
@@ -319,8 +334,7 @@ public class ClientRequest: SocketWriter {
             case "HEAD":
                 curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
-                let methodCstring = StringUtils.toNullTerminatedUtf8String(methodUpperCase)!
-                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, UnsafeMutablePointer<Int8>(methodCstring.bytes))
+                curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, methodUpperCase)
         }
 
     }
@@ -336,8 +350,7 @@ public class ClientRequest: SocketWriter {
                 headersList = curl_slist_append(headersList, UnsafeMutablePointer<Int8>(headerString.bytes))
             }
         }
-        curlHelperSetOptHeaders(handle!, headersList)
-        
+        curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
     }
 
 }
@@ -368,21 +381,6 @@ extension ClientRequest: CurlInvokerDelegate {
         
     }
 }
-
-///
-/// Client request option values
-///
-public enum ClientRequestOptions {
-    
-    case method(String), schema(String), hostname(String), port(Int16), path(String),
-    headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
-    
-}
-
-/// 
-/// Response callback closure
-///
-public typealias ClientRequestCallback = (response: ClientResponse?) -> Void
 
 /// 
 /// Helper class for invoking commands through libCurl
@@ -463,16 +461,16 @@ private class CurlInvoker {
     ///
     private func prepareHandle(_ ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
 
-        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
+        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlReadCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlReadCallback(buf!, size: size*nMemb))!
         }
 
-        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>!, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>!) -> Int in
+        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
 
                 let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlWriteCallback(buf, size: size*nMemb))!
+                return (p?.pointee?.curlWriteCallback(buf!, size: size*nMemb))!
         }
     }
     

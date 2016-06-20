@@ -20,7 +20,7 @@ import XCTest
 @testable import KituraNet
 
 class ParserTests: XCTestCase {
-    static var allTests : [(String, ParserTests -> () throws -> Void)] {
+    static var allTests : [(String, (ParserTests) -> () throws -> Void)] {
         return [
             ("testParseSimpleUrl", testParseSimpleUrl),
             ("testParseComplexUrl", testParseComplexUrl)
@@ -44,7 +44,7 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.port!, 123, "Incorrect port")
         XCTAssertEqual(urlParser.fragment!, "fragid1", "Incorrect fragment")
         XCTAssertEqual(urlParser.userinfo!, "username:password", "Incorrect userinfo")
-        XCTAssertEqual(urlParser.queryParams["key"], "value", "Incorrect query")
-        XCTAssertEqual(urlParser.queryParams["key1"], "value1", "Incorrect query")
+        XCTAssertEqual(urlParser.queryParameters["key"], "value", "Incorrect query")
+        XCTAssertEqual(urlParser.queryParameters["key1"], "value1", "Incorrect query")
     }
 }

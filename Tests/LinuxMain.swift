@@ -19,6 +19,7 @@ import XCTest
 @testable import KituraNetTestSuite
 
 XCTMain([
-	testCase(ClientTests.allTests),
+	testCase(ClientE2ETests.allTests),
+  testCase(ClientRequestTests.allTests),
 	testCase(ParserTests.allTests)
 ])
