@@ -185,17 +185,17 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
                 if length > 0 {
                     let offset = start
                     start = 0
-                    let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
+                    let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
                     if upgrade == 1 {
                         // TODO handle new protocol
                     }
-                    else if (nparsed != length) {
+                    else if (numberParsed != length) {
 
                         if  status == .reset  {
                             // Apparently the short message was a Continue. Let's just keep on parsing
                             status = .initial
-                            start = nparsed
-                            length -= nparsed
+                            start = numberParsed
+                            length -= numberParsed
                             parser.reset()
                         }
                         else {
@@ -240,11 +240,11 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
                     ioBuffer!.length = 0
                     count = try helper!.readHelper(into: ioBuffer!)
                     if count > 0 {
-                        let (nparsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
+                        let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
                         if upgrade == 1 {
                             // TODO: handle new protocol
                         }
-                        else if (nparsed != count) {
+                        else if (numberParsed != count) {
                             /* Handle error. Usually just close the connection. */
                             freeHTTPParser()
                             status = .error
@@ -300,8 +300,8 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
                     ioBuffer!.length = 0
                     let count = try helper!.readHelper(into: ioBuffer!)
                     if count > 0 {
-                        let (nparsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
-                        if (nparsed != count) {
+                        let (numberParsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
+                        if (numberParsed != count) {
                             freeHTTPParser()
                             status = .error
                         }
@@ -354,7 +354,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// - Parameter data: the data
     ///
-    func onUrl(_ data: NSData) {
+    func onURL(_ data: NSData) {
 
         url.append(data)
     }
