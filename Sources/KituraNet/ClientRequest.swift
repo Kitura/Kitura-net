@@ -318,7 +318,7 @@ public class ClientRequest: SocketWriter {
         if  count != 0  {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
-        setupPostFileds()
+        setupPostFields()
         setupHeaders()
         let emptyCstring = StringUtils.toNullTerminatedUtf8String("")!
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, UnsafeMutablePointer<Int8>(emptyCstring.bytes))
@@ -349,13 +349,13 @@ public class ClientRequest: SocketWriter {
 
     }
 
-    private func setupPostFileds() {
+    private func setupPostFields() {
         guard let postFields = postFields where method.uppercased() == "POST" else {
             return
         }
-        let postFiledsString = StringUtils.toNullTerminatedUtf8String(postFields)!
-        curlHelperSetOptString(handle!, CURLOPT_POSTFIELDS, UnsafeMutablePointer<Int8>(postFiledsString.bytes))
-        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, postFiledsString.length)
+        let postFieldsString = StringUtils.toNullTerminatedUtf8String(postFields)!
+        curlHelperSetOptString(handle!, CURLOPT_POSTFIELDS, UnsafeMutablePointer<Int8>(postFieldsString.bytes))
+        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, postFieldsString.length)
     }
 
     ///
