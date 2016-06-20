@@ -86,11 +86,11 @@ class ClientRequestTests: XCTestCase {
   func testClientRequestAppendsPostFields() {
     let options: [ClientRequest.Options] = [ .schema("https"),
                                             .hostname("66o.tech"),
-                                            .postFileds("post_body"),
+                                            .postFields("post_body"),
     ]
     let testRequest = ClientRequest(options: options, callback: testCallback)
     
-    XCTAssertEqual(testRequest.postFileds, "post_body")
+    XCTAssertEqual(testRequest.postFields, "post_body")
   }
 
 }
