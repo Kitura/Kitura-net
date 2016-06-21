@@ -5,7 +5,6 @@ branches:
   only:
     - master
     - develop
-    - 0531Migration
 
 notifications:
   slack:
@@ -29,6 +28,4 @@ script:
   - echo ">> Let's build and test the '$TRAVIS_BRANCH' branch for Kitura-net."
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./Kitura-Build/run_kitura_ubuntu_container.sh $TRAVIS_BRANCH $TRAVIS_BUILD_DIR Kitura; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./Kitura-Build/build_kitura_package.sh ; fi
-  - ls .build/debug
-  - cat .build/debug.yaml
   - echo ">> Build and tests completed. See above for status."
