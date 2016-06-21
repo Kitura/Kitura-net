@@ -86,7 +86,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// State of incoming message handling
     ///
-    private var status = Status.initial
+    private var status = HTTPParserStatus.initial
 
     ///
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
@@ -116,11 +116,13 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// List of status states
     ///
-    private enum Status {
+    enum HTTPParserStatus {
         
         case initial
         case headersComplete
+        case headersCompleteKeepAlive
         case messageComplete
+        case messageCompleteKeepAlive
         case error
         case reset
         
@@ -130,7 +132,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// HTTP parser error types
     ///
-    public enum HTTPParserErrorType {
+    enum HTTPParserErrorType {
         
         case success
         case parsedLessThanRead
@@ -224,6 +226,57 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
             callback(.success)
         }
     }
+    
+    ///
+    /// Parse the message
+    ///
+    /// - Parameter callback: (HTTPParserErrorType) -> Void closure
+    ///
+    func parse (_ buffer: NSData) -> (HTTPParserStatus, HTTPParserErrorType) {
+        guard let parser = httpParser else {
+            return (.error, .internalError)
+        }
+        
+        var length = buffer.length
+        
+        guard length > 0  else {
+            /* Handle unexpected EOF. Usually just close the connection. */
+            freeHTTPParser()
+            status = .error
+            return (status, .unexpectedEOF)
+        }
+        
+        // If we were reset because of keep alive
+        if  status == .reset  {
+            status = .initial
+            parser.reset()
+        }
+        
+        var start = 0
+        while status == .initial  &&  length > 0  {
+            
+            let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(buffer.bytes)+start, length: length)
+            if upgrade == 1 {
+                // TODO handle new protocol
+            }
+            else if  numberParsed != length  {
+                
+                if  status == .reset  {
+                    // Apparently the short message was a Continue. Let's just keep on parsing
+                    status = .initial
+                    start = numberParsed
+                    parser.reset()
+                }
+                else {
+                    /* Handle error. Usually just close the connection. */
+                    freeHTTPParser()
+                    status = .error
+                }
+            }
+            length -= numberParsed
+        }
+        return  (status, status != .error ? .success : .parsedLessThanRead)
+    }
 
     ///
     /// Read data in the message
@@ -235,7 +288,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     public func read(into data: NSMutableData) throws -> Int {
         var count = bodyChunk.fill(data: data)
         if count == 0 {
-            if let parser = httpParser where status == .headersComplete {
+            if let parser = httpParser where status == .headersComplete || status == .headersCompleteKeepAlive {
                 do {
                     ioBuffer!.length = 0
                     count = try helper!.readHelper(into: ioBuffer!)
@@ -254,8 +307,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
                         }
                     }
                     else {
-                        status = .messageComplete
-                        freeHTTPParser()
+                        onMessageComplete()
                     }
                 }
                 catch let error {
@@ -294,7 +346,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     func drain() {
         if let parser = httpParser {
             saveBody = false
-            while status == .headersComplete {
+            while status == .headersComplete  ||  status == .headersCompleteKeepAlive {
                 do {
                     ioBuffer!.length = 0
                     let count = try helper!.readHelper(into: ioBuffer!)
@@ -306,8 +358,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
                         }
                     }
                     else {
-                        status = .messageComplete
-                        freeHTTPParser()
+                        onMessageComplete()
                     }
                 }
                 catch {
@@ -444,7 +495,8 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
             addHeader()
         }
 
-        status = .headersComplete
+        let isKeepAlive = httpParser?.isKeepAlive() ?? false
+        status = isKeepAlive ? .headersCompleteKeepAlive : .headersComplete
         
     }
 
@@ -461,9 +513,11 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     func onMessageComplete() {
         
-        status = .messageComplete
-        freeHTTPParser()
-        
+        let isKeepAlive = httpParser?.isKeepAlive() ?? false
+        status = isKeepAlive ? .messageCompleteKeepAlive : .messageComplete
+        if  !isKeepAlive  {
+            freeHTTPParser()
+        }
     }
 
     ///
