@@ -25,12 +25,12 @@ public class HTTPServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static var listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
+    private static let listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
 
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
+    static let clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
 
     ///
     /// HTTPServerDelegate
@@ -51,7 +51,24 @@ public class HTTPServer {
     /// Whether the HTTP server has stopped listening
     ///
     var stopped = false
+    
+    ///
+    /// Incoming socket handler
+    ///
+    private let socketManager: IncomingSocketManager?
+    
+    ///
+    /// Maximum number of pending connections
+    ///
+    private let maxPendingConnections = 100
 
+    init() {
+        #if os(Linux)
+            socketManager = LinuxIncomingSocketManager()
+        #endif
+    }
+    
+    
     ///
     /// Listens for connections on a socket
     ///
@@ -128,7 +145,7 @@ public class HTTPServer {
                 return
             }
             
-            try socket.listen(on: port)
+            try socket.listen(on: port, maxPendingConnections: maxPendingConnections)
             Log.info("Listening on port \(port)")
             
             // TODO: Change server exit to not rely on error being thrown
@@ -162,30 +179,41 @@ public class HTTPServer {
             return
         }
         
-        HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
+        if  let socketManager = socketManager  {
+            do {
+                try clientSocket.setBlocking(mode: false)
+                try socketManager.handle(socket: clientSocket, using: delegate)
+            }
+            catch {
+            }
+        }
+        /*
+        else {
+            HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
 
-            let request = ServerRequest(socket: clientSocket)
-            let response = ServerResponse(socket: clientSocket, request: request)
-            request.parse() { status in
-                switch status {
-                case .success:
-                    delegate.handle(request: request, response: response)
-                case .parsedLessThanRead:
-                    response.statusCode = .badRequest
-                    do {
-                        try response.end()
+                let request = ServerRequest(socket: clientSocket)
+                let response = ServerResponse(socket: clientSocket, request: request)
+                request.parse() { status in
+                    switch status {
+                    case .success:
+                        delegate.handle(request: request, response: response)
+                    case .parsedLessThanRead:
+                        response.statusCode = .badRequest
+                        do {
+                            try response.end()
+                        }
+                        catch {
+                            // handle error in connection
+                        }
+                    case .unexpectedEOF:
+                        break
+                    case .internalError:
+                        break
                     }
-                    catch {
-                        // handle error in connection
-                    }
-                case .unexpectedEOF:
-                    break
-                case .internalError:
-                    break
                 }
             }
-
         }
+        */
     }
 }
 
