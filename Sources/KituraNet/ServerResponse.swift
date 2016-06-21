@@ -54,9 +54,9 @@ public class ServerResponse : SocketWriter {
     private var status = HTTPStatusCode.OK.rawValue
     
     ///
-    /// Corresponding server request
+    /// Corresponding socket handler
     ///
-    private weak var serverRequest : ServerRequest?
+    private weak var handler : IncomingHTTPSocketHandler?
 
     ///
     /// Status code
@@ -75,10 +75,10 @@ public class ServerResponse : SocketWriter {
     ///
     /// Initializes a ServerResponse instance
     ///
-    init(socket: Socket, request: ServerRequest) {
+    init(socket: Socket, handler: IncomingHTTPSocketHandler) {
 
         self.socket = socket
-        serverRequest = request
+        self.handler = handler
         buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
@@ -144,19 +144,31 @@ public class ServerResponse : SocketWriter {
     /// - Throws: ???
     ///
     public func end() throws {
-        if let request = serverRequest {
-            request.drain()
+        if let handler = handler {
+            handler.drain()
         }
         if  let socket = socket {
             try flushStart()
+            
+            let keepAlive = handler?.isKeepAlive ?? false
+            if  keepAlive {
+                handler?.keepAlive()
+            }
+            
             if  buffer.length > 0  {
                 try socket.write(from: buffer)
             }
-            socket.close()
+            
+            if keepAlive {
+                reset()
+            }
+            else {
+                socket.close()
+                self.socket = nil
+            }
         }
-        socket = nil
     }
-
+    
     ///
     /// Begin flushing the buffer
     ///
@@ -189,9 +201,15 @@ public class ServerResponse : SocketWriter {
                 headerData.append("\r\n")
             }
         }
-        // We currently don't support keep alive
-        headerData.append("Connection: Close\r\n")
-
+        let keepAlive = handler?.isKeepAlive ?? false
+        if  keepAlive {
+            headerData.append("Connection: Keep-Alive\r\n")
+            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketHandler.keepAliveTimeout)), max=\((handler?.numberOfRequests ?? 1) - 1)\r\n")
+        }
+        else {
+            headerData.append("Connection: Close\r\n")
+        }
+        
         headerData.append("\r\n")
         try writeToSocketThroughBuffer(text: headerData)
         startFlushed = true
@@ -216,5 +234,16 @@ public class ServerResponse : SocketWriter {
         else {
             buffer.append(utf8Data)
         }
+    }
+    
+    ///
+    /// Reset this response object back to it's initial state
+    ///
+    private func reset() {
+        status = HTTPStatusCode.OK.rawValue
+        buffer.length = 0
+        startFlushed = false
+        headers.removeAll()
+        headers["Date"] = [SPIUtils.httpDate()]
     }
 }
