@@ -90,7 +90,17 @@ class ClientRequestTests: XCTestCase {
     
     XCTAssertEqual(testRequest.url, "https://66o.tech:8080")
   }
-  
+
+  func testClientRequestAppendsPostFields() {
+    let options: [ClientRequest.Options] = [ .schema("https"),
+                                            .hostname("66o.tech"),
+                                            .postFields("post_body"),
+    ]
+    let testRequest = ClientRequest(options: options, callback: testCallback)
+    
+    XCTAssertEqual(testRequest.postFields, "post_body")
+  }
+
 }
 
 extension ClientRequestTests {
@@ -103,7 +113,8 @@ extension ClientRequestTests {
              ("testClientRequestDefaultMethodIsGET", testClientRequestDefaultMethodIsGET),
              ("testClientRequestAppendsPathCorrectly", testClientRequestAppendsPathCorrectly),
              ("testClientRequestAppendsMisformattedPathCorrectly", testClientRequestAppendsMisformattedPathCorrectly),
-             ("testClientRequestAppendsPort", testClientRequestAppendsPort)
+             ("testClientRequestAppendsPort", testClientRequestAppendsPort),
+             ("testClientRequestAppendsPostFields", testClientRequestAppendsPostFields),
     ]
   }
 }

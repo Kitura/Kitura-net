@@ -58,6 +58,11 @@ public class ClientRequest: SocketWriter {
     /// Maximum number of redirects before failure
     ///
     public private(set) var maxRedirects = 10
+
+    ///
+    /// Send a POST with this data
+    ///
+    public private(set) var postFields: String?
     
     /// 
     /// ???
@@ -90,7 +95,7 @@ public class ClientRequest: SocketWriter {
     public enum Options {
         
         case method(String), schema(String), hostname(String), port(Int16), path(String),
-        headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
+        headers([String: String]), username(String), password(String), maxRedirects(Int), postFields(String), disableSSLVerification
         
     }
     
@@ -160,6 +165,8 @@ public class ClientRequest: SocketWriter {
                     self.password = password
                 case .maxRedirects(let maxRedirects):
                     self.maxRedirects = maxRedirects
+                case .postFields(let postFields):
+                    self.postFields = postFields 
                 case .disableSSLVerification:
                     self.disableSSLVerification = true
             }
@@ -311,6 +318,7 @@ public class ClientRequest: SocketWriter {
         if  count != 0  {
             curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         }
+        setupPostFields()
         setupHeaders()
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
 
@@ -337,6 +345,15 @@ public class ClientRequest: SocketWriter {
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, methodUpperCase)
         }
 
+    }
+
+    private func setupPostFields() {
+        guard let postFields = postFields where method.uppercased() == "POST" else {
+            return
+        }
+        let postFieldsString = StringUtils.toNullTerminatedUtf8String(postFields)!
+        curlHelperSetOptString(handle!, CURLOPT_POSTFIELDS, UnsafeMutablePointer<Int8>(postFieldsString.bytes))
+        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, postFieldsString.length)
     }
 
     ///
