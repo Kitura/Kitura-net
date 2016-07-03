@@ -1,4 +1,4 @@
-# Contributing to Kitura
+# Contributing to IBM-Swift
 
 We welcome contributions, and request you follow these guidelines.
 

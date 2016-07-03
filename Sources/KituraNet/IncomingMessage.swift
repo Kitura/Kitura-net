@@ -329,6 +329,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// - Returns: the number of bytes read
     ///
+    @discardableResult
     public func readAllData(into data: NSMutableData) throws -> Int {
         var length = try read(into: data)
         var bytesRead = length
