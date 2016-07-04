@@ -41,6 +41,7 @@ class PseudoAsynchronousReader {
         readBufferLock = dispatch_semaphore_create(1)
     }
     
+    @discardableResult
     func readAvailableData() -> Int {
         var result = 0
         let needToLock = buffer.length != 0
