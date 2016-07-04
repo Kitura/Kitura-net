@@ -23,6 +23,11 @@ import Socket
 public class HTTPServer {
 
     ///
+    /// Group for waiting on listeners
+    ///
+    private static let listenerGroup = Group()
+    
+    ///
     /// Queue for listening and establishing new connections
     ///
     private static let listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
@@ -93,13 +98,24 @@ public class HTTPServer {
 			self.listen(socket: self.listenSocket, port: self.port!)
 		}
 		
+        /** Old code that used the main queue
 		if notOnMainQueue {
 			HTTPServer.listenerQueue.enqueueAsynchronously(queuedBlock)
 		}
 		else {
 			Queue.enqueueIfFirstOnMain(queue: HTTPServer.listenerQueue, block: queuedBlock)
 		}
+        **/
         
+        HTTPServer.listenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
+        
+    }
+    
+    ///
+    /// Wait for all of the listeners to stop
+    ///
+    public static func waitForListeners() {
+        listenerGroup.wait(for: .ever)
     }
 
     ///
