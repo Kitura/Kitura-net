@@ -164,8 +164,8 @@ public class HTTPServer {
         
         HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
 
-            let request = ServerRequest(socket: clientSocket)
-            let response = ServerResponse(socket: clientSocket, request: request)
+            let request = HTTPServerRequest(socket: clientSocket)
+            let response = HTTPServerResponse(socket: clientSocket, request: request)
             request.parse() { status in
                 switch status {
                 case .success:

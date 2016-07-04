@@ -130,8 +130,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// HTTP parser error types
     ///
-    public enum HTTPParserErrorType {
-        
+    enum HTTPParserErrorType {
         case success
         case parsedLessThanRead
         case unexpectedEOF
