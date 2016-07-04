@@ -20,7 +20,7 @@ import Socket
 
 // MARK: ServerRequest
 
-public class ServerRequest: IncomingMessage {
+public class ServerRequest: HTTPIncomingMessage {
 
     ///
     /// Socket for the request
