@@ -55,7 +55,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
     
     enum State {
-        case initial, parsed
+        case reset, initial, parsed
     }
     
     private(set) var state = State.initial
@@ -70,6 +70,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     func process() {
         switch(state) {
+            case .reset:
+                request.reset()
+                response!.reset()
+                fallthrough
             case .initial:
                 processInitialState()
             
@@ -129,9 +133,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     }
     
     func keepAlive() {
-        state = .initial
+        state = .reset
         numberOfRequests -= 1
-        request.reset()
     }
     
     func drain() {

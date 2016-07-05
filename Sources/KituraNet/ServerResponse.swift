@@ -159,10 +159,7 @@ public class ServerResponse : SocketWriter {
                 try socket.write(from: buffer)
             }
             
-            if keepAlive {
-                reset()
-            }
-            else {
+            if !keepAlive  {
                 socket.close()
                 self.socket = nil
             }
@@ -239,7 +236,7 @@ public class ServerResponse : SocketWriter {
     ///
     /// Reset this response object back to it's initial state
     ///
-    private func reset() {
+    func reset() {
         status = HTTPStatusCode.OK.rawValue
         buffer.length = 0
         startFlushed = false
