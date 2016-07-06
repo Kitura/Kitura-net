@@ -308,9 +308,7 @@ public class ClientRequest: SocketWriter {
         }
         setMethod()
         let count = writeBuffers.count
-        if  count != 0  {
-            curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
-        }
+        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
         setupHeaders()
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
 
