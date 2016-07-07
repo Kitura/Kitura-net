@@ -16,22 +16,21 @@
 
 import Foundation
 
-import Socket
 
 // MARK: ServerRequest
 
 public class ServerRequest: IncomingMessage {
 
     ///
-    /// Socket for the request
+    /// Reader for the request
     ///
-    private let socket: Socket
+    private let reader: PseudoAsynchronousReader
 
     ///
     /// server IP address pulled from socket
     ///
     public var remoteAddress: String {
-        return socket.remoteHostname
+        return reader.remoteHostname
     }
     
     ///
@@ -39,9 +38,9 @@ public class ServerRequest: IncomingMessage {
     ///
     /// - Parameter socket: the socket 
     ///
-    init (socket: Socket) {
+    init (reader: PseudoAsynchronousReader) {
         
-        self.socket = socket
+        self.reader = reader
         super.init(isRequest: true)
         
         setup(self)
@@ -56,8 +55,8 @@ extension ServerRequest: IncomingMessageHelper {
     ///
     func readHelper(into data: NSMutableData) throws -> Int {
 
-        let length = try socket.read(into: data)
-        return length > 0 ? length : (socket.isConnected ? 0 : -1)
+        let length = reader.readSynchronously(into: data)
+        return length
     }
     
 }

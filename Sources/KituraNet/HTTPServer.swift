@@ -35,7 +35,7 @@ public class HTTPServer {
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
+    static var clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
 
     ///
     /// HTTPServerDelegate
@@ -57,6 +57,21 @@ public class HTTPServer {
     ///
     var stopped = false
 
+    ///
+    /// Incoming socket handler
+    ///
+    private let socketManager: IncomingSocketManager
+    
+    ///
+    /// Maximum number of pending connections
+    ///
+    private let maxPendingConnections = 100
+
+
+    init() {
+        socketManager = IncomingSocketManager()
+    }
+    
     ///
     /// Listens for connections on a socket
     ///
@@ -145,7 +160,7 @@ public class HTTPServer {
                 return
             }
             
-            try socket.listen(on: port)
+            try socket.listen(on: port, maxPendingConnections: maxPendingConnections)
             Log.info("Listening on port \(port)")
             
             // TODO: Change server exit to not rely on error being thrown
@@ -179,30 +194,7 @@ public class HTTPServer {
             return
         }
         
-        HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
-
-            let request = ServerRequest(socket: clientSocket)
-            let response = ServerResponse(socket: clientSocket, request: request)
-            request.parse() { status in
-                switch status {
-                case .success:
-                    delegate.handle(request: request, response: response)
-                case .parsedLessThanRead:
-                    response.statusCode = .badRequest
-                    do {
-                        try response.end()
-                    }
-                    catch {
-                        // handle error in connection
-                    }
-                case .unexpectedEOF:
-                    break
-                case .internalError:
-                    break
-                }
-            }
-
-        }
+        socketManager.handle(socket: clientSocket, using: delegate)
     }
 }
 
