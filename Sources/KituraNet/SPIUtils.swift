@@ -67,28 +67,30 @@ public class SPIUtils {
     /// - Returns: string representation of timestamp
     ///
     public static func httpDate(_ date: NSDate) -> String {
-
-#if os(Linux)
-        let calendar = NSCalendar.currentCalendar()
-#else
-        let calendar = NSCalendar.current()
-#endif
-        calendar.timeZone = NSTimeZone(name: "UTC")!
-        
-        let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
-#if os(Linux)
-        let components = temp!
-#else
-        let components = temp
-#endif
-        let wday = Int(components.weekday)
-        let mday = Int(components.day)
-        let mon = Int(components.month)
-        let hour = Int(components.hour)
-        let min = Int(components.minute)
-        let sec = Int(components.second)
+        #if os(Linux)
+            let calendar = NSCalendar.currentCalendar()
+            calendar.timeZone = NSTimeZone(name: "UTC")!
+            let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
+            let components = temp!
+            let wday = Int(components.weekday)
+            let mday = Int(components.day)
+            let mon = Int(components.month)
+            let hour = Int(components.hour)
+            let min = Int(components.minute)
+            let sec = Int(components.second)
+        #else
+            let calendar = Calendar.current()
+            calendar.timeZone = TimeZone(name: "UTC")!
+            let temp = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date as Date)
+            let components = temp
+            let wday = Int(components.weekday!)
+            let mday = Int(components.day!)
+            let mon = Int(components.month!)
+            let hour = Int(components.hour!)
+            let min = Int(components.minute!)
+            let sec = Int(components.second!)
+        #endif
         return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(components.year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
-
     }
 
     ///

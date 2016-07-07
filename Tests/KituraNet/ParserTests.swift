@@ -28,7 +28,11 @@ class ParserTests: XCTestCase {
     }
     
     func testParseSimpleUrl() {
-        let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: NSUTF8StringEncoding)! 
+        #if os(Linux)
+            let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: NSUTF8StringEncoding)!
+        #else
+            let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: String.Encoding.utf8)!
+        #endif
         let urlParser = URLParser(url: url, isConnect: false)
         XCTAssertEqual(urlParser.schema!, "https", "Incorrect schema")
         XCTAssertEqual(urlParser.host!, "example.org", "Incorrect host")
@@ -36,7 +40,11 @@ class ParserTests: XCTestCase {
     }
     
     func testParseComplexUrl() {
-        let url = "abc://username:password@example.com:123/path/data?key=value&key1=value1#fragid1".data(using: NSUTF8StringEncoding)!
+        #if os(Linux)
+            let url = "abc://username:password@example.com:123/path/data?key=value&key1=value1#fragid1".data(using: NSUTF8StringEncoding)!
+        #else
+            let url = "abc://username:password@example.com:123/path/data?key=value&key1=value1#fragid1".data(using: String.Encoding.utf8)!
+        #endif
         let urlParser = URLParser(url: url, isConnect: false)
         XCTAssertEqual(urlParser.schema!, "abc", "Incorrect schema")
         XCTAssertEqual(urlParser.host!, "example.com", "Incorrect host")

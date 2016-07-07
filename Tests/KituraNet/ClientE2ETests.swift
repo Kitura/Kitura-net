@@ -54,7 +54,12 @@ class ClientE2ETests: XCTestCase {
                     let data = NSMutableData()
                     let count = try response!.readAllData(into: data)
                     XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
-                    if  let postValue = String(data: data, encoding: NSUTF8StringEncoding) {
+                    #if os(Linux)
+                        let postValue = String(data: data, encoding: NSUTF8StringEncoding)
+                    #else
+                       let postValue = String(data: data as Data, encoding: String.Encoding.utf8)
+                    #endif
+                    if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
                     else {
@@ -74,7 +79,12 @@ class ClientE2ETests: XCTestCase {
                     let data = NSMutableData()
                     let count = try response!.readAllData(into: data)
                     XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(count) bytes")
-                    if  let postValue = String(data: data, encoding: NSUTF8StringEncoding) {
+                    #if os(Linux)
+                        let postValue = String(data: data, encoding: NSUTF8StringEncoding)
+                    #else
+                        let postValue = String(data: data as Data, encoding: String.Encoding.utf8)
+                    #endif
+                    if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
                     }
                     else {

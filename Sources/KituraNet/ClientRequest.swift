@@ -246,12 +246,15 @@ public class ClientRequest: SocketWriter {
     public func end() {
         
         // Be sure that a lock is obtained before this can be executed
-        SysUtils.doOnce(&ClientRequest.lock) {
-            
-            curl_global_init(Int(CURL_GLOBAL_SSL))
-            
-        }
-
+        #if os(Linux)
+            SysUtils.doOnce(&ClientRequest.lock) {
+                curl_global_init(Int(CURL_GLOBAL_SSL))
+            }
+        #else
+            SysUtils.doOnce() {
+                curl_global_init(Int(CURL_GLOBAL_SSL))
+            }
+        #endif
         var callCallback = true
         let urlBuffer = StringUtils.toNullTerminatedUtf8String(url)
         
