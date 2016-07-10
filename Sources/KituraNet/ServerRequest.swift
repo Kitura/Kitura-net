@@ -15,49 +15,77 @@
  **/
 
 import Foundation
-
 import Socket
 
-// MARK: ServerRequest
+//
+// This is a ServerRequest protocol class that allows requests and responses
+// to be abstracted across different protocols in an agnostic way to the 
+// Kitura project Router.
+//
 
-public class ServerRequest: IncomingMessage {
-
-    ///
-    /// Socket for the request
-    ///
-    private let socket: Socket
-
-    ///
-    /// server IP address pulled from socket
-    ///
-    public var remoteAddress: String {
-        return socket.remoteHostname
-    }
+public protocol ServerRequest: class {
     
     ///
-    /// Initializes a ServerRequest
+    /// Set of headers
     ///
-    /// - Parameter socket: the socket 
-    ///
-    init (socket: Socket) {
-        
-        self.socket = socket
-        super.init(isRequest: true)
-        
-        setup(self)
-    }
-}
-
-/// IncomingMessageHelper protocol extension
-extension ServerRequest: IncomingMessageHelper {
+    var headers : HeadersContainer { get set }
     
     ///
-    /// TODO: ???
+    /// URL
     ///
-    func readHelper(into data: NSMutableData) throws -> Int {
+    var urlString : String { get }
+    
+    ///
+    /// Raw URL
+    ///
+    var url : NSMutableData { get }
 
-        let length = try socket.read(into: data)
-        return length > 0 ? length : (socket.isConnected ? 0 : -1)
-    }
+    ///
+    /// server IP address
+    ///
+    var remoteAddress: String { get }
+    
+    ///
+    /// Major version for HTTP
+    ///
+    var httpVersionMajor: UInt16? { get }
+    
+    
+    ///
+    /// Minor version for HTTP
+    ///
+    var httpVersionMinor: UInt16? { get }
+    
+    ///
+    /// HTTP Method
+    ///
+    var method: String { get }
+    
+    ///
+    /// Read data in the message
+    ///
+    /// - Parameter data: An NSMutableData to hold the data in the message
+    ///
+    /// - Returns: the number of bytes read
+    ///
+    func read(into data: NSMutableData) throws -> Int
+    
+    ///
+    /// Read the string
+    ///
+    /// - Throws: TODO ???
+    /// - Returns: an Optional string
+    ///
+    func readString() throws -> String?
+    
+    
+    ///
+    /// Read all data in the message
+    ///
+    /// - Parameter data: An NSMutableData to hold the data in the message
+    ///
+    /// - Returns: the number of bytes read
+    ///
+    func readAllData(into data: NSMutableData) throws -> Int
     
 }
