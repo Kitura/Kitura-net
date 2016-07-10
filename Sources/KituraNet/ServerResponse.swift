@@ -14,75 +14,26 @@
  * limitations under the License.
  **/
 
-import KituraSys
-import Socket
-
 import Foundation
 
-// MARK: ServerResponse
+//
+// This is a ServerResponse protocol class that allows requests and responses
+// to be abstracted across different protocols in an agnostic way to the
+// Kitura project Router.
+//
 
-public class ServerResponse : SocketWriter {
-
-    ///
-    /// Socket for the ServerResponse
-    ///
-    private var socket: Socket?
-
-    ///
-    /// Size of buffer
-    ///
-    private static let bufferSize = 2000
-
-    ///
-    /// Buffer for HTTP response line, headers, and short bodies
-    ///
-    private var buffer: NSMutableData
-
-    ///
-    /// Whether or not the HTTP response line and headers have been flushed.
-    ///
-    private var startFlushed = false
-
-    ///
-    /// TODO: ???
-    ///
-    public var headers = HeadersContainer()
+public protocol ServerResponse: class {
     
     ///
     /// Status code
     ///
-    private var status = HTTPStatusCode.OK.rawValue
+    var statusCode: HTTPStatusCode? { get set }
     
     ///
-    /// Corresponding server request
+    /// Headers being sent back as part of the HTTP response.
     ///
-    private weak var serverRequest : ServerRequest?
-
-    ///
-    /// Status code
-    ///
-    public var statusCode: HTTPStatusCode? {
-        get {
-            return HTTPStatusCode(rawValue: status)
-        }
-        set (newValue) {
-            if let newValue = newValue where !startFlushed {
-                status = newValue.rawValue
-            }
-        }
-    }
-
-    ///
-    /// Initializes a ServerResponse instance
-    ///
-    init(socket: Socket, request: ServerRequest) {
-
-        self.socket = socket
-        serverRequest = request
-        buffer = NSMutableData(capacity: ServerResponse.bufferSize)!
-        headers["Date"] = [SPIUtils.httpDate()]
-    }
-
+    var headers : HeadersContainer { get }
+    
     ///
     /// Write a string as a response
     ///
@@ -90,15 +41,8 @@ public class ServerResponse : SocketWriter {
     ///
     /// - Throws: ???
     ///
-    public func write(from string: String) throws {
-
-        if  socket != nil  {
-            try flushStart()
-            try writeToSocketThroughBuffer(text: string)
-        }
-
-    }
-
+    func write(from string: String) throws
+    
     ///
     /// Write data as a response
     ///
@@ -108,28 +52,8 @@ public class ServerResponse : SocketWriter {
     ///
     /// - Throws: ???
     ///
-    public func write(from data: NSData) throws {
-
-        if  let socket = socket {
-            try flushStart()
-            if  buffer.length + data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
-                try socket.write(from: buffer)
-                buffer.length = 0
-            }
-            if  data.length > ServerResponse.bufferSize {
-                try socket.write(from: data)
-            }
-            else {
-                #if os(Linux)
-                    buffer.append(data)
-                #else
-                    buffer.append(data as Data)
-                #endif
-            }
-        }
-
-    }
-
+    func write(from data: NSData) throws
+    
     ///
     /// End the response
     ///
@@ -137,92 +61,12 @@ public class ServerResponse : SocketWriter {
     ///
     /// - Throws: ???
     ///
-    public func end(text: String) throws {
-        try write(from: text)
-        try end()
-    }
+    func end(text: String) throws
     
     ///
     /// End sending the response
     ///
     /// - Throws: ???
     ///
-    public func end() throws {
-        if let request = serverRequest {
-            request.drain()
-        }
-        if  let socket = socket {
-            try flushStart()
-            if  buffer.length > 0  {
-                try socket.write(from: buffer)
-            }
-            socket.close()
-        }
-        socket = nil
-    }
-
-    ///
-    /// Begin flushing the buffer
-    ///
-    /// - Throws: ???
-    ///
-    private func flushStart() throws {
-
-        if  socket == nil  ||  startFlushed  {
-            return
-        }
-
-        var headerData = ""
-        headerData.append("HTTP/1.1 ")
-        headerData.append(String(status))
-        headerData.append(" ")
-        var statusText = HTTP.statusCodes[status]
-
-        if  statusText == nil {
-            statusText = ""
-        }
-
-        headerData.append(statusText!)
-        headerData.append("\r\n")
-
-        for (key, valueSet) in headers.headers {
-            for value in valueSet {
-                headerData.append(key)
-                headerData.append(": ")
-                headerData.append(value)
-                headerData.append("\r\n")
-            }
-        }
-        // We currently don't support keep alive
-        headerData.append("Connection: Close\r\n")
-
-        headerData.append("\r\n")
-        try writeToSocketThroughBuffer(text: headerData)
-        startFlushed = true
-    }
-
-    ///
-    /// Function to write Strings to the socket through the buffer
-    ///
-    private func writeToSocketThroughBuffer(text: String) throws {
-        guard let socket = socket,
-              let utf8Data = StringUtils.toUtf8String(text) else {
-            return
-        }
-
-        if  buffer.length + utf8Data.length > ServerResponse.bufferSize  &&  buffer.length != 0  {
-            try socket.write(from: buffer)
-            buffer.length = 0
-        }
-        if  utf8Data.length > ServerResponse.bufferSize {
-            try socket.write(from: utf8Data)
-        }
-        else {
-            #if os(Linux)
-                buffer.append(utf8Data)
-            #else
-                buffer.append(utf8Data as Data)
-            #endif
-        }
-    }
+    func end() throws
 }

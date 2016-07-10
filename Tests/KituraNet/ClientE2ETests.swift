@@ -34,7 +34,7 @@ class ClientE2ETests: XCTestCase {
         doTearDown()
     }
     
-    let delegate = ServerDelegate()
+    let delegate = TestServerDelegate()
     
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
@@ -101,7 +101,7 @@ class ClientE2ETests: XCTestCase {
         })
     }
     
-    class ServerDelegate : HTTPServerDelegate {
+    class TestServerDelegate : ServerDelegate {
     
         func handle(request: ServerRequest, response: ServerResponse) {
             let body = NSMutableData()

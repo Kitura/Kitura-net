@@ -19,7 +19,7 @@ import Foundation
 
 // MARK: ClientResponse
 
-public class ClientResponse: IncomingMessage {
+public class ClientResponse: HTTPIncomingMessage {
     
     ///
     /// Initializes a ClientResponse instance

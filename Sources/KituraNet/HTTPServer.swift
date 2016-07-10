@@ -40,7 +40,7 @@ public class HTTPServer {
     ///
     /// HTTPServerDelegate
     ///
-    public weak var delegate: HTTPServerDelegate?
+    public weak var delegate: ServerDelegate?
     
     /// 
     /// Port number for listening for new connections
@@ -123,7 +123,7 @@ public class HTTPServer {
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: HTTPServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
+    public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
         
         let server = HTTP.createServer()
         server.delegate = delegate
@@ -181,8 +181,8 @@ public class HTTPServer {
         
         HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
 
-            let request = ServerRequest(socket: clientSocket)
-            let response = ServerResponse(socket: clientSocket, request: request)
+            let request = HTTPServerRequest(socket: clientSocket)
+            let response = HTTPServerResponse(socket: clientSocket, request: request)
             request.parse() { status in
                 switch status {
                 case .success:
@@ -204,13 +204,4 @@ public class HTTPServer {
 
         }
     }
-}
-
-///
-/// Delegate protocol for an HTTPServer
-///
-public protocol HTTPServerDelegate: class {
-
-    func handle(request: ServerRequest, response: ServerResponse)
-    
 }
