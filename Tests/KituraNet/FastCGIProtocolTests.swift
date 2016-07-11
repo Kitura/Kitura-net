@@ -171,7 +171,11 @@ class FastCGIProtocolTests: XCTestCase {
             XCTAssert(remainingData.length == 0, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == ofType, "Record type received was incorrect")
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
-            XCTAssert(testData.isEqual(to: parser.data), "Data received was not data sent.")
+            XCTAssert(parser.data != nil, "No data was received")
+            
+            if (parser.data != nil) {
+                XCTAssert(testData.isEqual(to: parser.data!), "Data received was not data sent.")
+            }
             
         }
         catch {
