@@ -14,7 +14,13 @@
  * limitations under the License.
  **/
 
-import Foundation
+#if os(Linux)
+    import Foundation
+    import Glibc
+#else
+    import Darwin
+    import Foundation
+#endif
 
 class FastCGIRecordCreate {
     
@@ -51,6 +57,26 @@ class FastCGIRecordCreate {
         }
     }
     
+    // Helper to turn UInt16 from local to network.
+    //
+    private static func networkByteOrderSmall(_ from: UInt16) -> UInt16 {
+        #if os(Linux)
+            return Glibc.htons(from)
+        #else
+            return CFSwapInt16HostToBig(from)
+        #endif
+    }
+    
+    // Helper to turn UInt32 from local to network.
+    //
+    private static func networkByteOrderLarge(_ from: UInt32) -> UInt32 {
+        #if os(Linux)
+            return Glibc.htonl(from)
+        #else
+            return CFSwapInt32HostToBig(from)
+        #endif
+    }
+    
     //
     // Create the shared starting portion of a FastCGI,
     // shared by all FastCGI records we'll be generating
@@ -60,13 +86,11 @@ class FastCGIRecordCreate {
         
         var v : UInt8 = FastCGI.Constants.FASTCGI_PROTOCOL_VERSION
         var t : UInt8 = self.recordType
-        var requestIdB1 : UInt8 = UInt8(truncatingBitPattern: self.requestId >> 8)
-        var requestIdB0 : UInt8 = UInt8(truncatingBitPattern: self.requestId)
+        var requestId : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestId)
         
         r.append(&v, length: 1);
         r.append(&t, length: 1);
-        r.append(&requestIdB1, length: 1)
-        r.append(&requestIdB0, length: 1)
+        r.append(&requestId, length: 2)
         
         return r;
     }
@@ -76,13 +100,11 @@ class FastCGIRecordCreate {
     //
     private func finalizeRequestCompleteRecord(data: NSMutableData) -> NSData {
         
-        let contentLength : UInt16 = 8
-        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
-        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
+        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(UInt16(8))
         var protocolStatus : UInt8 = self.protocolStatus
         
-        data.append(&contentLengthB1, length: 1)
-        data.append(&contentLengthB0, length: 1)
+        // content length
+        data.append(&contentLength, length: 2)
         
         // padding length
         writeZero(data: data, count: 1)
@@ -107,15 +129,12 @@ class FastCGIRecordCreate {
     //
     private func finalizeRequestBeginRecord(data: NSMutableData) -> NSData {
         
-        let contentLength : UInt16 = 8
-        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
-        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
-        var requestRoleB1 : UInt8 = UInt8(truncatingBitPattern: self.requestRole >> 8)
-        var requestRoleB0 : UInt8 = UInt8(truncatingBitPattern: self.requestRole)
+        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(8)
+        var requestRole : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestRole)
         var flags : UInt8 = self.keepAlive ? (0 | FastCGI.Constants.FCGI_KEEP_CONN) : 0
         
-        data.append(&contentLengthB1, length: 1)
-        data.append(&contentLengthB0, length: 1)
+        // content length
+        data.append(&contentLength, length: 2)
         
         // padding length
         writeZero(data: data, count: 1)
@@ -124,8 +143,7 @@ class FastCGIRecordCreate {
         writeZero(data: data, count: 1)
         
         // request role
-        data.append(&requestRoleB1, length: 1)
-        data.append(&requestRoleB0, length: 1)
+        data.append(&requestRole, length: 2)
         
         // flags
         data.append(&flags, length: 1)
@@ -142,24 +160,12 @@ class FastCGIRecordCreate {
     private func writeEncodedLength(length: Int, into: NSMutableData) {
         
         if (length > 127) {
-            
-            let xLength : UInt32 = UInt32(length)
-            var xLengthB3 : UInt8 = UInt8(truncatingBitPattern: xLength >> 24)
-            var xLengthB2 : UInt8 = UInt8(truncatingBitPattern: xLength >> 16)
-            var xLengthB1 : UInt8 = UInt8(truncatingBitPattern: xLength >> 8)
-            var xLengthB0 : UInt8 = UInt8(truncatingBitPattern: xLength)
-            
-            xLengthB3 |= ~0x7f
-            
-            into.append(&xLengthB3, length: 1)
-            into.append(&xLengthB2, length: 1)
-            into.append(&xLengthB1, length: 1)
-            into.append(&xLengthB0, length: 1)
-            
+            var encodedLength : UInt32 = FastCGIRecordCreate.networkByteOrderLarge(UInt32(length)) | ~0xffffff7f
+            into.append(&encodedLength, length: 4)
         }
         else {
-            var xLength : UInt8 = UInt8(length)
-            into.append(&xLength, length: 1)
+            var encodedLength : UInt8 = UInt8(length)
+            into.append(&encodedLength, length: 1)
         }
         
     }
@@ -210,22 +216,19 @@ class FastCGIRecordCreate {
     private func finalizeDataRecord(data: NSMutableData) -> NSData {
         
         let contentData : NSData = self.data == nil ? NSData() : self.data!
-        let contentLength : UInt16 = UInt16(contentData.length)
-        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
-        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
+        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(UInt16(contentData.length))
         
         // note that we will align all of our data structures to 8 bytes
-        var paddingLength : Int = Int(contentLength % 8)
+        var paddingLength : Int = Int(contentData.length % 8)
         
         if (paddingLength > 0) {
             paddingLength = 8 - paddingLength
         }
 
-        var paddingLengthB0 : UInt8 = UInt8(paddingLength)
+        var paddingLengthEncoded : UInt8 = UInt8(paddingLength)
 
-        data.append(&contentLengthB1, length: 1)
-        data.append(&contentLengthB0, length: 1)
-        data.append(&paddingLengthB0, length: 1)
+        data.append(&contentLength, length: 2)
+        data.append(&paddingLengthEncoded, length: 1)
         
         // reserved space
         self.writeZero(data: data, count: 1)

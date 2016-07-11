@@ -441,7 +441,8 @@ public class FastCGIServerRequest : ServerRequest {
                     }
                     catch (FastCGI.RecordErrors.BufferExhausted) {
                         // break out of this repeat, which will loop
-                        // us back to the top
+                        // this means there was insufficient data to parse
+                        // a single record.
                         break;
                     }
                     
@@ -459,6 +460,9 @@ public class FastCGIServerRequest : ServerRequest {
                 
                 
             } catch (FastCGI.RecordErrors.InvalidVersion) {
+                callback(.protocolError)
+                return
+            } catch (FastCGI.RecordErrors.EmptyParams) {
                 callback(.protocolError)
                 return
             } catch (FastCGI.RecordErrors.InvalidType) {

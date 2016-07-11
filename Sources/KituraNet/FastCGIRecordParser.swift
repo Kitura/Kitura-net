@@ -14,7 +14,14 @@
  * limitations under the License.
  **/
 
-import Foundation
+#if os(Linux)
+    import Foundation
+    import Glibc
+#else
+    import Darwin
+    import Foundation
+#endif
+
 import KituraSys
 
 class FastCGIRecordParser {
@@ -68,16 +75,32 @@ class FastCGIRecordParser {
         }
     }
     
+    // Helper to turn UInt16 from network to local.
+    //
+    private static func localByteOrderSmall(_ from: UInt16) -> UInt16 {
+        #if os(Linux)
+            return Glibc.ntohs(from)
+        #else
+            return CFSwapInt16BigToHost(from)
+        #endif
+    }
+    
+    // Helper to turn UInt32 from network to local.
+    //
+    private static func localByteOrderLarge(_ from: UInt32) -> UInt32 {
+        #if os(Linux)
+            return Glibc.ntohl(from)
+        #else
+            return CFSwapInt32BigToHost(from)
+        #endif
+    }
+    
     // Initialize
     //
     init(_ data: NSData) {
         self.buffer = data
         self.bufferBytes = UnsafePointer<UInt8>(data.bytes)
     }
-    
-    //
-    // Internal Functions
-    //
     
     //
     // Parse FastCGI Version
@@ -131,10 +154,10 @@ class FastCGIRecordParser {
         
         let requestIdBytes1 = self.bufferBytes[try advance()]
         let requestIdBytes0 = self.bufferBytes[try advance()]
-        let requestIdBytes : [UInt8] = [ requestIdBytes0, requestIdBytes1 ]
+        let requestIdBytes : [UInt8] = [ requestIdBytes1, requestIdBytes0 ]
         
-        self.requestId = UnsafePointer<UInt16>(requestIdBytes).pointee
-
+        self.requestId = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(requestIdBytes).pointee)
+        
     }
 
     // Parse content length.
@@ -143,9 +166,9 @@ class FastCGIRecordParser {
         
         let contentLengthBytes1 = self.bufferBytes[try advance()]
         let contentLengthBytes0 = self.bufferBytes[try advance()]
-        let contentLengthBytes : [UInt8] = [ contentLengthBytes0, contentLengthBytes1 ]
+        let contentLengthBytes : [UInt8] = [ contentLengthBytes1, contentLengthBytes0 ]
         
-        self.contentLength = UnsafePointer<UInt16>(contentLengthBytes).pointee
+        self.contentLength = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(contentLengthBytes).pointee)
         
     }
     
@@ -161,9 +184,9 @@ class FastCGIRecordParser {
         
         let roleByte1 = self.bufferBytes[try advance()]
         let roleByte0 = self.bufferBytes[try advance()]
-        let roleBytes : [UInt8] = [ roleByte0, roleByte1 ]
+        let roleBytes : [UInt8] = [ roleByte1, roleByte0 ]
         
-        self.role = UnsafePointer<UInt16>(roleBytes).pointee
+        self.role = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(roleBytes).pointee)
         self.flags = self.bufferBytes[try advance()]
 
         guard self.role == FastCGI.Constants.FCGI_RESPONDER else {
@@ -180,10 +203,10 @@ class FastCGIRecordParser {
         let appStatusByte2 = self.bufferBytes[try advance()]
         let appStatusByte1 = self.bufferBytes[try advance()]
         let appStatusByte0 = self.bufferBytes[try advance()]
-        let appStatusBytes : [UInt8] = [ appStatusByte0, appStatusByte1, appStatusByte2, appStatusByte3 ]
+        let appStatusBytes : [UInt8] = [ appStatusByte3, appStatusByte2, appStatusByte1, appStatusByte0 ]
         
-        self.appStatus = UnsafePointer<UInt32>(appStatusBytes).pointee
-        
+        self.appStatus = FastCGIRecordParser.localByteOrderLarge(UnsafePointer<UInt32>(appStatusBytes).pointee)
+    
     }
     
     // Parse a protocol status
@@ -220,12 +243,11 @@ class FastCGIRecordParser {
     // on = 128 or larger.
     //
     // If we are using 4 bytes for a length value, we need to mask
-    // that first byte with 0x7f when assembling it back into a 32-bit length
+    // the first byte with 0x7f when assembling it back into a 32-bit length
     // value.
     //
     //
     private func parseParameterLength() throws -> Int {
-        
         
         let lengthPeek : UInt8 = self.bufferBytes[try advance()]
         
@@ -236,9 +258,9 @@ class FastCGIRecordParser {
             let lengthByteB2 : UInt8 = self.bufferBytes[try advance()]
             let lengthByteB1 : UInt8 = self.bufferBytes[try advance()]
             let lengthByteB0 : UInt8 = self.bufferBytes[try advance()]
-            let lengthBytes : [UInt8] = [ lengthByteB0, lengthByteB1, lengthByteB2, lengthByteB3 & 0x7f ]
+            let lengthBytes : [UInt8] = [ lengthByteB3 & 0x7f, lengthByteB2, lengthByteB1, lengthByteB0 ]
 
-            return Int(UnsafePointer<UInt32>(lengthBytes).pointee)
+            return Int(FastCGIRecordParser.localByteOrderLarge(UnsafePointer<UInt32>(lengthBytes).pointee))
         }
         
     }
