@@ -185,7 +185,7 @@ public class HTTPServer {
     ///
     /// Wait for all of the listeners to stop
     ///
-    /// Note that this calls the ListenerGroup object, and is left in for 
+    /// TODO: Note that this calls the ListenerGroup object, and is left in for
     /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
     /// is patched to directly talk to ListenerGroup.
     ///
