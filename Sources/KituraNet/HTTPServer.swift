@@ -68,11 +68,7 @@ public class HTTPServer {
     private let maxPendingConnections = 100
 
     init() {
-        #if os(Linux)
-            socketManager = LinuxIncomingSocketManager()
-        #else
-            socketManager = OSXIncomingSocketManager()
-        #endif
+        socketManager = IncomingSocketManager()
     }
     
     

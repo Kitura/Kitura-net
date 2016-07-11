@@ -14,13 +14,11 @@
  * limitations under the License.
  **/
 
-    
-import Foundation
 #if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
+
+import Foundation
+import Glibc
+
     
 import LoggerAPI
 import Socket
@@ -29,7 +27,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let socket: Socket
     
-    private weak var delegate: HTTPServerDelegate?
+    private weak var delegate: ServerDelegate?
     
     ///
     /// The file descriptor of the incoming socket
@@ -38,10 +36,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let reader: PseudoAsynchronousReader
     
-    private let request: ServerRequest
+    private let request: HTTPServerRequest
     
     // Note: This var is optional to enable it to be constructed in the init function
-    private var response: ServerResponse?
+    private var response: HTTPServerResponse?
     
     ///
     /// Keep alive timeout in seconds
@@ -60,12 +58,12 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private(set) var state = State.initial
     
-    init(socket: Socket, using: HTTPServerDelegate) {
+    init(socket: Socket, using: ServerDelegate) {
         self.socket = socket
         delegate = using
         reader = PseudoAsynchronousReader(clientSocket: socket)
-        request = ServerRequest(reader: reader)
-        response = ServerResponse(socket: socket, handler: self)
+        request = HTTPServerRequest(reader: reader)
+        response = HTTPServerResponse(handler: self)
     }
     
     func process() {
@@ -78,7 +76,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 processInitialState()
             
             case .parsed:
-                reader.readAvailableData()
+                readAvailableData()
                 break
         }
     }
@@ -98,7 +96,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             }
             else {
                 if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
-                    socket.close()
+                    close()
                 }
             }
         }
@@ -110,7 +108,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     }
     
     private func parse(_ buffer: NSData) {
-        let (parsingState, parsingError) = request.parse(buffer)
+        let (parsingState, _) = request.parse(buffer)
         switch(parsingState) {
             case .error:
                 break
@@ -132,6 +130,31 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         delegate?.handle(request: request, response: response!)
     }
     
+    func readAvailableData() {
+        let buffer = NSMutableData()
+        
+        do {
+            var length = 1
+            while  length > 0  {
+                length = try socket.read(into: buffer)
+            }
+            if  buffer.length != 0  {
+                reader.addToAvailableData(from: buffer)
+            }
+            else {
+                close()
+            }
+        }
+        catch let error as Socket.Error {
+            Log.error(error.description)
+        } catch {
+            Log.error("Unexpected error...")
+        }
+        
+        return
+    }
+
+    
     func keepAlive() {
         state = .reset
         numberOfRequests -= 1
@@ -141,7 +164,37 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         request.drain()
     }
     
+    ///
+    /// Write data to the socket
+    ///
+    func write(from data: NSData) {
+        guard socket.socketfd > -1  else { return }
+        
+        do {
+            try socket.write(from: data)
+        }
+        catch {
+            print("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(lastError()).")
+            Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(lastError()).")
+        }
+    }
+    
     func close() {
-        socket.close()
+        if  socket.socketfd > -1 {
+            socket.close()
+        }
+    }
+    
+    ///
+    /// Private method to return the last error based on the value of errno.
+    ///
+    /// - Returns: String containing relevant text about the error.
+    ///
+    private func lastError() -> String {
+        
+        return String(validatingUTF8: strerror(errno)) ?? "Error: \(errno)"
     }
 }
+
+    
+#endif

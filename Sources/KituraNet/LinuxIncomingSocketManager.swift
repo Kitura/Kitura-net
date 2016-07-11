@@ -25,7 +25,7 @@ import KituraSys
 import LoggerAPI
 import Socket
 
-class LinuxIncomingSocketManager: IncomingSocketManager  {
+class IncomingSocketManager  {
     
     private let maximumNumberOfEvents = 300
     

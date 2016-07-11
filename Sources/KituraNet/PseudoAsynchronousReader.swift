@@ -41,31 +41,13 @@ class PseudoAsynchronousReader {
         readBufferLock = dispatch_semaphore_create(1)
     }
     
-    @discardableResult
-    func readAvailableData() -> Int {
-        var result = 0
+    func addToAvailableData(from: NSData) {
         let needToLock = buffer.length != 0
         if  needToLock {
             dispatch_semaphore_wait(readBufferLock, DISPATCH_TIME_FOREVER)
         }
         
-        do {
-            var length = 1
-            while  length > 0  {
-                length = try clientSocket.read(into: buffer)
-                result += length
-            }
-            if  result == 0  {
-                socketNotClosed = false
-            }
-        }
-        catch let error as Socket.Error {
-            Log.error(error.description)
-            errorFlag = true
-        } catch {
-            Log.error("Unexpected error...")
-            errorFlag = true
-        }
+        buffer.append(from)
         
         if  inputNotAvailable  {
             dispatch_semaphore_signal(waitingForInput)
@@ -74,8 +56,6 @@ class PseudoAsynchronousReader {
         if  needToLock  {
             dispatch_semaphore_signal(readBufferLock)
         }
-        
-        return result
     }
     
     func readSynchronously(into: NSMutableData) -> Int {
