@@ -22,7 +22,7 @@ import Foundation
 
 // MARK: IncomingMessage
 
-public class IncomingMessage : HTTPParserDelegate, SocketReader {
+public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
 
     ///
     /// Default buffer size used for creating a BufferList
@@ -101,12 +101,12 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// TODO: ???
     ///
-    private var ioBuffer = NSMutableData(capacity: IncomingMessage.bufferSize)
+    private var ioBuffer = NSMutableData(capacity: HTTPIncomingMessage.bufferSize)
     
     ///
     /// TODO: ???
     ///
-    private var buffer = NSMutableData(capacity: IncomingMessage.bufferSize)
+    private var buffer = NSMutableData(capacity: HTTPIncomingMessage.bufferSize)
 
     ///
     /// Indicates if the parser should save the message body and call onBody()
@@ -133,7 +133,7 @@ public class IncomingMessage : HTTPParserDelegate, SocketReader {
     /// HTTP parser error types
     ///
     enum HTTPParserErrorType {
-        
+
         case success
         case parsedLessThanRead
         case unexpectedEOF
