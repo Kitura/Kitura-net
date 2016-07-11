@@ -25,8 +25,8 @@ protocol IncomingSocketManager {
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: The incoming socket to handle
-    /// - Parameter using: The HTTPServerDelegate to actually handle the socket
+    /// - Parameter using: The ServerDelegate to actually handle the socket
     ///
-    func handle(socket: Socket, using: HTTPServerDelegate) throws
+    func handle(socket: Socket, using: ServerDelegate)
     
 }
