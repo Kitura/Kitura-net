@@ -90,7 +90,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         guard let data = data else { return }
         
         let buffer = NSMutableData()
-        dispatch_data_apply(data) { (region, offset, dataBuffer, size) -> Bool in
+        let _ = dispatch_data_apply(data) { (region, offset, dataBuffer, size) -> Bool in
             guard let dataBuffer = dataBuffer else { return true }
             buffer.append(dataBuffer, length: size)
             return true
