@@ -32,7 +32,7 @@ extension KituraNetTest {
         //       sleep(10)
     }
     
-    func performServerTest(_ delegate: HTTPServerDelegate, asyncTasks: (expectation: XCTestExpectation) -> Void...) {
+    func performServerTest(_ delegate: ServerDelegate, asyncTasks: (expectation: XCTestExpectation) -> Void...) {
         let server = setupServer(port: 8090, delegate: delegate)
         let requestQueue = Queue(type: .serial)
         
@@ -65,7 +65,7 @@ extension KituraNetTest {
         req.end()
     }
     
-    private func setupServer(port: Int, delegate: HTTPServerDelegate) -> HTTPServer {
+    private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
         return HTTPServer.listen(port: port, delegate: delegate,
                                  notOnMainQueue:true)
     }

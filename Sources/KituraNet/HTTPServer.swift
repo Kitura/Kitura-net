@@ -40,7 +40,7 @@ public class HTTPServer {
     ///
     /// HTTPServerDelegate
     ///
-    public weak var delegate: HTTPServerDelegate?
+    public weak var delegate: ServerDelegate?
     
     /// 
     /// Port number for listening for new connections
@@ -60,7 +60,7 @@ public class HTTPServer {
     ///
     /// Incoming socket handler
     ///
-    private let socketManager: IncomingSocketManager?
+    private let socketManager: IncomingSocketManager
     
     ///
     /// Maximum number of pending connections
@@ -70,6 +70,8 @@ public class HTTPServer {
     init() {
         #if os(Linux)
             socketManager = LinuxIncomingSocketManager()
+        #else
+            socketManager = OSXIncomingSocketManager()
         #endif
     }
     
@@ -139,7 +141,7 @@ public class HTTPServer {
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: HTTPServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
+    public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
         
         let server = HTTP.createServer()
         server.delegate = delegate
@@ -195,49 +197,7 @@ public class HTTPServer {
             return
         }
         
-        if  let socketManager = socketManager  {
-            do {
-                try clientSocket.setBlocking(mode: false)
-                try socketManager.handle(socket: clientSocket, using: delegate)
-            }
-            catch {
-            }
-        }
-        /*
-        else {
-            HTTPServer.clientHandlerQueue.enqueueAsynchronously() {
-
-                let request = ServerRequest(socket: clientSocket)
-                let response = ServerResponse(socket: clientSocket, request: request)
-                request.parse() { status in
-                    switch status {
-                    case .success:
-                        delegate.handle(request: request, response: response)
-                    case .parsedLessThanRead:
-                        response.statusCode = .badRequest
-                        do {
-                            try response.end()
-                        }
-                        catch {
-                            // handle error in connection
-                        }
-                    case .unexpectedEOF:
-                        break
-                    case .internalError:
-                        break
-                    }
-                }
-            }
-        }
-        */
+        socketManager.handle(socket: clientSocket, using: delegate)
+        
     }
-}
-
-///
-/// Delegate protocol for an HTTPServer
-///
-public protocol HTTPServerDelegate: class {
-
-    func handle(request: ServerRequest, response: ServerResponse)
-    
 }
