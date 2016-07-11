@@ -39,6 +39,7 @@ public class FastCGI {
         static let FCGI_UNKNOWN_ROLE : UInt8 = 3
         
         // roles
+        static let FCGI_NO_ROLE : UInt16 = 69
         static let FCGI_RESPONDER : UInt16 = 1
         
         // flags
@@ -58,8 +59,10 @@ public class FastCGI {
         case InvalidType
         case InvalidSubType
         case InvalidRequestId
+        case InvalidRole
         case OversizeData
         case InvalidVersion
+        case EmptyParams
         case BufferExhausted
         case UnsupportedRole
     }

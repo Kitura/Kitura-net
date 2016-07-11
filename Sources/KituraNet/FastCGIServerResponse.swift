@@ -155,12 +155,12 @@ public class FastCGIServerResponse : ServerResponse {
     /// 
     /// Get messages for FastCGI.
     ///
-    private func getEndRequestMessage(requestId: UInt16, subType: UInt8) throws -> NSData {
+    private func getEndRequestMessage(requestId: UInt16, protocolStatus: UInt8) throws -> NSData {
         
         let record = FastCGIRecordCreate()
         
         record.recordType = FastCGI.Constants.FCGI_END_REQUEST
-        record.recordSubType = subType
+        record.protocolStatus = protocolStatus
         record.requestId = requestId
         
         return try record.create()
@@ -169,11 +169,11 @@ public class FastCGIServerResponse : ServerResponse {
     
     private func getRequestCompleteMessage() throws -> NSData {
         return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
-                                             subType: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
+                                             protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
     }
 
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> NSData {
-        return try self.getEndRequestMessage(requestId: requestId, subType: FastCGI.Constants.FCGI_CANT_MPX_CONN)
+        return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
     private func getUnsupportedRoleMessage() throws -> NSData? {
@@ -184,7 +184,7 @@ public class FastCGIServerResponse : ServerResponse {
         }
         
         return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
-                                             subType: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+                                             protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
     }
 
     ///

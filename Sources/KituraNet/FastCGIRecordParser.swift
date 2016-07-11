@@ -28,6 +28,8 @@ class FastCGIRecordParser {
     var flags : UInt8 = 0
     var headers : [Dictionary] = Array<Dictionary<String,String>>()
     var data : NSData? = nil
+    var appStatus : UInt32 = 0
+    var protocolStatus : UInt8 = 0
     
     var keepalive : Bool {
         return self.flags & FastCGI.Constants.FCGI_KEEP_CONN == 0 ? false : true
@@ -40,20 +42,6 @@ class FastCGIRecordParser {
     private var pointer : Int = 0
     private var buffer : NSData
     private var bufferBytes : UnsafePointer<UInt8>
-    
-    // Helper
-    var debugDescription : String {
-        return String("FastCGIRecordParser { ",
-                      "version = \(version), ",
-                      "type=\(type), ",
-                      "requestId = \(requestId), ",
-                      "role = \(role), ",
-                      "contentLength = \(contentLength), ",
-                      "paddingLength = \(paddingLength), ",
-                      "pointer = \(pointer), ",
-                      "buffer size = \(buffer.length)")
-        
-    }
     
     // Pointer
     //
@@ -87,7 +75,12 @@ class FastCGIRecordParser {
         self.bufferBytes = UnsafePointer<UInt8>(data.bytes)
     }
     
+    //
     // Internal Functions
+    //
+    
+    //
+    // Parse FastCGI Version
     //
     private func parseVersion() throws {
         self.version = self.bufferBytes[try advance()]
@@ -97,6 +90,8 @@ class FastCGIRecordParser {
         }
     }
     
+    // Parse record type.
+    //
     private func parseType() throws {
         
         self.type = self.bufferBytes[try advance()]
@@ -107,10 +102,16 @@ class FastCGIRecordParser {
         case FastCGI.Constants.FCGI_BEGIN_REQUEST:
             typeOk = true;
             break;
+        case FastCGI.Constants.FCGI_END_REQUEST:
+            typeOk = true;
+            break;
         case FastCGI.Constants.FCGI_PARAMS:
             typeOk = true;
             break;
         case FastCGI.Constants.FCGI_STDIN:
+            typeOk = true;
+            break;
+        case FastCGI.Constants.FCGI_STDOUT:
             typeOk = true;
             break;
         default:
@@ -124,6 +125,8 @@ class FastCGIRecordParser {
         
     }
     
+    // Parse request ID
+    //
     private func parseRequestId() throws {
         
         let requestIdBytes1 = self.bufferBytes[try advance()]
@@ -134,6 +137,8 @@ class FastCGIRecordParser {
 
     }
 
+    // Parse content length.
+    //
     private func parseContentLength() throws {
         
         let contentLengthBytes1 = self.bufferBytes[try advance()]
@@ -144,10 +149,14 @@ class FastCGIRecordParser {
         
     }
     
+    // Parse padding length
+    //
     private func parsePaddingLength() throws {
         self.paddingLength = self.bufferBytes[try advance()]
     }
 
+    // Parse a role
+    //
     private func parseRole() throws {
         
         let roleByte1 = self.bufferBytes[try advance()]
@@ -163,6 +172,28 @@ class FastCGIRecordParser {
         
     }
     
+    // Parse an app status
+    //
+    private func parseAppStatus() throws {
+        
+        let appStatusByte3 = self.bufferBytes[try advance()]
+        let appStatusByte2 = self.bufferBytes[try advance()]
+        let appStatusByte1 = self.bufferBytes[try advance()]
+        let appStatusByte0 = self.bufferBytes[try advance()]
+        let appStatusBytes : [UInt8] = [ appStatusByte0, appStatusByte1, appStatusByte2, appStatusByte3 ]
+        
+        self.appStatus = UnsafePointer<UInt32>(appStatusBytes).pointee
+        
+    }
+    
+    // Parse a protocol status
+    //
+    private func parseProtocolStatus() throws {
+        self.protocolStatus = self.bufferBytes[try advance()]
+    }
+    
+    // Parse raw data from a data record
+    //
     private func parseData() throws {
         if (self.contentLength > 0) {
             self.data = NSData(bytes: self.bufferBytes+pointer, length: Int(self.contentLength))
@@ -182,7 +213,7 @@ class FastCGIRecordParser {
     
     //
     // The parameter name/value length encoding scheme used by FastCGI
-    // Is interesting. Basically, it lets 1 byte be used to encode lengths
+    // is interesting. Basically, it lets 1 byte be used to encode lengths
     // less than 127 bytes, but allocates 4 bytes to encode the length
     // of anything larger. We determine what state we're in by checking
     // the higher order bit of the first byte in the length. off = 127 or less,
@@ -206,12 +237,14 @@ class FastCGIRecordParser {
             let lengthByteB1 : UInt8 = self.bufferBytes[try advance()]
             let lengthByteB0 : UInt8 = self.bufferBytes[try advance()]
             let lengthBytes : [UInt8] = [ lengthByteB0, lengthByteB1, lengthByteB2, lengthByteB3 & 0x7f ]
-            
+
             return Int(UnsafePointer<UInt32>(lengthBytes).pointee)
         }
         
     }
     
+    // Parse a parameter block
+    //
     private func parseParams() throws {
         
         guard self.contentLength > 0 else {
@@ -277,7 +310,7 @@ class FastCGIRecordParser {
         
     }
     
-    // Public Parser
+    // Parser the data, return any extra
     //
     func parse() throws -> NSMutableData {
         
@@ -292,9 +325,15 @@ class FastCGIRecordParser {
         if (self.type == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
             try parseRole()
             try skip(5)
+        } else if (self.type == FastCGI.Constants.FCGI_END_REQUEST) {
+            try parseAppStatus()
+            try parseProtocolStatus()
+            try skip(3)
         } else if (self.type == FastCGI.Constants.FCGI_PARAMS) {
             try parseParams()
         } else if (self.type == FastCGI.Constants.FCGI_STDIN) {
+            try parseData()
+        } else if (self.type == FastCGI.Constants.FCGI_STDOUT) {
             try parseData()
         }
         

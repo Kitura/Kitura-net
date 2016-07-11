@@ -22,18 +22,23 @@ class FastCGIRecordCreate {
     // variables
     //
     var recordType : UInt8
-    var recordSubType : UInt8
-    var requestId : UInt16
+    var protocolStatus : UInt8
+    var requestId : UInt16    
     var data : NSData?
+    var requestRole : UInt16
+    var keepAlive : Bool
+    var params : [(String,String)] = []
     
     // 
     // init for making a new record
     //
     init() {
         self.recordType = FastCGI.Constants.FCGI_NO_TYPE
-        self.recordSubType = FastCGI.Constants.FCGI_SUBTYPE_NO_TYPE
+        self.protocolStatus = FastCGI.Constants.FCGI_SUBTYPE_NO_TYPE
         self.requestId = FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID
         self.data = nil
+        self.requestRole = FastCGI.Constants.FCGI_NO_ROLE
+        self.keepAlive = false
     }
     
     //
@@ -55,8 +60,8 @@ class FastCGIRecordCreate {
         
         var v : UInt8 = FastCGI.Constants.FASTCGI_PROTOCOL_VERSION
         var t : UInt8 = self.recordType
-        var requestIdB1 : UInt8 = UInt8(self.requestId >> 8)
-        var requestIdB0 : UInt8 = UInt8(self.requestId & 0x00ff)
+        var requestIdB1 : UInt8 = UInt8(truncatingBitPattern: self.requestId >> 8)
+        var requestIdB0 : UInt8 = UInt8(truncatingBitPattern: self.requestId)
         
         r.append(&v, length: 1);
         r.append(&t, length: 1);
@@ -72,9 +77,9 @@ class FastCGIRecordCreate {
     private func finalizeRequestCompleteRecord(data: NSMutableData) -> NSData {
         
         let contentLength : UInt16 = 8
-        var contentLengthB1 : UInt8 = UInt8(contentLength >> 8)
-        var contentLengthB0 : UInt8 = UInt8(contentLength & 0x00ff)
-        var protocolStatus : UInt8 = self.recordSubType
+        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
+        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
+        var protocolStatus : UInt8 = self.protocolStatus
         
         data.append(&contentLengthB1, length: 1)
         data.append(&contentLengthB0, length: 1)
@@ -98,14 +103,116 @@ class FastCGIRecordCreate {
     }
     
     //
+    // Generate a "BEGIN REQUEST" record
+    //
+    private func finalizeRequestBeginRecord(data: NSMutableData) -> NSData {
+        
+        let contentLength : UInt16 = 8
+        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
+        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
+        var requestRoleB1 : UInt8 = UInt8(truncatingBitPattern: self.requestRole >> 8)
+        var requestRoleB0 : UInt8 = UInt8(truncatingBitPattern: self.requestRole)
+        var flags : UInt8 = self.keepAlive ? (0 | FastCGI.Constants.FCGI_KEEP_CONN) : 0
+        
+        data.append(&contentLengthB1, length: 1)
+        data.append(&contentLengthB0, length: 1)
+        
+        // padding length
+        writeZero(data: data, count: 1)
+        
+        // reserved space
+        writeZero(data: data, count: 1)
+        
+        // request role
+        data.append(&requestRoleB1, length: 1)
+        data.append(&requestRoleB0, length: 1)
+        
+        // flags
+        data.append(&flags, length: 1)
+        
+        // reserved space
+        writeZero(data: data, count: 5)
+        
+        return data
+    }
+    
+    //
+    // Write encoded length (8 bit or 4x8bit) for a param record
+    //
+    private func writeEncodedLength(length: Int, into: NSMutableData) {
+        
+        if (length > 127) {
+            
+            let xLength : UInt32 = UInt32(length)
+            var xLengthB3 : UInt8 = UInt8(truncatingBitPattern: xLength >> 24)
+            var xLengthB2 : UInt8 = UInt8(truncatingBitPattern: xLength >> 16)
+            var xLengthB1 : UInt8 = UInt8(truncatingBitPattern: xLength >> 8)
+            var xLengthB0 : UInt8 = UInt8(truncatingBitPattern: xLength)
+            
+            xLengthB3 |= ~0x7f
+            
+            into.append(&xLengthB3, length: 1)
+            into.append(&xLengthB2, length: 1)
+            into.append(&xLengthB1, length: 1)
+            into.append(&xLengthB0, length: 1)
+            
+        }
+        else {
+            var xLength : UInt8 = UInt8(length)
+            into.append(&xLength, length: 1)
+        }
+        
+    }
+    
+    //
+    // Generate parameter records
+    //
+    private func createParameterRecords() -> NSData {
+        
+        let content : NSMutableData = NSMutableData()
+        
+        for (key, value) in self.params {
+
+            // generate our key and value
+            let keyData : NSData? = key.data(using: NSUTF8StringEncoding)
+            let valueData : NSData? = value.data(using: NSUTF8StringEncoding)
+
+            guard keyData != nil else {
+                continue
+            }
+            
+            guard valueData != nil else {
+                continue
+            }
+            
+            self.writeEncodedLength(length: keyData!.length, into: content)
+            self.writeEncodedLength(length: valueData!.length, into: content)
+            
+            content.append(keyData!)
+            content.append(valueData!)
+            
+        }
+        
+        return content;
+    }
+    
+    //
+    // Generate a parameters (PARAMS) record
+    //
+    private func finalizeParams(data: NSMutableData) -> NSData {
+        self.data = self.createParameterRecords()
+        return self.finalizeDataRecord(data: data)
+    }
+    
+    //
     // Generate a data (STDOUT) record
     //
     private func finalizeDataRecord(data: NSMutableData) -> NSData {
         
         let contentData : NSData = self.data == nil ? NSData() : self.data!
         let contentLength : UInt16 = UInt16(contentData.length)
-        var contentLengthB1 : UInt8 = UInt8(contentLength >> 8)
-        var contentLengthB0 : UInt8 = UInt8(contentLength & 0x00ff)
+        var contentLengthB1 : UInt8 = UInt8(truncatingBitPattern: contentLength >> 8)
+        var contentLengthB0 : UInt8 = UInt8(truncatingBitPattern: contentLength)
         
         // note that we will align all of our data structures to 8 bytes
         var paddingLength : Int = Int(contentLength % 8)
@@ -135,7 +242,6 @@ class FastCGIRecordCreate {
     
     //
     // Test the internal record for sanity before generation
-    // Note we limit to what we can generate for testing.
     //
     private func recordTest() throws -> Void {
         
@@ -146,6 +252,12 @@ class FastCGIRecordCreate {
         if (self.recordType == FastCGI.Constants.FCGI_END_REQUEST) {
             recordTypeOk = true
         } else if (self.recordType == FastCGI.Constants.FCGI_STDOUT) {
+            recordTypeOk = true
+        } else if (self.recordType == FastCGI.Constants.FCGI_STDIN) {
+            recordTypeOk = true
+        } else if (self.recordType == FastCGI.Constants.FCGI_PARAMS) {
+            recordTypeOk = true
+        } else if (self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
             recordTypeOk = true
         }
         
@@ -159,12 +271,39 @@ class FastCGIRecordCreate {
             
             var subRecordTypeOk : Bool = false
             
-            if (self.recordSubType == FastCGI.Constants.FCGI_REQUEST_COMPLETE) {
+            if (self.protocolStatus == FastCGI.Constants.FCGI_REQUEST_COMPLETE) {
+                subRecordTypeOk = true
+            }
+            else if (self.protocolStatus == FastCGI.Constants.FCGI_CANT_MPX_CONN) {
+                subRecordTypeOk = true
+            }
+            else if (self.protocolStatus == FastCGI.Constants.FCGI_UNKNOWN_ROLE) {
                 subRecordTypeOk = true
             }
             
             guard subRecordTypeOk else {
                 throw FastCGI.RecordErrors.InvalidSubType
+            }
+            
+        }
+        else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+            
+            var roleOk : Bool = false
+            
+            // we only support one role right now
+            if self.requestRole == FastCGI.Constants.FCGI_RESPONDER {
+                roleOk = true
+            }
+            
+            guard roleOk else {
+                throw FastCGI.RecordErrors.InvalidRole
+            }
+            
+        }
+        else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
+            
+            guard self.params.count > 0 else {
+                throw FastCGI.RecordErrors.EmptyParams
             }
             
         }
@@ -175,7 +314,8 @@ class FastCGIRecordCreate {
             throw FastCGI.RecordErrors.InvalidRequestId
         }
         
-        // check that our data object, if any, isn't larger than 16-bits worth of data
+        // check that our data object, if any, isn't larger 
+        // than 16-bits addressable worth of data
         //
         if (self.data != nil) {
             guard self.data!.length <= 65535 else {
@@ -195,10 +335,16 @@ class FastCGIRecordCreate {
         
         let record : NSMutableData = self.createRecordStarter()
         
-        if (self.recordType == FastCGI.Constants.FCGI_END_REQUEST) {
+        if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+            return self.finalizeRequestBeginRecord(data: record)
+        }
+        else if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
             return self.finalizeRequestCompleteRecord(data: record)
         }
-        else if (self.recordType == FastCGI.Constants.FCGI_STDOUT) {
+        else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
+            return self.finalizeParams(data: record)
+        }
+        else if self.recordType == FastCGI.Constants.FCGI_STDOUT || self.recordType == FastCGI.Constants.FCGI_STDIN {
             return self.finalizeDataRecord(data: record)
         }
         else {
