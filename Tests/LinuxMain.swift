@@ -20,6 +20,7 @@ import XCTest
 
 XCTMain([
 	testCase(ClientE2ETests.allTests),
-  testCase(ClientRequestTests.allTests),
-	testCase(ParserTests.allTests)
+  	testCase(ClientRequestTests.allTests),
+	testCase(ParserTests.allTests),
+	testCase(FastCGIProtocolTests.allTests)
 ])
