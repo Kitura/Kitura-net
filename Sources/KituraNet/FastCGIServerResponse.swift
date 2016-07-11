@@ -265,6 +265,7 @@ public class FastCGIServerResponse : ServerResponse {
     /// here because we may want to send other messages after the fact (multiplex denials)
     ///
     private func concludeResponse() throws {    
+        
         // flush the reset of the buffer
         try self.flush()
         
@@ -276,9 +277,10 @@ public class FastCGIServerResponse : ServerResponse {
         
         // close the socket.
         // we presently don't support keep-alive so this is fine.
-        if (self.socket != nil) {
-            self.socket!.close()
+        if let socket = self.socket {
+            socket.close()
         }
+        self.socket = nil
     }
 
 }
