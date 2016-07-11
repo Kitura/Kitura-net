@@ -99,18 +99,18 @@ class FastCGIProtocolTests: XCTestCase {
     //
     func generateRandomData(_ bytes: Int) -> NSData {
         
-        let testData : NSMutableData = NSMutableData(length: bytes)!
-        
-        #if os(Linux)
+        #if os(Linux)            
+            let testData : NSMutableData = NSMutableData(capacity: bytes)!
             for _ in 1...(bytes / sizeof(CLong)) {
                 var random : CLong = Glibc.random()
                 testData.append(&random, length: sizeof(CLong))
             }
+            return testData
         #else
+            let testData : NSMutableData = NSMutableData(length: bytes)!
             Darwin.arc4random_buf(testData.mutableBytes, testData.length)
+            return testData
         #endif
-        
-        return testData
         
     }
     
