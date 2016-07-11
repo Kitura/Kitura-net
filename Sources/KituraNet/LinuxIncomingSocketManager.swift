@@ -48,9 +48,18 @@ class LinuxIncomingSocketManager: IncomingSocketManager  {
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
-    /// - Parameter using: The HTTPServerDelegate to actually handle the socket
+    /// - Parameter using: The ServerDelegate to actually handle the socket
     ///
-    func handle(socket: Socket, using delegate: HTTPServerDelegate) throws {
+    func handle(socket: Socket, using delegate: ServerDelegate) {
+        
+        do {
+            try socket.setBlocking(mode: false)
+        }
+        catch {
+            print("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+        }
+        
         let handler = IncomingHTTPSocketHandler(socket: socket, using: delegate)
         socketHandlers[socket.socketfd] = handler
         
@@ -59,7 +68,8 @@ class LinuxIncomingSocketManager: IncomingSocketManager  {
         event.data.fd = socket.socketfd
         let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event);
         if  result == -1  {
-            throw Error.incomingSocketManagerFailure(errorCode: errno, reason: lastError())
+            Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+            print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
         }
     }
     
