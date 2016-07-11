@@ -16,6 +16,8 @@
 
 // MARK: IncomingSocketHandler protocol
 
+import Foundation
+
 
 protocol IncomingSocketHandler {
     
@@ -25,9 +27,9 @@ protocol IncomingSocketHandler {
     var fileDescriptor: Int32 { get }
     
     ///
-    /// Process waiting I/O for a socket
+    /// Write data to the socket
     ///
-    func process()
+    func write(from: NSData)
     
     ///
     /// "Close" and cleanup for a socket
