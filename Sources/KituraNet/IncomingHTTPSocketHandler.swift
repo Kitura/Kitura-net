@@ -28,7 +28,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let socket: Socket
     
-    private weak var delegate: HTTPServerDelegate?
+    private weak var delegate: ServerDelegate?
     
     ///
     /// The file descriptor of the incoming socket
@@ -37,7 +37,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let reader: PseudoAsynchronousReader
     
-    private let request: ServerRequest
+    private let request: HTTPServerRequest
     
     // Note: This var is optional to enable it to be constructed in the init function
     private var response: ServerResponse?
@@ -59,18 +59,18 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private(set) var state = State.initial
     
-    init(socket: Socket, using: HTTPServerDelegate) {
+    init(socket: Socket, using: ServerDelegate) {
         self.socket = socket
         delegate = using
         reader = PseudoAsynchronousReader(clientSocket: socket)
-        request = ServerRequest(reader: reader)
+        request = HTTPServerRequest(reader: reader)
         
         channel = dispatch_io_create(DISPATCH_IO_STREAM, socket.socketfd, HTTPServer.clientHandlerQueue.osQueue) { error in
             self.socket.close()
         }
         dispatch_io_set_low_water(channel!, 1)
         
-        response = ServerResponse(handler: self)
+        response = HTTPServerResponse(handler: self)
         
         dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
             self.handleRead(done: done, data: data, error: error)

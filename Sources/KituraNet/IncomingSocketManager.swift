@@ -30,9 +30,9 @@ class IncomingSocketManager  {
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: The incoming socket to handle
-    /// - Parameter using: The HTTPServerDelegate to actually handle the socket
+    /// - Parameter using: The ServerDelegate to actually handle the socket
     ///
-    func handle(socket: Socket, using: HTTPServerDelegate) {
+    func handle(socket: Socket, using: ServerDelegate) {
         let handler = IncomingHTTPSocketHandler(socket: socket, using: using)
         socketHandlers[socket.socketfd] = handler
     }
