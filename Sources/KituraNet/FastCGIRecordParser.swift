@@ -287,9 +287,13 @@ class FastCGIRecordParser {
                 let currentPointer : Int = pointer
                 try skip(nameLength)
                 let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
-                nameString = NSString(data: nameData, encoding: NSUTF8StringEncoding)!.bridge()
+                nameString = String(data: nameData, encoding: NSUTF8StringEncoding)
             } else {
                 nameString = ""
+            }
+            
+            if (nameString == nil || (nameString.characters.count == 0 && nameLength > 0)) {
+                throw FastCGI.RecordErrors.EmptyParams
             }
             
             // capture a value if needed
@@ -297,11 +301,15 @@ class FastCGIRecordParser {
                 let currentPointer : Int = pointer
                 try skip(valueLength)
                 let valueData = NSData(bytes: self.bufferBytes+currentPointer, length: valueLength)
-                valueString = NSString(data: valueData, encoding: NSUTF8StringEncoding)!.bridge()
+                valueString = String(data: valueData, encoding: NSUTF8StringEncoding)
             } else {
                 valueString = ""
             }
-            
+
+            if (valueString == nil) {
+                throw FastCGI.RecordErrors.EmptyParams
+            }
+
             // all good - store it
             self.headers.append(["name": nameString!, "value": valueString!])
             
