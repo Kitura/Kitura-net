@@ -23,11 +23,6 @@ import Socket
 public class HTTPServer {
 
     ///
-    /// Group for waiting on listeners
-    ///
-    private static let listenerGroup = Group()
-
-    ///
     /// Queue for listening and establishing new connections
     ///
     private static var listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
@@ -81,32 +76,14 @@ public class HTTPServer {
 			self.listen(socket: self.listenSocket, port: self.port!)
 		}
 		
-        /** Old code that used the main queue
-		if notOnMainQueue {
-			HTTPServer.listenerQueue.enqueueAsynchronously(queuedBlock)
-		}
-		else {
-			Queue.enqueueIfFirstOnMain(queue: HTTPServer.listenerQueue, block: queuedBlock)
-		}
-        **/
-        
-        HTTPServer.listenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
+        ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
         
     }
-    
-    ///
-    /// Wait for all of the listeners to stop
-    ///
-    public static func waitForListeners() {
-        listenerGroup.wait(for: .ever)
-    }
-
 
     ///
     /// Stop listening for new connections
     ///
     public func stop() {
-        
         if let listenSocket = listenSocket {
             stopped = true
             listenSocket.close()
@@ -203,5 +180,16 @@ public class HTTPServer {
             }
 
         }
+    }
+    
+    ///
+    /// Wait for all of the listeners to stop
+    ///
+    /// TODO: Note that this calls the ListenerGroup object, and is left in for
+    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
+    /// is patched to directly talk to ListenerGroup.
+    ///
+    public static func waitForListeners() {
+        ListenerGroup.waitForListeners()
     }
 }
