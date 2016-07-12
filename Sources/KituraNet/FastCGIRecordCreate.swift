@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may obtain a copy of athe License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,7 +25,7 @@
 class FastCGIRecordCreate {
     
     //
-    // variables
+    // Variables
     //
     var recordType : UInt8
     var protocolStatus : UInt8
@@ -36,7 +36,7 @@ class FastCGIRecordCreate {
     var params : [(String,String)] = []
     
     // 
-    // init for making a new record
+    // Init for making a new record
     //
     init() {
         self.recordType = FastCGI.Constants.FCGI_NO_TYPE
@@ -57,7 +57,9 @@ class FastCGIRecordCreate {
         }
     }
     
-    // Helper to turn UInt16 from local to network.
+    //
+    // Helper to turn UInt16 from local byte order to network byte order,
+    // which is typically Little to Big.
     //
     private static func networkByteOrderSmall(_ from: UInt16) -> UInt16 {
         #if os(Linux)
@@ -67,7 +69,9 @@ class FastCGIRecordCreate {
         #endif
     }
     
-    // Helper to turn UInt32 from local to network.
+    //
+    // Helper to turn UInt32 from local byte order to network byte order,
+    // which is typically Little to Big.
     //
     private static func networkByteOrderLarge(_ from: UInt32) -> UInt32 {
         #if os(Linux)
@@ -82,17 +86,17 @@ class FastCGIRecordCreate {
     // shared by all FastCGI records we'll be generating
     //
     private func createRecordStarter() -> NSMutableData {
-        let r = NSMutableData();
+        let r = NSMutableData()
         
         var v : UInt8 = FastCGI.Constants.FASTCGI_PROTOCOL_VERSION
         var t : UInt8 = self.recordType
         var requestId : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestId)
         
-        r.append(&v, length: 1);
-        r.append(&t, length: 1);
+        r.append(&v, length: 1)
+        r.append(&t, length: 1)
         r.append(&requestId, length: 2)
         
-        return r;
+        return r
     }
     
     //
@@ -159,7 +163,7 @@ class FastCGIRecordCreate {
     //
     private func writeEncodedLength(length: Int, into: NSMutableData) {
         
-        if (length > 127) {
+        if length > 127 {
             var encodedLength : UInt32 = FastCGIRecordCreate.networkByteOrderLarge(UInt32(length)) | ~0xffffff7f
             into.append(&encodedLength, length: 4)
         }
@@ -199,7 +203,7 @@ class FastCGIRecordCreate {
             
         }
         
-        return content;
+        return content
     }
     
     //
@@ -221,7 +225,7 @@ class FastCGIRecordCreate {
         // note that we will align all of our data structures to 8 bytes
         var paddingLength : Int = Int(contentData.length % 8)
         
-        if (paddingLength > 0) {
+        if paddingLength > 0 {
             paddingLength = 8 - paddingLength
         }
 
@@ -236,7 +240,7 @@ class FastCGIRecordCreate {
         data.append(contentData)
         
         // write any padding
-        if (paddingLength > 0) {
+        if paddingLength > 0 {
             self.writeZero(data: data, count: paddingLength)
         }
         
@@ -252,15 +256,15 @@ class FastCGIRecordCreate {
         //
         var recordTypeOk : Bool = false
         
-        if (self.recordType == FastCGI.Constants.FCGI_END_REQUEST) {
+        if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
             recordTypeOk = true
-        } else if (self.recordType == FastCGI.Constants.FCGI_STDOUT) {
+        } else if self.recordType == FastCGI.Constants.FCGI_STDOUT {
             recordTypeOk = true
-        } else if (self.recordType == FastCGI.Constants.FCGI_STDIN) {
+        } else if self.recordType == FastCGI.Constants.FCGI_STDIN {
             recordTypeOk = true
-        } else if (self.recordType == FastCGI.Constants.FCGI_PARAMS) {
+        } else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
             recordTypeOk = true
-        } else if (self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
+        } else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
             recordTypeOk = true
         }
         
@@ -274,13 +278,13 @@ class FastCGIRecordCreate {
             
             var subRecordTypeOk : Bool = false
             
-            if (self.protocolStatus == FastCGI.Constants.FCGI_REQUEST_COMPLETE) {
+            if self.protocolStatus == FastCGI.Constants.FCGI_REQUEST_COMPLETE {
                 subRecordTypeOk = true
             }
-            else if (self.protocolStatus == FastCGI.Constants.FCGI_CANT_MPX_CONN) {
+            else if self.protocolStatus == FastCGI.Constants.FCGI_CANT_MPX_CONN {
                 subRecordTypeOk = true
             }
-            else if (self.protocolStatus == FastCGI.Constants.FCGI_UNKNOWN_ROLE) {
+            else if self.protocolStatus == FastCGI.Constants.FCGI_UNKNOWN_ROLE {
                 subRecordTypeOk = true
             }
             
@@ -320,7 +324,7 @@ class FastCGIRecordCreate {
         // check that our data object, if any, isn't larger 
         // than 16-bits addressable worth of data
         //
-        if (self.data != nil) {
+        if self.data != nil {
             guard self.data!.length <= 65535 else {
                 throw FastCGI.RecordErrors.OversizeData
             }
@@ -334,7 +338,7 @@ class FastCGIRecordCreate {
     func create() throws -> NSData {
         
         // rely on throw to abort if there is an issue
-        try recordTest();
+        try recordTest()
         
         let record : NSMutableData = self.createRecordStarter()
         

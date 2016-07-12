@@ -173,7 +173,7 @@ class FastCGIProtocolTests: XCTestCase {
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             XCTAssert(parser.data != nil, "No data was received")
             
-            if (parser.data != nil) {
+            if parser.data != nil {
                 XCTAssert(testData.isEqual(to: parser.data!), "Data received was not data sent.")
             }
             

@@ -101,7 +101,7 @@ public class FastCGIServerResponse : ServerResponse {
         
         try startResponse()
         
-        if (self.buffer.length + data.length > FastCGIServerResponse.bufferSize) {
+        if (self.buffer.length + data.length) > FastCGIServerResponse.bufferSize {
             try flush()
         }
         
@@ -191,7 +191,9 @@ public class FastCGIServerResponse : ServerResponse {
     /// External message write for multiplex rejection    
     ///
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
-        let message : NSData = try self.getNoMultiplexingMessage(requestId: requestId)
+        guard let message : NSData = try self.getNoMultiplexingMessage(requestId: requestId) else {
+            return
+        }
         try self.writeToSocket(message, wrapAsMessage: false)
     }
     
@@ -248,7 +250,7 @@ public class FastCGIServerResponse : ServerResponse {
     private func flush() throws {
         
         guard self.buffer.length > 0 else {
-            return;
+            return
         }
     
         try self.writeToSocket(self.buffer)
@@ -257,12 +259,11 @@ public class FastCGIServerResponse : ServerResponse {
     }
     
     ///
-    /// Conclude our standard response
-    /// We're basically sending out anything left in the buffer, followed by a blank
-    /// STDOUT message, followed by a complete message.
+    /// Conclude this response.
     ///
-    /// Note that unlike the HTTP implementation, we aren't closing the connection
-    /// here because we may want to send other messages after the fact (multiplex denials)
+    /// We're basically sending out anything left in the buffer, followed 
+    /// by a blank STDOUT message, followed by an "END REQUEST" record with 
+    /// "REQUEST COMPLETE" as it's protocol status.
     ///
     private func concludeResponse() throws {    
         

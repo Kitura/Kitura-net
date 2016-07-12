@@ -98,10 +98,9 @@ public class FastCGIServerRequest : ServerRequest {
     /// Some defaults
     ///
     private static let defaultProtocolScheme : String = "http"
-    private static let quietPorts : [String] = ["80", "443"]
+    private static let defaultHttpPorts : [String] = ["80", "443"]
     private static let defaultMethod : String = "GET"
     private static let defaultAddress : String = "127.0.0.1"
-    private static let defaultUri : String = "/"
     
     ///
     /// List of status states
@@ -153,7 +152,7 @@ public class FastCGIServerRequest : ServerRequest {
         let data : NSMutableData = NSMutableData()
         let bytes : Int = self.bodyChunk.fill(data: data)
         
-        if (bytes>0) {
+        if bytes > 0 {
             return StringUtils.fromUtf8String(data)
         } else {
             return ""
@@ -163,39 +162,70 @@ public class FastCGIServerRequest : ServerRequest {
     func postProcessUrlParameter() -> Void {
         
         // reset the current url
+        //
         self.url.length = 0
         
         // set our protocol scheme
-        if (self.requestScheme?.characters.count > 0) {
+        //
+        if self.requestScheme?.characters.count > 0 {
+            
+            // use the request scheme as received
             self.url.append(StringUtils.toUtf8String(self.requestScheme!)!)
+            
         } else {
+            
+            // we received no request scheme - use the default
             self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)!)
+            
         }
 
         self.url.append(StringUtils.toUtf8String("://")!)
         
+        
         // set our host name
-        if (self.requestHost?.characters.count > 0) {
+        //
+        if self.requestHost?.characters.count > 0 {
+            
+            // use the requested host as received
             self.url.append(StringUtils.toUtf8String(self.requestHost!)!)
-        } else if (self.requestServerName?.characters.count > 0) {
+            
+        } else if self.requestServerName?.characters.count > 0 {
+            
+            // use the requested server name as received
             self.url.append(StringUtils.toUtf8String(self.requestServerName!)!)
-        } else if (self.requestServerAddress?.characters.count > 0) {
+            
+        } else if self.requestServerAddress?.characters.count > 0 {
+            
+            // use the requested server address as received
             self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)!)
+            
         } else {
+            
+            // use a failover default as the server address
             self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)!)
+            
         }
         
         // set the port
-        if (self.requestPort?.characters.count > 0) {
-            if (!FastCGIServerRequest.quietPorts.contains(self.requestPort!)) {
+        //
+        if self.requestPort?.characters.count > 0 {
+            
+            // we received a port - we'll append it if it's not a standard
+            // HTTP port that is typically used (80, 443)
+            //
+            if !FastCGIServerRequest.defaultHttpPorts.contains(self.requestPort!) {
                 self.url.append(StringUtils.toUtf8String(":")!)
                 self.url.append(StringUtils.toUtf8String(self.requestPort!)!)
             }
         }
         
         // set the uri
-        if (self.requestUri?.characters.count > 0) {
+        //
+        if self.requestUri?.characters.count > 0 {
+            
+            // use the URI as received
             self.url.append(StringUtils.toUtf8String(self.requestUri!)!)
+            
         }
                 
     }
@@ -208,25 +238,24 @@ public class FastCGIServerRequest : ServerRequest {
     private func postProcessParameters() {
         
         // make sure our method is set
-        if (self.method.characters.count == 0) {
+        if self.method.characters.count == 0 {
             self.method = FastCGIServerRequest.defaultMethod
         }
         
         // make sure our remoteAddress is set
-        if (self.remoteAddress.characters.count == 0) {
+        if self.remoteAddress.characters.count == 0 {
             self.remoteAddress = self.socket.remoteHostname
         }
         
         // complete our URL string
         self.postProcessUrlParameter()
         
-        // make sure our protocol is configured
-        
     }
     
     //
     // FastCGI delivers headers that were originally sent by the browser/client
-    // with "HTTP_" prefixed.
+    // with "HTTP_" prefixed. We want to normalize these out to remove HTTP_
+    // and correct the capitilization (first letter of each word capitilized).
     //
     private func processHttpHeader(_ name: String, value: String, remove: String) {
         
@@ -246,7 +275,7 @@ public class FastCGIServerRequest : ServerRequest {
         
         guard protocolString.lowercased().hasPrefix("http/") &&
             protocolString.characters.count > "http/".characters.count else {
-            return;
+            return
         }
         
         let versionPortion : String = protocolString.substring(from:
@@ -255,7 +284,7 @@ public class FastCGIServerRequest : ServerRequest {
         
         for i in versionPortion.characters {
             if i == "." {
-                break;
+                break
             } else {
                 decimalPosition = decimalPosition + 1
             }
@@ -265,21 +294,21 @@ public class FastCGIServerRequest : ServerRequest {
         var minorVersion : UInt16? = nil
         
         // get major version
-        if (decimalPosition > 0) {
+        if decimalPosition > 0 {
             let majorPortion : String = versionPortion.substring(to:
                 versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition))
             majorVersion = UInt16(majorPortion)
         }
         
         // get minor version
-        if (protocolString.characters.count > decimalPosition) {
+        if protocolString.characters.count > decimalPosition {
             let minorPortion : String = versionPortion.substring(from:
                 versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1))
             minorVersion = UInt16(minorPortion)
         }
         
         // assign our values if applicable
-        if (majorVersion != nil && minorVersion != nil) {
+        if majorVersion != nil && minorVersion != nil {
             self.httpVersionMajor = majorVersion!
             self.httpVersionMinor = minorVersion!
         }
@@ -288,42 +317,86 @@ public class FastCGIServerRequest : ServerRequest {
     
     
     // process our headers.
-    // there are some special case headers we want to deal with directly.
-    // for the rest else, we want to add HTTP_ headers to the header table
-    // after formatting to Web style (remove HTTP_, case and dash fixing, etc).
-    // everything else we just discard.
+    //
+    // a) there are some special case headers we want to deal with directly.
+    // b) we want to add HTTP_ headers to the header table after noralizing
+    // c) everything else just discard
     //
     private func processHeader (_ name : String, value: String) {
         
-        if (name.caseInsensitiveCompare("REQUEST_METHOD") == .orderedSame) {
+        if name.caseInsensitiveCompare("REQUEST_METHOD") == .orderedSame {
+            
+            // The request method (GET/POST/etc)
             self.method = value
-        } else if (name.caseInsensitiveCompare("REQUEST_SCHEME") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("REQUEST_SCHEME") == .orderedSame {
+            
+            // The request scheme (HTTP or HTTPS)
             self.requestScheme = value
-        } else if (name.caseInsensitiveCompare("HTTP_HOST") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("HTTP_HOST") == .orderedSame {
+            
+            // the "Host" header transmitted by the client
+            //
+            // Note we return here to prevent these from potentially being
+            // added a second time by the "add all headers" catch-all at the
+            // end of this block.
+            //
             self.requestHost = value
             self.processHttpHeader(name, value: value, remove: "HTTP_")
-        } else if (name.caseInsensitiveCompare("SERVER_ADDR") == .orderedSame) {
+            return
+            
+        } else if name.caseInsensitiveCompare("SERVER_ADDR") == .orderedSame {
+            
+            // The server address as specified by the web server
             self.requestServerAddress = value
-        } else if (name.caseInsensitiveCompare("SERVER_NAME") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("SERVER_NAME") == .orderedSame {
+            
+            // The server name as specified by the web server.
             self.requestServerName = value
-        } else if (name.caseInsensitiveCompare("SERVER_PORT") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("SERVER_PORT") == .orderedSame {
+            
+            // The port the original web server received the request on
             self.requestPort = value
-        } else if (name.caseInsensitiveCompare("REQUEST_URI") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("REQUEST_URI") == .orderedSame {
+            
+            // The URI as submitted to the web server
             self.requestUri = value
-        } else if (name.caseInsensitiveCompare("REMOTE_ADDR") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("REMOTE_ADDR") == .orderedSame {
+            
+            // The actual IP address of the client
             self.remoteAddress = value
-        } else if (name.caseInsensitiveCompare("SERVER_PROTOCOL") == .orderedSame) {
+            
+        } else if name.caseInsensitiveCompare("SERVER_PROTOCOL") == .orderedSame {
+            
+            // The HTTP protocol used by the client to speak with the
+            // web server (HTTP/1.0, HTTP/1.1, HTTP/2.0, etc)
+            //
             self.processServerProtocol(value)
+            
         }
-        else if (name.hasPrefix("HTTP_")) {
-            // this is where we process
+        else if name.hasPrefix("HTTP_") {
+            
+            // Any other headers starting with "HTTP_", which are all
+            // original headers sent from the browser.
+            //
+            // Note we return here to prevent these from potentially being
+            // added a second time by the "add all headers" catch-all at the
+            // end of this block.
+            //
             self.processHttpHeader(name, value: value, remove: "HTTP_")
-            return;
+            return
+            
         }
 
         // send all headers with FASTCGI_ prefixed.
         // this way we can see what's going on with them.
-        // commented out for now pending community discussion as to best approach here
+        //
+        // Commented out for now pending community discussion as to best approach here
         
         /* self.headers.append("FASTCGI_".appending(name), value: value) */
         
@@ -338,55 +411,98 @@ public class FastCGIServerRequest : ServerRequest {
         // request that we've already seen? if so, ignore it.
         //
         guard !self.extraRequestIds.contains(record.requestId) else {
-            return;
+            return
         }
 
-        if (self.status == Status.initial && record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
+        if self.status == Status.initial &&
+            record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+            
+            // this is a request begin record and we haven't seen any requests
+            // in this FastCGIServerRequest object. We're safe to begin parsing.
+            //
             self.requestId = record.requestId
             self.status = Status.requestStarted
-        }
-        else if (record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
-            self.extraRequestIds.append(record.requestId)
-        }
-        else if (self.status == Status.requestStarted && record.type == FastCGI.Constants.FCGI_PARAMS) {
             
-            // this request and the request in the record have to match
-            // if not, something utterly insane has happened (params without begin)
-            // we want to keep processing the real request though, so we just ignore this
-            guard record.requestId == self.requestId else {
-                return;
+        }
+        else if record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+            
+            // this is another request begin record and we've already received
+            // one before now. this is a request to multiplex the connection or
+            // is this a protocol error?
+            //
+            // if this is an extra begin request, we need to throw an error
+            // and have the request 
+            //
+            if record.requestId == self.requestId {
+                // a second begin request is insanity.
+                //
+                throw FastCGI.RecordErrors.ProtocolError
+            } else {
+                // this is an attempt to multiplex the connection. remember this
+                // for later, as we can reject this safely with a response.
+                //
+                self.extraRequestIds.append(record.requestId)
             }
             
-            if (record.headers.count > 0) {
+        }
+        else if self.status == Status.requestStarted &&
+            record.type == FastCGI.Constants.FCGI_PARAMS {
+            
+            // this is a parameter record
+            
+            // this request and the request in the record have to match
+            // if not, the web server is still sending headers related to a 
+            // multiplexing attempt.
+            //
+            // we want to keep processing the real request though, so we just 
+            // ignore this for now and we can reject the attempt later.
+            //
+            guard record.requestId == self.requestId else {
+                return
+            }
+            
+            if record.headers.count > 0 {
                 for pair in record.headers  {
-                    // right here we can send to a proper processor
-                    // this is where actual real transposition will happen 
-                    // adn we can remove requestComplete() from the parse loop
+                    // parse the header we've received
                     self.processHeader(pair["name"]!, value: pair["value"]!)
                 }
             } else {
-                // no params were received in this parameter block.
-                // which means parameters are completed.
+                // no params were received in this parameter record.
+                // which means parameters are either completed (a blank param
+                // record is sent to terminate parameter delivery) or the web
+                // server is badly misconfigured. either way, attempt to 
+                // process and we can reject this as an error state later
+                // as necessary.
+                //
                 self.postProcessParameters()
                 self.status = Status.headersComplete
             }
             
         }
-        else if (self.status == Status.headersComplete && record.type == FastCGI.Constants.FCGI_STDIN) {
+        else if self.status == Status.headersComplete &&
+            record.type == FastCGI.Constants.FCGI_STDIN {
+            
+            // Headers are complete and we're received STDIN records.
             
             // this request and the request in the record have to match
-            // if not, something utterly insane has happened (params without begin)
-            // we want to keep processing the real request though, so we just ignore this
+            // if not, the web server is still sending headers related to a
+            // multiplexing attempt.
+            //
+            // we want to keep processing the real request though, so we just
+            // ignore this for now and we can reject the attempt later.
+            //
             guard record.requestId == self.requestId else {
-                return;
+                return
             }
             
-            if (record.data!.length > 0) {
-                // we've received some body data
+            if record.data!.length > 0 {
+                // we've received some request body data as part of the STDIN
+                //
                 self.bodyChunk.append(data: record.data!)
             }
             else {
-                // zero lenght stdin means request is done
+                // a zero length stdin means request is done
+                //
                 self.status = Status.requestComplete
             }
             
@@ -403,7 +519,7 @@ public class FastCGIServerRequest : ServerRequest {
         let networkBuffer : NSMutableData = NSMutableData()
         
         // we want to repeat this until we're done
-        // in case the intaken data isn't sufficient to 
+        // in case the intake data isn't sufficient to
         // parse completed records.
         //
         repeat {
@@ -439,41 +555,48 @@ public class FastCGIServerRequest : ServerRequest {
                         let remainingData : NSData = try parser.parse()
                         networkBuffer.setData(remainingData)
                     }
-                    catch (FastCGI.RecordErrors.BufferExhausted) {
-                        // break out of this repeat, which will loop
+                    catch FastCGI.RecordErrors.BufferExhausted {
+                        // break out of this repeat, which will start the 
+                        // outer repeat loop again (read more data from the
+                        // socket).
+                        //
                         // this means there was insufficient data to parse
-                        // a single record.
-                        break;
+                        // a single record and we need more.
+                        //
+                        break
                     }
                     
                     // if we got here, we parsed a record.
                     try self.processRecord(parser)
                     
-                    // if we're ready to send back a response, go ahead and do so
-                    if (self.status == Status.requestComplete) {
+                    // if we're ready to send back a response, do so
+                    if self.status == Status.requestComplete {
                         callback(.success)
-                        return;
+                        return
                     }
                     
                 }
                 while true
                 
                 
-            } catch (FastCGI.RecordErrors.InvalidVersion) {
+            } catch FastCGI.RecordErrors.InvalidVersion {
                 callback(.protocolError)
                 return
-            } catch (FastCGI.RecordErrors.EmptyParams) {
+            } catch FastCGI.RecordErrors.ProtocolError {
                 callback(.protocolError)
                 return
-            } catch (FastCGI.RecordErrors.InvalidType) {
+            } catch FastCGI.RecordErrors.EmptyParams {
+                callback(.protocolError)
+                return
+            } catch FastCGI.RecordErrors.InvalidType {
                 callback(.invalidType)
-                return;
-            } catch (FastCGI.RecordErrors.UnsupportedRole) {
+                return
+            } catch FastCGI.RecordErrors.UnsupportedRole {
                 callback(.unsupportedRole)
-                return;
+                return
             } catch {
                 callback(.internalError)
-                return;
+                return
             }
             
         } while true
