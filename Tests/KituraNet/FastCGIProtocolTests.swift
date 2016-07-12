@@ -16,13 +16,12 @@
 
 import XCTest
 @testable import KituraNet
+import Foundation
 
 #if os(Linux)
-    import Foundation
     import Glibc
 #else
     import Darwin
-    import Foundation
 #endif
 
 //

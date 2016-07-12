@@ -14,15 +14,14 @@
  * limitations under the License.
  **/
 
+import Foundation
+import KituraSys
+
 #if os(Linux)
-    import Foundation
     import Glibc
 #else
     import Darwin
-    import Foundation
 #endif
-
-import KituraSys
 
 class FastCGIRecordParser {
     

@@ -14,12 +14,12 @@
  * limitations under the License.
  **/
 
+import Foundation
+
 #if os(Linux)
-    import Foundation
     import Glibc
 #else
     import Darwin
-    import Foundation
 #endif
 
 class FastCGIRecordCreate {
