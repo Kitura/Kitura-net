@@ -34,7 +34,7 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// Buffer for HTTP response line, headers, and short bodies
     ///
-    private var buffer: NSMutableData!
+    private let buffer: NSMutableData = NSMutableData(capacity: FastCGIServerResponse.bufferSize)!
 
     ///
     /// Whether or not the HTTP response line and headers have been flushed.
@@ -76,7 +76,6 @@ public class FastCGIServerResponse : ServerResponse {
     init(socket: Socket, request: FastCGIServerRequest) {
         self.socket = socket
         self.serverRequest = request
-        self.buffer = NSMutableData(capacity: FastCGIServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
     

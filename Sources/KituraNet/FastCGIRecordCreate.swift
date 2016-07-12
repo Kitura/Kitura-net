@@ -27,25 +27,13 @@ class FastCGIRecordCreate {
     //
     // Variables
     //
-    var recordType : UInt8
-    var protocolStatus : UInt8
-    var requestId : UInt16    
+    var recordType : UInt8 = FastCGI.Constants.FCGI_NO_TYPE
+    var protocolStatus : UInt8 = FastCGI.Constants.FCGI_SUBTYPE_NO_TYPE
+    var requestId : UInt16 = FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID
     var data : NSData?
-    var requestRole : UInt16
-    var keepAlive : Bool
+    var requestRole : UInt16 = FastCGI.Constants.FCGI_NO_ROLE
+    var keepAlive : Bool = false
     var params : [(String,String)] = []
-    
-    // 
-    // Init for making a new record
-    //
-    init() {
-        self.recordType = FastCGI.Constants.FCGI_NO_TYPE
-        self.protocolStatus = FastCGI.Constants.FCGI_SUBTYPE_NO_TYPE
-        self.requestId = FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID
-        self.data = nil
-        self.requestRole = FastCGI.Constants.FCGI_NO_ROLE
-        self.keepAlive = false
-    }
     
     //
     // Write one or more zero bytes to a Data object
