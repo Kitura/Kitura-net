@@ -303,51 +303,62 @@ class FastCGIRecordParser {
             let initialPointer : Int = self.pointer
             let nameLength : Int = try self.parseParameterLength()
             let valueLength : Int = try self.parseParameterLength()
-            var nameString : String!
-            var valueString : String!
             
             // capture the parameter name
-            if nameLength > 0 {
-                
-                let currentPointer : Int = pointer
-                try skip(nameLength)
-                let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
-                nameString = String(data: nameData, encoding: NSUTF8StringEncoding)
-                
-            } else {
-                
-                nameString = nil
-                
+            //
+            guard nameLength > 0 else {
+                // this doesn't seem likely - web server sent an empty parameter
+                // name length, which is not allowed and has no point. error state.
+                //
+                throw FastCGI.RecordErrors.EmptyParams
             }
             
-            if nameString == nil || (nameString.characters.count == 0 && nameLength > 0) {
-                // it's not allowed to have a parameter passed with no name.
+            let currentPointer : Int = pointer
+            try skip(nameLength)
+            let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
+            
+            guard let nameString = String(data: nameData, encoding: NSUTF8StringEncoding) else {
+                // the data received from the web server couldn't be transcoded
+                // to a UTF8 string. This is an error.
+                //
+                throw FastCGI.RecordErrors.EmptyParams
+            }
+            
+            guard nameString.characters.count > 0 else {
+                // The data received form the web server existed and transcoded,
+                // but someone resulted in a string of zero length. 
+                // Strange, but an error none the less.
+                //
                 throw FastCGI.RecordErrors.EmptyParams
             }
             
             // capture the parameter value
+            //
             if valueLength > 0 {
                 
                 let currentPointer : Int = pointer
                 try skip(valueLength)
                 let valueData = NSData(bytes: self.bufferBytes+currentPointer, length: valueLength)
-                valueString = String(data: valueData, encoding: NSUTF8StringEncoding)
                 
-            } else {
-                valueString = ""
-            }
-
-            if valueString == nil {
-                // a value was supposed to have been provided but decoding it
-                // from the data failed.
+                guard let valueString = String(data: valueData, encoding: NSUTF8StringEncoding) else {
+                    // a value was supposed to have been provided but decoding it
+                    // from the data failed.
+                    //
+                    throw FastCGI.RecordErrors.EmptyParams
+                }
+                
+                // Done - store our paramter with the decoded value.
                 //
-                throw FastCGI.RecordErrors.EmptyParams
+                self.headers.append(["name": nameString, "value": valueString])
             }
-
-            // all good - store it
-            self.headers.append(["name": nameString!, "value": valueString!])
+            else {
+                // Done - store our paramter with the blank value (perfectly OK)
+                //
+                self.headers.append(["name": nameString, "value": ""])
+            }
             
             // adjust our position
+            //
             contentRemaining = contentRemaining - (self.pointer - initialPointer)
             
         }

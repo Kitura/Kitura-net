@@ -167,8 +167,14 @@ public class FastCGIServerResponse : ServerResponse {
     }
     
     private func getRequestCompleteMessage() throws -> NSData {
-        return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
+        
+        guard let serverRequest = self.serverRequest else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        
+        return try self.getEndRequestMessage(requestId: serverRequest.requestId,
                                              protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
+        
     }
 
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> NSData {
@@ -177,13 +183,18 @@ public class FastCGIServerResponse : ServerResponse {
 
     private func getUnsupportedRoleMessage() throws -> NSData? {
         
-        guard self.serverRequest?.requestId != nil &&
-            self.serverRequest?.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
-                return nil
+        guard let serverRequest = self.serverRequest else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        guard let requestId : UInt16 = serverRequest.requestId else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        guard requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
+            throw FastCGI.RecordErrors.InternalError
         }
         
-        return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
-                                             protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        
     }
 
     ///

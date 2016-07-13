@@ -171,23 +171,24 @@ class FastCGIRecordCreate {
         
         for (key, value) in self.params {
 
-            // generate our key and value
-            let keyData : NSData? = key.data(using: NSUTF8StringEncoding)
-            let valueData : NSData? = value.data(using: NSUTF8StringEncoding)
-
-            guard keyData != nil else {
+            // generate our key and value by converting to 
+            // Data from String using UTF-8.
+            //
+            guard let keyData : NSData = key.data(using: NSUTF8StringEncoding) else {
+                // this key couldn't be copied as data, skip the parameter
                 continue
             }
             
-            guard valueData != nil else {
+            guard let valueData : NSData = value.data(using: NSUTF8StringEncoding) else {
+                // this key couldn't be copied as data, skip the parameter
                 continue
             }
             
-            self.writeEncodedLength(length: keyData!.length, into: content)
-            self.writeEncodedLength(length: valueData!.length, into: content)
+            self.writeEncodedLength(length: keyData.length, into: content)
+            self.writeEncodedLength(length: valueData.length, into: content)
             
-            content.append(keyData!)
-            content.append(valueData!)
+            content.append(keyData)
+            content.append(valueData)
             
         }
         
@@ -312,10 +313,11 @@ class FastCGIRecordCreate {
         // check that our data object, if any, isn't larger 
         // than 16-bits addressable worth of data
         //
-        if self.data != nil {
-            guard self.data!.length <= 65535 else {
-                throw FastCGI.RecordErrors.OversizeData
-            }
+        guard let data : NSData = self.data else {
+            return;
+        }
+        guard data.length <= 65535 else {
+            throw FastCGI.RecordErrors.OversizeData
         }
         
     }

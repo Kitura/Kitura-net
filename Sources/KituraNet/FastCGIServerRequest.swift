@@ -495,7 +495,7 @@ public class FastCGIServerRequest : ServerRequest {
                 return
             }
             
-            if record.data!.length > 0 {
+            if record.data?.length > 0 {
                 // we've received some request body data as part of the STDIN
                 //
                 self.bodyChunk.append(data: record.data!)
