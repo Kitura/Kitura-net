@@ -325,8 +325,8 @@ class FastCGIProtocolTests: XCTestCase {
                 
                 for currentHeader : Dictionary<String,String> in parser.headers {
                     
-                    let currentHeaderName : String = currentHeader["name"]!
-                    let currentHeaderValue : String = currentHeader["value"]!
+                    let currentHeaderName : String? = currentHeader["name"]
+                    let currentHeaderValue : String? = currentHeader["value"]
                     
                     if currentHeaderName == sourceHeader.0 && currentHeaderValue == sourceHeader.1 {
                         pairReceived = true
