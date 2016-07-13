@@ -100,9 +100,9 @@ class FastCGIProtocolTests: XCTestCase {
         
         #if os(Linux)            
             let testData : NSMutableData = NSMutableData(capacity: bytes)!
-            for _ in 1...(bytes / sizeof(CLong)) {
+            for _ in 1...(bytes / sizeof(CLong.self)) {
                 var random : CLong = Glibc.random()
-                testData.append(&random, length: sizeof(CLong))
+                testData.append(&random, length: sizeof(CLong.self))
             }
             return testData
         #else
