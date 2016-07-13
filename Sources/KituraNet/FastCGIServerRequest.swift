@@ -159,6 +159,20 @@ public class FastCGIServerRequest : ServerRequest {
         }
     }
     
+    //
+    // Now that parameter blocks have been received, scrub through them
+    // in order to attempt to assemble a request URL from the data received.
+    // 
+    // This involves:
+    // - The received request scheme (http/https)
+    // - Determining the requested host from, in order:
+    //      * The Host header, or...
+    //      * The server name received from FastCGI, or...
+    //      * The server IP address received from FastCGI, or...
+    //      * A fail-over default (localhost)
+    // - The port number the web browser connected to
+    // - The original request URI
+    //
     func postProcessUrlParameter() -> Void {
         
         // reset the current url

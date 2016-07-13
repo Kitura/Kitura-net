@@ -166,6 +166,10 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
     
+    //
+    // Generate a "request complete" message to be transmitted to the server, indicating 
+    // that the response is finished.
+    //
     private func getRequestCompleteMessage() throws -> NSData {
         
         guard let serverRequest = self.serverRequest else {
@@ -177,10 +181,19 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
 
+    //
+    // Generate a "Can't Multiplex" messages for the specified request ID. 
+    // This indicates to the calling web server that we won't be honoring requests
+    // beyond the first one until the first one is complete.
+    //
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> NSData {
         return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
+    //
+    // Generate an "unsupported role" message. Indicaes to the calling web server
+    // that we only intend to fulfill a specific role in the FastCGI chain (responder).
+    //
     private func getUnsupportedRoleMessage() throws -> NSData? {
         
         guard let serverRequest = self.serverRequest else {
