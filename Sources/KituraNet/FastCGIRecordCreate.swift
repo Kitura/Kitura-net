@@ -36,9 +36,9 @@ class FastCGIRecordCreate {
     var params : [(String,String)] = []
     
     //
-    // Write one or more zero bytes to a Data object
+    // Append one or more zero bytes to the provided NSMutableData object
     //
-    private func writeZero(data: NSMutableData, count: Int) {
+    private func appendZeroes(data: NSMutableData, count: Int) {
         var zeroByte : UInt8 = 0
         for _ in 1...count {
             data.append(&zeroByte, length: 1)
@@ -99,19 +99,19 @@ class FastCGIRecordCreate {
         data.append(&contentLength, length: 2)
         
         // padding length
-        writeZero(data: data, count: 1)
+        appendZeroes(data: data, count: 1)
         
         // reserved space
-        writeZero(data: data, count: 1)
+        appendZeroes(data: data, count: 1)
         
         // application id - we don't use this
-        writeZero(data: data, count: 4)
+        appendZeroes(data: data, count: 4)
         
         // protocol status
         data.append(&protocolStatus, length: 1)
 
         // reserved space
-        writeZero(data: data, count: 3)
+        appendZeroes(data: data, count: 3)
         
         return data
     }
@@ -129,10 +129,10 @@ class FastCGIRecordCreate {
         data.append(&contentLength, length: 2)
         
         // padding length
-        writeZero(data: data, count: 1)
+        appendZeroes(data: data, count: 1)
         
         // reserved space
-        writeZero(data: data, count: 1)
+        appendZeroes(data: data, count: 1)
         
         // request role
         data.append(&requestRole, length: 2)
@@ -141,7 +141,7 @@ class FastCGIRecordCreate {
         data.append(&flags, length: 1)
         
         // reserved space
-        writeZero(data: data, count: 5)
+        appendZeroes(data: data, count: 5)
         
         return data
     }
@@ -223,13 +223,13 @@ class FastCGIRecordCreate {
         data.append(&paddingLengthEncoded, length: 1)
         
         // reserved space
-        self.writeZero(data: data, count: 1)
+        self.appendZeroes(data: data, count: 1)
         // write our data block
         data.append(contentData)
         
         // write any padding
         if paddingLength > 0 {
-            self.writeZero(data: data, count: paddingLength)
+            self.appendZeroes(data: data, count: paddingLength)
         }
         
         return data
