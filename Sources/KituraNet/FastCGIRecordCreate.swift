@@ -244,21 +244,15 @@ class FastCGIRecordCreate {
         
         // check that our record type is ok
         //
-        var recordTypeOk : Bool = false
-        
-        if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
-            recordTypeOk = true
-        } else if self.recordType == FastCGI.Constants.FCGI_STDOUT {
-            recordTypeOk = true
-        } else if self.recordType == FastCGI.Constants.FCGI_STDIN {
-            recordTypeOk = true
-        } else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
-            recordTypeOk = true
-        } else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
-            recordTypeOk = true
-        }
-        
-        guard recordTypeOk else {
+        switch self.recordType {
+        case FastCGI.Constants.FCGI_END_REQUEST,
+             FastCGI.Constants.FCGI_STDOUT,
+             FastCGI.Constants.FCGI_STDIN,
+             FastCGI.Constants.FCGI_PARAMS,
+             FastCGI.Constants.FCGI_BEGIN_REQUEST:
+            break
+            
+        default:
             throw FastCGI.RecordErrors.InvalidType
         }
         
@@ -266,41 +260,21 @@ class FastCGIRecordCreate {
         //
         if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
             
-            var subRecordTypeOk : Bool = false
-            
-            if self.protocolStatus == FastCGI.Constants.FCGI_REQUEST_COMPLETE {
-                subRecordTypeOk = true
-            }
-            else if self.protocolStatus == FastCGI.Constants.FCGI_CANT_MPX_CONN {
-                subRecordTypeOk = true
-            }
-            else if self.protocolStatus == FastCGI.Constants.FCGI_UNKNOWN_ROLE {
-                subRecordTypeOk = true
-            }
-            
-            guard subRecordTypeOk else {
+            switch self.protocolStatus {
+            case FastCGI.Constants.FCGI_REQUEST_COMPLETE,
+                 FastCGI.Constants.FCGI_CANT_MPX_CONN,
+                 FastCGI.Constants.FCGI_UNKNOWN_ROLE:
+                break
+                
+            default:
                 throw FastCGI.RecordErrors.InvalidSubType
             }
             
         }
         else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
             
-            var roleOk : Bool = false
-            
-            // we only support one role right now
-            if self.requestRole == FastCGI.Constants.FCGI_RESPONDER {
-                roleOk = true
-            }
-            
-            guard roleOk else {
+            guard self.requestRole == FastCGI.Constants.FCGI_RESPONDER else {
                 throw FastCGI.RecordErrors.InvalidRole
-            }
-            
-        }
-        else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
-            
-            guard self.params.count > 0 else {
-                throw FastCGI.RecordErrors.EmptyParams
             }
             
         }
@@ -315,7 +289,7 @@ class FastCGIRecordCreate {
         // than 16-bits addressable worth of data
         //
         guard let data : NSData = self.data else {
-            return;
+            return
         }
         guard data.length <= 65535 else {
             throw FastCGI.RecordErrors.OversizeData
@@ -333,22 +307,19 @@ class FastCGIRecordCreate {
         
         let record : NSMutableData = self.createRecordStarter()
         
-        if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+        switch self.recordType {
+        case FastCGI.Constants.FCGI_BEGIN_REQUEST:
             return self.finalizeRequestBeginRecord(data: record)
-        }
-        else if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
+            
+        case FastCGI.Constants.FCGI_END_REQUEST:
             return self.finalizeRequestCompleteRecord(data: record)
-        }
-        else if self.recordType == FastCGI.Constants.FCGI_PARAMS {
+            
+        case FastCGI.Constants.FCGI_PARAMS:
             return self.finalizeParams(data: record)
-        }
-        else if self.recordType == FastCGI.Constants.FCGI_STDOUT || self.recordType == FastCGI.Constants.FCGI_STDIN {
+            
+        default:
+            // either STDIN or STDOUT
             return self.finalizeDataRecord(data: record)
-        }
-        else {
-            // this will never happen as the recordTest() prevented it 
-            // but it keeps the compiler from complaining.
-            throw FastCGI.RecordErrors.InvalidType
         }
         
     }

@@ -401,19 +401,26 @@ class FastCGIRecordParser {
         try parsePaddingLength()
         try skip(1)
         
-        if self.type == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+        switch self.type {
+        case FastCGI.Constants.FCGI_BEGIN_REQUEST:
             try parseRole()
             try skip(5)
-        } else if self.type == FastCGI.Constants.FCGI_END_REQUEST {
+            break
+            
+        case FastCGI.Constants.FCGI_END_REQUEST:
             try parseAppStatus()
             try parseProtocolStatus()
             try skip(3)
-        } else if self.type == FastCGI.Constants.FCGI_PARAMS {
+            break
+            
+        case FastCGI.Constants.FCGI_PARAMS:
             try parseParams()
-        } else if self.type == FastCGI.Constants.FCGI_STDIN {
+            break
+            
+        default:
+            // either STDIN or STDOUT
             try parseData()
-        } else if self.type == FastCGI.Constants.FCGI_STDOUT {
-            try parseData()
+            break
         }
         
         // return new data object representing any data
