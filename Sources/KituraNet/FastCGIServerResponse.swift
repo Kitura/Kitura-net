@@ -173,7 +173,7 @@ public class FastCGIServerResponse : ServerResponse {
     private func getRequestCompleteMessage() throws -> NSData {
         
         guard let serverRequest = self.serverRequest else {
-            throw FastCGI.RecordErrors.InternalError
+            throw FastCGI.RecordErrors.internalError
         }
         
         return try self.getEndRequestMessage(requestId: serverRequest.requestId,
@@ -197,13 +197,13 @@ public class FastCGIServerResponse : ServerResponse {
     private func getUnsupportedRoleMessage() throws -> NSData? {
         
         guard let serverRequest = self.serverRequest else {
-            throw FastCGI.RecordErrors.InternalError
+            throw FastCGI.RecordErrors.internalError
         }
         guard let requestId : UInt16 = serverRequest.requestId else {
-            throw FastCGI.RecordErrors.InternalError
+            throw FastCGI.RecordErrors.internalError
         }
         guard requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
-            throw FastCGI.RecordErrors.InternalError
+            throw FastCGI.RecordErrors.internalError
         }
         
         return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)

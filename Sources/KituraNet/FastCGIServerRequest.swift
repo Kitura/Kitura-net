@@ -450,7 +450,7 @@ public class FastCGIServerRequest : ServerRequest {
             if record.requestId == self.requestId {
                 // a second begin request is insanity.
                 //
-                throw FastCGI.RecordErrors.ProtocolError
+                throw FastCGI.RecordErrors.protocolError
             } else {
                 // this is an attempt to multiplex the connection. remember this
                 // for later, as we can reject this safely with a response.
@@ -569,7 +569,7 @@ public class FastCGIServerRequest : ServerRequest {
                         let remainingData : NSData = try parser.parse()
                         networkBuffer.setData(remainingData)
                     }
-                    catch FastCGI.RecordErrors.BufferExhausted {
+                    catch FastCGI.RecordErrors.bufferExhausted {
                         // break out of this repeat, which will start the 
                         // outer repeat loop again (read more data from the
                         // socket).
@@ -593,19 +593,19 @@ public class FastCGIServerRequest : ServerRequest {
                 while true
                 
                 
-            } catch FastCGI.RecordErrors.InvalidVersion {
+            } catch FastCGI.RecordErrors.invalidVersion {
                 callback(.protocolError)
                 return
-            } catch FastCGI.RecordErrors.ProtocolError {
+            } catch FastCGI.RecordErrors.protocolError {
                 callback(.protocolError)
                 return
-            } catch FastCGI.RecordErrors.EmptyParams {
+            } catch FastCGI.RecordErrors.emptyParams {
                 callback(.protocolError)
                 return
-            } catch FastCGI.RecordErrors.InvalidType {
+            } catch FastCGI.RecordErrors.invalidType {
                 callback(.invalidType)
                 return
-            } catch FastCGI.RecordErrors.UnsupportedRole {
+            } catch FastCGI.RecordErrors.unsupportedRole {
                 callback(.unsupportedRole)
                 return
             } catch {

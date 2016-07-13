@@ -131,7 +131,7 @@ class FastCGIProtocolTests: XCTestCase {
             XCTFail("Creator allowed the creation of an enormous payload (>64k)")
             
         }
-        catch FastCGI.RecordErrors.OversizeData {
+        catch FastCGI.RecordErrors.oversizeData {
             // this is fine - is expected.
         }
         catch {
@@ -208,7 +208,7 @@ class FastCGIProtocolTests: XCTestCase {
             
             XCTFail("Record creator allowed record with no record ID to be created.")
         }
-        catch FastCGI.RecordErrors.InvalidRequestId {
+        catch FastCGI.RecordErrors.invalidRequestId {
             // ignore this - expected behaviour
         }
         catch {
@@ -231,7 +231,7 @@ class FastCGIProtocolTests: XCTestCase {
             
             XCTFail("Record creator allowed strange record to be created.")
         }
-        catch FastCGI.RecordErrors.InvalidType {
+        catch FastCGI.RecordErrors.invalidType {
             // ignore this - expected behaviour
         }
         catch {

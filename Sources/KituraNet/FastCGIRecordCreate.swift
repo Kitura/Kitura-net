@@ -253,7 +253,7 @@ class FastCGIRecordCreate {
             break
             
         default:
-            throw FastCGI.RecordErrors.InvalidType
+            throw FastCGI.RecordErrors.invalidType
         }
         
         // check that our subtype is ok, if applicable
@@ -267,14 +267,14 @@ class FastCGIRecordCreate {
                 break
                 
             default:
-                throw FastCGI.RecordErrors.InvalidSubType
+                throw FastCGI.RecordErrors.invalidSubType
             }
             
         }
         else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
             
             guard self.requestRole == FastCGI.Constants.FCGI_RESPONDER else {
-                throw FastCGI.RecordErrors.InvalidRole
+                throw FastCGI.RecordErrors.invalidRole
             }
             
         }
@@ -282,7 +282,7 @@ class FastCGIRecordCreate {
         // check that our request id is valid
         //
         guard self.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
-            throw FastCGI.RecordErrors.InvalidRequestId
+            throw FastCGI.RecordErrors.invalidRequestId
         }
         
         // check that our data object, if any, isn't larger 
@@ -292,7 +292,7 @@ class FastCGIRecordCreate {
             return
         }
         guard data.length <= 65535 else {
-            throw FastCGI.RecordErrors.OversizeData
+            throw FastCGI.RecordErrors.oversizeData
         }
         
     }

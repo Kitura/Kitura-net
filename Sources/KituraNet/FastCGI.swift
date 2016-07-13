@@ -64,17 +64,17 @@ public class FastCGI {
     // Exceptions
     //
     enum RecordErrors : ErrorProtocol {
-        case InvalidType
-        case InvalidSubType
-        case InvalidRequestId
-        case InvalidRole
-        case OversizeData
-        case InvalidVersion
-        case EmptyParams
-        case BufferExhausted
-        case UnsupportedRole
-        case InternalError
-        case ProtocolError
+        case invalidType
+        case invalidSubType
+        case invalidRequestId
+        case invalidRole
+        case oversizeData
+        case invalidVersion
+        case emptyParams
+        case bufferExhausted
+        case unsupportedRole
+        case internalError
+        case protocolError
     }
 
     // Create a Server

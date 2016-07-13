@@ -59,7 +59,7 @@ class FastCGIRecordParser {
     func advance() throws -> Int {
         
         guard self.pointer < self.buffer.length else {
-            throw FastCGI.RecordErrors.BufferExhausted
+            throw FastCGI.RecordErrors.bufferExhausted
         }
         
         let r = self.pointer
@@ -81,7 +81,7 @@ class FastCGIRecordParser {
         // because it means there aren't the bytes we expected
         //
         guard self.pointer <= self.buffer.length else {
-            throw FastCGI.RecordErrors.BufferExhausted
+            throw FastCGI.RecordErrors.bufferExhausted
         }
     }
     
@@ -123,7 +123,7 @@ class FastCGIRecordParser {
         self.version = self.bufferBytes[try advance()]
         
         guard self.version == FastCGI.Constants.FASTCGI_PROTOCOL_VERSION else {
-            throw FastCGI.RecordErrors.InvalidVersion
+            throw FastCGI.RecordErrors.invalidVersion
         }
     }
     
@@ -142,7 +142,7 @@ class FastCGIRecordParser {
             break
         
         default:
-            throw FastCGI.RecordErrors.InvalidType
+            throw FastCGI.RecordErrors.invalidType
         }
         
     }
@@ -189,7 +189,7 @@ class FastCGIRecordParser {
         self.flags = self.bufferBytes[try advance()]
 
         guard self.role == FastCGI.Constants.FCGI_RESPONDER else {
-            throw FastCGI.RecordErrors.UnsupportedRole
+            throw FastCGI.RecordErrors.unsupportedRole
         }
         
     }
@@ -296,7 +296,7 @@ class FastCGIRecordParser {
                 // this doesn't seem likely - web server sent an empty parameter
                 // name length, which is not allowed and has no point. error state.
                 //
-                throw FastCGI.RecordErrors.EmptyParams
+                throw FastCGI.RecordErrors.emptyParams
             }
             
             let currentPointer : Int = pointer
@@ -307,7 +307,7 @@ class FastCGIRecordParser {
                 // the data received from the web server couldn't be transcoded
                 // to a UTF8 string. This is an error.
                 //
-                throw FastCGI.RecordErrors.EmptyParams
+                throw FastCGI.RecordErrors.emptyParams
             }
             
             guard nameString.characters.count > 0 else {
@@ -315,7 +315,7 @@ class FastCGIRecordParser {
                 // but someone resulted in a string of zero length. 
                 // Strange, but an error none the less.
                 //
-                throw FastCGI.RecordErrors.EmptyParams
+                throw FastCGI.RecordErrors.emptyParams
             }
             
             // capture the parameter value
@@ -330,7 +330,7 @@ class FastCGIRecordParser {
                     // a value was supposed to have been provided but decoding it
                     // from the data failed.
                     //
-                    throw FastCGI.RecordErrors.EmptyParams
+                    throw FastCGI.RecordErrors.emptyParams
                 }
                 
                 // Done - store our paramter with the decoded value.
