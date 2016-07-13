@@ -50,11 +50,11 @@ class FastCGIRecordCreate {
     // Helper to turn UInt16 from local byte order to network byte order,
     // which is typically Little to Big.
     //
-    private static func networkByteOrderSmall(_ from: UInt16) -> UInt16 {
+    private static func getNetworkByteOrderSmall(from localOrderedBytes: UInt16) -> UInt16 {
         #if os(Linux)
-            return Glibc.htons(from)
+            return Glibc.htons(localOrderedBytes)
         #else
-            return CFSwapInt16HostToBig(from)
+            return CFSwapInt16HostToBig(localOrderedBytes)
         #endif
     }
     
@@ -62,11 +62,11 @@ class FastCGIRecordCreate {
     // Helper to turn UInt32 from local byte order to network byte order,
     // which is typically Little to Big.
     //
-    private static func networkByteOrderLarge(_ from: UInt32) -> UInt32 {
+    private static func getNetworkByteOrderLarge(from localOrderedBytes: UInt32) -> UInt32 {
         #if os(Linux)
-            return Glibc.htonl(from)
+            return Glibc.htonl(localOrderedBytes)
         #else
-            return CFSwapInt32HostToBig(from)
+            return CFSwapInt32HostToBig(localOrderedBytes)
         #endif
     }
     
@@ -79,7 +79,7 @@ class FastCGIRecordCreate {
         
         var v : UInt8 = FastCGI.Constants.FASTCGI_PROTOCOL_VERSION
         var t : UInt8 = self.recordType
-        var requestId : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestId)
+        var requestId : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: self.requestId)
         
         r.append(&v, length: 1)
         r.append(&t, length: 1)
@@ -93,7 +93,7 @@ class FastCGIRecordCreate {
     //
     private func finalizeRequestCompleteRecord(data: NSMutableData) -> NSData {
         
-        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(UInt16(8))
+        var contentLength : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: UInt16(8))
         var protocolStatus : UInt8 = self.protocolStatus
         
         // content length
@@ -122,8 +122,8 @@ class FastCGIRecordCreate {
     //
     private func finalizeRequestBeginRecord(data: NSMutableData) -> NSData {
         
-        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(8)
-        var requestRole : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestRole)
+        var contentLength : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: 8)
+        var requestRole : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: self.requestRole)
         var flags : UInt8 = self.keepAlive ? FastCGI.Constants.FCGI_KEEP_CONN : 0
         
         // content length
@@ -153,7 +153,7 @@ class FastCGIRecordCreate {
     private func writeEncodedLength(length: Int, into: NSMutableData) {
         
         if length > 127 {
-            var encodedLength : UInt32 = FastCGIRecordCreate.networkByteOrderLarge(UInt32(length)) | ~0xffffff7f
+            var encodedLength : UInt32 = FastCGIRecordCreate.getNetworkByteOrderLarge(from: UInt32(length)) | ~0xffffff7f
             into.append(&encodedLength, length: 4)
         }
         else {
@@ -210,7 +210,7 @@ class FastCGIRecordCreate {
     private func finalizeDataRecord(data: NSMutableData) -> NSData {
         
         let contentData : NSData = self.data == nil ? NSData() : self.data!
-        var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(UInt16(contentData.length))
+        var contentLength : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: UInt16(contentData.length))
         
         // note that we will align all of our data structures to 8 bytes
         var paddingLength : Int = Int(contentData.length % 8)

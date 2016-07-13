@@ -89,11 +89,11 @@ class FastCGIRecordParser {
     // Helper to turn UInt16 from network byte order to local byte order,
     // which is typically Big to Little.
     //
-    private static func localByteOrderSmall(_ from: UInt16) -> UInt16 {
+    private static func getLocalByteOrderSmall(from networkOrderedBytes: UInt16) -> UInt16 {
         #if os(Linux)
-            return Glibc.ntohs(from)
+            return Glibc.ntohs(networkOrderedBytes)
         #else
-            return CFSwapInt16BigToHost(from)
+            return CFSwapInt16BigToHost(networkOrderedBytes)
         #endif
     }
     
@@ -101,11 +101,11 @@ class FastCGIRecordParser {
     // Helper to turn UInt32 from network byte order to local byte order,
     // which is typically Big to Little.
     //
-    private static func localByteOrderLarge(_ from: UInt32) -> UInt32 {
+    private static func getLocalByteOrderLarge(from networkOrderedBytes: UInt32) -> UInt32 {
         #if os(Linux)
-            return Glibc.ntohl(from)
+            return Glibc.ntohl(networkOrderedBytes)
         #else
-            return CFSwapInt32BigToHost(from)
+            return CFSwapInt32BigToHost(networkOrderedBytes)
         #endif
     }
     
@@ -155,7 +155,7 @@ class FastCGIRecordParser {
         let requestIdBytes0 = self.bufferBytes[try advance()]
         let requestIdBytes : [UInt8] = [ requestIdBytes1, requestIdBytes0 ]
         
-        self.requestId = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(requestIdBytes).pointee)
+        self.requestId = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(requestIdBytes).pointee)
         
     }
 
@@ -167,7 +167,7 @@ class FastCGIRecordParser {
         let contentLengthBytes0 = self.bufferBytes[try advance()]
         let contentLengthBytes : [UInt8] = [ contentLengthBytes1, contentLengthBytes0 ]
         
-        self.contentLength = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(contentLengthBytes).pointee)
+        self.contentLength = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(contentLengthBytes).pointee)
         
     }
     
@@ -185,7 +185,7 @@ class FastCGIRecordParser {
         let roleByte0 = self.bufferBytes[try advance()]
         let roleBytes : [UInt8] = [ roleByte1, roleByte0 ]
         
-        self.role = FastCGIRecordParser.localByteOrderSmall(UnsafePointer<UInt16>(roleBytes).pointee)
+        self.role = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(roleBytes).pointee)
         self.flags = self.bufferBytes[try advance()]
 
         guard self.role == FastCGI.Constants.FCGI_RESPONDER else {
@@ -204,7 +204,7 @@ class FastCGIRecordParser {
         let appStatusByte0 = self.bufferBytes[try advance()]
         let appStatusBytes : [UInt8] = [ appStatusByte3, appStatusByte2, appStatusByte1, appStatusByte0 ]
         
-        self.appStatus = FastCGIRecordParser.localByteOrderLarge(UnsafePointer<UInt32>(appStatusBytes).pointee)
+        self.appStatus = FastCGIRecordParser.getLocalByteOrderLarge(from: UnsafePointer<UInt32>(appStatusBytes).pointee)
     
     }
     
@@ -269,7 +269,7 @@ class FastCGIRecordParser {
             let lengthByteB0 : UInt8 = self.bufferBytes[try advance()]
             let lengthBytes : [UInt8] = [ lengthByteB3 & 0x7f, lengthByteB2, lengthByteB1, lengthByteB0 ]
 
-            return Int(FastCGIRecordParser.localByteOrderLarge(UnsafePointer<UInt32>(lengthBytes).pointee))
+            return Int(FastCGIRecordParser.getLocalByteOrderLarge(from: UnsafePointer<UInt32>(lengthBytes).pointee))
         }
         
     }
