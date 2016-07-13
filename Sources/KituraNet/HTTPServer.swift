@@ -60,17 +60,13 @@ public class HTTPServer {
     ///
     /// Incoming socket handler
     ///
-    private let socketManager: IncomingSocketManager
+    private let socketManager = IncomingSocketManager()
     
     ///
     /// Maximum number of pending connections
     ///
     private let maxPendingConnections = 100
 
-    init() {
-        socketManager = IncomingSocketManager()
-    }
-    
     
     ///
     /// Listens for connections on a socket
