@@ -317,7 +317,7 @@ class FastCGIRecordParser {
             try skip(nameLength)
             let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
             
-            guard let nameString = String(data: nameData, encoding: NSUTF8StringEncoding) else {
+            guard let nameString = StringUtils.fromUtf8String(nameData) else {
                 // the data received from the web server couldn't be transcoded
                 // to a UTF8 string. This is an error.
                 //
@@ -340,7 +340,7 @@ class FastCGIRecordParser {
                 try skip(valueLength)
                 let valueData = NSData(bytes: self.bufferBytes+currentPointer, length: valueLength)
                 
-                guard let valueString = String(data: valueData, encoding: NSUTF8StringEncoding) else {
+                guard let valueString = StringUtils.fromUtf8String(valueData) else {
                     // a value was supposed to have been provided but decoding it
                     // from the data failed.
                     //
