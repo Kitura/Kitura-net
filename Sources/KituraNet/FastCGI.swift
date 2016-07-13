@@ -73,6 +73,8 @@ public class FastCGI {
         case EmptyParams
         case BufferExhausted
         case UnsupportedRole
+        case InternalError
+        case ProtocolError
     }
 
     // Create a Server

@@ -14,15 +14,14 @@
  * limitations under the License.
  **/
 
+import Foundation
+import KituraSys
+
 #if os(Linux)
-    import Foundation
     import Glibc
 #else
     import Darwin
-    import Foundation
 #endif
-
-import KituraSys
 
 class FastCGIRecordParser {
     
@@ -50,7 +49,12 @@ class FastCGIRecordParser {
     private var buffer : NSData
     private var bufferBytes : UnsafePointer<UInt8>
     
-    // Pointer
+    // Pointer Helper Methods
+    //
+    // Advance the pointer, returning the pointer value as it
+    // existed when this method was first called. Throws an 
+    // exception if we advance beyond the end of the buffer
+    // to prevent reading memory out of bounds.
     //
     func advance() throws -> Int {
         
@@ -63,6 +67,11 @@ class FastCGIRecordParser {
         return r
     }
     
+    //
+    // Skip the pounter ahead, returning nothing. We only
+    // throw an exception if thsi call pushes the pointer past
+    // the valid bounds.
+    //
     func skip(_ count: Int) throws {
         self.pointer = self.pointer + count
         
@@ -75,7 +84,9 @@ class FastCGIRecordParser {
         }
     }
     
-    // Helper to turn UInt16 from network to local.
+    //
+    // Helper to turn UInt16 from network byte order to local byte order,
+    // which is typically Big to Little.
     //
     private static func localByteOrderSmall(_ from: UInt16) -> UInt16 {
         #if os(Linux)
@@ -85,7 +96,9 @@ class FastCGIRecordParser {
         #endif
     }
     
-    // Helper to turn UInt32 from network to local.
+    //
+    // Helper to turn UInt32 from network byte order to local byte order,
+    // which is typically Big to Little.
     //
     private static func localByteOrderLarge(_ from: UInt32) -> UInt32 {
         #if os(Linux)
@@ -123,23 +136,23 @@ class FastCGIRecordParser {
         
         switch (self.type) {
         case FastCGI.Constants.FCGI_BEGIN_REQUEST:
-            typeOk = true;
-            break;
+            typeOk = true
+            break
         case FastCGI.Constants.FCGI_END_REQUEST:
-            typeOk = true;
-            break;
+            typeOk = true
+            break
         case FastCGI.Constants.FCGI_PARAMS:
-            typeOk = true;
-            break;
+            typeOk = true
+            break
         case FastCGI.Constants.FCGI_STDIN:
-            typeOk = true;
-            break;
+            typeOk = true
+            break
         case FastCGI.Constants.FCGI_STDOUT:
-            typeOk = true;
-            break;
+            typeOk = true
+            break
         default:
-            typeOk = false;
-            break;
+            typeOk = false
+            break
         }
         
         guard typeOk else {
@@ -218,7 +231,7 @@ class FastCGIRecordParser {
     // Parse raw data from a data record
     //
     private func parseData() throws {
-        if (self.contentLength > 0) {
+        if self.contentLength > 0 {
             self.data = NSData(bytes: self.bufferBytes+pointer, length: Int(self.contentLength))
             try skip(Int(self.contentLength))
         } else {
@@ -251,9 +264,19 @@ class FastCGIRecordParser {
         
         let lengthPeek : UInt8 = self.bufferBytes[try advance()]
         
-        if (lengthPeek >> 7 == 0) {
+        if lengthPeek >> 7 == 0 {
+            
+            // The parameter name/value length is encoded into a 
+            // single byte.
+            //
             return Int(lengthPeek)
+            
         } else {
+            
+            // The parameter name/value lenght is encoded into 4
+            // bytes, the first of which we read needs to be 
+            // masked to created the correct value.
+            //
             let lengthByteB3 : UInt8 = lengthPeek
             let lengthByteB2 : UInt8 = self.bufferBytes[try advance()]
             let lengthByteB1 : UInt8 = self.bufferBytes[try advance()]
@@ -270,54 +293,76 @@ class FastCGIRecordParser {
     private func parseParams() throws {
         
         guard self.contentLength > 0 else {
-            return;
+            return
         }
         
         var contentRemaining : Int = Int(self.contentLength)
         
         repeat {
+            
             let initialPointer : Int = self.pointer
             let nameLength : Int = try self.parseParameterLength()
             let valueLength : Int = try self.parseParameterLength()
-            var nameString : String!
-            var valueString : String!
             
-            // capture a name if needed
-            if (nameLength > 0) {
-                let currentPointer : Int = pointer
-                try skip(nameLength)
-                let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
-                nameString = String(data: nameData, encoding: NSUTF8StringEncoding)
-            } else {
-                nameString = ""
-            }
-            
-            if (nameString == nil || (nameString.characters.count == 0 && nameLength > 0)) {
+            // capture the parameter name
+            //
+            guard nameLength > 0 else {
+                // this doesn't seem likely - web server sent an empty parameter
+                // name length, which is not allowed and has no point. error state.
+                //
                 throw FastCGI.RecordErrors.EmptyParams
             }
             
-            // capture a value if needed
-            if (valueLength > 0) {
+            let currentPointer : Int = pointer
+            try skip(nameLength)
+            let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
+            
+            guard let nameString = StringUtils.fromUtf8String(nameData) else {
+                // the data received from the web server couldn't be transcoded
+                // to a UTF8 string. This is an error.
+                //
+                throw FastCGI.RecordErrors.EmptyParams
+            }
+            
+            guard nameString.characters.count > 0 else {
+                // The data received form the web server existed and transcoded,
+                // but someone resulted in a string of zero length. 
+                // Strange, but an error none the less.
+                //
+                throw FastCGI.RecordErrors.EmptyParams
+            }
+            
+            // capture the parameter value
+            //
+            if valueLength > 0 {
+                
                 let currentPointer : Int = pointer
                 try skip(valueLength)
                 let valueData = NSData(bytes: self.bufferBytes+currentPointer, length: valueLength)
-                valueString = String(data: valueData, encoding: NSUTF8StringEncoding)
-            } else {
-                valueString = ""
+                
+                guard let valueString = StringUtils.fromUtf8String(valueData) else {
+                    // a value was supposed to have been provided but decoding it
+                    // from the data failed.
+                    //
+                    throw FastCGI.RecordErrors.EmptyParams
+                }
+                
+                // Done - store our paramter with the decoded value.
+                //
+                self.headers.append(["name": nameString, "value": valueString])
             }
-
-            if (valueString == nil) {
-                throw FastCGI.RecordErrors.EmptyParams
+            else {
+                // Done - store our paramter with the blank value (perfectly OK)
+                //
+                self.headers.append(["name": nameString, "value": ""])
             }
-
-            // all good - store it
-            self.headers.append(["name": nameString!, "value": valueString!])
             
             // adjust our position
+            //
             contentRemaining = contentRemaining - (self.pointer - initialPointer)
             
         }
-        while (contentRemaining > 0)
+        while contentRemaining > 0
         
     }
     
@@ -326,13 +371,13 @@ class FastCGIRecordParser {
     //
     private func skipPaddingThenReturn() throws -> NSMutableData {
         
-        if (self.paddingLength > 0) {
+        if self.paddingLength > 0 {
             try skip(Int(self.paddingLength))
         }
         
         let remainingBufferBytes = self.buffer.length - self.pointer
         
-        if (remainingBufferBytes == 0) {
+        if remainingBufferBytes == 0 {
             return NSMutableData()
         } else {
             return NSMutableData(bytes: buffer.bytes+self.pointer, length: remainingBufferBytes)
@@ -344,7 +389,11 @@ class FastCGIRecordParser {
     //
     func parse() throws -> NSMutableData {
         
-        // make parser go now!        
+        // Make parser go now!
+        //
+        // Parse a record from the data stream, returning any 
+        // data that wasn't needed after decoding the record.
+        //
         try parseVersion()
         try parseType()
         try parseRequestId()
@@ -352,19 +401,26 @@ class FastCGIRecordParser {
         try parsePaddingLength()
         try skip(1)
         
-        if (self.type == FastCGI.Constants.FCGI_BEGIN_REQUEST) {
+        switch self.type {
+        case FastCGI.Constants.FCGI_BEGIN_REQUEST:
             try parseRole()
             try skip(5)
-        } else if (self.type == FastCGI.Constants.FCGI_END_REQUEST) {
+            break
+            
+        case FastCGI.Constants.FCGI_END_REQUEST:
             try parseAppStatus()
             try parseProtocolStatus()
             try skip(3)
-        } else if (self.type == FastCGI.Constants.FCGI_PARAMS) {
+            break
+            
+        case FastCGI.Constants.FCGI_PARAMS:
             try parseParams()
-        } else if (self.type == FastCGI.Constants.FCGI_STDIN) {
+            break
+            
+        default:
+            // either STDIN or STDOUT
             try parseData()
-        } else if (self.type == FastCGI.Constants.FCGI_STDOUT) {
-            try parseData()
+            break
         }
         
         // return new data object representing any data

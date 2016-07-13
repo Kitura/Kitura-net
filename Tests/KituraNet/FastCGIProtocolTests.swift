@@ -16,13 +16,12 @@
 
 import XCTest
 @testable import KituraNet
+import Foundation
 
 #if os(Linux)
-    import Foundation
     import Glibc
 #else
     import Darwin
-    import Foundation
 #endif
 
 //
@@ -101,9 +100,9 @@ class FastCGIProtocolTests: XCTestCase {
         
         #if os(Linux)            
             let testData : NSMutableData = NSMutableData(capacity: bytes)!
-            for _ in 1...(bytes / sizeof(CLong)) {
+            for _ in 1...(bytes / sizeof(CLong.self)) {
                 var random : CLong = Glibc.random()
-                testData.append(&random, length: sizeof(CLong))
+                testData.append(&random, length: sizeof(CLong.self))
             }
             return testData
         #else
@@ -173,7 +172,7 @@ class FastCGIProtocolTests: XCTestCase {
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             XCTAssert(parser.data != nil, "No data was received")
             
-            if (parser.data != nil) {
+            if parser.data != nil {
                 XCTAssert(testData.isEqual(to: parser.data!), "Data received was not data sent.")
             }
             
@@ -326,8 +325,8 @@ class FastCGIProtocolTests: XCTestCase {
                 
                 for currentHeader : Dictionary<String,String> in parser.headers {
                     
-                    let currentHeaderName : String = currentHeader["name"]!
-                    let currentHeaderValue : String = currentHeader["value"]!
+                    let currentHeaderName : String? = currentHeader["name"]
+                    let currentHeaderValue : String? = currentHeader["value"]
                     
                     if currentHeaderName == sourceHeader.0 && currentHeaderValue == sourceHeader.1 {
                         pairReceived = true

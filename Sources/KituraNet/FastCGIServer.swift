@@ -100,7 +100,7 @@ public class FastCGIServer {
     //
     private static func getConnectionBacklog() -> Int {
         #if os(Linux)
-            return 511;
+            return 511
         #else
             return -1
         #endif
@@ -146,7 +146,7 @@ public class FastCGIServer {
     /// Send multiplex request rejections
     //
     func sendMultiplexRequestRejections(request: FastCGIServerRequest, response: FastCGIServerResponse) {
-        if (request.extraRequestIds.count > 0) {
+        if request.extraRequestIds.count > 0 {
             for requestId in request.extraRequestIds {
                 do {
                     try response.rejectMultiplexConnecton(requestId: requestId)
@@ -176,19 +176,19 @@ public class FastCGIServer {
                 case .success:
                     self.sendMultiplexRequestRejections(request: request, response: response)
                     delegate.handle(request: request, response: response)
-                    break;
+                    break
                 case .unsupportedRole:
                     // response.unsupportedRole() - not thrown
                     do {
                         try response.rejectUnsupportedRole()
                     } catch {}
                     clientSocket.close()
-                    break;
+                    break
                 default:
                     // we just want to ignore every other status for now
                     // as they all result in simply closing the conncetion anyways.
                     clientSocket.close()
-                    break;
+                    break
                 }
             }
             

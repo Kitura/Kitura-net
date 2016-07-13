@@ -34,7 +34,7 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// Buffer for HTTP response line, headers, and short bodies
     ///
-    private var buffer: NSMutableData!
+    private let buffer: NSMutableData = NSMutableData(capacity: FastCGIServerResponse.bufferSize)!
 
     ///
     /// Whether or not the HTTP response line and headers have been flushed.
@@ -76,7 +76,6 @@ public class FastCGIServerResponse : ServerResponse {
     init(socket: Socket, request: FastCGIServerRequest) {
         self.socket = socket
         self.serverRequest = request
-        self.buffer = NSMutableData(capacity: FastCGIServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
     
@@ -101,7 +100,7 @@ public class FastCGIServerResponse : ServerResponse {
         
         try startResponse()
         
-        if (self.buffer.length + data.length > FastCGIServerResponse.bufferSize) {
+        if (self.buffer.length + data.length) > FastCGIServerResponse.bufferSize {
             try flush()
         }
         
@@ -167,31 +166,57 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
     
+    //
+    // Generate a "request complete" message to be transmitted to the server, indicating 
+    // that the response is finished.
+    //
     private func getRequestCompleteMessage() throws -> NSData {
-        return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
+        
+        guard let serverRequest = self.serverRequest else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        
+        return try self.getEndRequestMessage(requestId: serverRequest.requestId,
                                              protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
+        
     }
 
+    //
+    // Generate a "Can't Multiplex" messages for the specified request ID. 
+    // This indicates to the calling web server that we won't be honoring requests
+    // beyond the first one until the first one is complete.
+    //
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> NSData {
         return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
+    //
+    // Generate an "unsupported role" message. Indicaes to the calling web server
+    // that we only intend to fulfill a specific role in the FastCGI chain (responder).
+    //
     private func getUnsupportedRoleMessage() throws -> NSData? {
         
-        guard self.serverRequest?.requestId != nil &&
-            self.serverRequest?.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
-                return nil
+        guard let serverRequest = self.serverRequest else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        guard let requestId : UInt16 = serverRequest.requestId else {
+            throw FastCGI.RecordErrors.InternalError
+        }
+        guard requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
+            throw FastCGI.RecordErrors.InternalError
         }
         
-        return try self.getEndRequestMessage(requestId: self.serverRequest!.requestId,
-                                             protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        
     }
 
     ///
     /// External message write for multiplex rejection    
     ///
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
-        let message : NSData = try self.getNoMultiplexingMessage(requestId: requestId)
+        guard let message : NSData = try self.getNoMultiplexingMessage(requestId: requestId) else {
+            return
+        }
         try self.writeToSocket(message, wrapAsMessage: false)
     }
     
@@ -248,7 +273,7 @@ public class FastCGIServerResponse : ServerResponse {
     private func flush() throws {
         
         guard self.buffer.length > 0 else {
-            return;
+            return
         }
     
         try self.writeToSocket(self.buffer)
@@ -257,12 +282,11 @@ public class FastCGIServerResponse : ServerResponse {
     }
     
     ///
-    /// Conclude our standard response
-    /// We're basically sending out anything left in the buffer, followed by a blank
-    /// STDOUT message, followed by a complete message.
+    /// Conclude this response.
     ///
-    /// Note that unlike the HTTP implementation, we aren't closing the connection
-    /// here because we may want to send other messages after the fact (multiplex denials)
+    /// We're basically sending out anything left in the buffer, followed 
+    /// by a blank STDOUT message, followed by an "END REQUEST" record with 
+    /// "REQUEST COMPLETE" as it's protocol status.
     ///
     private func concludeResponse() throws {    
         
