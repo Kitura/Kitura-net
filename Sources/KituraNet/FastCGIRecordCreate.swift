@@ -34,7 +34,7 @@ class FastCGIRecordCreate {
     var data : NSData?
     var requestRole : UInt16 = FastCGI.Constants.FCGI_NO_ROLE
     var keepAlive : Bool = false
-    var params : [(String,String)] = []
+    var parameters : [(String,String)] = []
     
     //
     // Append one or more zero bytes to the provided NSMutableData object
@@ -170,7 +170,7 @@ class FastCGIRecordCreate {
         
         let content : NSMutableData = NSMutableData()
         
-        for (key, value) in self.params {
+        for (key, value) in self.parameters {
 
             // generate our key and value by converting to 
             // Data from String using UTF-8.
@@ -199,7 +199,7 @@ class FastCGIRecordCreate {
     //
     // Generate a parameters (PARAMS) record
     //
-    private func finalizeParams(data: NSMutableData) -> NSData {
+    private func finalizeParameters(data: NSMutableData) -> NSData {
         self.data = self.createParameterRecords()
         return self.finalizeDataRecord(data: data)
     }
@@ -315,7 +315,7 @@ class FastCGIRecordCreate {
             return self.finalizeRequestCompleteRecord(data: record)
             
         case FastCGI.Constants.FCGI_PARAMS:
-            return self.finalizeParams(data: record)
+            return self.finalizeParameters(data: record)
             
         default:
             // either STDIN or STDOUT
