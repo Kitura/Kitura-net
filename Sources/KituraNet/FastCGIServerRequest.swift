@@ -599,7 +599,7 @@ public class FastCGIServerRequest : ServerRequest {
             } catch FastCGI.RecordErrors.protocolError {
                 callback(.protocolError)
                 return
-            } catch FastCGI.RecordErrors.emptyParams {
+            } catch FastCGI.RecordErrors.emptyParameters {
                 callback(.protocolError)
                 return
             } catch FastCGI.RecordErrors.invalidType {

@@ -70,7 +70,7 @@ public class FastCGI {
         case invalidRole
         case oversizeData
         case invalidVersion
-        case emptyParams
+        case emptyParameters
         case bufferExhausted
         case unsupportedRole
         case internalError

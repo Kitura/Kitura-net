@@ -276,7 +276,7 @@ class FastCGIRecordParser {
     
     // Parse a parameter block
     //
-    private func parseParams() throws {
+    private func parseParameters() throws {
         
         guard self.contentLength > 0 else {
             return
@@ -296,7 +296,7 @@ class FastCGIRecordParser {
                 // this doesn't seem likely - web server sent an empty parameter
                 // name length, which is not allowed and has no point. error state.
                 //
-                throw FastCGI.RecordErrors.emptyParams
+                throw FastCGI.RecordErrors.emptyParameters
             }
             
             let currentPointer : Int = pointer
@@ -307,7 +307,7 @@ class FastCGIRecordParser {
                 // the data received from the web server couldn't be transcoded
                 // to a UTF8 string. This is an error.
                 //
-                throw FastCGI.RecordErrors.emptyParams
+                throw FastCGI.RecordErrors.emptyParameters
             }
             
             guard nameString.characters.count > 0 else {
@@ -315,7 +315,7 @@ class FastCGIRecordParser {
                 // but someone resulted in a string of zero length. 
                 // Strange, but an error none the less.
                 //
-                throw FastCGI.RecordErrors.emptyParams
+                throw FastCGI.RecordErrors.emptyParameters
             }
             
             // capture the parameter value
@@ -330,7 +330,7 @@ class FastCGIRecordParser {
                     // a value was supposed to have been provided but decoding it
                     // from the data failed.
                     //
-                    throw FastCGI.RecordErrors.emptyParams
+                    throw FastCGI.RecordErrors.emptyParameters
                 }
                 
                 // Done - store our paramter with the decoded value.
@@ -400,7 +400,7 @@ class FastCGIRecordParser {
             break
             
         case FastCGI.Constants.FCGI_PARAMS:
-            try parseParams()
+            try parseParameters()
             break
             
         default:

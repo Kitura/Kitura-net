@@ -295,20 +295,20 @@ class FastCGIProtocolTests: XCTestCase {
             }
             
             // create some parameters to tests
-            var params : [(String,String)] = []
+            var parameters : [(String,String)] = []
             
-            params.append(("SHORT_KEY_A", "SHORT_VALUE"))
-            params.append(("SHORT_KEY_B", "LONG_VALUE_" + longString))
-            params.append(("LONG_KEY_A_" + longString, "SHORT_VALUE"))
-            params.append(("LONG_KEY_A_" + longString, "LONG_VALUE_" + longString))
+            parameters.append(("SHORT_KEY_A", "SHORT_VALUE"))
+            parameters.append(("SHORT_KEY_B", "LONG_VALUE_" + longString))
+            parameters.append(("LONG_KEY_A_" + longString, "SHORT_VALUE"))
+            parameters.append(("LONG_KEY_A_" + longString, "LONG_VALUE_" + longString))
             
             // test sending those parameters
             let creator : FastCGIRecordCreate = FastCGIRecordCreate()
             creator.recordType = FastCGI.Constants.FCGI_PARAMS
             creator.requestId = 1
             
-            for currentHeader : (String,String) in params {
-                creator.params.append((currentHeader.0, currentHeader.1))
+            for currentHeader : (String,String) in parameters {
+                creator.parameters.append((currentHeader.0, currentHeader.1))
             }
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
@@ -319,7 +319,7 @@ class FastCGIProtocolTests: XCTestCase {
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             
             // Check what we received was what we expected.
-            for sourceHeader : (String,String) in params {
+            for sourceHeader : (String,String) in parameters {
                 
                 var pairReceived : Bool = false
                 
