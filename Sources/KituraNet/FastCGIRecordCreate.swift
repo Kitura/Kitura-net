@@ -123,7 +123,7 @@ class FastCGIRecordCreate {
         
         var contentLength : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(8)
         var requestRole : UInt16 = FastCGIRecordCreate.networkByteOrderSmall(self.requestRole)
-        var flags : UInt8 = self.keepAlive ? (0 | FastCGI.Constants.FCGI_KEEP_CONN) : 0
+        var flags : UInt8 = self.keepAlive ? FastCGI.Constants.FCGI_KEEP_CONN : 0
         
         // content length
         data.append(&contentLength, length: 2)
