@@ -63,7 +63,7 @@ class FastCGIRecordParser {
         }
         
         let r = self.pointer
-        self.pointer = self.pointer + 1
+        self.pointer += 1
         return r
     }
     
@@ -73,7 +73,8 @@ class FastCGIRecordParser {
     // the valid bounds.
     //
     func skip(_ count: Int) throws {
-        self.pointer = self.pointer + count
+        
+        self.pointer += count
         
         // because we're skipping, it's ok to be pointer=length because we 
         // may never be reading again. but pointer=(length+x) is bad (where x>0)
@@ -232,7 +233,7 @@ class FastCGIRecordParser {
     //
     private func parseData() throws {
         if self.contentLength > 0 {
-            self.data = NSData(bytes: self.bufferBytes+pointer, length: Int(self.contentLength))
+            self.data = NSData(bytes: self.bufferBytes + pointer, length: Int(self.contentLength))
             try skip(Int(self.contentLength))
         } else {
             self.data = NSData()
@@ -315,7 +316,7 @@ class FastCGIRecordParser {
             
             let currentPointer : Int = pointer
             try skip(nameLength)
-            let nameData = NSData(bytes: self.bufferBytes+currentPointer, length: nameLength)
+            let nameData = NSData(bytes: self.bufferBytes + currentPointer, length: nameLength)
             
             guard let nameString = StringUtils.fromUtf8String(nameData) else {
                 // the data received from the web server couldn't be transcoded
@@ -338,7 +339,7 @@ class FastCGIRecordParser {
                 
                 let currentPointer : Int = pointer
                 try skip(valueLength)
-                let valueData = NSData(bytes: self.bufferBytes+currentPointer, length: valueLength)
+                let valueData = NSData(bytes: self.bufferBytes + currentPointer, length: valueLength)
                 
                 guard let valueString = StringUtils.fromUtf8String(valueData) else {
                     // a value was supposed to have been provided but decoding it
@@ -380,7 +381,7 @@ class FastCGIRecordParser {
         if remainingBufferBytes == 0 {
             return NSMutableData()
         } else {
-            return NSMutableData(bytes: buffer.bytes+self.pointer, length: remainingBufferBytes)
+            return NSMutableData(bytes: buffer.bytes + self.pointer, length: remainingBufferBytes)
         }
         
     }

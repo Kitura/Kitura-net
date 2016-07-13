@@ -300,7 +300,7 @@ public class FastCGIServerRequest : ServerRequest {
             if i == "." {
                 break
             } else {
-                decimalPosition = decimalPosition + 1
+                decimalPosition += 1
             }
         }
         
