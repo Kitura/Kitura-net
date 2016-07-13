@@ -133,30 +133,15 @@ class FastCGIRecordParser {
         
         self.type = self.bufferBytes[try advance()]
         
-        var typeOk : Bool = false
+        switch self.type {
+        case FastCGI.Constants.FCGI_BEGIN_REQUEST,
+             FastCGI.Constants.FCGI_END_REQUEST,
+             FastCGI.Constants.FCGI_PARAMS,
+             FastCGI.Constants.FCGI_STDIN,
+             FastCGI.Constants.FCGI_STDOUT:
+            break
         
-        switch (self.type) {
-        case FastCGI.Constants.FCGI_BEGIN_REQUEST:
-            typeOk = true
-            break
-        case FastCGI.Constants.FCGI_END_REQUEST:
-            typeOk = true
-            break
-        case FastCGI.Constants.FCGI_PARAMS:
-            typeOk = true
-            break
-        case FastCGI.Constants.FCGI_STDIN:
-            typeOk = true
-            break
-        case FastCGI.Constants.FCGI_STDOUT:
-            typeOk = true
-            break
         default:
-            typeOk = false
-            break
-        }
-        
-        guard typeOk else {
             throw FastCGI.RecordErrors.InvalidType
         }
         
