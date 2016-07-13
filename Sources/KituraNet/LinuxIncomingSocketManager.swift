@@ -102,7 +102,7 @@ class IncomingSocketManager  {
                 }
                 else {
                     if  let handler = socketHandlers[event.data.fd] {
-                        handler.process()
+                        handler.handleRead()
                     }
                     else {
                         print("No handler for file descriptor \(event.data.fd)")

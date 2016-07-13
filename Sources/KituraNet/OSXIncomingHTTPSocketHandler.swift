@@ -23,56 +23,18 @@ import Foundation
 import LoggerAPI
 import Socket
 
-class IncomingHTTPSocketHandler: IncomingSocketHandler {
-    
-    // Note: This var is optional to enable it to be constructed in the init function
-    private var channel: dispatch_io_t?
-    
-    private let socket: Socket
-    
-    private weak var delegate: ServerDelegate?
+extension IncomingHTTPSocketHandler {
     
     ///
-    /// The file descriptor of the incoming socket
+    /// Perform platform specfic setup, invoked by the init function
     ///
-    var fileDescriptor: Int32 { return socket.socketfd }
-    
-    private let reader: PseudoAsynchronousReader
-    
-    private let request: HTTPServerRequest
-    
-    // Note: This var is optional to enable it to be constructed in the init function
-    private var response: ServerResponse?
-    
-    ///
-    /// Keep alive timeout in seconds
-    ///
-    static let keepAliveTimeout: NSTimeInterval = 60
-    
-    private(set) var clientRequestedKeepAlive = false
-    
-    private(set) var numberOfRequests = 20
-    
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
-    
-    enum State {
-        case reset, initial, parsed
-    }
-    
-    private(set) var state = State.initial
-    
-    init(socket: Socket, using: ServerDelegate) {
-        self.socket = socket
-        delegate = using
-        reader = PseudoAsynchronousReader(clientSocket: socket)
-        request = HTTPServerRequest(reader: reader)
-        
+    func setup() {
         channel = dispatch_io_create(DISPATCH_IO_STREAM, socket.socketfd, HTTPServer.clientHandlerQueue.osQueue) { error in
             self.socket.close()
+            self.inProgress = false
+            self.keepAliveUntil = 0.0
         }
         dispatch_io_set_low_water(channel!, 1)
-        
-        response = HTTPServerResponse(handler: self)
         
         dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
             self.handleRead(done: done, data: data, error: error)
@@ -98,52 +60,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             return true
         }
         
-        switch(state) {
-        case .reset:
-            request.reset()
-            response!.reset()
-            fallthrough
-            
-        case .initial:
-            parse(buffer)
-            
-        case .parsed:
-            reader.addToAvailableData(from: buffer)
-            break
-        }
+        process(buffer)
     }
     
-    private func parse(_ buffer: NSData) {
-        let (parsingState, _ ) = request.parse(buffer)
-        switch(parsingState) {
-        case .error:
-            break
-        case .initial:
-            break
-        case .headersComplete, .messageComplete:
-            clientRequestedKeepAlive = false
-            parsingComplete()
-        case .headersCompleteKeepAlive, .messageCompleteKeepAlive:
-            clientRequestedKeepAlive = true
-            parsingComplete()
-        case .reset:
-            break
-        }
-    }
     
-    private func parsingComplete() {
-        state = .parsed
-        delegate?.handle(request: request, response: response!)
-    }
-    
-    func keepAlive() {
-        state = .reset
-        numberOfRequests -= 1
-    }
-    
-    func drain() {
-        request.drain()
-    }
     
     ///
     /// Write data to the socket
@@ -165,15 +85,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         dispatch_io_close(channel!, 0)
     }
     
-    ///
-    /// Private method to return a string representation on a value of errno.
-    ///
-    /// - Returns: String containing relevant text about the error.
-    ///
-    private func errorString(error: Int32) -> String {
-        
-        return String(validatingUTF8: strerror(error)) ?? "Error: \(error)"
-    }
+    
 }
 
 #endif
