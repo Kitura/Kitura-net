@@ -119,7 +119,7 @@ public class FastCGIServer {
                 return
             }
             
-            try socket.listen(on: port, maxPendingConnections:FastCGIServer.getConnectionBacklog())
+            try socket.listen(on: port, maxBacklogSize:FastCGIServer.getConnectionBacklog())
             Log.info("Listening on port \(port) (FastCGI)")
             
             // TODO: Change server exit to not rely on error being thrown
