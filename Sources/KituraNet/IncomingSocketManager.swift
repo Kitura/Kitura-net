@@ -57,12 +57,10 @@ class IncomingSocketManager  {
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
             
         let maxInterval = now.timeIntervalSinceReferenceDate
-        print("Checking for idle sockets to close")
         for (fileDescriptor, handler) in socketHandlers {
             if  handler.inProgress  ||  maxInterval < handler.keepAliveUntil {
                 continue
             }
-            print("closing idle socket \(fileDescriptor)")
             socketHandlers.removeValue(forKey: fileDescriptor)
             handler.close()
         }
