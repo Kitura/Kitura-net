@@ -25,6 +25,16 @@ import Socket
 class IncomingSocketManager  {
     
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
+        
+    ///
+    /// Interval at which to check for idle sockets to close
+    ///
+    let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
+        
+    ///
+    /// The last time we checked for an idle socket
+    ///
+    var keepAliveIdleLastTimeChecked = NSDate()
     
     ///
     /// Handle a new incoming socket
@@ -35,6 +45,28 @@ class IncomingSocketManager  {
     func handle(socket: Socket, using: ServerDelegate) {
         let handler = IncomingHTTPSocketHandler(socket: socket, using: using)
         socketHandlers[socket.socketfd] = handler
+
+        removeIdleSockets()
+    }
+        
+    ///
+    /// Remove idle sockets
+    ///
+    private func removeIdleSockets() {
+        let now = NSDate()
+        guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
+            
+        let maxInterval = now.timeIntervalSinceReferenceDate
+        print("Checking for idle sockets to close")
+        for (fileDescriptor, handler) in socketHandlers {
+            if  handler.inProgress  ||  maxInterval < handler.keepAliveUntil {
+                continue
+            }
+            print("closing idle socket \(fileDescriptor)")
+            socketHandlers.removeValue(forKey: fileDescriptor)
+            handler.close()
+        }
+        keepAliveIdleLastTimeChecked = NSDate()
     }
 }
 

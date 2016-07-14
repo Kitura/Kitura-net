@@ -39,7 +39,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let request: HTTPServerRequest
     
-    // Note: This var is optional to enable it to be constructed in the init function
+    ///
+    /// The ServerResponse object used to enable the ServerDelegate to respond to the incoming request
+    /// Note: This var is optional to enable it to be constructed in the init function
+    ///
     private var response: ServerResponse?
     
     ///
@@ -47,18 +50,49 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     ///
     static let keepAliveTimeout: NSTimeInterval = 60
     
+    ///
+    /// A flag indicating that the client has requested that the socket be kep alive
+    ///
     private(set) var clientRequestedKeepAlive = false
     
+    ///
+    /// The socket if idle will be kep alive until...
+    ///
+    var keepAliveUntil: NSTimeInterval = 0.0
+    
+    ///
+    /// A flag to indicate that the socket has a request in progress
+    ///
+    var inProgress = true
+    
+    ///
+    /// Number of remaining requests that will be allowed on the socket being handled by this handler
+    ///
     private(set) var numberOfRequests = 20
     
+    ///
+    /// Should this socket actually be kep alive?
+    ///
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
     
+    ///
+    /// An enum for internal state
+    ///
     enum State {
         case reset, initial, parsed
     }
     
+    ///
+    /// The state of this handler
+    ///
     private(set) var state = State.initial
     
+    ///
+    /// Contructor
+    ///
+    /// - Parameter socket: The incoming client socket to be handled
+    /// - Parameter using: The ServerDelegate to be invoked once therequest is parsed
+    ///
     init(socket: Socket, using: ServerDelegate) {
         self.socket = socket
         delegate = using
@@ -77,6 +111,13 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
+    ///
+    /// Handle the data read by dispatch_io_read
+    ///
+    /// - Parameter done: true if I/O is "done, i.e. the other side closed the socket
+    /// - Parameter data: The dispatch_data containing the read data
+    /// - Parameter error: The value of errno if an error occurred.
+    ///
     private func handleRead(done: Bool, data: dispatch_data_t?, error: Int32) {
         guard !done else {
             if error != 0 {
@@ -111,6 +152,12 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
+    ///
+    /// Invoke the HTTP parser against the specified buffer of data and
+    /// convert the HTTP parser's status to our own.
+    ///
+    /// - Parameter buffer: The buffer of data to parse
+    ///
     private func parse(_ buffer: NSData) {
         let (parsingState, _ ) = request.parse(buffer)
         switch(parsingState) {
@@ -129,16 +176,27 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
+    ///
+    /// Parsing has completed enough to invoke the ServerDelegate to handle the request
+    ///
     private func parsingComplete() {
         state = .parsed
         delegate?.handle(request: request, response: response!)
     }
     
+    ///
+    /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
+    ///
     func keepAlive() {
         state = .reset
         numberOfRequests -= 1
+        inProgress = false
+        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketHandler.keepAliveTimeout).timeIntervalSinceReferenceDate
     }
     
+    ///
+    /// Drain the socket of the data of the current request.
+    ///
     func drain() {
         request.drain()
     }
