@@ -34,9 +34,20 @@ class IncomingSocketManager  {
     
     private let queue = Queue(type: .serial, label: "LinuxIncomingSocketManager")
     
-    private var keepOnRunning = true
-    
+    ///
+    /// A mapping from socket file descriptor to IncomingHTTPSocketHandler
+    ///
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
+    
+    ///
+    /// Interval at which to check for idle sockets to close
+    ///
+    let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
+    
+    ///
+    /// The last time we checked for an idle socket
+    ///
+    var keepAliveIdleLastTimeChecked = NSDate()
     
     init() {
         epollDescriptor = epoll_create1(0)
@@ -66,11 +77,13 @@ class IncomingSocketManager  {
         var event = epoll_event()
         event.events = EPOLLIN.rawValue | EPOLLET.rawValue
         event.data.fd = socket.socketfd
-        let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event);
+        let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
         if  result == -1  {
             Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
             print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
         }
+        
+        removeIdleSockets()
     }
     
     ///
@@ -79,7 +92,7 @@ class IncomingSocketManager  {
     private func process() {
         var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
         
-        while  keepOnRunning  {
+        while  true  {
             let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
             
             if  count == -1  {
@@ -110,6 +123,32 @@ class IncomingSocketManager  {
                 }
             }
         }
+    }
+    
+    ///
+    /// Remove idle sockets
+    ///
+    private func removeIdleSockets() {
+        let now = NSDate()
+        guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
+        
+        let maxInterval = now.timeIntervalSinceReferenceDate
+        print("Checking for idle sockets to close")
+        for (fileDescriptor, handler) in socketHandlers {
+            if  handler.inProgress  ||  maxInterval < handler.keepAliveUntil {
+                continue
+            }
+            print("closing idle socket \(fileDescriptor)")
+            socketHandlers.removeValue(forKey: fileDescriptor)
+                
+            let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
+            if  result == -1  {
+                Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+            }
+            handler.close()
+        }
+        keepAliveIdleLastTimeChecked = NSDate()
     }
     
     
