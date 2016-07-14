@@ -108,6 +108,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
         dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
             self.handleRead(done: done, data: data, error: error)
+            self.inProgress = false
+            self.keepAliveUntil = 0.0
         }
     }
     
