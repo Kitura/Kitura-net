@@ -188,9 +188,13 @@ class FastCGIRecordCreate {
             self.writeEncodedLength(length: keyData.length, into: content)
             self.writeEncodedLength(length: valueData.length, into: content)
             
-            content.append(keyData)
-            content.append(valueData)
-            
+            #if os(Linux)
+                content.append(keyData)
+                content.append(valueData)
+            #else
+                content.append(keyData as Data)
+                content.append(valueData as Data)
+            #endif
         }
         
         return content
@@ -227,7 +231,11 @@ class FastCGIRecordCreate {
         // reserved space
         self.appendZeroes(data: data, count: 1)
         // write our data block
-        data.append(contentData)
+        #if os(Linux)
+            data.append(contentData)
+        #else
+            data.append(contentData as Data)
+        #endif
         
         // write any padding
         if paddingLength > 0 {

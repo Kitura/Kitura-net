@@ -184,39 +184,66 @@ public class FastCGIServerRequest : ServerRequest {
         if self.requestScheme?.characters.count > 0 {
             
             // use the request scheme as received
-            self.url.append(StringUtils.toUtf8String(self.requestScheme!)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(self.requestScheme!)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(self.requestScheme!)! as Data)
+            #endif
             
         } else {
             
             // we received no request scheme - use the default
-            self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)! as Data)
+            #endif
             
         }
 
-        self.url.append(StringUtils.toUtf8String("://")!)
-        
+        #if os(Linux)
+            self.url.append(StringUtils.toUtf8String("://")!)
+        #else
+            self.url.append(StringUtils.toUtf8String("://")! as Data)
+        #endif
         
         // set our host name
         //
         if self.requestHost?.characters.count > 0 {
             
             // use the requested host as received
-            self.url.append(StringUtils.toUtf8String(self.requestHost!)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(self.requestHost!)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(self.requestHost!)! as Data)
+            #endif
             
         } else if self.requestServerName?.characters.count > 0 {
             
             // use the requested server name as received
-            self.url.append(StringUtils.toUtf8String(self.requestServerName!)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(self.requestServerName!)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(self.requestServerName!)! as Data)
+            #endif
             
         } else if self.requestServerAddress?.characters.count > 0 {
             
             // use the requested server address as received
-            self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)! as Data)
+           #endif
             
         } else {
             
             // use a failover default as the server address
-            self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)! as Data)
+            #endif
             
         }
         
@@ -228,8 +255,13 @@ public class FastCGIServerRequest : ServerRequest {
             // HTTP port that is typically used (80, 443)
             //
             if !FastCGIServerRequest.defaultHttpPorts.contains(self.requestPort!) {
-                self.url.append(StringUtils.toUtf8String(":")!)
-                self.url.append(StringUtils.toUtf8String(self.requestPort!)!)
+                #if os(Linux)
+                    self.url.append(StringUtils.toUtf8String(":")!)
+                    self.url.append(StringUtils.toUtf8String(self.requestPort!)!)
+                #else
+                    self.url.append(StringUtils.toUtf8String(":")! as Data)
+                    self.url.append(StringUtils.toUtf8String(self.requestPort!)! as Data)
+                #endif
             }
         }
         
@@ -238,7 +270,11 @@ public class FastCGIServerRequest : ServerRequest {
         if self.requestUri?.characters.count > 0 {
             
             // use the URI as received
-            self.url.append(StringUtils.toUtf8String(self.requestUri!)!)
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String(self.requestUri!)!)
+            #else
+                self.url.append(StringUtils.toUtf8String(self.requestUri!)! as Data)
+            #endif
             
         }
                 
@@ -549,7 +585,11 @@ public class FastCGIServerRequest : ServerRequest {
                 }
                 
                 // add the read data to our main buffer
-                networkBuffer.append(socketBuffer)
+                #if os(Linux)
+                    networkBuffer.append(socketBuffer)
+                #else
+                    networkBuffer.append(socketBuffer as Data)
+                #endif
                 
                 // we want to parse records out one at a time.
                 repeat {
@@ -567,7 +607,11 @@ public class FastCGIServerRequest : ServerRequest {
                     //
                     do {
                         let remainingData : NSData = try parser.parse()
-                        networkBuffer.setData(remainingData)
+                        #if os(Linux)
+                            networkBuffer.setData(remainingData)
+                        #else
+                            networkBuffer.setData(remainingData as Data)
+                        #endif
                     }
                     catch FastCGI.RecordErrors.bufferExhausted {
                         // break out of this repeat, which will start the 

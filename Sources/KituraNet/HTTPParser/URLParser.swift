@@ -112,7 +112,7 @@ public class URLParser : CustomStringConvertible {
     public init (url: NSData, isConnect: Bool) {
         
         var parsedURL = http_parser_url_url()
-        memset(&parsedURL, 0, sizeof(http_parser_url))
+        memset(&parsedURL, 0, sizeof(http_parser_url.self))
         
         if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedURL) == 0 {
             

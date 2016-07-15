@@ -104,7 +104,11 @@ public class FastCGIServerResponse : ServerResponse {
             try flush()
         }
         
-        self.buffer.append(data)
+        #if os(Linux)
+            self.buffer.append(data)
+        #else
+            self.buffer.append(data as Data)
+        #endif
     }
     
     public func end() throws {
