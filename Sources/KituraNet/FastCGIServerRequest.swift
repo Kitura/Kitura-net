@@ -266,11 +266,11 @@ public class FastCGIServerRequest : ServerRequest {
         //
         if !portPassedWithHostName && self.requestPort?.characters.count > 0 {
             
-            // We received a port (normaL) and no port was passed as part of our
-            // server address (probably means address is 80 or 443).
+            // We received a port via SERVER_PORT and no port was passed as part of our
+            // server address (probably means web address is port 80 or 443).
             //
-            // We'll append our port if it's not a standard HTTP port 
-            // that is typically used (80, 443)
+            // We'll append our port to the URL if the web server is not, in fact, using a 
+            // standard HTTP port (80, 443)
             //
             if !FastCGIServerRequest.defaultHttpPorts.contains(self.requestPort!) {
                 #if os(Linux)
