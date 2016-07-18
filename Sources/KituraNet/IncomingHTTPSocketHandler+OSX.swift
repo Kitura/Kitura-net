@@ -25,23 +25,26 @@ import Socket
 
 extension IncomingHTTPSocketHandler {
     
+    
     ///
     /// Perform platform specfic setup, invoked by the init function
     ///
     func setup() {
-        channel = dispatch_io_create(DISPATCH_IO_STREAM, socket.socketfd, HTTPServer.clientHandlerQueue.osQueue) { error in
+        channel = DispatchIO(type: .stream, fileDescriptor: socket.socketfd, queue: HTTPServer.clientHandlerQueue.osQueue) { error in
             self.socket.close()
             self.inProgress = false
             self.keepAliveUntil = 0.0
         }
-        dispatch_io_set_low_water(channel!, 1)
+        channel!.setLimit(lowWater: 1)
+    
+        let bufferLength = 16 * 1024
         
-        dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
+        channel!.read(offset: 0, length: bufferLength, queue: HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
             self.handleRead(done: done, data: data, error: error)
         }
     }
     
-    private func handleRead(done: Bool, data: dispatch_data_t?, error: Int32) {
+    private func handleRead(done: Bool, data: DispatchData?, error: Int32) {
         guard !done else {
             if error != 0 {
                 Log.error("Error reading from \(socket.socketfd)")
@@ -53,14 +56,15 @@ extension IncomingHTTPSocketHandler {
         
         guard let data = data else { return }
         
-        let buffer = NSMutableData()
-        let _ = dispatch_data_apply(data) { (region, offset, dataBuffer, size) -> Bool in
-            guard let dataBuffer = dataBuffer else { return true }
-            buffer.append(dataBuffer, length: size)
-            return true
+        let dataBuffer = NSMutableData()
+        _ = data.enumerateBytes() { (buffer: UnsafeBufferPointer<UInt8>, byteIndex: Int, stop: inout Bool) in
+            guard  let address = buffer.baseAddress  else {
+                stop = true
+                return
+            }
+            dataBuffer.append(address+byteIndex, length: buffer.count-byteIndex)
         }
-        
-        process(buffer)
+        process(dataBuffer)
     }
     
     
@@ -69,20 +73,17 @@ extension IncomingHTTPSocketHandler {
     /// Write data to the socket
     ///
     func write(from: NSData) {
-        let temp = dispatch_data_create( from.bytes, from.length, HTTPServer.clientHandlerQueue.osQueue, nil)
-        #if os(Linux)
-            let data = temp
-        #else
-            guard let data = temp  else { return }
-        #endif
-        dispatch_io_write(channel!, 0, data, HTTPServer.clientHandlerQueue.osQueue) { _,_,_ in }
+        let buffer = UnsafeBufferPointer<UInt8>(start: UnsafePointer<UInt8>(from.bytes), count: from.length)
+        let data = DispatchData(bytes: buffer)
+        
+        channel!.write(offset: 0, data: data, queue: HTTPServer.clientHandlerQueue.osQueue) { _,_,_ in }
     }
     
     ///
     /// Close the socket
     ///
     func close() {
-        dispatch_io_close(channel!, 0)
+        channel!.close()
     }
     
     

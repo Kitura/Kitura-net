@@ -27,12 +27,12 @@ class IncomingSocketManager  {
     ///
     /// Interval at which to check for idle sockets to close
     ///
-    let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
+    let keepAliveIdleCheckingInterval: TimeInterval = 60.0
         
     ///
     /// The last time we checked for an idle socket
     ///
-    var keepAliveIdleLastTimeChecked = NSDate()
+    var keepAliveIdleLastTimeChecked = Date()
     
     ///
     /// Handle a new incoming socket
@@ -51,7 +51,7 @@ class IncomingSocketManager  {
     /// Remove idle sockets
     ///
     private func removeIdleSockets() {
-        let now = NSDate()
+        let now = Date()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
             
         let maxInterval = now.timeIntervalSinceReferenceDate
@@ -62,7 +62,7 @@ class IncomingSocketManager  {
             socketHandlers.removeValue(forKey: fileDescriptor)
             handler.close()
         }
-        keepAliveIdleLastTimeChecked = NSDate()
+        keepAliveIdleLastTimeChecked = Date()
     }
 }
 

@@ -26,55 +26,94 @@ class PseudoAsynchronousReader {
     private var errorFlag = false
     
     private var inputNotAvailable = true
-    private let waitingForInput: dispatch_semaphore_t
-    private let readBufferLock: dispatch_semaphore_t
     private var socketNotClosed = true
-    
     private let buffer = NSMutableData()
+
+    #if os(Linux)
+        private let waitingForInput: dispatch_semaphore_t
+        private let readBufferLock: dispatch_semaphore_t
+    #else
+        private let waitingForInput = DispatchSemaphore(value: 0)
+        private let readBufferLock = DispatchSemaphore(value: 1)
+    #endif
     
     var remoteHostname: String { return clientSocket.remoteHostname }
     
     init(clientSocket: Socket) {
         self.clientSocket = clientSocket
         
-        waitingForInput = dispatch_semaphore_create(0)
-        readBufferLock = dispatch_semaphore_create(1)
+        #if os(Linux)
+            waitingForInput = dispatch_semaphore_create(0)
+            readBufferLock = dispatch_semaphore_create(1)
+        #endif
     }
     
     func addToAvailableData(from: NSData) {
         let needToLock = buffer.length != 0
         if  needToLock {
-            dispatch_semaphore_wait(readBufferLock, DISPATCH_TIME_FOREVER)
+            #if os(Linux)
+                dispatch_semaphore_wait(readBufferLock, DISPATCH_TIME_FOREVER)
+            #else
+                _ = readBufferLock.wait(timeout: DispatchTime.distantFuture)
+            #endif
         }
         
-        buffer.append(from)
+        #if os(Linux)
+            buffer.append(from)
+        #else
+            buffer.append(from as Data)
+        #endif
         
         if  inputNotAvailable  {
-            dispatch_semaphore_signal(waitingForInput)
+            #if os(Linux)
+                dispatch_semaphore_signal(waitingForInput)
+            #else
+                waitingForInput.signal()
+            #endif
             inputNotAvailable = false
         }
         if  needToLock  {
-            dispatch_semaphore_signal(readBufferLock)
+            #if os(Linux)
+                dispatch_semaphore_signal(readBufferLock)
+            #else
+                readBufferLock.signal()
+            #endif
         }
     }
     
     func readSynchronously(into: NSMutableData) -> Int {
         if  inputNotAvailable  {
-            dispatch_semaphore_wait(waitingForInput, DISPATCH_TIME_FOREVER)
+            #if os(Linux)
+                dispatch_semaphore_wait(waitingForInput, DISPATCH_TIME_FOREVER)
+            #else
+                _ = waitingForInput.wait(timeout: DispatchTime.distantFuture)
+            #endif
         }
         let result: Int
         if  buffer.length != 0  {
-            dispatch_semaphore_wait(readBufferLock, DISPATCH_TIME_FOREVER)
+            #if os(Linux)
+                dispatch_semaphore_wait(readBufferLock, DISPATCH_TIME_FOREVER)
+            #else
+                _ = readBufferLock.wait(timeout: DispatchTime.distantFuture)
+            #endif
             if  errorFlag  {
                 result = -1
             }
             else {
                 result = buffer.length
-                into.append(buffer)
+                #if os(Linux)
+                    into.append(buffer)
+                #else
+                    into.append(buffer as Data)
+                #endif
             }
             buffer.length = 0
             inputNotAvailable = socketNotClosed
-            dispatch_semaphore_signal(readBufferLock)
+            #if os(Linux)
+                dispatch_semaphore_signal(readBufferLock)
+            #else
+                readBufferLock.signal()
+            #endif
         }
         else {
             result = 0

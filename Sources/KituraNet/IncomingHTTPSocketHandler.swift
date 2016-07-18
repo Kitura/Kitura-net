@@ -28,16 +28,22 @@ import Socket
 /// is read and parsed filling in a ServerRequest object. When parsing is complete the
 /// ServerDelegate is invoked.
 ///
-/// **Note:** This class needs to be extened in order to implement several platform specific
+/// **Note:** This class needs to be extended in order to implement several platform specific
 /// functions.
 
 class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
     // Note: This var is optional to enable it to be constructed in the init function
-    var channel: dispatch_io_t?
+    var channel: DispatchIO?
 #endif
         
+#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+    typealias TimeIntervalType = TimeInterval
+#else
+    typealias TimeIntervalType = NSTimeInterval
+#endif
+
     let socket: Socket
         
     private weak var delegate: ServerDelegate?
@@ -61,7 +67,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     ///
     /// Keep alive timeout for idle sockets in seconds
     ///
-    static let keepAliveTimeout: NSTimeInterval = 60
+    static let keepAliveTimeout: TimeIntervalType = 60
     
     ///
     /// A flag indicating that the client has requested that the socket be kep alive
@@ -70,7 +76,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     ///
     /// The socket if idle will be kep alive until...
-    var keepAliveUntil: NSTimeInterval = 0.0
+    var keepAliveUntil: TimeIntervalType = 0.0
     
     ///
     /// A flag to indicate that the socket has a request in progress

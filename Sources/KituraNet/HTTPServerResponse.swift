@@ -111,7 +111,11 @@ public class HTTPServerResponse : ServerResponse {
                 handler.write(from: data)
             }
             else {
-                buffer.append(data)
+                #if os(Linux)
+                    buffer.append(data)
+                #else
+                    buffer.append(data as Data)
+                #endif
             }
         }
 
@@ -218,7 +222,11 @@ public class HTTPServerResponse : ServerResponse {
             handler.write(from: utf8Data)
         }
         else {
-            buffer.append(utf8Data)
+            #if os(Linux)
+                buffer.append(utf8Data)
+            #else
+                buffer.append(utf8Data as Data)
+            #endif
         }
     }
     

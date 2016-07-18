@@ -406,8 +406,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onURL(_ data: NSData) {
-
-        url.append(data)
+        #if os(Linux)
+            url.append(data)
+        #else
+            url.append(data as Data)
+        #endif
     }
 
 
@@ -421,7 +424,12 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         if lastHeaderWasAValue {
             addHeader()
         }
-        lastHeaderField.append(data)
+        #if os(Linux)
+            lastHeaderField.append(data)
+        #else
+            lastHeaderField.append(data as Data)
+        #endif
+
         lastHeaderWasAValue = false
         
     }
@@ -432,10 +440,13 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onHeaderValue (_ data: NSData) {
+        #if os(Linux)
+            lastHeaderValue.append(data)
+        #else
+            lastHeaderValue.append(data as Data)
+        #endif
 
-        lastHeaderValue.append(data)
         lastHeaderWasAValue = true
-
     }
 
     ///
@@ -473,7 +484,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Parameter data: the data
     ///
     func onBody (_ data: NSData) {
-
         self.bodyChunk.append(data: data)
 
     }
