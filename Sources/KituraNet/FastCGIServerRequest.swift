@@ -207,6 +207,9 @@ public class FastCGIServerRequest : ServerRequest {
             self.url.append(StringUtils.toUtf8String("://")! as Data)
         #endif
         
+        // detector for our port
+        var portPassedWithHostName : Bool = false
+        
         // set our host name
         //
         if self.requestHost?.characters.count > 0 {
@@ -218,6 +221,10 @@ public class FastCGIServerRequest : ServerRequest {
                 self.url.append(StringUtils.toUtf8String(self.requestHost!)! as Data)
             #endif
             
+            if self.requestHost!.contains(":") {
+                portPassedWithHostName = true
+            }
+            
         } else if self.requestServerName?.characters.count > 0 {
             
             // use the requested server name as received
@@ -227,6 +234,10 @@ public class FastCGIServerRequest : ServerRequest {
                 self.url.append(StringUtils.toUtf8String(self.requestServerName!)! as Data)
             #endif
             
+            if self.requestHost!.contains(":") {
+                portPassedWithHostName = true
+            }
+            
         } else if self.requestServerAddress?.characters.count > 0 {
             
             // use the requested server address as received
@@ -235,6 +246,10 @@ public class FastCGIServerRequest : ServerRequest {
             #else
                 self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)! as Data)
            #endif
+            
+            if self.requestHost!.contains(":") {
+                portPassedWithHostName = true
+            }
             
         } else {
             
@@ -249,10 +264,13 @@ public class FastCGIServerRequest : ServerRequest {
         
         // set the port
         //
-        if self.requestPort?.characters.count > 0 {
+        if !portPassedWithHostName && self.requestPort?.characters.count > 0 {
             
-            // we received a port - we'll append it if it's not a standard
-            // HTTP port that is typically used (80, 443)
+            // We received a port via SERVER_PORT and no port was passed as part of our
+            // server address (probably means web address is port 80 or 443).
+            //
+            // We'll append our port to the URL if the web server is not, in fact, using a 
+            // standard HTTP port (80, 443)
             //
             if !FastCGIServerRequest.defaultHttpPorts.contains(self.requestPort!) {
                 #if os(Linux)
