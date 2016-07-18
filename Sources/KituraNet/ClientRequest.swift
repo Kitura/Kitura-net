@@ -334,6 +334,8 @@ public class ClientRequest: SocketWriter {
     ///
     private func setupHeaders() {
 
+        headers["Connection"] = "close"
+        
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
