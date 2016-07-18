@@ -18,6 +18,7 @@
 
 import Foundation
    
+import LoggerAPI
 import Socket
     
 class IncomingSocketManager  {
@@ -41,8 +42,17 @@ class IncomingSocketManager  {
     /// - Parameter using: The ServerDelegate to actually handle the socket
     ///
     func handle(socket: Socket, using: ServerDelegate) {
-        let handler = IncomingHTTPSocketHandler(socket: socket, using: using)
-        socketHandlers[socket.socketfd] = handler
+        
+        do {
+            try socket.setBlocking(mode: false)
+            
+            let handler = IncomingHTTPSocketHandler(socket: socket, using: using)
+            socketHandlers[socket.socketfd] = handler
+        }
+        catch {
+            print("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+        }
         
         removeIdleSockets()
     }
@@ -63,6 +73,17 @@ class IncomingSocketManager  {
             handler.close()
         }
         keepAliveIdleLastTimeChecked = Date()
+    }
+    
+    
+    ///
+    /// Private method to return the last error based on the value of errno.
+    ///
+    /// - Returns: String containing relevant text about the error.
+    ///
+    private func lastError() -> String {
+        
+        return String(validatingUTF8: strerror(errno)) ?? "Error: \(errno)"
     }
 }
 

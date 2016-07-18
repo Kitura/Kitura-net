@@ -35,7 +35,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
     // Note: This var is optional to enable it to be constructed in the init function
-    var channel: DispatchIO?
+    var source: DispatchSourceRead?
 #endif
         
 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
@@ -115,6 +115,48 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
         // Perform any platform specific initialization
         setup()
+    }
+    
+    ///
+    /// Read in the available data and hand off to ommon processing code
+    ///
+    func handleRead() {
+        let buffer = NSMutableData()
+        
+        do {
+            var length = 1
+            while  length > 0  {
+                length = try socket.read(into: buffer)
+            }
+            if  buffer.length > 0  {
+                process(buffer, parsingAsynchronously: true)
+            }
+            else {
+                if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
+                    close()
+                }
+            }
+        }
+        catch let error as Socket.Error {
+            Log.error(error.description)
+        } catch {
+            Log.error("Unexpected error...")
+        }
+    }
+    
+    ///
+    /// Write data to the socket
+    ///
+    func write(from data: NSData) {
+        guard socket.socketfd > -1  else { return }
+        
+        do {
+            try socket.write(from: data)
+        }
+        catch {
+            print("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
+            Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
+        }
     }
     
     ///

@@ -65,22 +65,22 @@ class IncomingSocketManager  {
         
         do {
             try socket.setBlocking(mode: false)
+            
+            let handler = IncomingHTTPSocketHandler(socket: socket, using: delegate)
+            socketHandlers[socket.socketfd] = handler
+            
+            var event = epoll_event()
+            event.events = EPOLLIN.rawValue | EPOLLET.rawValue
+            event.data.fd = socket.socketfd
+            let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
+            if  result == -1  {
+                Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+            }
         }
         catch {
             print("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
             Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
-        }
-        
-        let handler = IncomingHTTPSocketHandler(socket: socket, using: delegate)
-        socketHandlers[socket.socketfd] = handler
-        
-        var event = epoll_event()
-        event.events = EPOLLIN.rawValue | EPOLLET.rawValue
-        event.data.fd = socket.socketfd
-        let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
-        if  result == -1  {
-            Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-            print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
         }
         
         removeIdleSockets()
