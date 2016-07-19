@@ -24,7 +24,7 @@ import Foundation
 
 
 public protocol ServerResponse: class {
-
+    
     ///
     /// Status code
     ///
