@@ -25,12 +25,11 @@ import Foundation
 public class ClientRequest: SocketWriter {
 
     ///
-    /// Internal lock to the request
+    /// Initialize the one time initialization struct to cause one time initializations to occur
     ///
-    static private var lock = 0
     
     static private let requestQueue = Queue(type: .parallel, label: "requestQueue")
-
+    static private let oneTime = OneTimeInitializations()
     
     public var headers = [String: String]()
 
@@ -246,14 +245,8 @@ public class ClientRequest: SocketWriter {
     /// End servicing the request, send response back
     ///
     public func end() {
-        
+
         ClientRequest.requestQueue.enqueueAsynchronously() {
-            // Be sure that a lock is obtained before this can be executed
-            SysUtils.doOnce(&ClientRequest.lock) {
-                
-                curl_global_init(Int(CURL_GLOBAL_SSL))
-                
-            }
 
             var callCallback = true
             let urlBuffer = StringUtils.toNullTerminatedUtf8String(self.url)
@@ -487,3 +480,14 @@ private protocol CurlInvokerDelegate: class {
     func prepareForRedirect()
     
 }
+
+///
+/// Singleton struct for one time initializations
+///
+private struct OneTimeInitializations {
+
+    init() {
+        curl_global_init(Int(CURL_GLOBAL_SSL))
+    }
+}
+
