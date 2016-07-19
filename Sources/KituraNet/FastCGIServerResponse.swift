@@ -117,6 +117,11 @@ public class FastCGIServerResponse : ServerResponse {
     }
     
     ///
+    /// Reset this response object back to it's initial state
+    ///
+    public func reset() {}
+    
+    ///
     /// Begin the buffer flush.
     ///
     /// This can only happen once and is called by all the tools that write

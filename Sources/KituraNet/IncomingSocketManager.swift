@@ -25,16 +25,24 @@ import Socket
 class IncomingSocketManager  {
     
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
-        
+    
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        typealias DateType = Date
+        typealias TimeIntervalType = TimeInterval
+    #else
+        typealias DateType = NSDate
+        typealias TimeIntervalType = NSTimeInterval
+    #endif
+    
     ///
     /// Interval at which to check for idle sockets to close
     ///
-    let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
+    let keepAliveIdleCheckingInterval: TimeIntervalType = 60.0
         
     ///
     /// The last time we checked for an idle socket
     ///
-    var keepAliveIdleLastTimeChecked = NSDate()
+    var keepAliveIdleLastTimeChecked = DateType()
     
     ///
     /// Handle a new incoming socket
@@ -64,7 +72,7 @@ class IncomingSocketManager  {
             socketHandlers.removeValue(forKey: fileDescriptor)
             handler.close()
         }
-        keepAliveIdleLastTimeChecked = NSDate()
+        keepAliveIdleLastTimeChecked = DateType()
     }
 }
 

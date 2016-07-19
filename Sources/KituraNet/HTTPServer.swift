@@ -55,17 +55,12 @@ public class HTTPServer {
     ///
     /// Incoming socket handler
     ///
-    private let socketManager: IncomingSocketManager
+    private let socketManager = IncomingSocketManager()
     
     ///
     /// Maximum number of pending connections
     ///
     private let maxPendingConnections = 100
-
-
-    init() {
-        socketManager = IncomingSocketManager()
-    }
     
     ///
     /// Listens for connections on a socket
@@ -137,7 +132,7 @@ public class HTTPServer {
                 return
             }
             
-            try socket.listen(on: port, maxPendingConnections: maxPendingConnections)
+            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
             
             // TODO: Change server exit to not rely on error being thrown

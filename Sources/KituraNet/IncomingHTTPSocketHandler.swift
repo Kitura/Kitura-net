@@ -23,8 +23,18 @@ import Socket
 
 class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        typealias DispatchDataType = DispatchData
+        typealias DispatchIOType = DispatchIO
+        typealias TimeIntervalType = TimeInterval
+    #else
+        typealias DispatchDataType = dispatch_data_t
+        typealias DispatchIOType = dispatch_io_t
+        typealias TimeIntervalType = NSTimeInterval
+    #endif
+    
     // Note: This var is optional to enable it to be constructed in the init function
-    private var channel: dispatch_io_t?
+    private var channel: DispatchIOType?
     
     private let socket: Socket
     
@@ -48,7 +58,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     ///
     /// Keep alive timeout in seconds
     ///
-    static let keepAliveTimeout: NSTimeInterval = 60
+    static let keepAliveTimeout: TimeIntervalType = 60
     
     ///
     /// A flag indicating that the client has requested that the socket be kep alive
@@ -58,7 +68,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     ///
     /// The socket if idle will be kep alive until...
     ///
-    var keepAliveUntil: NSTimeInterval = 0.0
+    var keepAliveUntil: TimeIntervalType = 0.0
     
     ///
     /// A flag to indicate that the socket has a request in progress
@@ -99,18 +109,30 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         reader = PseudoAsynchronousReader(clientSocket: socket)
         request = HTTPServerRequest(reader: reader)
         
-        channel = dispatch_io_create(DISPATCH_IO_STREAM, socket.socketfd, HTTPServer.clientHandlerQueue.osQueue) { error in
+        let cleanupHandler = { (error: Int32) -> Void in
             self.socket.close()
-        }
-        dispatch_io_set_low_water(channel!, 1)
-        
-        response = HTTPServerResponse(handler: self)
-        
-        dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
-            self.handleRead(done: done, data: data, error: error)
             self.inProgress = false
             self.keepAliveUntil = 0.0
         }
+        
+        response = HTTPServerResponse(handler: self)
+        
+        #if os(Linux)
+            channel = dispatch_io_create(DISPATCH_IO_STREAM, socket.socketfd, HTTPServer.clientHandlerQueue.osQueue, cleanupHandler: cleanupHandler)
+            dispatch_io_set_low_water(channel!, 1)
+            dispatch_io_set_high_water(channel!, 4 * 1024)
+        
+            dispatch_io_read(channel!, 0, Int.max, HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
+                self.handleRead(done: done, data: data, error: error)
+            }
+        #else
+            channel = DispatchIO(type: .stream, fileDescriptor: socket.socketfd, queue: HTTPServer.clientHandlerQueue.osQueue, cleanupHandler: cleanupHandler)
+            channel!.setLimit(lowWater: 1)
+            channel!.setLimit(highWater: 4 * 1024)
+            channel!.read(offset: 0, length: Int.max, queue: HTTPServer.clientHandlerQueue.osQueue) {done, data, error in
+                self.handleRead(done: done, data: data, error: error)
+            }
+        #endif
     }
     
     ///
@@ -120,7 +142,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// - Parameter data: The dispatch_data containing the read data
     /// - Parameter error: The value of errno if an error occurred.
     ///
-    private func handleRead(done: Bool, data: dispatch_data_t?, error: Int32) {
+    private func handleRead(done: Bool, data: DispatchDataType?, error: Int32) {
         guard !done else {
             if error != 0 {
                 Log.error("Error reading from \(socket.socketfd)")
@@ -132,12 +154,22 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
         guard let data = data else { return }
         
-        let buffer = NSMutableData()
-        let _ = dispatch_data_apply(data) { (region, offset, dataBuffer, size) -> Bool in
-            guard let dataBuffer = dataBuffer else { return true }
-            buffer.append(dataBuffer, length: size)
-            return true
-        }
+        let dataBuffer = NSMutableData()
+        #if os(Linux)
+            let _ = dispatch_data_apply(data) { (region, offset, dataBuffer, size) -> Bool in
+                guard let dataBuffer = dataBuffer else { return true }
+                dataBuffer.append(dataBuffer, length: size)
+                return true
+            }
+        #else
+            _ = data.enumerateBytes() { (buffer: UnsafeBufferPointer<UInt8>, byteIndex: Int, stop: inout Bool) in
+                guard  let address = buffer.baseAddress  else {
+                    stop = true
+                    return
+                }
+                dataBuffer.append(address+byteIndex, length: buffer.count-byteIndex)
+            }
+        #endif
         
         switch(state) {
         case .reset:
@@ -146,10 +178,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             fallthrough
             
         case .initial:
-            parse(buffer)
+            parse(dataBuffer)
             
         case .parsed:
-            reader.addToAvailableData(from: buffer)
+            reader.addToAvailableData(from: dataBuffer)
             break
         }
     }
@@ -207,20 +239,27 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// Write data to the socket
     ///
     func write(from: NSData) {
-        let temp = dispatch_data_create( from.bytes, from.length, HTTPServer.clientHandlerQueue.osQueue, nil)
         #if os(Linux)
-            let data = temp
+            let data = dispatch_data_create( from.bytes, from.length, HTTPServer.clientHandlerQueue.osQueue, nil)!
+        
+            dispatch_io_write(channel!, 0, data, HTTPServer.clientHandlerQueue.osQueue) { _,_,_ in }
         #else
-            guard let data = temp  else { return }
+            let buffer = UnsafeBufferPointer<UInt8>(start: UnsafePointer<UInt8>(from.bytes), count: from.length)
+            let data = DispatchData(bytes: buffer)
+            
+            channel!.write(offset: 0, data: data, queue: HTTPServer.clientHandlerQueue.osQueue) { _,_,_ in }
         #endif
-        dispatch_io_write(channel!, 0, data, HTTPServer.clientHandlerQueue.osQueue) { _,_,_ in }
     }
     
     ///
     /// Close the socket
     ///
     func close() {
-        dispatch_io_close(channel!, 0)
+        #if os(Linux)
+            dispatch_io_close(channel!, 0)
+        #else
+            channel!.close()
+        #endif
     }
     
     ///
