@@ -355,7 +355,7 @@ class FastCGIRecordParser {
     // Skip any padding indicated, then return the unused portion
     // of our data buffer. We're done reading this record.
     //
-    private func skipPaddingThenReturn() throws -> NSMutableData {
+    private func skipPaddingThenReturn() throws -> NSMutableData? {
         
         if self.paddingLength > 0 {
             try skip(Int(self.paddingLength))
@@ -364,7 +364,7 @@ class FastCGIRecordParser {
         let remainingBufferBytes = self.buffer.length - self.pointer
         
         if remainingBufferBytes == 0 {
-            return NSMutableData()
+            return nil
         } else {
             return NSMutableData(bytes: buffer.bytes + self.pointer, length: remainingBufferBytes)
         }
@@ -373,7 +373,7 @@ class FastCGIRecordParser {
     
     // Parser the data, return any extra
     //
-    func parse() throws -> NSMutableData {
+    func parse() throws -> NSMutableData? {
         
         // Make parser go now!
         //

@@ -479,12 +479,17 @@ public class FastCGIServerRequest : ServerRequest {
                     // data yet.
                     //
                     do {
-                        let remainingData : NSData = try parser.parse()
-                        #if os(Linux)
-                            networkBuffer.setData(remainingData)
-                        #else
-                            networkBuffer.setData(remainingData as Data)
-                        #endif
+                        let remainingData : NSData? = try parser.parse()
+                        
+                        if (remainingData == nil) {
+                            networkBuffer.length = 0
+                        } else {
+                            #if os(Linux)
+                                networkBuffer.setData(remainingData!)
+                            #else
+                                networkBuffer.setData(remainingData as! Data)
+                            #endif
+                        }
                     }
                     catch FastCGI.RecordErrors.bufferExhausted {
                         // break out of this repeat, which will start the 
