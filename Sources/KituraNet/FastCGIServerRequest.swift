@@ -61,13 +61,8 @@ public class FastCGIServerRequest : ServerRequest {
     }
     
     ///
-    /// URL Components received from FastCGI
+    /// URI Component received from FastCGI
     ///
-    private var requestScheme : String? = nil
-    private var requestHost : String? = nil
-    private var requestServerAddress : String? = nil
-    private var requestServerName : String? = nil
-    private var requestPort : String? = nil
     private var requestUri : String? = nil
     
     ///
@@ -97,10 +92,7 @@ public class FastCGIServerRequest : ServerRequest {
     ///
     /// Some defaults
     ///
-    private static let defaultProtocolScheme : String = "http"
-    private static let defaultHttpPorts : [String] = ["80", "443"]
     private static let defaultMethod : String = "GET"
-    private static let defaultAddress : String = "127.0.0.1"
     
     ///
     /// List of status states
@@ -160,128 +152,13 @@ public class FastCGIServerRequest : ServerRequest {
     }
     
     //
-    // Now that parameter blocks have been received, scrub through them
-    // in order to attempt to assemble a request URL from the data received.
-    // 
-    // This involves:
-    // - The received request scheme (http/https)
-    // - Determining the requested host from, in order:
-    //      * The Host header, or...
-    //      * The server name received from FastCGI, or...
-    //      * The server IP address received from FastCGI, or...
-    //      * A fail-over default (localhost)
-    // - The port number the web browser connected to
-    // - The original request URI
+    // Proces the original request URI
     //
     func postProcessUrlParameter() -> Void {
         
         // reset the current url
         //
         self.url.length = 0
-        
-        // set our protocol scheme
-        //
-        if self.requestScheme?.characters.count > 0 {
-            
-            // use the request scheme as received
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(self.requestScheme!)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(self.requestScheme!)! as Data)
-            #endif
-            
-        } else {
-            
-            // we received no request scheme - use the default
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultProtocolScheme)! as Data)
-            #endif
-            
-        }
-
-        #if os(Linux)
-            self.url.append(StringUtils.toUtf8String("://")!)
-        #else
-            self.url.append(StringUtils.toUtf8String("://")! as Data)
-        #endif
-        
-        // detector for our port
-        var portPassedWithHostName : Bool = false
-        
-        // set our host name
-        //
-        if self.requestHost?.characters.count > 0 {
-            
-            // use the requested host as received
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(self.requestHost!)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(self.requestHost!)! as Data)
-            #endif
-            
-            if self.requestHost!.contains(":") {
-                portPassedWithHostName = true
-            }
-            
-        } else if self.requestServerName?.characters.count > 0 {
-            
-            // use the requested server name as received
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(self.requestServerName!)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(self.requestServerName!)! as Data)
-            #endif
-            
-            if self.requestServerName!.contains(":") {
-                portPassedWithHostName = true
-            }
-            
-        } else if self.requestServerAddress?.characters.count > 0 {
-            
-            // use the requested server address as received
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)! as Data)
-           #endif
-            
-            if self.requestServerAddress!.contains(":") {
-                portPassedWithHostName = true
-            }
-            
-        } else {
-            
-            // use a failover default as the server address
-            #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)!)
-            #else
-                self.url.append(StringUtils.toUtf8String(FastCGIServerRequest.defaultAddress)! as Data)
-            #endif
-            
-        }
-        
-        // set the port
-        //
-        if !portPassedWithHostName && self.requestPort?.characters.count > 0 {
-            
-            // We received a port via SERVER_PORT and no port was passed as part of our
-            // server address (probably means web address is port 80 or 443).
-            //
-            // We'll append our port to the URL if the web server is not, in fact, using a 
-            // standard HTTP port (80, 443)
-            //
-            if !FastCGIServerRequest.defaultHttpPorts.contains(self.requestPort!) {
-                #if os(Linux)
-                    self.url.append(StringUtils.toUtf8String(":")!)
-                    self.url.append(StringUtils.toUtf8String(self.requestPort!)!)
-                #else
-                    self.url.append(StringUtils.toUtf8String(":")! as Data)
-                    self.url.append(StringUtils.toUtf8String(self.requestPort!)! as Data)
-                #endif
-            }
-        }
         
         // set the uri
         //
@@ -293,7 +170,13 @@ public class FastCGIServerRequest : ServerRequest {
             #else
                 self.url.append(StringUtils.toUtf8String(self.requestUri!)! as Data)
             #endif
-            
+        }
+        else {
+            #if os(Linux)
+                self.url.append(StringUtils.toUtf8String("/")!)
+            #else
+                self.url.append(StringUtils.toUtf8String("/")! as Data)
+            #endif
         }
                 
     }
@@ -315,7 +198,7 @@ public class FastCGIServerRequest : ServerRequest {
             self.remoteAddress = self.socket.remoteHostname
         }
         
-        // complete our URL string
+        // assign our URL
         self.postProcessUrlParameter()
         
     }
@@ -400,38 +283,6 @@ public class FastCGIServerRequest : ServerRequest {
             
             // The request method (GET/POST/etc)
             self.method = value
-            
-        } else if name.caseInsensitiveCompare("REQUEST_SCHEME") == .orderedSame {
-            
-            // The request scheme (HTTP or HTTPS)
-            self.requestScheme = value
-            
-        } else if name.caseInsensitiveCompare("HTTP_HOST") == .orderedSame {
-            
-            // the "Host" header transmitted by the client
-            //
-            // Note we return here to prevent these from potentially being
-            // added a second time by the "add all headers" catch-all at the
-            // end of this block.
-            //
-            self.requestHost = value
-            self.processHttpHeader(name, value: value, remove: "HTTP_")
-            return
-            
-        } else if name.caseInsensitiveCompare("SERVER_ADDR") == .orderedSame {
-            
-            // The server address as specified by the web server
-            self.requestServerAddress = value
-            
-        } else if name.caseInsensitiveCompare("SERVER_NAME") == .orderedSame {
-            
-            // The server name as specified by the web server.
-            self.requestServerName = value
-            
-        } else if name.caseInsensitiveCompare("SERVER_PORT") == .orderedSame {
-            
-            // The port the original web server received the request on
-            self.requestPort = value
             
         } else if name.caseInsensitiveCompare("REQUEST_URI") == .orderedSame {
             
