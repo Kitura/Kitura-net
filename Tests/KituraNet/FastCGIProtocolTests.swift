@@ -63,9 +63,9 @@ class FastCGIProtocolTests: XCTestCase {
             creator.protocolStatus = protocolStatus
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData = try parser.parse()
+            let remainingData : NSMutableData? = try parser.parse()
             
-            XCTAssert(remainingData.length == 0, "Parser returned overflow data where not should have been present")
+            XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_END_REQUEST, "Record type received was incorrect")
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             XCTAssert(parser.protocolStatus == protocolStatus, "Protocol status received incorrect.")
@@ -165,9 +165,9 @@ class FastCGIProtocolTests: XCTestCase {
             creator.data = testData
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData = try parser.parse()
+            let remainingData : NSMutableData? = try parser.parse()
             
-            XCTAssert(remainingData.length == 0, "Parser returned overflow data where not should have been present")
+            XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == ofType, "Record type received was incorrect")
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             XCTAssert(parser.data != nil, "No data was received")
@@ -254,9 +254,9 @@ class FastCGIProtocolTests: XCTestCase {
             creator.keepAlive = keepalive
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData = try parser.parse()
+            let remainingData : NSMutableData? = try parser.parse()
             
-            XCTAssert(remainingData.length == 0, "Parser returned overflow data where not should have been present")
+            XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_BEGIN_REQUEST, "Record type received was incorrect")
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             XCTAssert(parser.role == FastCGI.Constants.FCGI_RESPONDER, "Role received was incorrect")
@@ -312,9 +312,9 @@ class FastCGIProtocolTests: XCTestCase {
             }
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData = try parser.parse()
+            let remainingData : NSMutableData? = try parser.parse()
             
-            XCTAssert(remainingData.length == 0, "Parser returned overflow data where not should have been present")
+            XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_PARAMS, "Record type received was incorrect")
             XCTAssert(parser.requestId == 1, "Request ID received was incorrect")
             
