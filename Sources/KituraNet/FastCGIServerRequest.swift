@@ -33,12 +33,12 @@ public class FastCGIServerRequest : ServerRequest {
     ///
     /// Major version for HTTP
     ///
-    public private(set) var httpVersionMajor: UInt16? = 1
+    public private(set) var httpVersionMajor: UInt16? = 0
     
     ///
     /// Minor version for HTTP
     ///
-    public private(set) var httpVersionMinor: UInt16? = 1
+    public private(set) var httpVersionMinor: UInt16? = 9
     
     ///
     /// Set of headers
@@ -234,7 +234,7 @@ public class FastCGIServerRequest : ServerRequest {
                 self.url.append(StringUtils.toUtf8String(self.requestServerName!)! as Data)
             #endif
             
-            if self.requestHost!.contains(":") {
+            if self.requestServerName!.contains(":") {
                 portPassedWithHostName = true
             }
             
@@ -247,7 +247,7 @@ public class FastCGIServerRequest : ServerRequest {
                 self.url.append(StringUtils.toUtf8String(self.requestServerAddress!)! as Data)
            #endif
             
-            if self.requestHost!.contains(":") {
+            if self.requestServerAddress!.contains(":") {
                 portPassedWithHostName = true
             }
             
@@ -340,6 +340,10 @@ public class FastCGIServerRequest : ServerRequest {
     // Parse the server protocol into a major and minor version
     //
     private func processServerProtocol(_ protocolString: String) {
+        
+        guard protocolString.characters.count > 0 else {
+            return
+        }
         
         guard protocolString.lowercased().hasPrefix("http/") &&
             protocolString.characters.count > "http/".characters.count else {
