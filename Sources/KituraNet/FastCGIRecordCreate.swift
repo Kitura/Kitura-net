@@ -78,7 +78,7 @@ class FastCGIRecordCreate {
         let r = NSMutableData()
         
         var v : UInt8 = FastCGI.Constants.FASTCGI_PROTOCOL_VERSION
-        var t : UInt8 = self.recordType
+        var t : UInt8 = recordType
         var requestId : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: self.requestId)
         
         r.append(&v, length: 1)
@@ -124,7 +124,7 @@ class FastCGIRecordCreate {
         
         var contentLength : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: 8)
         var requestRole : UInt16 = FastCGIRecordCreate.getNetworkByteOrderSmall(from: self.requestRole)
-        var flags : UInt8 = self.keepAlive ? FastCGI.Constants.FCGI_KEEP_CONN : 0
+        var flags : UInt8 = keepAlive ? FastCGI.Constants.FCGI_KEEP_CONN : 0
         
         // content length
         data.append(&contentLength, length: 2)
@@ -170,7 +170,7 @@ class FastCGIRecordCreate {
         
         let content : NSMutableData = NSMutableData()
         
-        for (key, value) in self.parameters {
+        for (key, value) in parameters {
 
             // generate our key and value by converting to 
             // Data from String using UTF-8.
@@ -185,8 +185,8 @@ class FastCGIRecordCreate {
                 continue
             }
             
-            self.writeEncodedLength(length: keyData.length, into: content)
-            self.writeEncodedLength(length: valueData.length, into: content)
+            writeEncodedLength(length: keyData.length, into: content)
+            writeEncodedLength(length: valueData.length, into: content)
             
             #if os(Linux)
                 content.append(keyData)
@@ -204,8 +204,8 @@ class FastCGIRecordCreate {
     // Generate a parameters (PARAMS) record
     //
     private func finalizeParameters(data: NSMutableData) -> NSData {
-        self.data = self.createParameterRecords()
-        return self.finalizeDataRecord(data: data)
+        self.data = createParameterRecords()
+        return finalizeDataRecord(data: data)
     }
     
     //
@@ -229,7 +229,7 @@ class FastCGIRecordCreate {
         data.append(&paddingLengthEncoded, length: 1)
         
         // reserved space
-        self.appendZeroes(data: data, count: 1)
+        appendZeroes(data: data, count: 1)
         // write our data block
         #if os(Linux)
             data.append(contentData)
@@ -239,7 +239,7 @@ class FastCGIRecordCreate {
         
         // write any padding
         if paddingLength > 0 {
-            self.appendZeroes(data: data, count: paddingLength)
+            appendZeroes(data: data, count: paddingLength)
         }
         
         return data
@@ -252,7 +252,7 @@ class FastCGIRecordCreate {
         
         // check that our record type is ok
         //
-        switch self.recordType {
+        switch recordType {
         case FastCGI.Constants.FCGI_END_REQUEST,
              FastCGI.Constants.FCGI_STDOUT,
              FastCGI.Constants.FCGI_STDIN,
@@ -266,9 +266,9 @@ class FastCGIRecordCreate {
         
         // check that our subtype is ok, if applicable
         //
-        if self.recordType == FastCGI.Constants.FCGI_END_REQUEST {
+        if recordType == FastCGI.Constants.FCGI_END_REQUEST {
             
-            switch self.protocolStatus {
+            switch protocolStatus {
             case FastCGI.Constants.FCGI_REQUEST_COMPLETE,
                  FastCGI.Constants.FCGI_CANT_MPX_CONN,
                  FastCGI.Constants.FCGI_UNKNOWN_ROLE:
@@ -279,9 +279,9 @@ class FastCGIRecordCreate {
             }
             
         }
-        else if self.recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
+        else if recordType == FastCGI.Constants.FCGI_BEGIN_REQUEST {
             
-            guard self.requestRole == FastCGI.Constants.FCGI_RESPONDER else {
+            guard requestRole == FastCGI.Constants.FCGI_RESPONDER else {
                 throw FastCGI.RecordErrors.invalidRole
             }
             
@@ -289,7 +289,7 @@ class FastCGIRecordCreate {
         
         // check that our request id is valid
         //
-        guard self.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
+        guard requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
             throw FastCGI.RecordErrors.invalidRequestId
         }
         
@@ -313,21 +313,21 @@ class FastCGIRecordCreate {
         // rely on throw to abort if there is an issue
         try recordTest()
         
-        let record : NSMutableData = self.createRecordStarter()
+        let record : NSMutableData = createRecordStarter()
         
-        switch self.recordType {
+        switch recordType {
         case FastCGI.Constants.FCGI_BEGIN_REQUEST:
-            return self.finalizeRequestBeginRecord(data: record)
+            return finalizeRequestBeginRecord(data: record)
             
         case FastCGI.Constants.FCGI_END_REQUEST:
-            return self.finalizeRequestCompleteRecord(data: record)
+            return finalizeRequestCompleteRecord(data: record)
             
         case FastCGI.Constants.FCGI_PARAMS:
-            return self.finalizeParameters(data: record)
+            return finalizeParameters(data: record)
             
         default:
             // either STDIN or STDOUT
-            return self.finalizeDataRecord(data: record)
+            return finalizeDataRecord(data: record)
         }
         
     }
