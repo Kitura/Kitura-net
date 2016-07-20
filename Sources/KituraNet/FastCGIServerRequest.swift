@@ -54,10 +54,10 @@ public class FastCGIServerRequest : ServerRequest {
     /// URL strings.
     ///
     public var urlString : String {
-        guard self.url.length > 0 else {
+        guard url.length > 0 else {
             return ""
         }
-        return StringUtils.fromUtf8String(self.url)!
+        return StringUtils.fromUtf8String(url)!
     }
     
     ///
@@ -127,14 +127,14 @@ public class FastCGIServerRequest : ServerRequest {
     // Read data received (perhaps from POST) into an NSData object
     //
     public func read(into data: NSMutableData) throws -> Int {
-        return self.bodyChunk.fill(data: data)
+        return bodyChunk.fill(data: data)
     }
     
     //
     // Read all data into the object.
     //
     public func readAllData(into data: NSMutableData) throws -> Int {
-        return self.bodyChunk.fill(data: data)
+        return bodyChunk.fill(data: data)
     }
     
     //
@@ -142,7 +142,7 @@ public class FastCGIServerRequest : ServerRequest {
     //
     public func readString() throws -> String? {
         let data : NSMutableData = NSMutableData()
-        let bytes : Int = self.bodyChunk.fill(data: data)
+        let bytes : Int = bodyChunk.fill(data: data)
         
         if bytes > 0 {
             return StringUtils.fromUtf8String(data)
@@ -158,24 +158,24 @@ public class FastCGIServerRequest : ServerRequest {
         
         // reset the current url
         //
-        self.url.length = 0
+        url.length = 0
         
         // set the uri
         //
-        if self.requestUri?.characters.count > 0 {
+        if requestUri?.characters.count > 0 {
             
             // use the URI as received
             #if os(Linux)
-                self.url.append(StringUtils.toUtf8String(self.requestUri!)!)
+                url.append(StringUtils.toUtf8String(requestUri!)!)
             #else
-                self.url.append(StringUtils.toUtf8String(self.requestUri!)! as Data)
+                url.append(StringUtils.toUtf8String(requestUri!)! as Data)
             #endif
         }
         else {
             #if os(Linux)
-                self.url.append(StringUtils.toUtf8String("/")!)
+                url.append(StringUtils.toUtf8String("/")!)
             #else
-                self.url.append(StringUtils.toUtf8String("/")! as Data)
+                url.append(StringUtils.toUtf8String("/")! as Data)
             #endif
         }
                 
@@ -189,17 +189,17 @@ public class FastCGIServerRequest : ServerRequest {
     private func postProcessParameters() {
         
         // make sure our method is set
-        if self.method.characters.count == 0 {
-            self.method = FastCGIServerRequest.defaultMethod
+        if method.characters.count == 0 {
+            method = FastCGIServerRequest.defaultMethod
         }
         
         // make sure our remoteAddress is set
-        if self.remoteAddress.characters.count == 0 {
-            self.remoteAddress = self.socket.remoteHostname
+        if remoteAddress.characters.count == 0 {
+            remoteAddress = socket.remoteHostname
         }
         
         // assign our URL
-        self.postProcessUrlParameter()
+        postProcessUrlParameter()
         
     }
     
@@ -216,7 +216,7 @@ public class FastCGIServerRequest : ServerRequest {
         processedName = processedName.replacingOccurrences(of: "_", with: "-")
         processedName = processedName.capitalized
         
-        self.headers.append(processedName as String, value: value)
+        headers.append(processedName as String, value: value)
     }
     
     //
@@ -264,8 +264,8 @@ public class FastCGIServerRequest : ServerRequest {
         
         // assign our values if applicable
         if majorVersion != nil && minorVersion != nil {
-            self.httpVersionMajor = majorVersion!
-            self.httpVersionMinor = minorVersion!
+            httpVersionMajor = majorVersion!
+            httpVersionMinor = minorVersion!
         }
     
     }
@@ -282,24 +282,24 @@ public class FastCGIServerRequest : ServerRequest {
         if name.caseInsensitiveCompare("REQUEST_METHOD") == .orderedSame {
             
             // The request method (GET/POST/etc)
-            self.method = value
+            method = value
             
         } else if name.caseInsensitiveCompare("REQUEST_URI") == .orderedSame {
             
             // The URI as submitted to the web server
-            self.requestUri = value
+            requestUri = value
             
         } else if name.caseInsensitiveCompare("REMOTE_ADDR") == .orderedSame {
             
             // The actual IP address of the client
-            self.remoteAddress = value
+            remoteAddress = value
             
         } else if name.caseInsensitiveCompare("SERVER_PROTOCOL") == .orderedSame {
             
             // The HTTP protocol used by the client to speak with the
-            // web server (HTTP/1.0, HTTP/1.1, HTTP/2.0, etc)
+            // web server (HTTP/0.9, HTTP/1.0, HTTP/1.1, HTTP/2.0, etc)
             //
-            self.processServerProtocol(value)
+            processServerProtocol(value)
             
         }
         else if name.hasPrefix("HTTP_") {
@@ -311,7 +311,7 @@ public class FastCGIServerRequest : ServerRequest {
             // added a second time by the "add all headers" catch-all at the
             // end of this block.
             //
-            self.processHttpHeader(name, value: value, remove: "HTTP_")
+            processHttpHeader(name, value: value, remove: "HTTP_")
             return
             
         }
@@ -321,7 +321,7 @@ public class FastCGIServerRequest : ServerRequest {
         //
         // Commented out for now pending community discussion as to best approach here
         
-        /* self.headers.append("FASTCGI_".appending(name), value: value) */
+        /* headers.append("FASTCGI_".appending(name), value: value) */
         
     }
     
@@ -333,18 +333,18 @@ public class FastCGIServerRequest : ServerRequest {
         // is this record for a request that is an extra
         // request that we've already seen? if so, ignore it.
         //
-        guard !self.extraRequestIds.contains(record.requestId) else {
+        guard !extraRequestIds.contains(record.requestId) else {
             return
         }
 
-        if self.status == Status.initial &&
+        if status == Status.initial &&
             record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST {
             
             // this is a request begin record and we haven't seen any requests
             // in this FastCGIServerRequest object. We're safe to begin parsing.
             //
-            self.requestId = record.requestId
-            self.status = Status.requestStarted
+            requestId = record.requestId
+            status = Status.requestStarted
             
         }
         else if record.type == FastCGI.Constants.FCGI_BEGIN_REQUEST {
@@ -356,7 +356,7 @@ public class FastCGIServerRequest : ServerRequest {
             // if this is an extra begin request, we need to throw an error
             // and have the request 
             //
-            if record.requestId == self.requestId {
+            if record.requestId == requestId {
                 // a second begin request is insanity.
                 //
                 throw FastCGI.RecordErrors.protocolError
@@ -364,11 +364,11 @@ public class FastCGIServerRequest : ServerRequest {
                 // this is an attempt to multiplex the connection. remember this
                 // for later, as we can reject this safely with a response.
                 //
-                self.extraRequestIds.append(record.requestId)
+                extraRequestIds.append(record.requestId)
             }
             
         }
-        else if self.status == Status.requestStarted &&
+        else if status == Status.requestStarted &&
             record.type == FastCGI.Constants.FCGI_PARAMS {
             
             // this is a parameter record
@@ -380,14 +380,14 @@ public class FastCGIServerRequest : ServerRequest {
             // we want to keep processing the real request though, so we just 
             // ignore this for now and we can reject the attempt later.
             //
-            guard record.requestId == self.requestId else {
+            guard record.requestId == requestId else {
                 return
             }
             
             if record.headers.count > 0 {
                 for pair in record.headers  {
                     // parse the header we've received
-                    self.processHeader(pair["name"]!, value: pair["value"]!)
+                    processHeader(pair["name"]!, value: pair["value"]!)
                 }
             } else {
                 // no params were received in this parameter record.
@@ -397,12 +397,12 @@ public class FastCGIServerRequest : ServerRequest {
                 // process and we can reject this as an error state later
                 // as necessary.
                 //
-                self.postProcessParameters()
-                self.status = Status.headersComplete
+                postProcessParameters()
+                status = Status.headersComplete
             }
             
         }
-        else if self.status == Status.headersComplete &&
+        else if status == Status.headersComplete &&
             record.type == FastCGI.Constants.FCGI_STDIN {
             
             // Headers are complete and we're received STDIN records.
@@ -414,19 +414,19 @@ public class FastCGIServerRequest : ServerRequest {
             // we want to keep processing the real request though, so we just
             // ignore this for now and we can reject the attempt later.
             //
-            guard record.requestId == self.requestId else {
+            guard record.requestId == requestId else {
                 return
             }
             
             if record.data?.length > 0 {
                 // we've received some request body data as part of the STDIN
                 //
-                self.bodyChunk.append(data: record.data!)
+                bodyChunk.append(data: record.data!)
             }
             else {
                 // a zero length stdin means request is done
                 //
-                self.status = Status.requestComplete
+                status = Status.requestComplete
             }
             
         }
@@ -481,7 +481,7 @@ public class FastCGIServerRequest : ServerRequest {
                     do {
                         let remainingData : NSData? = try parser.parse()
                         
-                        if (remainingData == nil) {
+                        if remainingData == nil {
                             networkBuffer.length = 0
                         } else {
                             #if os(Linux)
@@ -503,10 +503,10 @@ public class FastCGIServerRequest : ServerRequest {
                     }
                     
                     // if we got here, we parsed a record.
-                    try self.processRecord(parser)
+                    try processRecord(parser)
                     
                     // if we're ready to send back a response, do so
-                    if self.status == Status.requestComplete {
+                    if status == Status.requestComplete {
                         callback(.success)
                         return
                     }

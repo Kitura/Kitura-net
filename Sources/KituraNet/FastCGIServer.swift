@@ -61,7 +61,7 @@ public class FastCGIServer {
         
         do {
             
-            self.listenSocket = try Socket.create()
+            listenSocket = try Socket.create()
             
         } catch let error as Socket.Error {
             print("FastCGI error reported:\n \(error.description)")
