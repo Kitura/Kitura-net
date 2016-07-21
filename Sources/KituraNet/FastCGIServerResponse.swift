@@ -76,7 +76,7 @@ public class FastCGIServerResponse : ServerResponse {
     init(socket: Socket, request: FastCGIServerRequest) {
         self.socket = socket
         self.serverRequest = request
-        headers["Date"] = [SPIUtils.httpDate()]
+        self.headers["Date"] = [SPIUtils.httpDate()]
     }
     
     
@@ -85,12 +85,12 @@ public class FastCGIServerResponse : ServerResponse {
     // They rely on other methods to do their work.
     //
     public func end(text: String) throws {
-        try self.write(from: text)
+        try write(from: text)
         try end()
     }
 
     public func write(from string: String) throws {
-        try self.write(from: StringUtils.toUtf8String(string)!)
+        try write(from: StringUtils.toUtf8String(string)!)
     }
     
     //
@@ -100,14 +100,14 @@ public class FastCGIServerResponse : ServerResponse {
         
         try startResponse()
         
-        if (self.buffer.length + data.length) > FastCGIServerResponse.bufferSize {
+        if (buffer.length + data.length) > FastCGIServerResponse.bufferSize {
             try flush()
         }
         
         #if os(Linux)
-            self.buffer.append(data)
+            buffer.append(data)
         #else
-            self.buffer.append(data as Data)
+            buffer.append(data as Data)
         #endif
     }
     
@@ -135,7 +135,7 @@ public class FastCGIServerResponse : ServerResponse {
         var headerData = ""
 
         // add our status header for FastCGI
-        headerData.append("Status: \(self.status) \(HTTP.statusCodes[self.status]!)\r\n")
+        headerData.append("Status: \(status) \(HTTP.statusCodes[status]!)\r\n")
 
         // add the rest of our response headers
         for (key, valueSet) in headers.headers {
@@ -180,8 +180,8 @@ public class FastCGIServerResponse : ServerResponse {
             throw FastCGI.RecordErrors.internalError
         }
         
-        return try self.getEndRequestMessage(requestId: serverRequest.requestId,
-                                             protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
+        return try getEndRequestMessage(requestId: serverRequest.requestId,
+                                        protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
         
     }
 
@@ -191,7 +191,7 @@ public class FastCGIServerResponse : ServerResponse {
     // beyond the first one until the first one is complete.
     //
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> NSData {
-        return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
+        return try getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
     //
@@ -210,7 +210,7 @@ public class FastCGIServerResponse : ServerResponse {
             throw FastCGI.RecordErrors.internalError
         }
         
-        return try self.getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        return try getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
         
     }
 
@@ -218,20 +218,20 @@ public class FastCGIServerResponse : ServerResponse {
     /// External message write for multiplex rejection    
     ///
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
-        guard let message : NSData = try self.getNoMultiplexingMessage(requestId: requestId) else {
+        guard let message : NSData = try getNoMultiplexingMessage(requestId: requestId) else {
             return
         }
-        try self.writeToSocket(message, wrapAsMessage: false)
+        try writeToSocket(message, wrapAsMessage: false)
     }
     
     /// 
     /// External message write for role rejection
     ///
     public func rejectUnsupportedRole() throws {
-        guard let message : NSData = try self.getUnsupportedRoleMessage() else {
+        guard let message : NSData = try getUnsupportedRoleMessage() else {
             return
         }
-        try self.writeToSocket(message, wrapAsMessage: false)
+        try writeToSocket(message, wrapAsMessage: false)
     }
 
     ///
@@ -251,9 +251,9 @@ public class FastCGIServerResponse : ServerResponse {
         let record = FastCGIRecordCreate()
         
         record.recordType = FastCGI.Constants.FCGI_STDOUT
-        record.requestId = self.serverRequest!.requestId
+        record.requestId = serverRequest!.requestId
         
-        if (buffer != nil) {
+        if buffer != nil {
             record.data = buffer
         }
         
@@ -270,7 +270,7 @@ public class FastCGIServerResponse : ServerResponse {
             return
         }
 
-        if (wrapAsMessage) {
+        if wrapAsMessage {
             try socket.write(from: getMessage(buffer: data))
         } else {
             try socket.write(from: data)
@@ -284,12 +284,13 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     private func flush() throws {
         
-        guard self.buffer.length > 0 else {
+        guard buffer.length > 0 else {
             return
         }
     
-        try self.writeToSocket(self.buffer)
-        self.buffer.length = 0
+        try writeToSocket(buffer)
+        
+        buffer.length = 0
         
     }
     
@@ -303,13 +304,13 @@ public class FastCGIServerResponse : ServerResponse {
     private func concludeResponse() throws {    
         
         // flush the reset of the buffer
-        try self.flush()
+        try flush()
         
         // send a blank packet
-        try self.writeToSocket(getMessage(buffer: nil), wrapAsMessage: false)
+        try writeToSocket(getMessage(buffer: nil), wrapAsMessage: false)
         
         // send done
-        try self.writeToSocket(getRequestCompleteMessage(), wrapAsMessage: false)
+        try writeToSocket(getRequestCompleteMessage(), wrapAsMessage: false)
         
         // close the socket.
         // we presently don't support keep-alive so this is fine.
