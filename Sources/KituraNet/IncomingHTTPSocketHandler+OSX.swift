@@ -35,6 +35,10 @@ extension IncomingHTTPSocketHandler {
         source!.setEventHandler() {
             self.handleRead()
         }
+
+        source!.setCancelHandler() {
+	    self.dispatchSourceCancelHandler()
+	}
         
         source!.resume()
     }
@@ -44,10 +48,18 @@ extension IncomingHTTPSocketHandler {
     ///
     func close() {
         source!.cancel()
-        socket.close()
+    }
+
+    ///
+    /// DispatchSource cancel handler
+    ///
+    private func dispatchSourceCancelHandler() {
+        if  socket.socketfd > -1 {
+            socket.close()
+        }
         inProgress = false
         keepAliveUntil = 0.0
-    }
+    } 
     
     
 }
