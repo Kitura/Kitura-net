@@ -34,6 +34,8 @@ import Socket
 class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+    static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
+    
     // Note: This var is optional to enable it to be constructed in the init function
     var source: DispatchSourceRead?
 #endif

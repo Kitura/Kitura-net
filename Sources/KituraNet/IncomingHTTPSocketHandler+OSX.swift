@@ -30,7 +30,7 @@ extension IncomingHTTPSocketHandler {
     /// Perform platform specfic setup, invoked by the init function
     ///
     func setup() {
-        source = DispatchSource.read(fileDescriptor: socket.socketfd, queue: HTTPServer.clientHandlerQueue.osQueue)
+        source = DispatchSource.read(fileDescriptor: socket.socketfd, queue: IncomingHTTPSocketHandler.socketReaderQueue)
         
         source!.setEventHandler() {
             self.handleRead()
