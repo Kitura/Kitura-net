@@ -129,7 +129,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 length = try socket.read(into: buffer)
             }
             if  buffer.length > 0  {
-                process(buffer, parsingAsynchronously: true)
+                process(buffer)
             }
             else {
                 if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
@@ -163,7 +163,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
     ///
-    func process(_ buffer: NSData, parsingAsynchronously: Bool=false) {
+    func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
             request.reset()
@@ -172,13 +172,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             
         case .initial:
             inProgress = true
-            if  parsingAsynchronously  {
-                HTTPServer.clientHandlerQueue.enqueueAsynchronously() { [unowned self] in
-                    self.parse(buffer)
-                }
-            }
-            else {
-                parse(buffer)
+            HTTPServer.clientHandlerQueue.enqueueAsynchronously() { [unowned self] in
+                self.parse(buffer)
             }
             
         case .parsed:
