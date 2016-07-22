@@ -28,7 +28,7 @@ public class ClientRequest: SocketWriter {
     /// Initialize the one time initialization struct to cause one time initializations to occur
     ///
     
-    static private let requestQueue = Queue(type: .parallel, label: "requestQueue")
+    static private let requestQueue = Queue(type: .serial, label: "requestQueue")
     static private let oneTime = OneTimeInitializations()
     
     public var headers = [String: String]()
