@@ -37,13 +37,20 @@ class ClientE2ETests: XCTestCase {
     let delegate = TestServerDelegate()
     
     func testSimpleHTTPClient() {
+        let expectation = self.expectation(0)
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
             XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
             let contentType = response!.headers["Content-Type"]
             XCTAssertNotNil(contentType, "No ContentType header in response")
             XCTAssertEqual(contentType!, ["text/html"], "Content-Type header wasn't `text/html`")
+            expectation.fulfill()
         }
+        waitExpectation(timeout: 10) { error in
+            // blocks test until request completes
+            XCTAssertNil(error);
+        }
+        
     }
     
     func testPostRequests() {

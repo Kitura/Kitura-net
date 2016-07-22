@@ -27,6 +27,8 @@ public class ClientRequest: SocketWriter {
     ///
     /// Initialize the one time initialization struct to cause one time initializations to occur
     ///
+    
+    static private let requestQueue = Queue(type: .serial, label: "requestQueue")
     static private let oneTime = OneTimeInitializations()
     
     public var headers = [String: String]()
@@ -243,44 +245,46 @@ public class ClientRequest: SocketWriter {
     /// End servicing the request, send response back
     ///
     public func end() {
-        
-        var callCallback = true
-        let urlBuffer = StringUtils.toNullTerminatedUtf8String(url)
-        
-        if  let _ = urlBuffer {
+
+        ClientRequest.requestQueue.enqueueAsynchronously() {
+
+            var callCallback = true
+            let urlBuffer = StringUtils.toNullTerminatedUtf8String(self.url)
             
-            prepareHandle(using: urlBuffer!)
+            if  let _ = urlBuffer {
+                
+                self.prepareHandle(using: urlBuffer!)
 
-            let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
-            invoker.delegate = self
+                let invoker = CurlInvoker(handle: self.handle!, maxRedirects: self.maxRedirects)
+                invoker.delegate = self
 
-            var code = invoker.invoke()
-            if  code == CURLE_OK  {
-                code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
+                var code = invoker.invoke()
                 if  code == CURLE_OK  {
-                    response.parse() {status in
-                        switch(status) {
-                            case .success:
-                                self.callback(response: self.response)
-                                callCallback = false
+                    code = curlHelperGetInfoLong(self.handle!, CURLINFO_RESPONSE_CODE, &self.response.status)
+                    if  code == CURLE_OK  {
+                        self.response.parse() {status in
+                            switch(status) {
+                                case .success:
+                                    self.callback(response: self.response)
+                                    callCallback = false
 
-                            default:
-                                print("ClientRequest error. Failed to parse response. status=\(status)")
+                                default:
+                                    print("ClientRequest error. Failed to parse response. status=\(status)")
+                            }
                         }
                     }
                 }
+                else {
+                    
+                    print("ClientRequest Error. CURL Return code=\(code)")
+                    
+                }
             }
-            else {
-                
-                print("ClientRequest Error. CURL Return code=\(code)")
-                
+            
+            if  callCallback  {
+                self.callback(response: nil)
             }
         }
-        
-        if  callCallback  {
-            callback(response: nil)
-        }
-        
     }
 
     ///
