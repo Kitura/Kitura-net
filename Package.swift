@@ -22,7 +22,7 @@ let package = Package(
         .Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 0, minor: 22),
         .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0, minor: 6),
         .Package(url: "https://github.com/IBM-Swift/CCurl.git", majorVersion: 0, minor: 2),
-        .Package(url: "https://github.com/IBM-Swift/CHTTPParser.git", majorVersion: 0, minor: 1)
+        .Package(url: "https://github.com/IBM-Swift/CHTTPParser.git", majorVersion: 0, minor: 2),
     ]
 )
 
