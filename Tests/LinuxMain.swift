@@ -19,9 +19,9 @@ import XCTest
 @testable import KituraNetTestSuite
 
 XCTMain([
-	testCase(ClientE2ETests.allTests),
-  	testCase(ClientRequestTests.allTests),
-        testCase(LargePayloadTests.allTests),
-	testCase(ParserTests.allTests),
-	testCase(FastCGIProtocolTests.allTests)
+       testCase(ClientE2ETests.allTests),
+       testCase(ClientRequestTests.allTests),
+       testCase(LargePayloadTests.allTests),
+       testCase(ParserTests.allTests),
+       testCase(FastCGIProtocolTests.allTests)
 ])
