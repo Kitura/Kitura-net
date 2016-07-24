@@ -75,11 +75,9 @@ class IncomingSocketManager  {
             let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
             if  result == -1  {
                 Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-                print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
             }
         }
         catch {
-            print("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
             Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
         }
         
@@ -97,7 +95,6 @@ class IncomingSocketManager  {
             
             if  count == -1  {
                 Log.error("epollWait failure. Error code=\(errno). Reason=\(lastError())")
-                print("epollWait failure. Error code=\(errno). Reason=\(lastError())")
                 continue
             }
                 
@@ -110,7 +107,7 @@ class IncomingSocketManager  {
                 
                 if  (event.events & EPOLLERR.rawValue)  == 1  ||  (event.events & EPOLLHUP.rawValue) == 1  ||  (event.events & EPOLLIN.rawValue) == 0 {
                     
-                    print("Error occurred on a file descriptor of an epool wait")
+                    Log.error("Error occurred on a file descriptor of an epool wait")
                     
                 }
                 else {
@@ -118,7 +115,7 @@ class IncomingSocketManager  {
                         handler.handleRead()
                     }
                     else {
-                        print("No handler for file descriptor \(event.data.fd)")
+                        Log.error("No handler for file descriptor \(event.data.fd)")
                     }
                 }
             }
@@ -133,18 +130,15 @@ class IncomingSocketManager  {
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         
         let maxInterval = now.timeIntervalSinceReferenceDate
-        print("Checking for idle sockets to close")
         for (fileDescriptor, handler) in socketHandlers {
             if  handler.inProgress  ||  maxInterval < handler.keepAliveUntil {
                 continue
             }
-            print("closing idle socket \(fileDescriptor)")
             socketHandlers.removeValue(forKey: fileDescriptor)
                 
             let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
             if  result == -1  {
                 Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-                print("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
             }
             handler.close()
         }
