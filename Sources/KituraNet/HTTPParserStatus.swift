@@ -30,7 +30,6 @@ enum HTTPParserState {
 /// HTTP parser error types
 enum HTTPParserErrorType {
     
-    case success
     case parsedLessThanRead
     case unexpectedEOF
     case internalError // TODO
@@ -42,12 +41,12 @@ struct HTTPParserStatus {
     init() {}
     
     var state = HTTPParserState.initial
-    var error = HTTPParserErrorType.success
+    var error = HTTPParserErrorType.internalError
     var keepAlive = false
     
     mutating func reset() {
         state = HTTPParserState.initial
-        error = HTTPParserErrorType.success
+        error = HTTPParserErrorType.internalError
         keepAlive = false
     }
 }

@@ -221,13 +221,12 @@ public class ClientRequest: SocketWriter {
                 code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
                 if  code == CURLE_OK  {
                     let parseStatus = response.parse()
-                    switch(parseStatus.error) {
-                        case .success:
-                            self.callback(response: self.response)
-                            callCallback = false
-
-                        default:
-                            Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
+                    if parseStatus.state == .messageComplete {
+                        self.callback(response: self.response)
+                        callCallback = false
+                    }
+                    else {
+                        Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
                     }
                 }
             }
