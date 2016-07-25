@@ -14,6 +14,7 @@
  * limitations under the License.
  **/
 
+import LoggerAPI
 import KituraSys
 import CCurl
 import Socket
@@ -226,7 +227,7 @@ public class ClientRequest: SocketWriter {
                             callCallback = false
 
                         default:
-                            print("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
+                            Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
                     }
                 }
             }
