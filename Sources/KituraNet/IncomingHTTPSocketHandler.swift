@@ -81,7 +81,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     /// An enum for internal state
     enum State {
-        case reset, initial, parsed
+        case reset, initial, parsedHeaders
     }
     
     /// The state of this handler
@@ -152,7 +152,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 self.parse(buffer)
             }
             
-        case .parsed:
+        case .parsedHeaders:
             reader.addToAvailableData(from: buffer)
             break
         }
@@ -180,7 +180,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     /// Parsing has completed enough to invoke the ServerDelegate to handle the request
     private func parsingComplete() {
-        state = .parsed
+        state = .parsedHeaders
         delegate?.handle(request: request, response: response!)
     }
     
