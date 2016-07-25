@@ -23,7 +23,6 @@ import Foundation
 import LoggerAPI
 import Socket
 
-///
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
 /// is read and parsed filling in a ServerRequest object. When parsing is complete the
 /// ServerDelegate is invoked.
@@ -49,10 +48,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     let socket: Socket
         
     private weak var delegate: ServerDelegate?
-        
-    ///
+    
     /// The file descriptor of the incoming socket
-    ///
     var fileDescriptor: Int32 { return socket.socketfd }
         
     private let reader: PseudoAsynchronousReader
@@ -60,51 +57,34 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     private let request: HTTPServerRequest
     
-    ///
     /// The ServerResponse object used to enable the ServerDelegate to respond to the incoming request
     /// Note: This var is optional to enable it to be constructed in the init function
-    ///
     private var response: ServerResponse?
-        
-    ///
+    
     /// Keep alive timeout for idle sockets in seconds
-    ///
     static let keepAliveTimeout: TimeIntervalType = 60
     
-    ///
     /// A flag indicating that the client has requested that the socket be kep alive
-    ///
     private(set) var clientRequestedKeepAlive = false
     
-    ///
     /// The socket if idle will be kep alive until...
     var keepAliveUntil: TimeIntervalType = 0.0
     
-    ///
     /// A flag to indicate that the socket has a request in progress
-    ///
     var inProgress = true
     
-    ///
     /// Number of remaining requests that will be allowed on the socket being handled by this handler
-    ///
     private(set) var numberOfRequests = 20
     
-    ///
     /// Should this socket actually be kep alive?
-    ///
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
     
-    ///
     /// An enum for internal state
-    ///
     enum State {
         case reset, initial, parsed
     }
     
-    ///
     /// The state of this handler
-    ///
     private(set) var state = State.initial
     
     init(socket: Socket, using: ServerDelegate) {
@@ -119,9 +99,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         setup()
     }
     
-    ///
-    /// Read in the available data and hand off to ommon processing code
-    ///
+    /// Read in the available data and hand off to common processing code
     func handleRead() {
         let buffer = NSMutableData()
         
@@ -146,9 +124,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
-    ///
     /// Write data to the socket
-    ///
     func write(from data: NSData) {
         guard socket.socketfd > -1  else { return }
         
@@ -161,10 +137,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
-    ///
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
-    ///
     func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
@@ -184,10 +158,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
-    ///
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
-    ///
     private func parse(_ buffer: NSData) {
         let (parsingState, _ ) = request.parse(buffer)
         switch(parsingState) {
@@ -206,14 +178,12 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
-    ///
     /// Parsing has completed enough to invoke the ServerDelegate to handle the request
     private func parsingComplete() {
         state = .parsed
         delegate?.handle(request: request, response: response!)
     }
     
-    ///
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
     func keepAlive() {
         state = .reset
@@ -222,18 +192,14 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketHandler.keepAliveTimeout).timeIntervalSinceReferenceDate
     }
     
-    ///
     /// Drain the socket of the data of the current request.
-    ///
     func drain() {
         request.drain()
     }
     
-    ///
     /// Private method to return a string representation on a value of errno.
     ///
     /// - Returns: String containing relevant text about the error.
-    ///
     func errorString(error: Int32) -> String {
         
         return String(validatingUTF8: strerror(error)) ?? "Error: \(error)"

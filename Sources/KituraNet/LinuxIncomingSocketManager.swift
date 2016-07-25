@@ -34,19 +34,13 @@ class IncomingSocketManager  {
     
     private let queue = Queue(type: .serial, label: "LinuxIncomingSocketManager")
     
-    ///
     /// A mapping from socket file descriptor to IncomingHTTPSocketHandler
-    ///
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
     
-    ///
     /// Interval at which to check for idle sockets to close
-    ///
     let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
     
-    ///
     /// The last time we checked for an idle socket
-    ///
     var keepAliveIdleLastTimeChecked = NSDate()
     
     init() {
@@ -55,12 +49,10 @@ class IncomingSocketManager  {
         queue.enqueueAsynchronously() { [unowned self] in self.process() }
     }
     
-    ///
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
     /// - Parameter using: The ServerDelegate to actually handle the socket
-    ///
     func handle(socket: Socket, using delegate: ServerDelegate) {
         
         do {
@@ -84,9 +76,7 @@ class IncomingSocketManager  {
         removeIdleSockets()
     }
     
-    ///
     /// Wait and process the ready events
-    ///
     private func process() {
         var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
         
@@ -122,9 +112,7 @@ class IncomingSocketManager  {
         }
     }
     
-    ///
     /// Remove idle sockets
-    ///
     private func removeIdleSockets() {
         let now = NSDate()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
@@ -145,12 +133,9 @@ class IncomingSocketManager  {
         keepAliveIdleLastTimeChecked = NSDate()
     }
     
-    
-    ///
     /// Private method to return the last error based on the value of errno.
     ///
     /// - Returns: String containing relevant text about the error.
-    ///
     private func lastError() -> String {
         
         return String(validatingUTF8: strerror(errno)) ?? "Error: \(errno)"
