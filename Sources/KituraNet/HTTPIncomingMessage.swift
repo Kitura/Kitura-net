@@ -98,68 +98,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     func setup(_ helper: IncomingMessageHelper) {
         self.helper = helper
     }
-
-
-    /// Parse the message
-    ///
-    /// - Parameter callback: (HTTPParserErrorType) -> Void closure
-    func parse (_ callback: (HTTPParserErrorType) -> Void) {
-        guard let parser = httpParser where status.state == .initial else {
-            freeHTTPParser()
-            callback(.internalError)
-            return
-        }
-
-        var start = 0
-        var length = 0
-        while status.state == .initial {
-            do {
-                if  start == 0  {
-                    ioBuffer!.length = 0
-                    length = try helper!.readHelper(into: ioBuffer!)
-                }
-                if length > 0 {
-                    let offset = start
-                    start = 0
-                    let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes)+offset, length: length)
-                    if upgrade == 1 {
-                        // TODO handle new protocol
-                    }
-                    else if (numberParsed != length) {
-
-                        if  status.state == .reset  {
-                            // Apparently the short message was a Continue. Let's just keep on parsing
-                            status.state = .initial
-                            start = numberParsed
-                            length -= numberParsed
-                            parser.reset()
-                        }
-                        else {
-                            /* Handle error. Usually just close the connection. */
-                            freeHTTPParser()
-                            status.state = .error
-                            callback(.parsedLessThanRead)
-                        }
-                    }
-                }
-                else {
-                    /* Handle unexpected EOF. Usually just close the connection. */
-                    freeHTTPParser()
-                    status.state = .error
-                    callback(.unexpectedEOF)
-                }
-            }
-            catch {
-                /* Handle error. Usually just close the connection. */
-                freeHTTPParser()
-                status.state = .error
-                callback(.unexpectedEOF)
-            }
-        }
-        if status.state != .error {
-            callback(.success)
-        }
-    }
     
     /// Parse the message
     ///

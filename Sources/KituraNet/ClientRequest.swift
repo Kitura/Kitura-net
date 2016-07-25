@@ -24,68 +24,47 @@ import Foundation
 
 public class ClientRequest: SocketWriter {
 
-    ///
     /// Initialize the one time initialization struct to cause one time initializations to occur
-    ///
     static private let oneTime = OneTimeInitializations()
     
     public var headers = [String: String]()
 
     // MARK: -- Private
     
-    ///
     /// URL used for the request
-    ///
     public private(set) var url: String
     
-    /// 
     /// HTTP method (GET, POST, PUT, DELETE) for the request
-    ///
     public private(set) var method: String = "get"
     
-    ///
-    /// Username if using Basic Auth 
-    ///
+    /// Username if using Basic Auth
     public private(set) var userName: String?
     
-    /// 
-    /// Password if using Basic Auth 
-    ///
+    /// Password if using Basic Auth
     public private(set) var password: String?
 
-    ///
     /// Maximum number of redirects before failure
-    ///
     public private(set) var maxRedirects = 10
     
-    /// 
-    /// ???
-    ///
+    /// Handle for working with libCurl
     private var handle: UnsafeMutablePointer<Void>?
     
-    /// 
     /// List of header information
-    ///
     private var headersList: UnsafeMutablePointer<curl_slist>?
     
-    ///
     /// BufferList to store bytes to be written
-    ///
     private var writeBuffers = BufferList()
 
-    ///
     /// Response instance for communicating with client
-    ///
     private var response = ClientResponse()
     
-    
+    /// The callback to receive the response
     private var callback: Callback
     
+    /// Should SSL verification be disabled
     private var disableSSLVerification = false
     
-    ///
     /// Client request option values
-    ///
     public enum Options {
         
         case method(String), schema(String), hostname(String), port(Int16), path(String),
@@ -93,19 +72,15 @@ public class ClientRequest: SocketWriter {
         
     }
     
-    ///
-    /// Response callback closure
-    ///
+    /// Response callback closure type
     public typealias Callback = (response: ClientResponse?) -> Void
 
-    ///
     /// Initializes a ClientRequest instance
     ///
     /// - Parameter url: url for the request 
     /// - Parameter callback:
     ///
-    /// - Returns: a ClientRequest instance 
-    ///
+    /// - Returns: a ClientRequest instance
     init(url: String, callback: Callback) {
         
         self.url = url
@@ -113,14 +88,12 @@ public class ClientRequest: SocketWriter {
         
     }
 
-    ///
     /// Initializes a ClientRequest instance
     ///
     /// - Parameter options: a list of options describing the request
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
-    ///
     init(options: [Options], callback: Callback) {
 
         self.callback = callback
@@ -176,9 +149,7 @@ public class ClientRequest: SocketWriter {
 
     }
 
-    ///
     /// Instance destruction
-    ///
     deinit {
 
         if  let handle = handle  {
@@ -191,11 +162,9 @@ public class ClientRequest: SocketWriter {
 
     }
 
-    ///
     /// Writes a string to the response
     ///
-    /// - Parameter str: String to be written
-    ///
+    /// - Parameter from: String to be written
     public func write(from string: String) {
         
         if  let data = StringUtils.toUtf8String(string)  {
@@ -204,22 +173,18 @@ public class ClientRequest: SocketWriter {
         
     }
 
-    ///
     /// Writes data to the response
     ///
-    /// - Parameter data: NSData to be written
-    ///
+    /// - Parameter from: NSData to be written
     public func write(from data: NSData) {
         
         writeBuffers.append(data: data)
         
     }
 
-    ///
     /// End servicing the request, send response back
     ///
     /// - Parameter data: string to send before ending
-    ///
     public func end(_ data: String) {
         
         write(from: data)
@@ -227,11 +192,9 @@ public class ClientRequest: SocketWriter {
         
     }
 
-    ///
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
-    ///
     public func end(_ data: NSData) {
         
         write(from: data)
@@ -239,9 +202,7 @@ public class ClientRequest: SocketWriter {
         
     }
 
-    ///
     /// End servicing the request, send response back
-    ///
     public func end() {
         
         var callCallback = true
@@ -258,15 +219,14 @@ public class ClientRequest: SocketWriter {
             if  code == CURLE_OK  {
                 code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
                 if  code == CURLE_OK  {
-                    response.parse() {status in
-                        switch(status) {
-                            case .success:
-                                self.callback(response: self.response)
-                                callCallback = false
+                    let parseStatus = response.parse()
+                    switch(parseStatus.error) {
+                        case .success:
+                            self.callback(response: self.response)
+                            callCallback = false
 
-                            default:
-                                print("ClientRequest error. Failed to parse response. status=\(status)")
-                        }
+                        default:
+                            print("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
                     }
                 }
             }
@@ -283,11 +243,9 @@ public class ClientRequest: SocketWriter {
         
     }
 
-    ///
     /// Prepare the handle 
     ///
     /// Parameter using: The URL to use when preparing the handle
-    ///
     private func prepareHandle(using urlBuffer: NSData) {
         
         handle = curl_easy_init()
@@ -308,9 +266,7 @@ public class ClientRequest: SocketWriter {
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
-    ///
     /// Sets the HTTP method in libCurl to the one specified in method
-    ///
     private func setMethod() {
 
         let methodUpperCase = method.uppercased()
@@ -329,9 +285,7 @@ public class ClientRequest: SocketWriter {
 
     }
 
-    ///
     /// Sets the headers in libCurl to the ones in headers
-    ///
     private func setupHeaders() {
 
         headers["Connection"] = "close"
@@ -350,8 +304,7 @@ public class ClientRequest: SocketWriter {
 // MARK: CurlInvokerDelegate extension
 extension ClientRequest: CurlInvokerDelegate {
     
-    ///
-    ///
+    /// libCurl callback to recieve data sent by the server
     private func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
         response.responseBuffers.append(bytes: UnsafePointer<UInt8>(buf), length: size)
@@ -359,6 +312,7 @@ extension ClientRequest: CurlInvokerDelegate {
         
     }
 
+    /// libCurl callback to provide the data to send to the server
     private func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
         let count = writeBuffers.fill(buffer: UnsafeMutablePointer<UInt8>(buf), length: size)
@@ -366,6 +320,7 @@ extension ClientRequest: CurlInvokerDelegate {
         
     }
 
+    /// libCurl callback invoked when a redirect is about to be done
     private func prepareForRedirect() {
         
         response.responseBuffers.reset()
@@ -374,29 +329,19 @@ extension ClientRequest: CurlInvokerDelegate {
     }
 }
 
-/// 
 /// Helper class for invoking commands through libCurl
-///
 private class CurlInvoker {
     
-    ///
-    /// Pointer to the libCurl handle 
-    ///
+    /// Pointer to the libCurl handle
     private var handle: UnsafeMutablePointer<Void>
     
-    ///
     /// Delegate that can have a read or write callback
-    ///
     private weak var delegate: CurlInvokerDelegate?
     
-    ///
-    /// Maximum number of redirects 
-    ///
+    /// Maximum number of redirects
     private let maxRedirects: Int
 
-    ///
-    /// Initializes a new CurlInvoker instance 
-    ///
+    /// Initializes a new CurlInvoker instance
     private init(handle: UnsafeMutablePointer<Void>, maxRedirects: Int) {
         
         self.handle = handle
@@ -404,11 +349,9 @@ private class CurlInvoker {
         
     }
 
-    ///
     /// Run the HTTP method through the libCurl library
     ///
     /// - Returns: a status code for the success of the operation
-    ///
     private func invoke() -> CURLcode {
 
         var rc: CURLcode = CURLE_FAILED_INIT
@@ -446,11 +389,9 @@ private class CurlInvoker {
         return rc
     }
 
-    ///
     /// Prepare the handle
     ///
-    /// - Parameter ptr: pointer to the CurlInvokerDelegate
-    ///
+    /// - Parameter ptr: pointer to the CurlInvokerDelegat
     private func prepareHandle(_ ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
 
         curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
@@ -468,9 +409,8 @@ private class CurlInvoker {
     
 }
 
-///
+
 /// Delegate protocol for objects operated by CurlInvoker
-///
 private protocol CurlInvokerDelegate: class {
     
     func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
@@ -479,9 +419,8 @@ private protocol CurlInvokerDelegate: class {
     
 }
 
-///
+
 /// Singleton struct for one time initializations
-///
 private struct OneTimeInitializations {
 
     init() {

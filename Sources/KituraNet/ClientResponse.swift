@@ -21,11 +21,9 @@ import Foundation
 
 public class ClientResponse: HTTPIncomingMessage {
     
-    ///
     /// Initializes a ClientResponse instance
     ///
     /// - Returns: a ClientResponse instance
-    ///
     init() {
         
         super.init(isRequest: false)
@@ -33,9 +31,7 @@ public class ClientResponse: HTTPIncomingMessage {
         
     }
     
-    ///
     /// HTTP Status code
-    ///
     public internal(set) var status = -1 {
         
         didSet {
@@ -44,15 +40,18 @@ public class ClientResponse: HTTPIncomingMessage {
         
     }
     
-    /// 
     /// HTTP Status code
     public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.unknown
     
-    ///
     /// BufferList instance for storing the response 
-    ///
     var responseBuffers = BufferList()
     
+    /// Parse the contents of the responseBuffers
+    func parse() -> HTTPParserStatus {
+        let buffer = NSMutableData()
+        _ = responseBuffers.fill(data: buffer)
+        return super.parse(buffer)
+    }
 }
 
 
