@@ -25,22 +25,16 @@ class IncomingSocketManager  {
     
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
         
-    ///
     /// Interval at which to check for idle sockets to close
-    ///
     let keepAliveIdleCheckingInterval: TimeInterval = 60.0
-        
-    ///
+    
     /// The last time we checked for an idle socket
-    ///
     var keepAliveIdleLastTimeChecked = Date()
     
-    ///
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: The incoming socket to handle
     /// - Parameter using: The ServerDelegate to actually handle the socket
-    ///
     func handle(socket: Socket, using: ServerDelegate) {
         
         do {
@@ -50,16 +44,13 @@ class IncomingSocketManager  {
             socketHandlers[socket.socketfd] = handler
         }
         catch {
-            print("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
             Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
         }
         
         removeIdleSockets()
     }
-        
-    ///
+    
     /// Remove idle sockets
-    ///
     private func removeIdleSockets() {
         let now = Date()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
@@ -75,12 +66,9 @@ class IncomingSocketManager  {
         keepAliveIdleLastTimeChecked = Date()
     }
     
-    
-    ///
     /// Private method to return the last error based on the value of errno.
     ///
     /// - Returns: String containing relevant text about the error.
-    ///
     private func lastError() -> String {
         
         return String(validatingUTF8: strerror(errno)) ?? "Error: \(errno)"

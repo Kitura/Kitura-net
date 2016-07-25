@@ -132,7 +132,6 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             try socket.write(from: data)
         }
         catch {
-            print("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
             Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
         }
     }
