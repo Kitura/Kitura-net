@@ -19,16 +19,13 @@
 import Dispatch
 import Foundation
 
-
 import LoggerAPI
 import Socket
 
+/// OSX Specific extension of the IncomingHTTPSocketHandler class.
 extension IncomingHTTPSocketHandler {
     
-    
-    ///
     /// Perform platform specfic setup, invoked by the init function
-    ///
     func setup() {
         source = DispatchSource.read(fileDescriptor: socket.socketfd, queue: IncomingHTTPSocketHandler.socketReaderQueue)
         
@@ -37,22 +34,20 @@ extension IncomingHTTPSocketHandler {
         }
 
         source!.setCancelHandler() {
-	    self.dispatchSourceCancelHandler()
-	}
+            self.dispatchSourceCancelHandler()
+        }
         
         source!.resume()
     }
     
+    /// "Close" the socket
     ///
-    /// Close the socket
-    ///
+    /// **Note:** The cancel handler will actually close the socket.
     func close() {
         source!.cancel()
     }
 
-    ///
     /// DispatchSource cancel handler
-    ///
     private func dispatchSourceCancelHandler() {
         if  socket.socketfd > -1 {
             socket.close()

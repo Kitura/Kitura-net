@@ -22,23 +22,17 @@ import Foundation
 
 public class HTTPServerResponse : ServerResponse {
 
-    ///
     /// Size of buffer
-    ///
     private static let bufferSize = 2000
 
-    ///
     /// Buffer for HTTP response line, headers, and short bodies
-    ///
     private var buffer: NSMutableData
 
-    ///
     /// Whether or not the HTTP response line and headers have been flushed.
-    ///
     private var startFlushed = false
 
     ///
-    /// TODO: ???
+    /// The headers to be sent to the client as part of the response
     ///
     public var headers = HeadersContainer()
     
@@ -81,7 +75,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// - Parameter string: String data to be written.
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func write(from string: String) throws {
 
@@ -97,7 +91,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// - Returns: Integer representing the number of bytes read.
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func write(from data: NSData) throws {
 
@@ -126,7 +120,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// - Parameter text: String to write out socket
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func end(text: String) throws {
         try write(from: text)
@@ -136,7 +130,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// End sending the response
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func end() throws {
         if let handler = handler {
@@ -159,11 +153,9 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
 
-    ///
     /// Begin flushing the buffer
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     private func flushStart() throws {
 
         if  startFlushed  {
@@ -205,9 +197,9 @@ public class HTTPServerResponse : ServerResponse {
         startFlushed = true
     }
 
-    ///
     /// Function to write Strings to the socket through the buffer
     ///
+    /// Throws: Socket.error if an error occurred while writing to a socket
     private func writeToSocketThroughBuffer(text: String) throws {
         guard let handler = handler,
               let utf8Data = StringUtils.toUtf8String(text) else {
@@ -230,9 +222,7 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
     
-    ///
     /// Reset this response object back to it's initial state
-    ///
     public func reset() {
         status = HTTPStatusCode.OK.rawValue
         buffer.length = 0

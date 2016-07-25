@@ -21,6 +21,10 @@ import Foundation
 import LoggerAPI
 import Socket
     
+/// The IncomingSocketManager class is in charge of managing all of the incoming sockets.
+/// In particular, it is in charge of:
+///   1. Creating and managing the IncomingHTTPSocketHandlers (one per incomng socket)
+///   2. Cleaning up idle sockets, when new incoming sockets arrive.
 class IncomingSocketManager  {
     
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
@@ -50,7 +54,16 @@ class IncomingSocketManager  {
         removeIdleSockets()
     }
     
-    /// Remove idle sockets
+    /// Clean up idle sockets by:
+    ///   1. Removing the reference to the IncomingHTTPSocketHandler
+    ///   2. Have the IncomingHTTPSocketHandler close the socket
+    ///
+    /// **Note:** In order to safely update the socketHandlers Dictionary the removal
+    /// of idle sockets is done in the thread that is accepting new incoming sockets
+    /// after a socket was accepted. Had this been done in a timer, there would be a
+    /// to have a lock around the access to the socketHandlers Dictionary. The other
+    /// idea here is that if sockets aren't coming in, it doesn't matter too much if
+    /// we leave a round some idle sockets.
     private func removeIdleSockets() {
         let now = Date()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }

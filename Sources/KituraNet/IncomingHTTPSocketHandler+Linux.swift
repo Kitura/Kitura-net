@@ -19,25 +19,18 @@
 import Foundation
 import Glibc
 
-    
 import LoggerAPI
 import Socket
-    
-    
-///
-/// Add Linux specific functionality to the IncomingHTTPSocketHandler. In particular
-/// add the code that handles reading from the socket, writing to the socket, and
-/// the closing of the socket
+
+/// Linux Specific extension of the IncomingHTTPSocketHandler class.
 extension IncomingHTTPSocketHandler {
     
-    ///
     /// Perform platform specfic setup, invoked by the init function
-    ///
     func setup() { }
     
-    ///
     /// Close the socket and mark this handler as no longer in progress.
     ///
+    /// **Note:** Closing the socket causes it to be dropped by epoll.
     func close() {
         if  socket.socketfd > -1 {
             socket.close()
@@ -47,5 +40,4 @@ extension IncomingHTTPSocketHandler {
     }
 }
 
-    
 #endif

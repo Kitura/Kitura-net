@@ -17,62 +17,48 @@
 import Foundation
 
 //
-// This is a ServerResponse protocol class that allows requests and responses
+// This is a ServerResponse protocol class that allows responses
 // to be abstracted across different protocols in an agnostic way to the
 // Kitura project Router.
 //
 
 public protocol ServerResponse: class {
     
-    ///
     /// Status code
-    ///
     var statusCode: HTTPStatusCode? { get set }
     
-    ///
     /// Headers being sent back as part of the HTTP response.
-    ///
     var headers : HeadersContainer { get }
     
-    ///
     /// Write a string as a response
     ///
     /// - Parameter string: String data to be written.
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     func write(from string: String) throws
     
-    ///
     /// Write data as a response
     ///
     /// - Parameter data: NSMutableData object to contain read data.
     ///
     /// - Returns: Integer representing the number of bytes read.
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     func write(from data: NSData) throws
     
-    ///
     /// End the response
     ///
     /// - Parameter text: String to write out socket
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     func end(text: String) throws
     
-    ///
     /// End sending the response
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     func end() throws
     
-    ///
     /// Reset this response object back to it's initial state
-    ///
     func reset()
     
 }

@@ -29,13 +29,12 @@ import Socket
 ///
 /// **Note:** This class needs to be extended in order to implement several platform specific
 /// functions.
-
 class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
     static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
     
-    // Note: This var is optional to enable it to be constructed in the init function
+    // Note: This var is optional to enable it to be created in the setup function
     var source: DispatchSourceRead?
 #endif
         

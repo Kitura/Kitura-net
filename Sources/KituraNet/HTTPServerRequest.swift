@@ -18,25 +18,23 @@ import Foundation
 
 // MARK: HTTPServerRequest
 
+/// This class implements the ServerRequest protocol for incoming sockets that
+/// are communicating via the HTTP protocol. Most of the implementation is in
+/// the HTTPIncomingMessage class which implements logic common to this class
+/// and the ClientResponse class.
 public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
 
-    ///
     /// Reader for the request
-    ///
     private let reader: PseudoAsynchronousReader
 
-    ///
     /// server IP address pulled from socket
-    ///
     public var remoteAddress: String {
         return reader.remoteHostname
     }
     
-    ///
     /// Initializes a HTTPServerRequest
     ///
-    /// - Parameter socket: the socket 
-    ///
+    /// - Parameter socket: the socket
     init (reader: PseudoAsynchronousReader) {
         
         self.reader = reader
@@ -49,9 +47,9 @@ public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
 /// IncomingMessageHelper protocol extension
 extension HTTPServerRequest: IncomingMessageHelper {
     
+    /// "Read" data from the actual underlying transport
     ///
-    /// TODO: ???
-    ///
+    /// - Parameter into: The NSMutableData that will be receiving the data read in.
     func readHelper(into data: NSMutableData) throws -> Int {
 
         let length = reader.readSynchronously(into: data)
