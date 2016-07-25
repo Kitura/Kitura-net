@@ -432,7 +432,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         
         status.keepAlive = httpParser?.isKeepAlive() ?? false
         status.state = .messageComplete
-        if  status.keepAlive  {
+        if  !status.keepAlive  {
             freeHTTPParser()
         }
     }
