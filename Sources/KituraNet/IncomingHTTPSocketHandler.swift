@@ -161,17 +161,14 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
-        let (parsingState, _ ) = request.parse(buffer)
-        switch(parsingState) {
+        let parsingStatus = request.parse(buffer)
+        switch(parsingStatus.state) {
         case .error:
             break
         case .initial:
             break
         case .headersComplete, .messageComplete:
-            clientRequestedKeepAlive = false
-            parsingComplete()
-        case .headersCompleteKeepAlive, .messageCompleteKeepAlive:
-            clientRequestedKeepAlive = true
+            clientRequestedKeepAlive = parsingStatus.keepAlive
             parsingComplete()
         case .reset:
             break
