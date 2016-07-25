@@ -25,6 +25,13 @@ import KituraSys
 import LoggerAPI
 import Socket
 
+/// The IncomingSocketManager class is in charge of managing all of the incoming sockets.
+/// In particular, it is in charge of:
+///   1. Creating the epoll handle
+///   2. Adding new incoming sockets to the epoll descriptor for read events
+///   3. Running the "thread" that does the epoll_wait
+///   4. Creating and managing the IncomingHTTPSocketHandlers (one per incomng socket)
+///   5. Cleaning up idle sockets, when new incoming sockets arrive.
 class IncomingSocketManager  {
     
     private let maximumNumberOfEvents = 300
@@ -77,7 +84,7 @@ class IncomingSocketManager  {
         removeIdleSockets()
     }
     
-    /// Wait and process the ready events
+    /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
     private func process() {
         var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
         
@@ -113,7 +120,17 @@ class IncomingSocketManager  {
         }
     }
     
-    /// Remove idle sockets
+    /// Clean up idle sockets by:
+    ///   1. Removing them from the epoll descriptor
+    ///   2. Removing the reference to the IncomingHTTPSocketHandler
+    ///   3. Have the IncomingHTTPSocketHandler close the socket
+    ///
+    /// **Note:** In order to safely update the socketHandlers Dictionary the removal
+    /// of idle sockets is done in the thread that is accepting new incoming sockets
+    /// after a socket was accepted. Had this been done in a timer, there would be a
+    /// to have a lock around the access to the socketHandlers Dictionary. The other
+    /// idea here is that if sockets aren't coming in, it doesn't matter too much if
+    /// we leave a round some idle sockets.
     private func removeIdleSockets() {
         let now = NSDate()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
