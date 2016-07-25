@@ -44,7 +44,8 @@ class IncomingSocketManager  {
     var keepAliveIdleLastTimeChecked = NSDate()
     
     init() {
-        epollDescriptor = epoll_create1(0)
+        // Note: The parameter to epoll_create is ignored on modern Linux's
+        epollDescriptor = epoll_create(100)
         
         queue.enqueueAsynchronously() { [unowned self] in self.process() }
     }
