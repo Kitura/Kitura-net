@@ -14,14 +14,26 @@
  * limitations under the License.
  **/
 
-import XCTest
+// MARK: IncomingSocketHandler protocol
 
-@testable import KituraNetTestSuite
+import Foundation
 
-XCTMain([
-       testCase(ClientE2ETests.allTests),
-       testCase(ClientRequestTests.allTests),
-       testCase(LargePayloadTests.allTests),
-       testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests)
-])
+
+protocol IncomingSocketHandler {
+    
+    ///
+    /// The file descriptor of the incoming socket
+    ///
+    var fileDescriptor: Int32 { get }
+    
+    ///
+    /// Write data to the socket
+    ///
+    func write(from: NSData)
+    
+    ///
+    /// "Close" and cleanup for a socket
+    ///
+    func close()
+    
+}

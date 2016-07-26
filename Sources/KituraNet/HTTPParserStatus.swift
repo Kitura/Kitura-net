@@ -14,14 +14,38 @@
  * limitations under the License.
  **/
 
-import XCTest
+import Foundation
 
-@testable import KituraNetTestSuite
+/// List of parser states
+enum HTTPParserState {
+    
+    case initial
+    case headersComplete
+    case messageComplete
+    case reset
+    
+}
 
-XCTMain([
-       testCase(ClientE2ETests.allTests),
-       testCase(ClientRequestTests.allTests),
-       testCase(LargePayloadTests.allTests),
-       testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests)
-])
+/// HTTP parser error types
+enum HTTPParserErrorType {
+    
+    case parsedLessThanRead
+    case unexpectedEOF
+    case internalError // TODO
+    
+}
+
+struct HTTPParserStatus {
+    
+    init() {}
+    
+    var state = HTTPParserState.initial
+    var error: HTTPParserErrorType? = nil
+    var keepAlive = false
+    
+    mutating func reset() {
+        state = HTTPParserState.initial
+        error = nil
+        keepAlive = false
+    }
+}

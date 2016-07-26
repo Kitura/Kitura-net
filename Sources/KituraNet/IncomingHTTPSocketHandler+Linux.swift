@@ -14,19 +14,30 @@
  * limitations under the License.
  **/
 
-import PackageDescription
-
-let package = Package(
-    name: "Kitura-net",
-    dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/Kitura-sys.git", majorVersion: 0, minor: 22),
-        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0, minor: 6),
-        .Package(url: "https://github.com/IBM-Swift/CCurl.git", majorVersion: 0, minor: 2),
-        .Package(url: "https://github.com/IBM-Swift/CHTTPParser.git", majorVersion: 0, minor: 2),
-    ]
-)
-
 #if os(Linux)
-    package.dependencies.append(
-        .Package(url: "https://github.com/IBM-Swift/CEpoll.git", majorVersion: 0, minor: 1))
+
+import Foundation
+import Glibc
+
+import LoggerAPI
+import Socket
+
+/// Linux Specific extension of the IncomingHTTPSocketHandler class.
+extension IncomingHTTPSocketHandler {
+    
+    /// Perform platform specfic setup, invoked by the init function
+    func setup() { }
+    
+    /// Close the socket and mark this handler as no longer in progress.
+    ///
+    /// **Note:** Closing the socket causes it to be dropped by epoll.
+    func close() {
+        if  socket.socketfd > -1 {
+            socket.close()
+        }
+        inProgress = false
+        keepAliveUntil = 0.0
+    }
+}
+
 #endif

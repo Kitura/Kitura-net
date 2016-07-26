@@ -101,6 +101,14 @@ public class HeadersContainer {
     }
     
     ///
+    /// Remove all of the headers
+    ///
+    func removeAll() {
+        headers = [:]
+        caseInsensitiveMap = [:]
+    }
+    
+    ///
     /// Set the header value
     ///
     /// - Parameter key: the key

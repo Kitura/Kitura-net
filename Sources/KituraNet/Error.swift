@@ -14,14 +14,18 @@
  * limitations under the License.
  **/
 
-import XCTest
+import Foundation
 
-@testable import KituraNetTestSuite
+public enum Error: ErrorProtocol {
+    case incomingSocketManagerFailure(errorCode: Int32, reason: String)
+}
 
-XCTMain([
-       testCase(ClientE2ETests.allTests),
-       testCase(ClientRequestTests.allTests),
-       testCase(LargePayloadTests.allTests),
-       testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests)
-])
+
+extension Error: CustomStringConvertible {
+    public var description: String {
+        switch self {
+            case .incomingSocketManagerFailure(let errorCode, let reason):
+                return "Failed to handle incoming socket. Error code=\(errorCode). Reason=\(reason)"
+        }
+    }
+}

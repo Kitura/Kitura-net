@@ -233,6 +233,14 @@ public class FastCGIServerResponse : ServerResponse {
         }
         try writeToSocket(message, wrapAsMessage: false)
     }
+
+    ///
+    /// TBD
+    ///
+    /// Reset the request for reuse in Keep alive
+    ///
+    public func reset() {
+    }
     
     ///
     /// Get a FastCGI STDOUT message, wrapping the specified data

@@ -15,36 +15,24 @@
  **/
 
 import KituraSys
-import Socket
 
 import Foundation
 
 // MARK: HTTPServerResponse
 
-public class HTTPServerResponse : SocketWriter, ServerResponse {
+public class HTTPServerResponse : ServerResponse {
 
-    ///
-    /// Socket for the HTTPServerResponse
-    ///
-    private var socket: Socket?
-
-    ///
     /// Size of buffer
-    ///
     private static let bufferSize = 2000
 
-    ///
     /// Buffer for HTTP response line, headers, and short bodies
-    ///
     private var buffer: NSMutableData
 
-    ///
     /// Whether or not the HTTP response line and headers have been flushed.
-    ///
     private var startFlushed = false
 
     ///
-    /// TODO: ???
+    /// The headers to be sent to the client as part of the response
     ///
     public var headers = HeadersContainer()
     
@@ -54,9 +42,9 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     private var status = HTTPStatusCode.OK.rawValue
     
     ///
-    /// Corresponding server request
+    /// Corresponding socket handler
     ///
-    private weak var serverRequest : HTTPServerRequest?
+    private weak var handler : IncomingHTTPSocketHandler?
 
     ///
     /// Status code
@@ -75,10 +63,9 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     ///
     /// Initializes a HTTPServerResponse instance
     ///
-    init(socket: Socket, request: HTTPServerRequest) {
+    init(handler: IncomingHTTPSocketHandler) {
 
-        self.socket = socket
-        serverRequest = request
+        self.handler = handler
         buffer = NSMutableData(capacity: HTTPServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
@@ -88,14 +75,12 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     ///
     /// - Parameter string: String data to be written.
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func write(from string: String) throws {
 
-        if  socket != nil  {
-            try flushStart()
-            try writeToSocketThroughBuffer(text: string)
-        }
+        try flushStart()
+        try writeToSocketThroughBuffer(text: string)
 
     }
 
@@ -106,18 +91,18 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     ///
     /// - Returns: Integer representing the number of bytes read.
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func write(from data: NSData) throws {
 
-        if  let socket = socket {
+        if  let handler = handler {
             try flushStart()
             if  buffer.length + data.length > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
-                try socket.write(from: buffer)
+                handler.write(from: buffer)
                 buffer.length = 0
             }
             if  data.length > HTTPServerResponse.bufferSize {
-                try socket.write(from: data)
+                handler.write(from: data)
             }
             else {
                 #if os(Linux)
@@ -135,7 +120,7 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     ///
     /// - Parameter text: String to write out socket
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func end(text: String) throws {
         try write(from: text)
@@ -145,30 +130,35 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
     ///
     /// End sending the response
     ///
-    /// - Throws: ???
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func end() throws {
-        if let request = serverRequest {
-            request.drain()
-        }
-        if  let socket = socket {
+        if let handler = handler {
+            handler.drain()
+        
             try flushStart()
-            if  buffer.length > 0  {
-                try socket.write(from: buffer)
+            
+            let keepAlive = handler.isKeepAlive ?? false
+            if  keepAlive {
+                handler.keepAlive()
             }
-            socket.close()
+            
+            if  buffer.length > 0  {
+                handler.write(from: buffer)
+            }
+            
+            if !keepAlive  {
+                handler.close()
+            }
         }
-        socket = nil
     }
 
-    ///
     /// Begin flushing the buffer
     ///
-    /// - Throws: ???
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     private func flushStart() throws {
 
-        if  socket == nil  ||  startFlushed  {
+        if  startFlushed  {
             return
         }
 
@@ -193,29 +183,35 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
                 headerData.append("\r\n")
             }
         }
-        // We currently don't support keep alive
-        headerData.append("Connection: Close\r\n")
-
+        let keepAlive = handler?.isKeepAlive ?? false
+        if  keepAlive {
+            headerData.append("Connection: Keep-Alive\r\n")
+            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketHandler.keepAliveTimeout)), max=\((handler?.numberOfRequests ?? 1) - 1)\r\n")
+        }
+        else {
+            headerData.append("Connection: Close\r\n")
+        }
+        
         headerData.append("\r\n")
         try writeToSocketThroughBuffer(text: headerData)
         startFlushed = true
     }
 
-    ///
     /// Function to write Strings to the socket through the buffer
     ///
+    /// Throws: Socket.error if an error occurred while writing to a socket
     private func writeToSocketThroughBuffer(text: String) throws {
-        guard let socket = socket,
+        guard let handler = handler,
               let utf8Data = StringUtils.toUtf8String(text) else {
             return
         }
 
         if  buffer.length + utf8Data.length > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
-            try socket.write(from: buffer)
+            handler.write(from: buffer)
             buffer.length = 0
         }
         if  utf8Data.length > HTTPServerResponse.bufferSize {
-            try socket.write(from: utf8Data)
+            handler.write(from: utf8Data)
         }
         else {
             #if os(Linux)
@@ -224,5 +220,14 @@ public class HTTPServerResponse : SocketWriter, ServerResponse {
                 buffer.append(utf8Data as Data)
             #endif
         }
+    }
+    
+    /// Reset this response object back to it's initial state
+    public func reset() {
+        status = HTTPStatusCode.OK.rawValue
+        buffer.length = 0
+        startFlushed = false
+        headers.removeAll()
+        headers["Date"] = [SPIUtils.httpDate()]
     }
 }
