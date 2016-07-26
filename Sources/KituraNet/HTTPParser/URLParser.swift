@@ -121,11 +121,9 @@ public class URLParser : CustomStringConvertible {
     }
 
     ///
-    /// Path portion of the URL
+    /// Path portion of the URL - must be mutable as required by Kitura
     ///
-    public var path: String? {
-        return url?.path
-    }
+    public var path: String?
 
     ///
     /// The entire query portion of the URL
@@ -206,6 +204,10 @@ public class URLParser : CustomStringConvertible {
         #else
         url = NSURL(string: String(data: data as Data, encoding: String.Encoding.utf8) ?? "", relativeTo: nil)
         #endif
+
+        // set the initial path.  This can be changed by users.
+        path = url?.path
+        // parse query parameters
         if let query = url?.query {
 
             let pairs = query.components(separatedBy: "&")
