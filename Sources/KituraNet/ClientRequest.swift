@@ -206,41 +206,38 @@ public class ClientRequest: SocketWriter {
     /// End servicing the request, send response back
     public func end() {
         
-        var callCallback = true
-        let urlBuffer = StringUtils.toNullTerminatedUtf8String(url)
-        
-        if  let _ = urlBuffer {
-            
-            prepareHandle(using: urlBuffer!)
-
-            let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
-            invoker.delegate = self
-
-            var code = invoker.invoke()
-            if  code == CURLE_OK  {
-                code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
-                if  code == CURLE_OK  {
-                    let parseStatus = response.parse()
-                    if parseStatus.state == .messageComplete {
-                        self.callback(response: self.response)
-                        callCallback = false
-                    }
-                    else {
-                        Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error)")
-                    }
-                }
-            }
-            else {
-                
-                print("ClientRequest Error. CURL Return code=\(code)")
-                
-            }
-        }
-        
-        if  callCallback  {
+        guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
             callback(response: nil)
+            return
         }
         
+        prepareHandle(using: urlBuffer)
+
+        let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
+        invoker.delegate = self
+
+        var code = invoker.invoke()
+        guard code == CURLE_OK else {
+            Log.error("ClientRequest Error, Failed to invoke HTTP request. CURL Return code=\(code)")
+            callback(response: nil)
+            return
+        }
+        
+        code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
+        guard code == CURLE_OK else {
+            Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
+            callback(response: nil)
+            return
+        }
+        
+        let parseStatus = response.parse()
+        guard  parseStatus.error == nil else {
+            Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error!)")
+            callback(response: nil)
+            return
+        }
+
+        self.callback(response: self.response)
     }
 
     /// Prepare the handle 

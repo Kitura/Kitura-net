@@ -22,7 +22,6 @@ enum HTTPParserState {
     case initial
     case headersComplete
     case messageComplete
-    case error
     case reset
     
 }
@@ -41,12 +40,12 @@ struct HTTPParserStatus {
     init() {}
     
     var state = HTTPParserState.initial
-    var error = HTTPParserErrorType.internalError
+    var error: HTTPParserErrorType? = nil
     var keepAlive = false
     
     mutating func reset() {
         state = HTTPParserState.initial
-        error = HTTPParserErrorType.internalError
+        error = nil
         keepAlive = false
     }
 }

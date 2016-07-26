@@ -160,9 +160,9 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
         let parsingStatus = request.parse(buffer)
+        guard  parsingStatus.error == nil  else  { return }
+        
         switch(parsingStatus.state) {
-        case .error:
-            break
         case .initial:
             break
         case .headersComplete, .messageComplete:

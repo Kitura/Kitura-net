@@ -104,7 +104,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Parameter callback: (HTTPParserStatus) -> Void closure
     func parse (_ buffer: NSData) -> HTTPParserStatus {
         guard let parser = httpParser else {
-            status.state = .error
             status.error = .internalError
             return status
         }
@@ -114,7 +113,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         guard length > 0  else {
             /* Handle unexpected EOF. Usually just close the connection. */
             freeHTTPParser()
-            status.state = .error
             status.error = .unexpectedEOF
             return status
         }
@@ -143,7 +141,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                 else {
                     /* Handle error. Usually just close the connection. */
                     freeHTTPParser()
-                    status.state = .error
                     status.error = .parsedLessThanRead
                 }
             }
@@ -173,7 +170,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                         else if (numberParsed != count) {
                             /* Handle error. Usually just close the connection. */
                             freeHTTPParser()
-                            status.state = .error
+                            status.error = .parsedLessThanRead
                         }
                         else {
                             count = bodyChunk.fill(data: data)
@@ -186,7 +183,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                 catch let error {
                     /* Handle error. Usually just close the connection. */
                     freeHTTPParser()
-                    status.state = .error
+                    status.error = .internalError
                     throw error
                 }
             }
@@ -223,7 +220,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                         let (numberParsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
                         if (numberParsed != count) {
                             freeHTTPParser()
-                            status.state = .error
+                            status.error = .parsedLessThanRead
                         }
                     }
                     else {
@@ -232,7 +229,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                 }
                 catch {
                     freeHTTPParser()
-                    status.state = .error
+                    status.error = .internalError
                 }
             }
         }
