@@ -152,7 +152,6 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             
         case .parsedHeaders:
             reader.addDataToRead(from: buffer)
-            break
         }
     }
     
