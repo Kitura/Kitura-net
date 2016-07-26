@@ -51,7 +51,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
         
-    private let reader: PseudoAsynchronousReader
+    private let reader: PseudoSynchronousReader
     
     
     private let request: HTTPServerRequest
@@ -89,7 +89,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     init(socket: Socket, using: ServerDelegate) {
         self.socket = socket
         delegate = using
-        reader = PseudoAsynchronousReader(clientSocket: socket)
+        reader = PseudoSynchronousReader(clientSocket: socket)
         request = HTTPServerRequest(reader: reader)
         
         response = HTTPServerResponse(handler: self)
@@ -151,7 +151,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             }
             
         case .parsedHeaders:
-            reader.addToAvailableData(from: buffer)
+            reader.addDataToRead(from: buffer)
             break
         }
     }

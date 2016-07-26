@@ -20,7 +20,7 @@ import Foundation
 import LoggerAPI
 import Socket
 
-class PseudoAsynchronousReader {
+class PseudoSynchronousReader {
 
     private let clientSocket: Socket
     private var errorFlag = false
@@ -48,7 +48,7 @@ class PseudoAsynchronousReader {
         #endif
     }
     
-    func addToAvailableData(from: NSData) {
+    func addDataToRead(from: NSData) {
         let needToLock = buffer.length != 0
         if  needToLock {
             #if os(Linux)
@@ -81,7 +81,7 @@ class PseudoAsynchronousReader {
         }
     }
     
-    func readSynchronously(into: NSMutableData) -> Int {
+    func read(into: NSMutableData) -> Int {
         if  inputNotAvailable  {
             #if os(Linux)
                 dispatch_semaphore_wait(waitingForInput, DISPATCH_TIME_FOREVER)

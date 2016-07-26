@@ -25,7 +25,7 @@ import Foundation
 public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
 
     /// Reader for the request
-    private let reader: PseudoAsynchronousReader
+    private let reader: PseudoSynchronousReader
 
     /// server IP address pulled from socket
     public var remoteAddress: String {
@@ -35,7 +35,7 @@ public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
     /// Initializes a HTTPServerRequest
     ///
     /// - Parameter socket: the socket
-    init (reader: PseudoAsynchronousReader) {
+    init (reader: PseudoSynchronousReader) {
         
         self.reader = reader
         super.init(isRequest: true)
@@ -52,7 +52,7 @@ extension HTTPServerRequest: IncomingMessageHelper {
     /// - Parameter into: The NSMutableData that will be receiving the data read in.
     func readHelper(into data: NSMutableData) throws -> Int {
 
-        let length = reader.readSynchronously(into: data)
+        let length = reader.read(into: data)
         return length 
     }
     
