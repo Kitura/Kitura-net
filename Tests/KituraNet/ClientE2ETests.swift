@@ -26,7 +26,8 @@ class ClientE2ETests: XCTestCase {
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
             ("testSimpleHTTPClient", testSimpleHTTPClient),
-            ("testPostRequests", testPostRequests)
+            ("testPostRequests", testPostRequests),
+            ("testErrorRequests", testErrorRequests)
         ]
     }
     
@@ -100,6 +101,16 @@ class ClientE2ETests: XCTestCase {
             }
         })
     }
+    
+    func testErrorRequests() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("plover", path: "/xzzy", callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.badRequest, "Status code wasn't .badrequest was \(response!.statusCode)")
+                expectation.fulfill()
+            })
+        })
+    }
+    
     
     class TestServerDelegate : ServerDelegate {
     
