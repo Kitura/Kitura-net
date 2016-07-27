@@ -124,7 +124,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         }
         
         var start = 0
-        while status.state == .initial  &&  length > 0  {
+        while status.state == .initial  &&  status.error == nil  &&  length > 0  {
             
             let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(buffer.bytes)+start, length: length)
             if upgrade == 1 {
