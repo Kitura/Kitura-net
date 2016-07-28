@@ -16,46 +16,60 @@
 
 
 #if os(Linux)
+    import Glibc
+    import CEpoll
+#endif
 
-import Glibc
+import Dispatch
 import Foundation
 
-import CEpoll
 import KituraSys
 import LoggerAPI
 import Socket
 
 /// The IncomingSocketManager class is in charge of managing all of the incoming sockets.
 /// In particular, it is in charge of:
-///   1. Creating the epoll handle
-///   2. Adding new incoming sockets to the epoll descriptor for read events
-///   3. Running the "thread" that does the epoll_wait
-///   4. Creating and managing the IncomingHTTPSocketHandlers (one per incomng socket)
-///   5. Cleaning up idle sockets, when new incoming sockets arrive.
+///   1. On Linux when no special compile options are specified:
+///       a. Creating the epoll handle
+///       b. Adding new incoming sockets to the epoll descriptor for read events
+///       c. Running the "thread" that does the epoll_wait
+///   2. Creating and managing the IncomingHTTPSocketHandlers (one per incomng socket)
+///   3. Cleaning up idle sockets, when new incoming sockets arrive.
 class IncomingSocketManager  {
     
-    private let maximumNumberOfEvents = 300
-    
-    private let epollDescriptor: Int32
-    private let epollTimeout: Int32 = 50
-    
-    private let queue = Queue(type: .serial, label: "LinuxIncomingSocketManager")
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        typealias DateType = Date
+        typealias TimeIntervalType = TimeInterval
+    #else
+        typealias DateType = NSDate
+        typealias TimeIntervalType = NSTimeInterval
+    #endif
     
     /// A mapping from socket file descriptor to IncomingHTTPSocketHandler
     private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
-    let keepAliveIdleCheckingInterval: NSTimeInterval = 60.0
+    let keepAliveIdleCheckingInterval: TimeIntervalType = 60.0
     
     /// The last time we checked for an idle socket
-    var keepAliveIdleLastTimeChecked = NSDate()
+    var keepAliveIdleLastTimeChecked = DateType()
     
-    init() {
-        // Note: The parameter to epoll_create is ignored on modern Linux's
-        epollDescriptor = epoll_create(100)
+    #if GCD_ASYNCH
+    #elseif os(Linux)
+        private let maximumNumberOfEvents = 300
+    
+        private let epollDescriptor: Int32
+        private let epollTimeout: Int32 = 50
+    
+        private let queue = Queue(type: .serial, label: "IncomingSocketManager")
+    
+        init() {
+            // Note: The parameter to epoll_create is ignored on modern Linux's
+            epollDescriptor = epoll_create(100)
         
-        queue.enqueueAsynchronously() { [unowned self] in self.process() }
-    }
+            queue.enqueueAsynchronously() { [unowned self] in self.process() }
+        }
+    #endif
     
     /// Handle a new incoming socket
     ///
@@ -69,13 +83,16 @@ class IncomingSocketManager  {
             let handler = IncomingHTTPSocketHandler(socket: socket, using: delegate)
             socketHandlers[socket.socketfd] = handler
             
-            var event = epoll_event()
-            event.events = EPOLLIN.rawValue | EPOLLET.rawValue
-            event.data.fd = socket.socketfd
-            let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
-            if  result == -1  {
-                Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-            }
+            #if GCD_ASYNCH
+            #elseif os(Linux)
+                var event = epoll_event()
+                event.events = EPOLLIN.rawValue | EPOLLET.rawValue
+                event.data.fd = socket.socketfd
+                let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
+                if  result == -1  {
+                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                }
+            #endif
         }
         catch {
             Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
@@ -84,41 +101,44 @@ class IncomingSocketManager  {
         removeIdleSockets()
     }
     
-    /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
-    private func process() {
-        var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
+    #if GCD_ASYNCH
+    #elseif os(Linux)
+        /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
+        private func process() {
+            var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
         
-        while  true  {
-            let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
+            while  true  {
+                let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
             
-            if  count == -1  {
-                Log.error("epollWait failure. Error code=\(errno). Reason=\(lastError())")
-                continue
-            }
-                
-            if  count == 0  {
-                continue
-            }
-            
-            for  index in 0  ..< count {
-                let event = pollingEvents[index]
-                
-                if  (event.events & EPOLLERR.rawValue)  == 1  ||  (event.events & EPOLLHUP.rawValue) == 1  ||  (event.events & EPOLLIN.rawValue) == 0 {
-                    
-                    Log.error("Error occurred on a file descriptor of an epool wait")
-                    
+                if  count == -1  {
+                    Log.error("epollWait failure. Error code=\(errno). Reason=\(lastError())")
+                    continue
                 }
-                else {
-                    if  let handler = socketHandlers[event.data.fd] {
-                        handler.handleRead()
+                
+                if  count == 0  {
+                    continue
+                }
+            
+                for  index in 0  ..< count {
+                    let event = pollingEvents[index]
+                
+                    if  (event.events & EPOLLERR.rawValue)  == 1  ||  (event.events & EPOLLHUP.rawValue) == 1  ||  (event.events & EPOLLIN.rawValue) == 0 {
+                    
+                        Log.error("Error occurred on a file descriptor of an epool wait")
+                    
                     }
                     else {
-                        Log.error("No handler for file descriptor \(event.data.fd)")
+                        if  let handler = socketHandlers[event.data.fd] {
+                            handler.handleRead()
+                        }
+                        else {
+                            Log.error("No handler for file descriptor \(event.data.fd)")
+                        }
                     }
                 }
             }
         }
-    }
+    #endif
     
     /// Clean up idle sockets by:
     ///   1. Removing them from the epoll descriptor
@@ -132,7 +152,7 @@ class IncomingSocketManager  {
     /// idea here is that if sockets aren't coming in, it doesn't matter too much if
     /// we leave a round some idle sockets.
     private func removeIdleSockets() {
-        let now = NSDate()
+        let now = DateType()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         
         let maxInterval = now.timeIntervalSinceReferenceDate
@@ -141,14 +161,18 @@ class IncomingSocketManager  {
                 continue
             }
             socketHandlers.removeValue(forKey: fileDescriptor)
-                
-            let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
-            if  result == -1  {
-                Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-            }
+
+            #if GCD_ASYNCH
+            #elseif os(Linux)
+                let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
+                if  result == -1  {
+                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                }
+            #endif
+            
             handler.close()
         }
-        keepAliveIdleLastTimeChecked = NSDate()
+        keepAliveIdleLastTimeChecked = DateType()
     }
     
     /// Private method to return the last error based on the value of errno.
@@ -160,4 +184,3 @@ class IncomingSocketManager  {
     }
 }
 
-#endif
