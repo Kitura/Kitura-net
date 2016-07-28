@@ -15,7 +15,7 @@
  **/
 
 
-#if os(Linux)
+#if !GCD_ASYNCH && os(Linux)
     import Glibc
     import CEpoll
 #endif
@@ -54,8 +54,7 @@ class IncomingSocketManager  {
     /// The last time we checked for an idle socket
     var keepAliveIdleLastTimeChecked = DateType()
     
-    #if GCD_ASYNCH
-    #elseif os(Linux)
+    #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
     
         private let epollDescriptor: Int32
@@ -101,8 +100,7 @@ class IncomingSocketManager  {
         removeIdleSockets()
     }
     
-    #if GCD_ASYNCH
-    #elseif os(Linux)
+    #if !GCD_ASYNCH && os(Linux)
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
         private func process() {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)

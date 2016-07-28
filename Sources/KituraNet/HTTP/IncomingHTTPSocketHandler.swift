@@ -114,7 +114,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 self.handleRead()
             }
             source.setCancelHandler() {
-                self.dispatchSourceCancelHandler()
+                self.handleCancel()
             }
             source.resume()
 	#elseif GCD_ASYNCH
@@ -125,7 +125,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 self.handleRead()
             }
             dispatch_source_set_cancel_handler(source) {
-                self.dispatchSourceCancelHandler()
+                self.handleCancel()
             }
             dispatch_resume(source)
         #endif
@@ -178,12 +178,12 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         #elseif GCD_ASYNCH
 	    dispatch_source_cancel(source!)
         #else
-            dispatchSourceCancelHandler()
+            handleCancel()
         #endif
     }
     
     /// DispatchSource cancel handler
-    private func dispatchSourceCancelHandler() {
+    private func handleCancel() {
         if  socket.socketfd > -1 {
             socket.close()
         }
