@@ -14,26 +14,18 @@
  * limitations under the License.
  **/
 
-// MARK: IncomingSocketHandler protocol
-
 import Foundation
 
+/// This protocol defines the API of the classes used to process the data that
+/// comes in from a client's request. There should be one IncomingDataProcessor
+/// per incoming request or not.
+public protocol IncomingDataProcessor {
 
-protocol IncomingSocketHandler {
-    
-    ///
-    /// The file descriptor of the incoming socket
-    ///
-    var fileDescriptor: Int32 { get }
-    
-    ///
-    /// Write data to the socket
-    ///
-    func write(from: NSData)
-    
-    ///
-    /// "Close" and cleanup for a socket
-    ///
-    func close()
-    
+    /// A back reference to the IncomingSocketHandler processing the socket that
+    /// this IncomingDataProcessor is processing.    
+    weak var handler: IncomingSocketHandler? { get set }
+
+    /// Process data read from the socket. It is either passed to the HTTP parser or
+    /// it is saved in the Pseudo synchronous reader to be read later on.
+    func process(_ buffer: NSData)
 }
