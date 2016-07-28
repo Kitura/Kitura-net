@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
     import Dispatch
 #endif
 
@@ -27,22 +27,34 @@ import Socket
 /// is read and parsed filling in a ServerRequest object. When parsing is complete the
 /// ServerDelegate is invoked.
 ///
-/// **Note:** This class needs to be extended in order to implement several platform specific
-/// functions.
+/// **Note:** This class uses different underlying technologies depending on:
+///     1. On Linux if no special compile time options are specified, epoll is used
+///     2. On OSX DispatchSource is used
+///     3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+///        DispatchSource is used, as it is used on OSX.
 class IncomingHTTPSocketHandler: IncomingSocketHandler {
-        
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-    static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
     
-    // Note: This var is optional to enable it to be created in the setup function
-    var source: DispatchSourceRead?
-#endif
-        
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-    typealias TimeIntervalType = TimeInterval
-#else
-    typealias TimeIntervalType = NSTimeInterval
-#endif
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        typealias DateType = Date
+        typealias TimeIntervalType = TimeInterval
+    
+        typealias DispatchSourceReadType = DispatchSourceRead
+        static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
+    #else
+        typealias DateType = NSDate
+        typealias TimeIntervalType = NSTimeInterval
+    
+        #if GCD_ASYNCH
+            typealias DispatchSourceReadType = dispatch_source_t
+            static let socketReaderQueue = dispatch_queue_create("Socket Reader", DISPATCH_QUEUE_SERIAL)
+        #endif
+    #endif
+    
+    
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+        // Note: This var is optional to enable it to be constructed in the init function
+        var source: DispatchSourceReadType!
+    #endif
 
     let socket: Socket
         
@@ -58,7 +70,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     
     /// The ServerResponse object used to enable the ServerDelegate to respond to the incoming request
     /// Note: This var is optional to enable it to be constructed in the init function
-    private var response: ServerResponse?
+    private var response: ServerResponse!
     
     /// Keep alive timeout for idle sockets in seconds
     static let keepAliveTimeout: TimeIntervalType = 60
@@ -94,8 +106,29 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         
         response = HTTPServerResponse(handler: self)
         
-        // Perform any platform specific initialization
-        setup()
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+            source = DispatchSource.read(fileDescriptor: socket.socketfd,
+		                         queue: IncomingHTTPSocketHandler.socketReaderQueue)
+        
+            source.setEventHandler() {
+                self.handleRead()
+            }
+            source.setCancelHandler() {
+                self.handleCancel()
+            }
+            source.resume()
+	#elseif GCD_ASYNCH
+            source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0, 
+		                            IncomingHTTPSocketHandler.socketReaderQueue)
+
+            dispatch_source_set_event_handler(source) {
+                self.handleRead()
+            }
+            dispatch_source_set_cancel_handler(source) {
+                self.handleCancel()
+            }
+            dispatch_resume(source)
+        #endif
     }
     
     /// Read in the available data and hand off to common processing code
@@ -135,13 +168,36 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         }
     }
     
+    /// Close the socket and mark this handler as no longer in progress.
+    ///
+    /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
+    /// **Note:** On OSX the cancel handler will actually close the socket.
+    func close() {
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+            source.cancel()
+        #elseif GCD_ASYNCH
+	    dispatch_source_cancel(source!)
+        #else
+            handleCancel()
+        #endif
+    }
+    
+    /// DispatchSource cancel handler
+    private func handleCancel() {
+        if  socket.socketfd > -1 {
+            socket.close()
+        }
+        inProgress = false
+        keepAliveUntil = 0.0
+    }
+    
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
     func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
             request.reset()
-            response!.reset()
+            response.reset()
             fallthrough
             
         case .initial:
@@ -185,7 +241,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     /// Parsing has completed enough to invoke the ServerDelegate to handle the request
     private func parsingComplete() {
         state = .parsedHeaders
-        delegate?.handle(request: request, response: response!)
+        delegate?.handle(request: request, response: response)
     }
     
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
