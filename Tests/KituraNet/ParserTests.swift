@@ -37,6 +37,7 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.schema!, "https", "Incorrect schema")
         XCTAssertEqual(urlParser.host!, "example.org", "Incorrect host")
         XCTAssertEqual(urlParser.path!, "/absolute/URI/with/absolute/path/to/resource.txt", "Incorrect path")
+        XCTAssert(urlParser.port == nil)
     }
     
     func testParseComplexUrl() {
@@ -51,6 +52,8 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.path!, "/path/data", "Incorrect path")
         XCTAssertEqual(urlParser.port!, 123, "Incorrect port")
         XCTAssertEqual(urlParser.fragment!, "fragid1", "Incorrect fragment")
+        XCTAssertEqual(urlParser.user!, "username", "Incorrect username")
+        XCTAssertEqual(urlParser.password!, "password", "Incorrect username:password")
         XCTAssertEqual(urlParser.userinfo!, "username:password", "Incorrect userinfo")
         XCTAssertEqual(urlParser.queryParameters["key"], "value", "Incorrect query")
         XCTAssertEqual(urlParser.queryParameters["key1"], "value1", "Incorrect query")

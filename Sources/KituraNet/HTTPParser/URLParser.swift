@@ -14,154 +14,210 @@
  * limitations under the License.
  **/
 
-import KituraSys
-import CHTTPParser
-
 import Foundation
 
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
 
 // MARK: URLParser
-
-public class URLParser : CustomStringConvertible {
+#if SR_1901_BUG
+public class URLParser : NSURL {
 
     /// 
     /// Schema
     ///
-    public var schema: String?
+    public var schema: String? {
+        return self.scheme
+    }
 
-    /// 
-    /// Hostname
-    ///
-    public var host: String?
-    
-    ///
-    /// Path portion of the URL
-    ///
-    public var path: String?
-    
-    ///
-    /// The entire query portion of the URL
-    ///
-    public var query: String?
-    
-    ///
-    /// TODO: ???
-    ///
-    public var fragment: String?
-    
     ///
     /// The userid and password if specified in the URL
     ///
-    public var userinfo: String?
+    @available(*, deprecated: 0.23, message: "use user and password attributes instead")
+    
+    public var userinfo: String? {
+        // both are specified
+        if let username = self.user, let password = self.password {
+            return username + ":" + password
+        }
+        // username only
+        if let username = self.user {
+            return username
+        }
+        // password only
+        if let password = self.user {
+            return ":" + password
+        }
+        return nil
+    }
     
     ///
-    /// The port specified, if any, in the URL
-    ///
-    public var port: UInt16?
-    
-    ///
-    /// The query parameters brokenn out
+    /// The query parameters broken out
     ///
     public var queryParameters: [String:String] = [:]
     
     ///
+    /// Initializes a new URLParser instance
+    ///
+    /// - Parameter url: url to be parsed
+    ///
+    public init(url: NSData) {
+        
+#if os(Linux)
+        super.init(string: String(data: url, encoding: NSUTF8StringEncoding) ?? "", relativeToURL: nil)!
+#else
+        super.init(string: String(data: url as Data, encoding: String.Encoding.utf8) ?? "", relativeTo: nil)!
+#endif
+        if let query = self.query {
+            
+            let pairs = query.components(separatedBy: "&")
+            for pair in pairs {
+                
+                let pairArray = pair.components(separatedBy: "=")
+                if pairArray.count == 2 {
+                    queryParameters[pairArray[0]] = pairArray[1]
+                }
+
+            }
+        }
+    }
+    
+    ///
+    /// Initializes a new URLParser instance
+    ///
+    /// - Parameter url: url to be parsed
+    /// - Parameter isConnect: unused
+    ///
+    convenience public init(url: NSData, isConnect: Bool) {
+        self.init(url: url)
+    }
+
+    // NSURL required initializers
+    required convenience public init(fileReferenceLiteralResourceName path: String) {
+        fatalError("init(fileReferenceLiteralResourceName:) has not been implemented")
+    }
+
+    required public init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+#endif
+
+public class URLParser : CustomStringConvertible {
+
+    private var url: NSURL?
+
+    ///
+    /// Schema
+    ///
+    public var schema: String? {
+        return url?.scheme
+    }
+
+    ///
+    /// Hostname
+    ///
+    public var host: String? {
+        return url?.host
+    }
+
+    ///
+    /// Path portion of the URL - must be mutable as required by Kitura
+    ///
+    public var path: String?
+
+    ///
+    /// The entire query portion of the URL
+    ///
+    public var query: String? {
+        return url?.query
+    }
+
+    ///
+    /// TThe fragment
+    ///
+    public var fragment: String? {
+        return url?.fragment
+    }
+
+    ///
+    /// The userid and password if specified in the URL
+    ///
+    @available(*, deprecated: 0.23, message: "use user and password attributes instead")
+
+    public var userinfo: String? {
+        // both are specified
+        if let username = url?.user, let password = url?.password {
+            return username + ":" + password
+        }
+        // username only
+        if let username = url?.user {
+            return username
+        }
+        // password only
+        if let password = url?.user {
+            return ":" + password
+        }
+        return nil
+    }
+
+    public var user: String? {
+        return url?.user
+    }
+
+    public var password: String? {
+        return url?.password
+    }
+
+    ///
+    /// The port specified, if any, in the URL
+    ///
+    public var port: UInt16? {
+        return url?.port?.uint16Value
+    }
+
+    ///
+    /// The query parameters brokenn out
+    ///
+    public var queryParameters: [String:String] = [:]
+
+    ///
     /// Nicely formatted description of the parsed result
     ///
     public var description: String {
-        
-        var desc = ""
-        
-        if let schema = schema {
-            desc += "schema: \(schema) "
+        if let description = url?.description {
+            return description
         }
-        if let host = host {
-            desc += "host: \(host) "
-        }
-        if let port = port {
-            desc += "port: \(port) "
-        }
-        if let path = path {
-            desc += "path: \(path) "
-        }
-        if let query = query {
-            desc += "query: \(query) "
-            desc += "parsed query: \(queryParameters) "
-        }
-        if let fragment = fragment {
-            desc += "fragment: \(fragment) "
-        }
-        if let userinfo = userinfo {
-            desc += "userinfo: \(userinfo) "
-        }
-        
-        return desc
+        return ""
     }
-    
-    
+
+
     ///
     /// Initializes a new URLParser instance
     ///
     /// - Parameter url: url to be parsed
     /// - Parameter isConnect: whether or not a connection has been established
     ///
-    public init (url: NSData, isConnect: Bool) {
-        
-        var parsedURL = http_parser_url_url()
-        memset(&parsedURL, 0, sizeof(http_parser_url.self))
-        
-        if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedURL) == 0 {
-            
-            let (s, h, ps, p, q, f, u) = parsedURL.field_data
-            schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
-            host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
-            let portString = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
-            path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
-            query = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
-            fragment = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
-            userinfo = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
+    public init (url data: NSData, isConnect: Bool) {
 
-            if let _ = portString {
-                port = parsedURL.port
-            }
-            
-            if let query = query {
-                
-                let pairs = query.components(separatedBy: "&")
-                for pair in pairs {
-                    
-                    let pairArray = pair.components(separatedBy: "=")
-                    if pairArray.count == 2 {
-                        queryParameters[pairArray[0]] = pairArray[1]
-                    }
-                    
+        #if os(Linux)
+        url = NSURL(string: String(data: data, encoding: NSUTF8StringEncoding) ?? "", relativeToURL: nil)
+        #else
+        url = NSURL(string: String(data: data as Data, encoding: String.Encoding.utf8) ?? "", relativeTo: nil)
+        #endif
+
+        // set the initial path.  This can be changed by users.
+        path = url?.path
+        // parse query parameters
+        if let query = url?.query {
+
+            let pairs = query.components(separatedBy: "&")
+            for pair in pairs {
+
+                let pairArray = pair.components(separatedBy: "=")
+                if pairArray.count == 2 {
+                    queryParameters[pairArray[0]] = pairArray[1]
                 }
-                
             }
         }
     }
-    
-    ///
-    /// TODO: ???
-    ///
-    ///
-    private func getValueFromURL(_ url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
-        fieldData: http_parser_url_field_data) -> String? {
-        
-        if fieldSet & (1 << fieldIndex) != 0 {
-            let start = Int(fieldData.off)
-            let length = Int(fieldData.len)
-            let data = NSData(bytes: UnsafeMutablePointer<UInt8>(url.bytes)+start, length: length)
-            return StringUtils.fromUtf8String(data)
-        }
-        
-        return nil
-        
-    }
-
 }
-

@@ -15,22 +15,17 @@
  **/
 
 import KituraSys
-import CHTTPParser
+import HTTPParser
 import Foundation
 
 // MARK: HTTPParser
 
-class HTTPParser {
+class HTTPParser : http_parser_delegate {
 
     ///
     /// A Handle to the HTTPParser C-library
     ///
     var parser: http_parser
-
-    ///
-    /// Settings used for HTTPParser
-    ///
-    var settings: http_parser_settings
 
     ///
     /// Parsing a request? (or a response)
@@ -40,24 +35,8 @@ class HTTPParser {
     ///
     /// Delegate used for the parsing
     ///
-    var delegate: HTTPParserDelegate? {
-
-        didSet {
-            if let _ = delegate {
-                withUnsafeMutablePointer(&delegate) {
-                    ptr in
-                    self.parser.data = UnsafeMutablePointer<Void>(ptr)
-                }
-            }
-        }
-        
-    }
+    var delegate: HTTPParserDelegate?
     
-    ///
-    /// Whether to upgrade the HTTP connection to HTTP 1.1
-    ///
-    var upgrade = 1
-
     ///
     /// Initializes a HTTPParser instance
     ///
@@ -70,77 +49,76 @@ class HTTPParser {
         self.isRequest = isRequest
 
         parser = http_parser()
-        settings = http_parser_settings()
-
-        settings.on_url = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            let data = NSData(bytes: chunk, length: length)
-            p?.pointee?.onURL(data)
-            return 0
-        }
         
-        settings.on_header_field = { (parser, chunk, length) -> Int32 in
-            let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onHeaderField(data)
-            return 0
-        }
-        
-        settings.on_header_value = { (parser, chunk, length) -> Int32 in
-            let data = NSData(bytes: chunk, length: length)
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onHeaderValue(data)
-            return 0
-        }
-        
-        settings.on_body = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            if p?.pointee?.saveBody == true {
-                let data = NSData(bytes: chunk, length: length)
-                p?.pointee?.onBody(data)
-            }
-            return 0
-        }
-        
-        settings.on_headers_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            // TODO: Clean and refactor
-            //let method = String( get_method(parser))
-            let po =  get_method(parser)
-            var message = ""
-            var i = 0
-            while((po!+i).pointee != Int8(0)) {
-                message += String(UnicodeScalar(UInt8((po!+i).pointee)))
-                i += 1
-            }
-            p?.pointee?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
-                versionMinor: (parser?.pointee.http_minor)!)
-            
-            return 0
-        }
-        
-        settings.on_message_begin = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onMessageBegin()
-            
-            return 0
-        }
-        
-        settings.on_message_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            if get_status_code(parser) == 100 {
-                p?.pointee?.reset()
-            }
-            else {
-                p?.pointee?.onMessageComplete()
-            }
-            
-            return 0
-        }
-        
-        reset()	
+        reset()
     }
-    
+
+    ///
+    /// http_parser_delegate eethods
+    ///
+    func on_url(at: UnsafePointer<UInt8>, length: Int) -> Int{
+        let data = NSData(bytes: at, length: length)
+        delegate?.onURL(data)
+        return 0
+    }
+
+    func on_header_field(at: UnsafePointer<UInt8>, length: Int) -> Int {
+        let data = NSData(bytes: at, length: length)
+        delegate?.onHeaderField(data)
+        return 0
+    }
+
+    func on_header_value(at: UnsafePointer<UInt8>, length: Int) -> Int {
+        let data = NSData(bytes: at, length: length)
+        delegate?.onHeaderValue(data)
+        return 0
+    }
+
+    func on_body(at: UnsafePointer<UInt8>, length: Int) -> Int {
+        if delegate?.saveBody == true {
+            let data = NSData(bytes: at, length: length)
+            delegate?.onBody(data)
+        }
+        return 0
+    }
+
+    func on_headers_complete() -> Int {
+        let message = parser.method_str(parser.method)
+        delegate?.onHeadersComplete(method: message, versionMajor: parser.http_major,
+            versionMinor: parser.http_minor)
+        return 0
+    }
+
+    func on_message_begin() -> Int {
+        delegate?.onMessageBegin()
+        return 0
+    }
+
+    func on_message_complete() -> Int {
+        if parser.status_code == 100 {
+            delegate?.reset()
+        }
+        else {
+            delegate?.onMessageComplete()
+        }
+        return 0
+    }
+
+    ///
+    /// unused HTTPParser callbacks
+    ///
+    func on_status(at: UnsafePointer<UInt8>, length: Int) -> Int {
+        return 0
+    }
+
+    func on_chunk_header() -> Int {
+        return 0
+    }
+
+    func on_chunk_complete() -> Int {
+        return 0
+    }
+
     ///
     /// Executes the parsing on the byte array
     ///
@@ -150,23 +128,22 @@ class HTTPParser {
     /// - Returns: ???
     ///
     func execute (_ data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
-        let nparsed = http_parser_execute(&parser, &settings, data, length)
-        let upgrade = get_upgrade_value(&parser)
-        return (nparsed, upgrade)
+        let nparsed = parser.execute(self, UnsafePointer<UInt8>(data), length)
+        return (nparsed, parser.upgrade ? 1 : 0)
     }    
 
     ///
     /// Reset the http_parser context structure.
     ///
     func reset() {
-        http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
+        parser.reset(isRequest ? .HTTP_REQUEST : .HTTP_RESPONSE)
     }
 
     ///
     /// Did the request include a Connection: keep-alive header?
     ///
     func isKeepAlive() -> Bool {
-        return isRequest && http_should_keep_alive(&parser) == 1
+        return isRequest && parser.should_keep_alive()
     }
 
 }
