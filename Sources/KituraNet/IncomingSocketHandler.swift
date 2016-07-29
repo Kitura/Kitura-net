@@ -59,14 +59,15 @@ public class IncomingSocketHandler {
 
     let socket: Socket
         
-    public var processor: IncomingDataProcessor?
+    public var processor: IncomingSocketProcessor?
     
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingDataProcessor) {
+    init(socket: Socket, using: IncomingSocketProcessor) {
         self.socket = socket
         processor = using
+        processor?.handler = self
         
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)

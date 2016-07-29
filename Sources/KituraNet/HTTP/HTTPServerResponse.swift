@@ -42,9 +42,9 @@ public class HTTPServerResponse : ServerResponse {
     private var status = HTTPStatusCode.OK.rawValue
     
     ///
-    /// Corresponding socket handler
+    /// Corresponding socket processor
     ///
-    private weak var handler : IncomingSocketHandler?
+    private weak var processor : IncomingHTTPSocketProcessor?
 
     ///
     /// Status code
@@ -63,9 +63,9 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// Initializes a HTTPServerResponse instance
     ///
-    init(handler: IncomingSocketHandler) {
+    init(processor: IncomingHTTPSocketProcessor) {
 
-        self.handler = handler
+        self.processor = processor
         buffer = NSMutableData(capacity: HTTPServerResponse.bufferSize)!
         headers["Date"] = [SPIUtils.httpDate()]
     }
@@ -95,14 +95,14 @@ public class HTTPServerResponse : ServerResponse {
     ///
     public func write(from data: NSData) throws {
 
-        if  let handler = handler {
+        if  let processor = processor {
             try flushStart()
             if  buffer.length + data.length > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
-                handler.write(from: buffer)
+                processor.write(from: buffer)
                 buffer.length = 0
             }
             if  data.length > HTTPServerResponse.bufferSize {
-                handler.write(from: data)
+                processor.write(from: data)
             }
             else {
                 #if os(Linux)
@@ -133,22 +133,22 @@ public class HTTPServerResponse : ServerResponse {
     /// - Throws: Socket.error if an error occurred while writing to a socket
     ///
     public func end() throws {
-        if let handler = handler {
-            handler.drain()
+        if let processor = processor {
+            processor.drain()
         
             try flushStart()
             
-            let keepAlive = handler.isKeepAlive ?? false
+            let keepAlive = processor.isKeepAlive ?? false
             if  keepAlive {
-                handler.keepAlive()
+                processor.keepAlive()
             }
             
             if  buffer.length > 0  {
-                handler.write(from: buffer)
+                processor.write(from: buffer)
             }
             
             if !keepAlive  {
-                handler.close()
+                processor.close()
             }
         }
     }
@@ -183,10 +183,10 @@ public class HTTPServerResponse : ServerResponse {
                 headerData.append("\r\n")
             }
         }
-        let keepAlive = handler?.isKeepAlive ?? false
+        let keepAlive = processor?.isKeepAlive ?? false
         if  keepAlive {
             headerData.append("Connection: Keep-Alive\r\n")
-            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPDataProcessor.keepAliveTimeout)), max=\((handler?.numberOfRequests ?? 1) - 1)\r\n")
+            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout)), max=\((processor?.numberOfRequests ?? 1) - 1)\r\n")
         }
         else {
             headerData.append("Connection: Close\r\n")
@@ -201,17 +201,17 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// Throws: Socket.error if an error occurred while writing to a socket
     private func writeToSocketThroughBuffer(text: String) throws {
-        guard let handler = handler,
+        guard let processor = processor,
               let utf8Data = StringUtils.toUtf8String(text) else {
             return
         }
 
         if  buffer.length + utf8Data.length > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
-            handler.write(from: buffer)
+            processor.write(from: buffer)
             buffer.length = 0
         }
         if  utf8Data.length > HTTPServerResponse.bufferSize {
-            handler.write(from: utf8Data)
+            processor.write(from: utf8Data)
         }
         else {
             #if os(Linux)

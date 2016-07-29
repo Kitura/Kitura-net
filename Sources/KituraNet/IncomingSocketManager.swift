@@ -80,7 +80,7 @@ class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let processor = IncomingHTTPDataProcessor(socket: socket, using: delegate)
+            let processor = IncomingHTTPSocketProcessor(socket: socket, using: delegate)
             let handler = IncomingSocketHandler(socket: socket, using: processor)
             socketHandlers[socket.socketfd] = handler
             
@@ -157,7 +157,7 @@ class IncomingSocketManager  {
         
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
-            if  handler.processor.inProgress  ||  maxInterval < handler.processor.keepAliveUntil {
+            if  handler.processor != nil  &&  (handler.processor!.inProgress  ||  maxInterval < handler.processor!.keepAliveUntil) {
                 continue
             }
             socketHandlers.removeValue(forKey: fileDescriptor)

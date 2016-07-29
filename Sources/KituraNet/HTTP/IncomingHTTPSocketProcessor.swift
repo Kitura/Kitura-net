@@ -23,7 +23,7 @@ import Socket
 /// This class processes the data sent by the client after the data was read. It
 /// is parsed filling in a ServerRequest object. When parsing is complete the
 /// ServerDelegate is invoked.
-public class IncomingHTTPDataProcessor: IncomingDataProcessor {
+public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
         typealias DateType = Date
@@ -76,7 +76,7 @@ public class IncomingHTTPDataProcessor: IncomingDataProcessor {
         reader = PseudoSynchronousReader(clientSocket: socket)
         request = HTTPServerRequest(reader: reader)
         
-        response = HTTPServerResponse(handler: handler)
+        response = HTTPServerResponse(processor: self)
     }
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
@@ -97,6 +97,16 @@ public class IncomingHTTPDataProcessor: IncomingDataProcessor {
         case .parsedHeaders:
             reader.addDataToRead(from: buffer)
         }
+    }
+    
+    /// Write data to the socket
+    public func write(from data: NSData) {
+        handler?.write(from: data)
+    }
+    
+    /// Close the socket and mark this handler as no longer in progress.
+    public func close() {
+        handler?.close()
     }
     
     /// Invoke the HTTP parser against the specified buffer of data and
@@ -137,7 +147,7 @@ public class IncomingHTTPDataProcessor: IncomingDataProcessor {
         state = .reset
         numberOfRequests -= 1
         inProgress = false
-        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPDataProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
+        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
     }
     
     /// Drain the socket of the data of the current request.

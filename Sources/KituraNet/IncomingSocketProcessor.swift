@@ -19,7 +19,7 @@ import Foundation
 /// This protocol defines the API of the classes used to process the data that
 /// comes in from a client's request. There should be one IncomingDataProcessor
 /// per incoming request or not.
-public protocol IncomingDataProcessor: class {
+public protocol IncomingSocketProcessor: class {
     
     /// The socket if idle will be kep alive until...
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
@@ -38,4 +38,10 @@ public protocol IncomingDataProcessor: class {
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
     func process(_ buffer: NSData)
+    
+    /// Write data to the socket
+    func write(from data: NSData)
+    
+    /// Close the socket and mark this handler as no longer in progress.
+    func close()
 }
