@@ -24,15 +24,16 @@ import LoggerAPI
 import Socket
 
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
-/// is read and parsed filling in a ServerRequest object. When parsing is complete the
-/// ServerDelegate is invoked.
+/// is read and passed to the current IncomingDataProcessor.
+///
+/// **Note*** The IncomingDataProcessor can change due to an Upgrade request.
 ///
 /// **Note:** This class uses different underlying technologies depending on:
 ///     1. On Linux if no special compile time options are specified, epoll is used
 ///     2. On OSX DispatchSource is used
 ///     3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
 ///        DispatchSource is used, as it is used on OSX.
-class IncomingHTTPSocketHandler: IncomingSocketHandler {
+public class IncomingSocketHandler {
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
         typealias DateType = Date
@@ -58,57 +59,19 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
 
     let socket: Socket
         
-    private weak var delegate: ServerDelegate?
+    public var processor: IncomingDataProcessor?
     
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
-        
-    private let reader: PseudoSynchronousReader
     
-    
-    private let request: HTTPServerRequest
-    
-    /// The ServerResponse object used to enable the ServerDelegate to respond to the incoming request
-    /// Note: This var is optional to enable it to be constructed in the init function
-    private var response: ServerResponse!
-    
-    /// Keep alive timeout for idle sockets in seconds
-    static let keepAliveTimeout: TimeIntervalType = 60
-    
-    /// A flag indicating that the client has requested that the socket be kep alive
-    private(set) var clientRequestedKeepAlive = false
-    
-    /// The socket if idle will be kep alive until...
-    var keepAliveUntil: TimeIntervalType = 0.0
-    
-    /// A flag to indicate that the socket has a request in progress
-    var inProgress = true
-    
-    /// Number of remaining requests that will be allowed on the socket being handled by this handler
-    private(set) var numberOfRequests = 20
-    
-    /// Should this socket actually be kep alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
-    
-    /// An enum for internal state
-    enum State {
-        case reset, initial, parsedHeaders
-    }
-    
-    /// The state of this handler
-    private(set) var state = State.initial
-    
-    init(socket: Socket, using: ServerDelegate) {
+    init(socket: Socket, using: IncomingDataProcessor) {
         self.socket = socket
-        delegate = using
-        reader = PseudoSynchronousReader(clientSocket: socket)
-        request = HTTPServerRequest(reader: reader)
+        processor = using
         
-        response = HTTPServerResponse(handler: self)
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
             source = DispatchSource.read(fileDescriptor: socket.socketfd,
-		                         queue: IncomingHTTPSocketHandler.socketReaderQueue)
+		                         queue: IncomingSocketHandler.socketReaderQueue)
         
             source.setEventHandler() {
                 self.handleRead()
@@ -119,7 +82,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
             source.resume()
 	#elseif GCD_ASYNCH
             source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0, 
-		                            IncomingHTTPSocketHandler.socketReaderQueue)
+		                            IncomingSocketHandler.socketReaderQueue)
 
             dispatch_source_set_event_handler(source) {
                 self.handleRead()
@@ -141,7 +104,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
                 length = try socket.read(into: buffer)
             }
             if  buffer.length > 0  {
-                process(buffer)
+                processor?.process(buffer)
             }
             else {
                 if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
@@ -187,74 +150,8 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         if  socket.socketfd > -1 {
             socket.close()
         }
-        inProgress = false
-        keepAliveUntil = 0.0
-    }
-    
-    /// Process data read from the socket. It is either passed to the HTTP parser or
-    /// it is saved in the Pseudo synchronous reader to be read later on.
-    func process(_ buffer: NSData) {
-        switch(state) {
-        case .reset:
-            request.reset()
-            response.reset()
-            fallthrough
-            
-        case .initial:
-            inProgress = true
-            HTTPServer.clientHandlerQueue.enqueueAsynchronously() { [unowned self] in
-                self.parse(buffer)
-            }
-            
-        case .parsedHeaders:
-            reader.addDataToRead(from: buffer)
-        }
-    }
-    
-    /// Invoke the HTTP parser against the specified buffer of data and
-    /// convert the HTTP parser's status to our own.
-    private func parse(_ buffer: NSData) {
-        let parsingStatus = request.parse(buffer)
-        guard  parsingStatus.error == nil  else  {
-            Log.error("Failed to parse a request")
-            if  let response = response {
-                response.statusCode = .badRequest
-                do {
-                    try response.end()
-                }
-                catch {}
-            }
-            return
-        }
-        
-        switch(parsingStatus.state) {
-        case .initial:
-            break
-        case .headersComplete, .messageComplete:
-            clientRequestedKeepAlive = parsingStatus.keepAlive
-            parsingComplete()
-        case .reset:
-            break
-        }
-    }
-    
-    /// Parsing has completed enough to invoke the ServerDelegate to handle the request
-    private func parsingComplete() {
-        state = .parsedHeaders
-        delegate?.handle(request: request, response: response)
-    }
-    
-    /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
-    func keepAlive() {
-        state = .reset
-        numberOfRequests -= 1
-        inProgress = false
-        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketHandler.keepAliveTimeout).timeIntervalSinceReferenceDate
-    }
-    
-    /// Drain the socket of the data of the current request.
-    func drain() {
-        request.drain()
+        processor?.inProgress = false
+        processor?.keepAliveUntil = 0.0
     }
     
     /// Private method to return a string representation on a value of errno.

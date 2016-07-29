@@ -33,7 +33,8 @@ import Socket
 ///       a. Creating the epoll handle
 ///       b. Adding new incoming sockets to the epoll descriptor for read events
 ///       c. Running the "thread" that does the epoll_wait
-///   2. Creating and managing the IncomingHTTPSocketHandlers (one per incomng socket)
+///   2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
+///      (one pair per incomng socket)
 ///   3. Cleaning up idle sockets, when new incoming sockets arrive.
 class IncomingSocketManager  {
     
@@ -45,8 +46,8 @@ class IncomingSocketManager  {
         typealias TimeIntervalType = NSTimeInterval
     #endif
     
-    /// A mapping from socket file descriptor to IncomingHTTPSocketHandler
-    private var socketHandlers = [Int32: IncomingHTTPSocketHandler]()
+    /// A mapping from socket file descriptor to IncomingSocketHandler
+    private var socketHandlers = [Int32: IncomingSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeIntervalType = 60.0
@@ -79,7 +80,8 @@ class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let handler = IncomingHTTPSocketHandler(socket: socket, using: delegate)
+            let processor = IncomingHTTPDataProcessor(socket: socket, using: delegate)
+            let handler = IncomingSocketHandler(socket: socket, using: processor)
             socketHandlers[socket.socketfd] = handler
             
             #if GCD_ASYNCH
@@ -155,7 +157,7 @@ class IncomingSocketManager  {
         
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
-            if  handler.inProgress  ||  maxInterval < handler.keepAliveUntil {
+            if  handler.processor.inProgress  ||  maxInterval < handler.processor.keepAliveUntil {
                 continue
             }
             socketHandlers.removeValue(forKey: fileDescriptor)

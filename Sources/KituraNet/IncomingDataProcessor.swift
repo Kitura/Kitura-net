@@ -19,7 +19,17 @@ import Foundation
 /// This protocol defines the API of the classes used to process the data that
 /// comes in from a client's request. There should be one IncomingDataProcessor
 /// per incoming request or not.
-public protocol IncomingDataProcessor {
+public protocol IncomingDataProcessor: class {
+    
+    /// The socket if idle will be kep alive until...
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        var keepAliveUntil: TimeInterval { get set }
+    #else
+        var keepAliveUntil: NSTimeInterval { get set }
+    #endif
+    
+    /// A flag to indicate that the socket has a request in progress
+    var inProgress: Bool { get set }
 
     /// A back reference to the IncomingSocketHandler processing the socket that
     /// this IncomingDataProcessor is processing.    

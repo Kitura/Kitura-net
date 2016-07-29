@@ -44,7 +44,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// Corresponding socket handler
     ///
-    private weak var handler : IncomingHTTPSocketHandler?
+    private weak var handler : IncomingSocketHandler?
 
     ///
     /// Status code
@@ -63,7 +63,7 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// Initializes a HTTPServerResponse instance
     ///
-    init(handler: IncomingHTTPSocketHandler) {
+    init(handler: IncomingSocketHandler) {
 
         self.handler = handler
         buffer = NSMutableData(capacity: HTTPServerResponse.bufferSize)!
@@ -186,7 +186,7 @@ public class HTTPServerResponse : ServerResponse {
         let keepAlive = handler?.isKeepAlive ?? false
         if  keepAlive {
             headerData.append("Connection: Keep-Alive\r\n")
-            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketHandler.keepAliveTimeout)), max=\((handler?.numberOfRequests ?? 1) - 1)\r\n")
+            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPDataProcessor.keepAliveTimeout)), max=\((handler?.numberOfRequests ?? 1) - 1)\r\n")
         }
         else {
             headerData.append("Connection: Close\r\n")
