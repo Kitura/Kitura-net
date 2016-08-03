@@ -84,7 +84,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
-            request.reset()
+            request.prepareToReset()
             response.reset()
             fallthrough
             
