@@ -28,7 +28,7 @@ public protocol ServerRequest: class {
     var urlString : String { get }
     
     /// Raw URL
-    var url : NSMutableData { get }
+    var url : Data { get }
 
     /// server IP address
     var remoteAddress: String { get }
@@ -44,11 +44,11 @@ public protocol ServerRequest: class {
     
     /// Read data in the message
     ///
-    /// - Parameter data: An NSMutableData to hold the data in the message
+    /// - Parameter data: A Data struct to hold the data in the message
     ///
     /// - Throws: Socket.error if an error occurred while reading from a socket
     /// - Returns: the number of bytes read
-    func read(into data: NSMutableData) throws -> Int
+    func read(into data: inout Data) throws -> Int
     
     /// Read the string
     ///
@@ -59,9 +59,9 @@ public protocol ServerRequest: class {
     
     /// Read all data in the message
     ///
-    /// - Parameter data: An NSMutableData to hold the data in the message
+    /// - Parameter data: A Data struct to hold the data in the message
     ///
     /// - Throws: Socket.error if an error occurred while reading from a socket
     /// - Returns: the number of bytes read
-    func readAllData(into data: NSMutableData) throws -> Int
+    func readAllData(into data: inout Data) throws -> Int
 }

@@ -290,7 +290,9 @@ public class ClientRequest: SocketWriter {
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
-                headersList = curl_slist_append(headersList, UnsafeMutablePointer<Int8>(headerString.bytes))
+                headerString.withUnsafeBytes() { (headerUTF8: UnsafePointer<Int8>) in
+                    headersList = curl_slist_append(headersList, headerUTF8)
+                }
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)

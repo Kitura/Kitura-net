@@ -301,7 +301,7 @@ class FastCGIRecordParser {
             
             let currentPointer : Int = pointer
             try skip(nameLength)
-            let nameData = NSData(bytes: bufferBytes + currentPointer, length: nameLength)
+            let nameData = Data(bytes: bufferBytes + currentPointer, count: nameLength)
             
             guard let nameString = StringUtils.fromUtf8String(nameData) else {
                 // the data received from the web server couldn't be transcoded
@@ -324,7 +324,7 @@ class FastCGIRecordParser {
                 
                 let currentPointer : Int = pointer
                 try skip(valueLength)
-                let valueData = NSData(bytes: bufferBytes + currentPointer, length: valueLength)
+                let valueData = Data(bytes: bufferBytes + currentPointer, count: valueLength)
                 
                 guard let valueString = StringUtils.fromUtf8String(valueData) else {
                     // a value was supposed to have been provided but decoding it
