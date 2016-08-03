@@ -23,5 +23,6 @@ XCTMain([
        testCase(ClientRequestTests.allTests),
        testCase(LargePayloadTests.allTests),
        testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests)
+       testCase(FastCGIProtocolTests.allTests),
+       testCase(SPIUtilsTests.allTests)
 ])
