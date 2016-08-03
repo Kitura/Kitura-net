@@ -121,6 +121,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         if  status.state == .reset  {
             status.reset()
             parser.reset()
+            headers.removeAll()
         }
         
         var start = 0
