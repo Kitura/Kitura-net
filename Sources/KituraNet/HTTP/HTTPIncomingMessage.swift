@@ -119,8 +119,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         
         // If we were reset because of keep alive
         if  status.state == .reset  {
-            status.reset()
-            parser.reset()
+            reallyReset()
         }
         
         var start = 0
@@ -134,9 +133,8 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                 
                 if  status.state == .reset  {
                     // Apparently the short message was a Continue. Let's just keep on parsing
-                    status.state = .initial
                     start = numberParsed
-                    parser.reset()
+                    reallyReset()
                 }
                 else {
                     /* Handle error. Usually just close the connection. */
@@ -372,13 +370,20 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         }
     }
 
-    /// instructions for when reading is reset
+    /// Signal that reading is being reset
     func reset() {
-        lastHeaderWasAValue = false
-        url.length = 0
         status.state = .reset
     }
 
+    /// When we're ready, really reset everything
+    private func reallyReset() {
+        lastHeaderWasAValue = false
+        url.length = 0
+        headers.removeAll()
+        bodyChunk.reset()
+        status.reset()
+        httpParser?.reset()
+    }
 }
 
 
