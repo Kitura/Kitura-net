@@ -75,6 +75,7 @@ public class SPIUtils {
             let wday = Int(components.weekday)
             let mday = Int(components.day)
             let mon = Int(components.month)
+            let year = components.year
             let hour = Int(components.hour)
             let min = Int(components.minute)
             let sec = Int(components.second)
@@ -86,11 +87,12 @@ public class SPIUtils {
             let wday = Int(components.weekday!)
             let mday = Int(components.day!)
             let mon = Int(components.month!)
+            let year = components.year!
             let hour = Int(components.hour!)
             let min = Int(components.minute!)
             let sec = Int(components.second!)
         #endif
-        return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(components.year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
+        return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
     }
 
     ///
