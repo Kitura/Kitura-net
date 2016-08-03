@@ -129,7 +129,7 @@ class HTTPParser {
         settings.on_message_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             if get_status_code(parser) == 100 {
-                p?.pointee?.reset()
+                p?.pointee?.prepareToReset()
             }
             else {
                 p?.pointee?.onMessageComplete()
@@ -183,5 +183,5 @@ protocol HTTPParserDelegate: class {
     func onMessageBegin()
     func onMessageComplete()
     func onBody(_ body: NSData)
-    func reset()    
+    func prepareToReset()    
 }
