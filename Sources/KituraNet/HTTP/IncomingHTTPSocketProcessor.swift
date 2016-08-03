@@ -14,57 +14,30 @@
  * limitations under the License.
  **/
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-    import Dispatch
-#endif
 
 import Foundation
 
 import LoggerAPI
 import Socket
 
-/// This class handles incoming sockets to the HTTPServer. The data sent by the client
-/// is read and parsed filling in a ServerRequest object. When parsing is complete the
+/// This class processes the data sent by the client after the data was read. It
+/// is parsed filling in a ServerRequest object. When parsing is complete the
 /// ServerDelegate is invoked.
-///
-/// **Note:** This class uses different underlying technologies depending on:
-///     1. On Linux if no special compile time options are specified, epoll is used
-///     2. On OSX DispatchSource is used
-///     3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
-///        DispatchSource is used, as it is used on OSX.
-class IncomingHTTPSocketHandler: IncomingSocketHandler {
+public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
         typealias DateType = Date
-        typealias TimeIntervalType = TimeInterval
-    
-        typealias DispatchSourceReadType = DispatchSourceRead
-        static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
+        public typealias TimeIntervalType = TimeInterval
     #else
         typealias DateType = NSDate
-        typealias TimeIntervalType = NSTimeInterval
-    
-        #if GCD_ASYNCH
-            typealias DispatchSourceReadType = dispatch_source_t
-            static let socketReaderQueue = dispatch_queue_create("Socket Reader", DISPATCH_QUEUE_SERIAL)
-        #endif
+        public typealias TimeIntervalType = NSTimeInterval
     #endif
     
-    
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-        // Note: This var is optional to enable it to be constructed in the init function
-        var source: DispatchSourceReadType!
-    #endif
-
-    let socket: Socket
+    public weak var handler: IncomingSocketHandler?
         
     private weak var delegate: ServerDelegate?
     
-    /// The file descriptor of the incoming socket
-    var fileDescriptor: Int32 { return socket.socketfd }
-        
     private let reader: PseudoSynchronousReader
-    
     
     private let request: HTTPServerRequest
     
@@ -79,10 +52,10 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     private(set) var clientRequestedKeepAlive = false
     
     /// The socket if idle will be kep alive until...
-    var keepAliveUntil: TimeIntervalType = 0.0
+    public var keepAliveUntil: TimeIntervalType = 0.0
     
     /// A flag to indicate that the socket has a request in progress
-    var inProgress = true
+    public var inProgress = true
     
     /// Number of remaining requests that will be allowed on the socket being handled by this handler
     private(set) var numberOfRequests = 20
@@ -99,101 +72,16 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
     private(set) var state = State.initial
     
     init(socket: Socket, using: ServerDelegate) {
-        self.socket = socket
         delegate = using
         reader = PseudoSynchronousReader(clientSocket: socket)
         request = HTTPServerRequest(reader: reader)
         
-        response = HTTPServerResponse(handler: self)
-        
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-            source = DispatchSource.read(fileDescriptor: socket.socketfd,
-		                         queue: IncomingHTTPSocketHandler.socketReaderQueue)
-        
-            source.setEventHandler() {
-                self.handleRead()
-            }
-            source.setCancelHandler() {
-                self.handleCancel()
-            }
-            source.resume()
-	#elseif GCD_ASYNCH
-            source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0, 
-		                            IncomingHTTPSocketHandler.socketReaderQueue)
-
-            dispatch_source_set_event_handler(source) {
-                self.handleRead()
-            }
-            dispatch_source_set_cancel_handler(source) {
-                self.handleCancel()
-            }
-            dispatch_resume(source)
-        #endif
-    }
-    
-    /// Read in the available data and hand off to common processing code
-    func handleRead() {
-        let buffer = NSMutableData()
-        
-        do {
-            var length = 1
-            while  length > 0  {
-                length = try socket.read(into: buffer)
-            }
-            if  buffer.length > 0  {
-                process(buffer)
-            }
-            else {
-                if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
-                    close()
-                }
-            }
-        }
-        catch let error as Socket.Error {
-            Log.error(error.description)
-        } catch {
-            Log.error("Unexpected error...")
-        }
-    }
-    
-    /// Write data to the socket
-    func write(from data: NSData) {
-        guard socket.socketfd > -1  else { return }
-        
-        do {
-            try socket.write(from: data)
-        }
-        catch {
-            Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
-        }
-    }
-    
-    /// Close the socket and mark this handler as no longer in progress.
-    ///
-    /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
-    /// **Note:** On OSX the cancel handler will actually close the socket.
-    func close() {
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-            source.cancel()
-        #elseif GCD_ASYNCH
-	    dispatch_source_cancel(source!)
-        #else
-            handleCancel()
-        #endif
-    }
-    
-    /// DispatchSource cancel handler
-    private func handleCancel() {
-        if  socket.socketfd > -1 {
-            socket.close()
-        }
-        inProgress = false
-        keepAliveUntil = 0.0
+        response = HTTPServerResponse(processor: self)
     }
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
-    func process(_ buffer: NSData) {
+    public func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
             request.reset()
@@ -209,6 +97,16 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         case .parsedHeaders:
             reader.addDataToRead(from: buffer)
         }
+    }
+    
+    /// Write data to the socket
+    public func write(from data: NSData) {
+        handler?.write(from: data)
+    }
+    
+    /// Close the socket and mark this handler as no longer in progress.
+    public func close() {
+        handler?.close()
     }
     
     /// Invoke the HTTP parser against the specified buffer of data and
@@ -249,7 +147,7 @@ class IncomingHTTPSocketHandler: IncomingSocketHandler {
         state = .reset
         numberOfRequests -= 1
         inProgress = false
-        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketHandler.keepAliveTimeout).timeIntervalSinceReferenceDate
+        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
     }
     
     /// Drain the socket of the data of the current request.
