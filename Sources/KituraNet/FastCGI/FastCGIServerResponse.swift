@@ -64,7 +64,7 @@ public class FastCGIServerResponse : ServerResponse {
             return HTTPStatusCode(rawValue: status)
         }
         set (newValue) {
-            if let newValue = newValue where !startFlushed {
+            if let newValue = newValue, !startFlushed {
                 status = newValue.rawValue
             }
         }
@@ -96,19 +96,17 @@ public class FastCGIServerResponse : ServerResponse {
     //
     // Actual write methods
     //
-    public func write(from data: NSData) throws {
+    public func write(from data: Data) throws {
         
         try startResponse()
         
-        if (buffer.length + data.length) > FastCGIServerResponse.bufferSize {
+        if (buffer.length + data.count) > FastCGIServerResponse.bufferSize {
             try flush()
         }
         
-        #if os(Linux)
-            buffer.append(data)
-        #else
-            buffer.append(data as Data)
-        #endif
+        data.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
+            self.buffer.append(bytes, length: data.count)
+        }
     }
     
     public func end() throws {
@@ -203,14 +201,11 @@ public class FastCGIServerResponse : ServerResponse {
         guard let serverRequest = self.serverRequest else {
             throw FastCGI.RecordErrors.internalError
         }
-        guard let requestId : UInt16 = serverRequest.requestId else {
-            throw FastCGI.RecordErrors.internalError
-        }
-        guard requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
+        guard serverRequest.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
             throw FastCGI.RecordErrors.internalError
         }
         
-        return try getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
+        return try getEndRequestMessage(requestId: serverRequest.requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
         
     }
 
@@ -218,9 +213,7 @@ public class FastCGIServerResponse : ServerResponse {
     /// External message write for multiplex rejection    
     ///
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
-        guard let message : NSData = try getNoMultiplexingMessage(requestId: requestId) else {
-            return
-        }
+        let message = try getNoMultiplexingMessage(requestId: requestId)
         try writeToSocket(message, wrapAsMessage: false)
     }
     
