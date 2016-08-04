@@ -38,22 +38,14 @@ import Socket
 ///   3. Cleaning up idle sockets, when new incoming sockets arrive.
 class IncomingSocketManager  {
     
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-        typealias DateType = Date
-        typealias TimeIntervalType = TimeInterval
-    #else
-        typealias DateType = NSDate
-        typealias TimeIntervalType = NSTimeInterval
-    #endif
-    
     /// A mapping from socket file descriptor to IncomingSocketHandler
     private var socketHandlers = [Int32: IncomingSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
-    let keepAliveIdleCheckingInterval: TimeIntervalType = 60.0
+    let keepAliveIdleCheckingInterval: TimeInterval = 60.0
     
     /// The last time we checked for an idle socket
-    var keepAliveIdleLastTimeChecked = DateType()
+    var keepAliveIdleLastTimeChecked = Date()
     
     #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
@@ -152,7 +144,7 @@ class IncomingSocketManager  {
     /// idea here is that if sockets aren't coming in, it doesn't matter too much if
     /// we leave a round some idle sockets.
     private func removeIdleSockets() {
-        let now = DateType()
+        let now = Date()
         guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         
         let maxInterval = now.timeIntervalSinceReferenceDate
@@ -172,7 +164,7 @@ class IncomingSocketManager  {
             
             handler.close()
         }
-        keepAliveIdleLastTimeChecked = DateType()
+        keepAliveIdleLastTimeChecked = Date()
     }
     
     /// Private method to return the last error based on the value of errno.

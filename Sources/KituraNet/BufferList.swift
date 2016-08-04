@@ -31,8 +31,12 @@ public class BufferList {
     ///
     /// Internal storage buffer
     ///
+    #if os(Linux)
+        private var localData = Data(capacity: 4096)!
+    #else
+        private var localData = Data(capacity: 4096)
+    #endif
     
-    private var localData = Data(capacity: 4096)
     ///
     /// Byte offset inside of internal storage buffer
     private var byteIndex = 0
