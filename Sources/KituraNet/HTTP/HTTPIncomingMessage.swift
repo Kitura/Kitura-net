@@ -22,7 +22,7 @@ import Foundation
 
 // MARK: IncomingMessage
 
-public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
+public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// Default buffer size used for creating a BufferList
     private static let bufferSize = 2000
@@ -125,24 +125,26 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
         var start = 0
         while status.state == .initial  &&  status.error == nil  &&  length > 0  {
             
-            let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(buffer.bytes)+start, length: length)
-            if upgrade == 1 {
-                // TODO handle new protocol
-            }
-            else if  numberParsed != length  {
+            buffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
+                let (numberParsed, upgrade) = parser.execute(bytes+start, length: length)
+                if upgrade == 1 {
+                    // TODO handle new protocol
+                }
+                else if  numberParsed != length  {
                 
-                if  status.state == .reset  {
-                    // Apparently the short message was a Continue. Let's just keep on parsing
-                    start = numberParsed
-                    reset()
+                    if  self.status.state == .reset  {
+                        // Apparently the short message was a Continue. Let's just keep on parsing
+                        start = numberParsed
+                        self.reset()
+                    }
+                    else {
+                        /* Handle error. Usually just close the connection. */
+                        self.freeHTTPParser()
+                        self.status.error = .parsedLessThanRead
+                    }
                 }
-                else {
-                    /* Handle error. Usually just close the connection. */
-                    freeHTTPParser()
-                    status.error = .parsedLessThanRead
-                }
+                length -= numberParsed
             }
-            length -= numberParsed
         }
         
         return status
@@ -153,25 +155,28 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Parameter data: An NSMutableData to hold the data in the message
     ///
     /// - Returns: the number of bytes read
-    public func read(into data: NSMutableData) throws -> Int {
-        var count = bodyChunk.fill(data: data)
+    public func read(into data: inout Data) throws -> Int {
+        var count = bodyChunk.fill(data: &data)
         if count == 0 {
             if let parser = httpParser, status.state == .headersComplete {
                 do {
-                    ioBuffer!.length = 0
-                    count = try helper!.readHelper(into: &ioBuffer!)
+                    ioBuffer.count = 0
+                    count = try helper!.readHelper(into: &ioBuffer)
                     if count > 0 {
-                        let (numberParsed, upgrade) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
+                        let (numberParsed, upgrade) =
+                                ioBuffer.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> (Int, UInt32) in
+                            return parser.execute(bytes, length: count)
+                        }
                         if upgrade == 1 {
                             // TODO: handle new protocol
                         }
                         else if (numberParsed != count) {
                             /* Handle error. Usually just close the connection. */
-                            freeHTTPParser()
-                            status.error = .parsedLessThanRead
+                            self.freeHTTPParser()
+                            self.status.error = .parsedLessThanRead
                         }
                         else {
-                            count = bodyChunk.fill(data: data)
+                            count = self.bodyChunk.fill(data: &data)
                         }
                     }
                     else {
@@ -196,11 +201,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     ///
     /// - Returns: the number of bytes read
     @discardableResult
-    public func readAllData(into data: NSMutableData) throws -> Int {
-        var length = try read(into: data)
+    public func readAllData(into data: inout Data) throws -> Int {
+        var length = try read(into: &data)
         var bytesRead = length
         while length > 0 {
-            length = try read(into: data)
+            length = try read(into: &data)
             bytesRead += length
         }
         return bytesRead
@@ -212,13 +217,15 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
             saveBody = false
             while status.state == .headersComplete {
                 do {
-                    ioBuffer!.length = 0
-                    let count = try helper!.readHelper(into: ioBuffer!)
+                    ioBuffer.count = 0
+                    let count = try helper!.readHelper(into: &ioBuffer)
                     if count > 0 {
-                        let (numberParsed, _) = parser.execute(UnsafePointer<Int8>(ioBuffer!.bytes), length: count)
-                        if (numberParsed != count) {
-                            freeHTTPParser()
-                            status.error = .parsedLessThanRead
+                        ioBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
+                            let (numberParsed, _) = parser.execute(bytes, length: count)
+                            if (numberParsed != count) {
+                                self.freeHTTPParser()
+                                self.status.error = .parsedLessThanRead
+                            }
                         }
                     }
                     else {
@@ -239,10 +246,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// - Returns: an Optional string
     public func readString() throws -> String? {
 
-        buffer!.length = 0
-        let length = try read(into: buffer!)
+        buffer.count = 0
+        let length = try read(into: &buffer)
         if length > 0 {
-            return StringUtils.fromUtf8String(buffer!)
+            return StringUtils.fromUtf8String(buffer)
         }
         else {
             return nil
@@ -310,8 +317,8 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
                 headers.append(headerKey, value: headerValue)
         }
 
-        lastHeaderField.length = 0
-        lastHeaderValue.length = 0
+        lastHeaderField.count = 0
+        lastHeaderValue.count = 0
 
     }
 
@@ -366,7 +373,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate, SocketReader {
     /// When we're ready, really reset everything
     private func reset() {
         lastHeaderWasAValue = false
-        url.length = 0
+        url.count = 0
         headers.removeAll()
         bodyChunk.reset()
         status.reset()

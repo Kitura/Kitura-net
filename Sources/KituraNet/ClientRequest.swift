@@ -23,7 +23,7 @@ import Foundation
 
 // MARK: ClientRequest
 
-public class ClientRequest: SocketWriter {
+public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
     static private let oneTime = OneTimeInitializations()
@@ -177,7 +177,7 @@ public class ClientRequest: SocketWriter {
     /// Writes data to the response
     ///
     /// - Parameter from: NSData to be written
-    public func write(from data: NSData) {
+    public func write(from data: Data) {
         
         writeBuffers.append(data: data)
         
@@ -196,7 +196,7 @@ public class ClientRequest: SocketWriter {
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
-    public func end(_ data: NSData) {
+    public func end(_ data: Data) {
         
         write(from: data)
         end()
