@@ -107,9 +107,9 @@ class ClientE2ETests: XCTestCase {
     class TestServerDelegate : ServerDelegate {
     
         func handle(request: ServerRequest, response: ServerResponse) {
-            let body = NSMutableData()
+            var body = Data()
             do {
-                let length = try request.readAllData(into: body)
+                let length = try request.readAllData(into: &body)
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]
