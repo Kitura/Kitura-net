@@ -52,14 +52,10 @@ class ClientE2ETests: XCTestCase {
             self.performRequest("post", path: "/posttest", callback: {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 do {
-                    let data = NSMutableData()
-                    let count = try response!.readAllData(into: data)
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
                     XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
-                    #if os(Linux)
-                        let postValue = String(data: data, encoding: NSUTF8StringEncoding)
-                    #else
-                       let postValue = String(data: data as Data, encoding: String.Encoding.utf8)
-                    #endif
+                    let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
@@ -77,14 +73,10 @@ class ClientE2ETests: XCTestCase {
             self.performRequest("post", path: "/posttest", callback: {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 do {
-                    let data = NSMutableData()
-                    let count = try response!.readAllData(into: data)
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
                     XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(count) bytes")
-                    #if os(Linux)
-                        let postValue = String(data: data, encoding: NSUTF8StringEncoding)
-                    #else
-                        let postValue = String(data: data as Data, encoding: String.Encoding.utf8)
-                    #endif
+                    let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
                     }

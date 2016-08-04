@@ -243,12 +243,14 @@ public class ClientRequest {
     /// Prepare the handle 
     ///
     /// Parameter using: The URL to use when preparing the handle
-    private func prepareHandle(using urlBuffer: NSData) {
+    private func prepareHandle(using urlBuffer: Data) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuffer.bytes))
+        _ = urlBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
+            curlHelperSetOptString(self.handle!, CURLOPT_URL, bytes)
+        }
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)

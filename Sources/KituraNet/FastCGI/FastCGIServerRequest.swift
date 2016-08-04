@@ -410,10 +410,10 @@ public class FastCGIServerRequest : ServerRequest {
                 return
             }
             
-            if let data = record.data, data.length > 0 {
+            if let data = record.data, data.count > 0 {
                 // we've received some request body data as part of the STDIN
                 //
-                bodyChunk.append(bytes: UnsafePointer<UInt8>(data.bytes), length: data.length)
+                bodyChunk.append(data: data)
             }
             else {
                 // a zero length stdin means request is done
@@ -431,7 +431,7 @@ public class FastCGIServerRequest : ServerRequest {
     func parse (_ callback: (FastCGIParserErrorType) -> Void) {
         
         
-        let networkBuffer : NSMutableData = NSMutableData()
+        var networkBuffer = Data()
         
         // we want to repeat this until we're done
         // in case the intake data isn't sufficient to
@@ -440,8 +440,8 @@ public class FastCGIServerRequest : ServerRequest {
         repeat {
             
             do {
-                let socketBuffer : NSMutableData = NSMutableData()
-                let bytesRead = try socket.read(into: socketBuffer)
+                var socketBuffer = Data()
+                let bytesRead = try socket.read(into: &socketBuffer)
                 
                 guard bytesRead > 0 else {
                     // did our client disconnect? strange.
@@ -450,11 +450,7 @@ public class FastCGIServerRequest : ServerRequest {
                 }
                 
                 // add the read data to our main buffer
-                #if os(Linux)
-                    networkBuffer.append(socketBuffer)
-                #else
-                    networkBuffer.append(socketBuffer as Data)
-                #endif
+                networkBuffer.append(socketBuffer)
                 
                 // we want to parse records out one at a time.
                 repeat {
@@ -471,16 +467,13 @@ public class FastCGIServerRequest : ServerRequest {
                     // data yet.
                     //
                     do {
-                        let remainingData : NSData? = try parser.parse()
+                        let remainingData = try parser.parse()
                         
                         if remainingData == nil {
-                            networkBuffer.length = 0
+                            networkBuffer.count = 0
                         } else {
-                            #if os(Linux)
-                                networkBuffer.setData(remainingData!)
-                            #else
-                                networkBuffer.setData(remainingData as! Data)
-                            #endif
+                            networkBuffer.count = 0
+                            networkBuffer.append(remainingData!)
                         }
                     }
                     catch FastCGI.RecordErrors.bufferExhausted {
