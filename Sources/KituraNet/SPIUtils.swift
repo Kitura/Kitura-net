@@ -66,18 +66,22 @@ public class SPIUtils {
     ///
     /// - Returns: string representation of timestamp
     ///
-    public static func httpDate(_ date: NSDate) -> String {
+    public static func httpDate(_ date: Date) -> String {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
-        let temp = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekday], from: date as Date)
-        let components = temp
+        #if os(Linux)
+            let components = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)!
+        #else
+            let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
+        #endif
         let wday = Int(components.weekday!)
         let mday = Int(components.day!)
         let mon = Int(components.month!)
+        let year = Int(components.year!)
         let hour = Int(components.hour!)
         let min = Int(components.minute!)
         let sec = Int(components.second!)
-        return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(components.year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
+        return "\(days[wday-1]), \(twoDigit(mday)) \(months[mon-1]) \(year) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
     }
 
     ///
