@@ -25,14 +25,6 @@ import Socket
 /// ServerDelegate is invoked.
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-        typealias DateType = Date
-        public typealias TimeIntervalType = TimeInterval
-    #else
-        typealias DateType = NSDate
-        public typealias TimeIntervalType = NSTimeInterval
-    #endif
-    
     public weak var handler: IncomingSocketHandler?
         
     private weak var delegate: ServerDelegate?
@@ -46,13 +38,13 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private var response: ServerResponse!
     
     /// Keep alive timeout for idle sockets in seconds
-    static let keepAliveTimeout: TimeIntervalType = 60
+    static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kep alive
     private(set) var clientRequestedKeepAlive = false
     
     /// The socket if idle will be kep alive until...
-    public var keepAliveUntil: TimeIntervalType = 0.0
+    public var keepAliveUntil: TimeInterval = 0.0
     
     /// A flag to indicate that the socket has a request in progress
     public var inProgress = true
@@ -81,7 +73,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
-    public func process(_ buffer: NSData) {
+    public func process(_ buffer: Data) {
         switch(state) {
         case .reset:
             request.prepareToReset()
@@ -100,7 +92,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     }
     
     /// Write data to the socket
-    public func write(from data: NSData) {
+    public func write(from data: Data) {
         handler?.write(from: data)
     }
     
@@ -111,7 +103,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
-    private func parse(_ buffer: NSData) {
+    private func parse(_ buffer: Data) {
         let parsingStatus = request.parse(buffer)
         guard  parsingStatus.error == nil  else  {
             Log.error("Failed to parse a request")
@@ -147,7 +139,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         state = .reset
         numberOfRequests -= 1
         inProgress = false
-        keepAliveUntil = NSDate(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
+        keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
     }
     
     /// Drain the socket of the data of the current request.

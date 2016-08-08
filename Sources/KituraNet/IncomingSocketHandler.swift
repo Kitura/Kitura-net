@@ -36,15 +36,9 @@ import Socket
 public class IncomingSocketHandler {
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-        typealias DateType = Date
-        typealias TimeIntervalType = TimeInterval
-    
         typealias DispatchSourceReadType = DispatchSourceRead
-        static let socketReaderQueue = DispatchQueue(label: "Socket Reader", attributes: DispatchQueueAttributes.serial)
+        static let socketReaderQueue = DispatchQueue(label: "Socket Reader")
     #else
-        typealias DateType = NSDate
-        typealias TimeIntervalType = NSTimeInterval
-    
         #if GCD_ASYNCH
             typealias DispatchSourceReadType = dispatch_source_t
             static let socketReaderQueue = dispatch_queue_create("Socket Reader", DISPATCH_QUEUE_SERIAL)
@@ -71,8 +65,8 @@ public class IncomingSocketHandler {
         
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-            source = DispatchSource.read(fileDescriptor: socket.socketfd,
-		                         queue: IncomingSocketHandler.socketReaderQueue)
+            source = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
+                                                   queue: IncomingSocketHandler.socketReaderQueue)
         
             source.setEventHandler() {
                 self.handleRead()
@@ -81,7 +75,7 @@ public class IncomingSocketHandler {
                 self.handleCancel()
             }
             source.resume()
-	#elseif GCD_ASYNCH
+        #elseif GCD_ASYNCH
             source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0, 
 		                            IncomingSocketHandler.socketReaderQueue)
 
@@ -97,14 +91,14 @@ public class IncomingSocketHandler {
     
     /// Read in the available data and hand off to common processing code
     func handleRead() {
-        let buffer = NSMutableData()
+        var buffer = Data()
         
         do {
             var length = 1
             while  length > 0  {
-                length = try socket.read(into: buffer)
+                length = try socket.read(into: &buffer)
             }
-            if  buffer.length > 0  {
+            if  buffer.count > 0  {
                 processor?.process(buffer)
             }
             else {
@@ -121,7 +115,7 @@ public class IncomingSocketHandler {
     }
     
     /// Write data to the socket
-    func write(from data: NSData) {
+    func write(from data: Data) {
         guard socket.socketfd > -1  else { return }
         
         do {

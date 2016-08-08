@@ -41,7 +41,7 @@ class PseudoSynchronousReader {
     private let clientSocket: Socket
     
     private var noDataToRead = true
-    private let buffer = NSMutableData()
+    private var buffer = Data()
 
     #if os(Linux)
         private let readingSemaphore: dispatch_semaphore_t
@@ -65,17 +65,13 @@ class PseudoSynchronousReader {
     /// Add data to the internal buffer to be read by the raed function
     ///
     /// - Parameter from: The NSData object containing the data to be added
-    func addDataToRead(from: NSData) {
-        let needToLock = buffer.length != 0
+    func addDataToRead(from: Data) {
+        let needToLock = buffer.count != 0
         if  needToLock {
             lockReadLock()
         }
         
-        #if os(Linux)
-            buffer.append(from)
-        #else
-            buffer.append(from as Data)
-        #endif
+        buffer.append(from)
         
         if  noDataToRead  {
             #if os(Linux)
@@ -93,7 +89,7 @@ class PseudoSynchronousReader {
     /// Read data from the buffer to the specified NSMutableData
     ///
     /// - Parameter into: The NSMutableData object to append the data in the buffer to.
-    func read(into: NSMutableData) -> Int {
+    func read(into: inout Data) -> Int {
         if  noDataToRead  {
             #if os(Linux)
                 dispatch_semaphore_wait(readingSemaphore, DISPATCH_TIME_FOREVER)
@@ -102,17 +98,13 @@ class PseudoSynchronousReader {
             #endif
         }
         let result: Int
-        if  buffer.length != 0  {
+        if  buffer.count != 0  {
             lockReadLock()
             
-            result = buffer.length
-            #if os(Linux)
-                into.append(buffer)
-            #else
-                into.append(buffer as Data)
-            #endif
+            result = buffer.count
+            into.append(buffer)
             
-            buffer.length = 0
+            buffer.count = 0
             noDataToRead = true
             
             unlockReadLock()

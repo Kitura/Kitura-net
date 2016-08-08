@@ -23,7 +23,7 @@ import Foundation
 
 // MARK: ClientRequest
 
-public class ClientRequest: SocketWriter {
+public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
     static private let oneTime = OneTimeInitializations()
@@ -177,7 +177,7 @@ public class ClientRequest: SocketWriter {
     /// Writes data to the response
     ///
     /// - Parameter from: NSData to be written
-    public func write(from data: NSData) {
+    public func write(from data: Data) {
         
         writeBuffers.append(data: data)
         
@@ -196,7 +196,7 @@ public class ClientRequest: SocketWriter {
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
-    public func end(_ data: NSData) {
+    public func end(_ data: Data) {
         
         write(from: data)
         end()
@@ -243,12 +243,14 @@ public class ClientRequest: SocketWriter {
     /// Prepare the handle 
     ///
     /// Parameter using: The URL to use when preparing the handle
-    private func prepareHandle(using urlBuffer: NSData) {
+    private func prepareHandle(using urlBuffer: Data) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        curlHelperSetOptString(handle!, CURLOPT_URL, UnsafeMutablePointer<Int8>(urlBuffer.bytes))
+        _ = urlBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
+            curlHelperSetOptString(self.handle!, CURLOPT_URL, bytes)
+        }
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
@@ -290,7 +292,9 @@ public class ClientRequest: SocketWriter {
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
             if  let headerString = headerString  {
-                headersList = curl_slist_append(headersList, UnsafeMutablePointer<Int8>(headerString.bytes))
+                headerString.withUnsafeBytes() { (headerUTF8: UnsafePointer<Int8>) in
+                    headersList = curl_slist_append(headersList, headerUTF8)
+                }
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)

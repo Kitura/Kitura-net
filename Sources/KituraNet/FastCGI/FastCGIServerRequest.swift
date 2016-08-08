@@ -54,7 +54,7 @@ public class FastCGIServerRequest : ServerRequest {
     /// URL strings.
     ///
     public var urlString : String {
-        guard url.length > 0 else {
+        guard url.count > 0 else {
             return ""
         }
         return StringUtils.fromUtf8String(url)!
@@ -68,7 +68,7 @@ public class FastCGIServerRequest : ServerRequest {
     ///
     /// Raw URL
     ///
-    public private(set) var url = NSMutableData()
+    public private(set) var url = Data()
 
     ///
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
@@ -126,23 +126,23 @@ public class FastCGIServerRequest : ServerRequest {
     // 
     // Read data received (perhaps from POST) into an NSData object
     //
-    public func read(into data: NSMutableData) throws -> Int {
-        return bodyChunk.fill(data: data)
+    public func read(into data: inout Data) throws -> Int {
+        return bodyChunk.fill(data: &data)
     }
     
     //
     // Read all data into the object.
     //
-    public func readAllData(into data: NSMutableData) throws -> Int {
-        return bodyChunk.fill(data: data)
+    public func readAllData(into data: inout Data) throws -> Int {
+        return bodyChunk.fill(data: &data)
     }
     
     //
     // Read data received (perhaps from POST) as a string
     //
     public func readString() throws -> String? {
-        let data : NSMutableData = NSMutableData()
-        let bytes : Int = bodyChunk.fill(data: data)
+        var data = Data()
+        let bytes : Int = bodyChunk.fill(data: &data)
         
         if bytes > 0 {
             return StringUtils.fromUtf8String(data)
@@ -158,25 +158,17 @@ public class FastCGIServerRequest : ServerRequest {
         
         // reset the current url
         //
-        url.length = 0
+        url.count = 0
         
         // set the uri
         //
-        if requestUri?.characters.count > 0 {
+        if let requestUri = requestUri, requestUri.characters.count > 0 {
             
             // use the URI as received
-            #if os(Linux)
-                url.append(StringUtils.toUtf8String(requestUri!)!)
-            #else
-                url.append(StringUtils.toUtf8String(requestUri!)! as Data)
-            #endif
+            url.append(StringUtils.toUtf8String(requestUri)!)
         }
         else {
-            #if os(Linux)
-                url.append(StringUtils.toUtf8String("/")!)
-            #else
-                url.append(StringUtils.toUtf8String("/")! as Data)
-            #endif
+            url.append(StringUtils.toUtf8String("/")!)
         }
                 
     }
@@ -418,10 +410,10 @@ public class FastCGIServerRequest : ServerRequest {
                 return
             }
             
-            if record.data?.length > 0 {
+            if let data = record.data, data.count > 0 {
                 // we've received some request body data as part of the STDIN
                 //
-                bodyChunk.append(data: record.data!)
+                bodyChunk.append(data: data)
             }
             else {
                 // a zero length stdin means request is done
@@ -439,7 +431,7 @@ public class FastCGIServerRequest : ServerRequest {
     func parse (_ callback: (FastCGIParserErrorType) -> Void) {
         
         
-        let networkBuffer : NSMutableData = NSMutableData()
+        var networkBuffer = Data()
         
         // we want to repeat this until we're done
         // in case the intake data isn't sufficient to
@@ -448,8 +440,8 @@ public class FastCGIServerRequest : ServerRequest {
         repeat {
             
             do {
-                let socketBuffer : NSMutableData = NSMutableData()
-                let bytesRead = try socket.read(into: socketBuffer)
+                var socketBuffer = Data()
+                let bytesRead = try socket.read(into: &socketBuffer)
                 
                 guard bytesRead > 0 else {
                     // did our client disconnect? strange.
@@ -458,11 +450,7 @@ public class FastCGIServerRequest : ServerRequest {
                 }
                 
                 // add the read data to our main buffer
-                #if os(Linux)
-                    networkBuffer.append(socketBuffer)
-                #else
-                    networkBuffer.append(socketBuffer as Data)
-                #endif
+                networkBuffer.append(socketBuffer)
                 
                 // we want to parse records out one at a time.
                 repeat {
@@ -479,16 +467,13 @@ public class FastCGIServerRequest : ServerRequest {
                     // data yet.
                     //
                     do {
-                        let remainingData : NSData? = try parser.parse()
+                        let remainingData = try parser.parse()
                         
                         if remainingData == nil {
-                            networkBuffer.length = 0
+                            networkBuffer.count = 0
                         } else {
-                            #if os(Linux)
-                                networkBuffer.setData(remainingData!)
-                            #else
-                                networkBuffer.setData(remainingData as! Data)
-                            #endif
+                            networkBuffer.count = 0
+                            networkBuffer.append(remainingData!)
                         }
                     }
                     catch FastCGI.RecordErrors.bufferExhausted {

@@ -109,39 +109,43 @@ public class URLParser : CustomStringConvertible {
     /// - Parameter url: url to be parsed
     /// - Parameter isConnect: whether or not a connection has been established
     ///
-    public init (url: NSData, isConnect: Bool) {
+    public init (url: Data, isConnect: Bool) {
         
         var parsedURL = http_parser_url_url()
         memset(&parsedURL, 0, sizeof(http_parser_url.self))
         
-        if http_parser_parse_url_url(UnsafePointer<Int8>(url.bytes), url.length, isConnect ? 1 : 0 , &parsedURL) == 0 {
+        let cIsConnect: Int32 = (isConnect ? 1 : 0)
+        let returnCode = url.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> Int32 in
+            return http_parser_parse_url_url(bytes, url.count, cIsConnect, &parsedURL)
+        }
+        
+        guard returnCode == 0  else { return }
             
-            let (s, h, ps, p, q, f, u) = parsedURL.field_data
-            schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
-            host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
-            let portString = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
-            path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
-            query = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
-            fragment = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
-            userinfo = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
+        let (s, h, ps, p, q, f, u) = parsedURL.field_data
+        schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
+        host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
+        let portString = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
+        path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
+        query = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
+        fragment = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
+        userinfo = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
 
-            if let _ = portString {
-                port = parsedURL.port
-            }
+        if let _ = portString {
+            port = parsedURL.port
+        }
             
-            if let query = query {
+        if let query = query {
                 
-                let pairs = query.components(separatedBy: "&")
-                for pair in pairs {
+            let pairs = query.components(separatedBy: "&")
+            for pair in pairs {
                     
-                    let pairArray = pair.components(separatedBy: "=")
-                    if pairArray.count == 2 {
-                        queryParameters[pairArray[0]] = pairArray[1]
-                    }
-                    
+                let pairArray = pair.components(separatedBy: "=")
+                if pairArray.count == 2 {
+                    queryParameters[pairArray[0]] = pairArray[1]
                 }
-                
+                    
             }
+               
         }
     }
     
@@ -149,13 +153,13 @@ public class URLParser : CustomStringConvertible {
     /// TODO: ???
     ///
     ///
-    private func getValueFromURL(_ url: NSData, fieldSet: UInt16, fieldIndex: UInt16,
+    private func getValueFromURL(_ url: Data, fieldSet: UInt16, fieldIndex: UInt16,
         fieldData: http_parser_url_field_data) -> String? {
         
         if fieldSet & (1 << fieldIndex) != 0 {
             let start = Int(fieldData.off)
             let length = Int(fieldData.len)
-            let data = NSData(bytes: UnsafeMutablePointer<UInt8>(url.bytes)+start, length: length)
+            let data = url.subdata(in: start..<start+length)
             return StringUtils.fromUtf8String(data)
         }
         

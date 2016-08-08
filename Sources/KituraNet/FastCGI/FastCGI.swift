@@ -63,7 +63,8 @@ public class FastCGI {
     //
     // Exceptions
     //
-    enum RecordErrors : ErrorProtocol {
+    enum RecordErrors : Swift.Error {
+        
         case invalidType
         case invalidSubType
         case invalidRequestId

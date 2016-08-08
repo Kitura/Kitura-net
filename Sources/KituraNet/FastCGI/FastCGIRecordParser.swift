@@ -33,7 +33,7 @@ class FastCGIRecordParser {
     var role : UInt16 = 0
     var flags : UInt8 = 0
     var headers : [Dictionary] = Array<Dictionary<String,String>>()
-    var data : NSData? = nil
+    var data : Data? = nil
     var appStatus : UInt32 = 0
     var protocolStatus : UInt8 = 0
     
@@ -46,8 +46,7 @@ class FastCGIRecordParser {
     private var contentLength : UInt16 = 0
     private var paddingLength : UInt8 = 0
     private var pointer : Int = 0
-    private var buffer : NSData
-    private var bufferBytes : UnsafePointer<UInt8>
+    private var buffer : Data
     
     // Pointer Helper Methods
     //
@@ -58,7 +57,7 @@ class FastCGIRecordParser {
     //
     func advance() throws -> Int {
         
-        guard pointer < buffer.length else {
+        guard pointer < buffer.count else {
             throw FastCGI.RecordErrors.bufferExhausted
         }
         
@@ -80,7 +79,7 @@ class FastCGIRecordParser {
         // may never be reading again. but pointer=(length+x) is bad (where x>0)
         // because it means there aren't the bytes we expected
         //
-        guard pointer <= buffer.length else {
+        guard pointer <= buffer.count else {
             throw FastCGI.RecordErrors.bufferExhausted
         }
     }
@@ -111,16 +110,15 @@ class FastCGIRecordParser {
     
     // Initialize
     //
-    init(_ data: NSData) {
+    init(_ data: Data) {
         self.buffer = data
-        self.bufferBytes = UnsafePointer<UInt8>(data.bytes)
     }
     
     //
     // Parse FastCGI Version
     //
     private func parseVersion() throws {
-        version = bufferBytes[try advance()]
+        version = buffer[try advance()]
         
         guard version == FastCGI.Constants.FASTCGI_PROTOCOL_VERSION else {
             throw FastCGI.RecordErrors.invalidVersion
@@ -131,7 +129,7 @@ class FastCGIRecordParser {
     //
     private func parseType() throws {
         
-        type = bufferBytes[try advance()]
+        type = buffer[try advance()]
         
         switch type {
         case FastCGI.Constants.FCGI_BEGIN_REQUEST,
@@ -151,8 +149,8 @@ class FastCGIRecordParser {
     //
     private func parseRequestId() throws {
         
-        let requestIdBytes1 = bufferBytes[try advance()]
-        let requestIdBytes0 = bufferBytes[try advance()]
+        let requestIdBytes1 = buffer[try advance()]
+        let requestIdBytes0 = buffer[try advance()]
         let requestIdBytes : [UInt8] = [ requestIdBytes1, requestIdBytes0 ]
         
         requestId = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(requestIdBytes).pointee)
@@ -163,8 +161,8 @@ class FastCGIRecordParser {
     //
     private func parseContentLength() throws {
         
-        let contentLengthBytes1 = bufferBytes[try advance()]
-        let contentLengthBytes0 = bufferBytes[try advance()]
+        let contentLengthBytes1 = buffer[try advance()]
+        let contentLengthBytes0 = buffer[try advance()]
         let contentLengthBytes : [UInt8] = [ contentLengthBytes1, contentLengthBytes0 ]
         
         contentLength = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(contentLengthBytes).pointee)
@@ -174,19 +172,19 @@ class FastCGIRecordParser {
     // Parse padding length
     //
     private func parsePaddingLength() throws {
-        paddingLength = bufferBytes[try advance()]
+        paddingLength = buffer[try advance()]
     }
 
     // Parse a role
     //
     private func parseRole() throws {
         
-        let roleByte1 = bufferBytes[try advance()]
-        let roleByte0 = bufferBytes[try advance()]
+        let roleByte1 = buffer[try advance()]
+        let roleByte0 = buffer[try advance()]
         let roleBytes : [UInt8] = [ roleByte1, roleByte0 ]
         
         role = FastCGIRecordParser.getLocalByteOrderSmall(from: UnsafePointer<UInt16>(roleBytes).pointee)
-        flags = bufferBytes[try advance()]
+        flags = buffer[try advance()]
 
         guard role == FastCGI.Constants.FCGI_RESPONDER else {
             throw FastCGI.RecordErrors.unsupportedRole
@@ -198,10 +196,10 @@ class FastCGIRecordParser {
     //
     private func parseAppStatus() throws {
         
-        let appStatusByte3 = bufferBytes[try advance()]
-        let appStatusByte2 = bufferBytes[try advance()]
-        let appStatusByte1 = bufferBytes[try advance()]
-        let appStatusByte0 = bufferBytes[try advance()]
+        let appStatusByte3 = buffer[try advance()]
+        let appStatusByte2 = buffer[try advance()]
+        let appStatusByte1 = buffer[try advance()]
+        let appStatusByte0 = buffer[try advance()]
         let appStatusBytes : [UInt8] = [ appStatusByte3, appStatusByte2, appStatusByte1, appStatusByte0 ]
         
         appStatus = FastCGIRecordParser.getLocalByteOrderLarge(from: UnsafePointer<UInt32>(appStatusBytes).pointee)
@@ -211,17 +209,17 @@ class FastCGIRecordParser {
     // Parse a protocol status
     //
     private func parseProtocolStatus() throws {
-        protocolStatus = bufferBytes[try advance()]
+        protocolStatus = buffer[try advance()]
     }
     
     // Parse raw data from a data record
     //
     private func parseData() throws {
         if contentLength > 0 {
-            data = NSData(bytes: bufferBytes + pointer, length: Int(contentLength))
+            data = buffer.subdata(in: pointer..<pointer+Int(contentLength))
             try skip(Int(contentLength))
         } else {
-            data = NSData()
+            data = Data()
         }
     }
     
@@ -248,7 +246,7 @@ class FastCGIRecordParser {
     //
     private func parseParameterLength() throws -> Int {
         
-        let lengthPeek : UInt8 = bufferBytes[try advance()]
+        let lengthPeek : UInt8 = buffer[try advance()]
         
         if lengthPeek >> 7 == 0 {
             
@@ -264,9 +262,9 @@ class FastCGIRecordParser {
             // masked to created the correct value.
             //
             let lengthByteB3 : UInt8 = lengthPeek
-            let lengthByteB2 : UInt8 = bufferBytes[try advance()]
-            let lengthByteB1 : UInt8 = bufferBytes[try advance()]
-            let lengthByteB0 : UInt8 = bufferBytes[try advance()]
+            let lengthByteB2 : UInt8 = buffer[try advance()]
+            let lengthByteB1 : UInt8 = buffer[try advance()]
+            let lengthByteB0 : UInt8 = buffer[try advance()]
             let lengthBytes : [UInt8] = [ lengthByteB3 & 0x7f, lengthByteB2, lengthByteB1, lengthByteB0 ]
 
             return Int(FastCGIRecordParser.getLocalByteOrderLarge(from: UnsafePointer<UInt32>(lengthBytes).pointee))
@@ -301,7 +299,7 @@ class FastCGIRecordParser {
             
             let currentPointer : Int = pointer
             try skip(nameLength)
-            let nameData = NSData(bytes: bufferBytes + currentPointer, length: nameLength)
+            let nameData = buffer.subdata(in: currentPointer..<currentPointer+nameLength)
             
             guard let nameString = StringUtils.fromUtf8String(nameData) else {
                 // the data received from the web server couldn't be transcoded
@@ -324,7 +322,7 @@ class FastCGIRecordParser {
                 
                 let currentPointer : Int = pointer
                 try skip(valueLength)
-                let valueData = NSData(bytes: bufferBytes + currentPointer, length: valueLength)
+                let valueData = buffer.subdata(in: currentPointer..<currentPointer+valueLength)
                 
                 guard let valueString = StringUtils.fromUtf8String(valueData) else {
                     // a value was supposed to have been provided but decoding it
@@ -355,25 +353,25 @@ class FastCGIRecordParser {
     // Skip any padding indicated, then return the unused portion
     // of our data buffer. We're done reading this record.
     //
-    private func skipPaddingThenReturn() throws -> NSMutableData? {
+    private func skipPaddingThenReturn() throws -> Data? {
         
         if paddingLength > 0 {
             try skip(Int(paddingLength))
         }
         
-        let remainingBufferBytes = buffer.length - pointer
+        let remainingBufferBytes = buffer.count - pointer
         
         if remainingBufferBytes == 0 {
             return nil
         } else {
-            return NSMutableData(bytes: buffer.bytes + pointer, length: remainingBufferBytes)
+            return buffer.subdata(in: pointer..<pointer+remainingBufferBytes)
         }
         
     }
     
     // Parser the data, return any extra
     //
-    func parse() throws -> NSMutableData? {
+    func parse() throws -> Data? {
         
         // Make parser go now!
         //

@@ -50,9 +50,9 @@ extension HTTPServerRequest: IncomingMessageHelper {
     /// "Read" data from the actual underlying transport
     ///
     /// - Parameter into: The NSMutableData that will be receiving the data read in.
-    func readHelper(into data: NSMutableData) throws -> Int {
+    func readHelper(into data: inout Data) throws -> Int {
 
-        let length = reader.read(into: data)
+        let length = reader.read(into: &data)
         return length 
     }
     

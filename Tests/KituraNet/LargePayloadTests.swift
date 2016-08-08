@@ -42,14 +42,10 @@ class LargePayloadTests: XCTestCase {
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 do {
                     let expectedResult = "Read \(payload.characters.count) bytes"
-                    let data = NSMutableData()
-                    let count = try response!.readAllData(into: data)
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
                     XCTAssertEqual(count, expectedResult.characters.count, "Result should have been \(expectedResult.characters.count) bytes, was \(count) bytes")
-                    #if os(Linux)
-                        let postValue = String(data: data, encoding: NSUTF8StringEncoding)
-                    #else
-                        let postValue = String(data: data as Data, encoding: String.Encoding.utf8)
-                    #endif
+                    let postValue = String(data: data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, expectedResult)
                     }
@@ -70,9 +66,9 @@ class LargePayloadTests: XCTestCase {
     class TestServerDelegate : ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
-            let body = NSMutableData()
+            var body = Data()
             do {
-                let length = try request.readAllData(into: body)
+                let length = try request.readAllData(into: &body)
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]

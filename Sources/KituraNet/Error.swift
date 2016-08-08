@@ -16,7 +16,7 @@
 
 import Foundation
 
-public enum Error: ErrorProtocol {
+public enum Error: Swift.Error {
     case incomingSocketManagerFailure(errorCode: Int32, reason: String)
 }
 

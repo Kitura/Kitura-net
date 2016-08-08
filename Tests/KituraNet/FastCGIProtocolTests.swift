@@ -63,7 +63,7 @@ class FastCGIProtocolTests: XCTestCase {
             creator.protocolStatus = protocolStatus
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData? = try parser.parse()
+            let remainingData = try parser.parse()
             
             XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_END_REQUEST, "Record type received was incorrect")
@@ -96,21 +96,19 @@ class FastCGIProtocolTests: XCTestCase {
 
     // Generate a block of random data for our test suite to use.
     //
-    func generateRandomData(_ bytes: Int) -> NSData {
+    func generateRandomData(_ numberOfBytes: Int) -> Data {
         
-        #if os(Linux)            
-            let testData : NSMutableData = NSMutableData(capacity: bytes)!
-            for _ in 1...(bytes / sizeof(CLong.self)) {
+        var bytes = [UInt8](repeating: 0, count: numberOfBytes)
+        #if os(Linux)
+            for index in stride(from: 0, to: numberOfBytes, by: sizeof(CLong.self)) {
                 var random : CLong = Glibc.random()
-                testData.append(&random, length: sizeof(CLong.self))
+                memcpy(&bytes+index ,&random, sizeof(CLong.self))
             }
-            return testData
         #else
-            let testData : NSMutableData = NSMutableData(length: bytes)!
-            Darwin.arc4random_buf(testData.mutableBytes, testData.length)
-            return testData
+            Darwin.arc4random_buf(&bytes, numberOfBytes)
         #endif
         
+        return Data(bytes: bytes)
     }
     
     // Test an FCGI_STDOUT or FCGI_STDIN exchange with overly large bundle.
@@ -119,7 +117,7 @@ class FastCGIProtocolTests: XCTestCase {
         
         do {
             // 128k worth of data
-            let testData : NSData = self.generateRandomData(128 * 1024)
+            let testData = self.generateRandomData(128 * 1024)
             
             let creator : FastCGIRecordCreate = FastCGIRecordCreate()
             creator.recordType = ofType
@@ -157,7 +155,7 @@ class FastCGIProtocolTests: XCTestCase {
     func executeDataExchangeTest(ofType: UInt8) {
         
         do {
-            let testData : NSData = self.generateRandomData(32 * 1024)
+            let testData = self.generateRandomData(32 * 1024)
             
             let creator : FastCGIRecordCreate = FastCGIRecordCreate()
             creator.recordType = ofType
@@ -165,7 +163,7 @@ class FastCGIProtocolTests: XCTestCase {
             creator.data = testData
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData? = try parser.parse()
+            let remainingData = try parser.parse()
             
             XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == ofType, "Record type received was incorrect")
@@ -173,7 +171,7 @@ class FastCGIProtocolTests: XCTestCase {
             XCTAssert(parser.data != nil, "No data was received")
             
             if parser.data != nil {
-                XCTAssert(testData.isEqual(to: parser.data!), "Data received was not data sent.")
+                XCTAssert(testData == parser.data!, "Data received was not data sent.")
             }
             
         }
@@ -204,7 +202,7 @@ class FastCGIProtocolTests: XCTestCase {
             let creator : FastCGIRecordCreate = FastCGIRecordCreate()
             creator.recordType = FastCGI.Constants.FCGI_STDOUT
             
-            var _ : NSData = try creator.create()
+            var _ = try creator.create()
             
             XCTFail("Record creator allowed record with no record ID to be created.")
         }
@@ -227,7 +225,7 @@ class FastCGIProtocolTests: XCTestCase {
             creator.recordType = 111 // this is just insane
             creator.requestId = 1
             
-             var _ : NSData = try creator.create()
+             var _ = try creator.create()
             
             XCTFail("Record creator allowed strange record to be created.")
         }
@@ -254,7 +252,7 @@ class FastCGIProtocolTests: XCTestCase {
             creator.keepAlive = keepalive
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData? = try parser.parse()
+            let remainingData = try parser.parse()
             
             XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_BEGIN_REQUEST, "Record type received was incorrect")
@@ -312,7 +310,7 @@ class FastCGIProtocolTests: XCTestCase {
             }
             
             let parser : FastCGIRecordParser = FastCGIRecordParser.init(try creator.create())
-            let remainingData : NSMutableData? = try parser.parse()
+            let remainingData = try parser.parse()
             
             XCTAssert(remainingData == nil, "Parser returned overflow data where not should have been present")
             XCTAssert(parser.type == FastCGI.Constants.FCGI_PARAMS, "Record type received was incorrect")

@@ -22,11 +22,7 @@ import Foundation
 public protocol IncomingSocketProcessor: class {
     
     /// The socket if idle will be kep alive until...
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-        var keepAliveUntil: TimeInterval { get set }
-    #else
-        var keepAliveUntil: NSTimeInterval { get set }
-    #endif
+    var keepAliveUntil: TimeInterval { get set }
     
     /// A flag to indicate that the socket has a request in progress
     var inProgress: Bool { get set }
@@ -37,10 +33,10 @@ public protocol IncomingSocketProcessor: class {
 
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
-    func process(_ buffer: NSData)
+    func process(_ buffer: Data)
     
     /// Write data to the socket
-    func write(from data: NSData)
+    func write(from data: Data)
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()
