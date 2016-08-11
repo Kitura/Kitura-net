@@ -125,7 +125,7 @@ class IncomingSocketManager  {
                                 handler.handleRead()
                             }
                             else {
-                                handlr.handleWrite()
+                                handler.handleWrite()
                             }
                         }
                         else {
