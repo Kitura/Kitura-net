@@ -14,9 +14,7 @@
  * limitations under the License.
  **/
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-    import Dispatch
-#endif
+import Dispatch
 
 import Foundation
 
