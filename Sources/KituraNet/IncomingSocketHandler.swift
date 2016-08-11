@@ -44,7 +44,7 @@ public class IncomingSocketHandler {
             typealias DispatchSourceWriteType = dispatch_source_t
             static let socketReaderWriterQueue = dispatch_queue_create("Socket ReaderWriter", DISPATCH_QUEUE_SERIAL)
         #endif
-        private let writeBufferLock: dispatch_semaphore_t
+        private let writeBufferLock: dispatch_semaphore_t!
     #endif
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -65,8 +65,6 @@ public class IncomingSocketHandler {
     init(socket: Socket, using: IncomingSocketProcessor) {
         self.socket = socket
         processor = using
-        processor?.handler = self
-        
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
@@ -111,6 +109,8 @@ public class IncomingSocketHandler {
         #if os(Linux)
             writeBufferLock = dispatch_semaphore_create(1)
         #endif
+        
+        processor?.handler = self
     }
     
     /// Read in the available data and hand off to common processing code
@@ -199,8 +199,10 @@ public class IncomingSocketHandler {
     private func close() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
             readerSource.cancel()
+            writerSource.cancel()
         #elseif GCD_ASYNCH
-	    dispatch_source_cancel(source!)
+            dispatch_source_cancel(readerSource!)
+            dispatch_source_cancel(writerSource!)
         #else
             handleCancel()
         #endif
