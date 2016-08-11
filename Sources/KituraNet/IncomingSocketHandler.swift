@@ -37,23 +37,29 @@ public class IncomingSocketHandler {
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
         typealias DispatchSourceReadType = DispatchSourceRead
-        static let socketReaderQueue = DispatchQueue(label: "Socket Reader")
+        typealias DispatchSourceWriteType = DispatchSourceWrite
+        static let socketReaderWriterQueue = DispatchQueue(label: "Socket ReaderWriter")
+        private let writeBufferLock = DispatchSemaphore(value: 1)
     #else
         #if GCD_ASYNCH
             typealias DispatchSourceReadType = dispatch_source_t
-            static let socketReaderQueue = dispatch_queue_create("Socket Reader", DISPATCH_QUEUE_SERIAL)
+            typealias DispatchSourceWriteType = dispatch_source_t
+            static let socketReaderWriterQueue = dispatch_queue_create("Socket ReaderWriter", DISPATCH_QUEUE_SERIAL)
         #endif
+        private let writeBufferLock: dispatch_semaphore_t
     #endif
-    
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
         // Note: This var is optional to enable it to be constructed in the init function
-        var source: DispatchSourceReadType!
+        var readerSource: DispatchSourceReadType!
+        var writerSource: DispatchSourceWriteType!
     #endif
 
     let socket: Socket
         
     public var processor: IncomingSocketProcessor?
+    private var writeBuffer = Data()
+    private var preparingToClose = false
     
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
@@ -65,27 +71,47 @@ public class IncomingSocketHandler {
         
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-            source = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
-                                                   queue: IncomingSocketHandler.socketReaderQueue)
+            readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
+                                                         queue: IncomingSocketHandler.socketReaderWriterQueue)
         
-            source.setEventHandler() {
+            readerSource.setEventHandler() {
                 self.handleRead()
             }
-            source.setCancelHandler() {
+            readerSource.setCancelHandler() {
                 self.handleCancel()
             }
-            source.resume()
+            readerSource.resume()
+            
+            writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
+                                                          queue: IncomingSocketHandler.socketReaderWriterQueue)
+            
+            writerSource.setEventHandler() {
+                self.handleWrite()
+            }
+            writerSource.resume()
         #elseif GCD_ASYNCH
-            source = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0, 
-		                            IncomingSocketHandler.socketReaderQueue)
+            readerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0,
+		                                          IncomingSocketHandler.socketReaderWriterQueue)
 
-            dispatch_source_set_event_handler(source) {
+            dispatch_source_set_event_handler(readerSource) {
                 self.handleRead()
             }
-            dispatch_source_set_cancel_handler(source) {
+            dispatch_source_set_cancel_handler(readerSource) {
                 self.handleCancel()
             }
-            dispatch_resume(source)
+            dispatch_resume(readerSource)
+            
+            writerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_WRITE, UInt(socket.socketfd), 0,
+                                                  IncomingSocketHandler.socketReaderWriterQueue)
+            
+            dispatch_source_set_event_handler(writerSource) {
+                self.handleRead()
+            }
+            dispatch_resume(writerSource)
+        #endif
+        
+        #if os(Linux)
+            writeBufferLock = dispatch_semaphore_create(1)
         #endif
     }
     
@@ -103,7 +129,7 @@ public class IncomingSocketHandler {
             }
             else {
                 if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
-                    close()
+                    prepareToClose()
                 }
             }
         }
@@ -114,15 +140,57 @@ public class IncomingSocketHandler {
         }
     }
     
-    /// Write data to the socket
+    /// Write out any buffered data now that the sockt can accept more data
+    func handleWrite() {
+        if  writeBuffer.count != 0 {
+            lockWriteBufferLock()
+            do {
+                let written = try socket.write(from: writeBuffer)
+                
+                if written != writeBuffer.count {
+                    writeBuffer = writeBuffer.subdata(in: written..<writeBuffer.count)
+                }
+                else {
+                    writeBuffer = Data()
+                }
+            }
+            catch {
+                Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
+            }
+            unlockWriteBufferLock()
+        }
+        
+        if preparingToClose {
+            close()
+        }
+    }
+    
+    /// Write as much data to the socket as possible, buffering the rest
     func write(from data: Data) {
         guard socket.socketfd > -1  else { return }
         
         do {
-            try socket.write(from: data)
+            let written = try socket.write(from: data)
+            
+            if written != data.count {
+                lockWriteBufferLock()
+                writeBuffer.append(data.subdata(in: written..<data.count))
+                unlockWriteBufferLock()
+            }
         }
         catch {
             Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
+        }
+    }
+    
+    /// If there is data waiting to be written, then set a flag,
+    /// otherwise actaully close the socket
+    func prepareToClose() {
+        if  writeBuffer.count == 0  {
+            close()
+        }
+        else {
+            preparingToClose = true
         }
     }
     
@@ -130,9 +198,9 @@ public class IncomingSocketHandler {
     ///
     /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
     /// **Note:** On OSX the cancel handler will actually close the socket.
-    func close() {
+    private func close() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-            source.cancel()
+            readerSource.cancel()
         #elseif GCD_ASYNCH
 	    dispatch_source_cancel(source!)
         #else
@@ -147,6 +215,22 @@ public class IncomingSocketHandler {
         }
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
+    }
+    
+    private func lockWriteBufferLock() {
+        #if os(Linux)
+            dispatch_semaphore_wait(writeBufferLock, DISPATCH_TIME_FOREVER)
+        #else
+            _ = writeBufferLock.wait(timeout: DispatchTime.distantFuture)
+        #endif
+    }
+    
+    private func unlockWriteBufferLock() {
+        #if os(Linux)
+            dispatch_semaphore_signal(writeBufferLock)
+        #else
+            writeBufferLock.signal()
+        #endif
     }
     
     /// Private method to return a string representation on a value of errno.
