@@ -47,6 +47,9 @@ public class ClientRequest {
     /// Maximum number of redirects before failure
     public private(set) var maxRedirects = 10
     
+    /// Adds the "Connection: close" header
+    public private(set) var closeConnection = false
+
     /// Handle for working with libCurl
     private var handle: UnsafeMutablePointer<Void>?
     
@@ -186,26 +189,32 @@ public class ClientRequest {
     /// End servicing the request, send response back
     ///
     /// - Parameter data: string to send before ending
-    public func end(_ data: String) {
+    /// - Parameter close: add the "Connection: close" header
+    public func end(_ data: String, close: Bool = false) {
         
         write(from: data)
-        end()
+        end(close: close)
         
     }
 
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
-    public func end(_ data: Data) {
+    /// - Parameter close: add the "Connection: close" header
+    public func end(_ data: Data, close: Bool = false) {
         
         write(from: data)
-        end()
+        end(close: close)
         
     }
 
     /// End servicing the request, send response back
-    public func end() {
-        
+    ///
+    /// - Parameter close: add the "Connection: close" header
+    public func end(close: Bool = false) {
+
+        closeConnection = close
+
         guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
             callback(response: nil)
             return
@@ -287,7 +296,9 @@ public class ClientRequest {
     /// Sets the headers in libCurl to the ones in headers
     private func setupHeaders() {
 
-        headers["Connection"] = "close"
+        if closeConnection {
+            headers["Connection"] = "close"
+        }
         
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
