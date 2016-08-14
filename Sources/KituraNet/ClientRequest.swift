@@ -33,7 +33,7 @@ public class ClientRequest {
     // MARK: -- Private
     
     /// URL used for the request
-    public private(set) var url: String
+    public private(set) var url: String = ""
     
     /// HTTP method (GET, POST, PUT, DELETE) for the request
     public private(set) var method: String = "get"
@@ -110,8 +110,9 @@ public class ClientRequest {
         for option in options  {
             switch(option) {
 
-                case .method(let method):
-                    self.method = method
+                case .method, .headers, .maxRedirects, .disableSSLVerification:
+                    // call set() for Options that do not construct the URL
+                    set(option)
                 case .schema(var schema):
                     if !schema.contains("://") && !schema.isEmpty {
                       schema += "://"
@@ -126,18 +127,10 @@ public class ClientRequest {
                       thePath = "/" + thePath
                     }
                     path = thePath
-                case .headers(let headers):
-                    for (key, value) in headers {
-                        self.headers[key] = value
-                    }
                 case .username(let userName):
                     self.userName = userName
                 case .password(let password):
                     self.password = password
-                case .maxRedirects(let maxRedirects):
-                    self.maxRedirects = maxRedirects
-                case .disableSSLVerification:
-                    self.disableSSLVerification = true
             }
         }
 
@@ -151,6 +144,27 @@ public class ClientRequest {
 
         url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
 
+    }
+
+    /// Set a single option in the request.  URL parameters must be set in init()
+    ///
+    /// - Parameter option: an option describing the request
+    func set(_ option: Options) {
+
+        switch(option) {
+        case .schema, .hostname, .port, .path, .username, .password:
+            Log.error("Must use ClientRequest.init() to set URL components")
+        case .method(let method):
+            self.method = method
+        case .headers(let headers):
+            for (key, value) in headers {
+                self.headers[key] = value
+            }
+        case .maxRedirects(let maxRedirects):
+            self.maxRedirects = maxRedirects
+        case .disableSSLVerification:
+            self.disableSSLVerification = true
+        }
     }
 
     /// Instance destruction
