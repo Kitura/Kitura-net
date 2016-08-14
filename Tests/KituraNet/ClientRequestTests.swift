@@ -104,6 +104,13 @@ class ClientRequestTests: XCTestCase {
     XCTAssertEqual(testRequest.url, "https://66o.tech:8080")
   }
 
+  func testClientRequestPrase() {
+
+    let options = ClientRequest.parse("https://username:password@66o.tech:8080/path")
+    let testRequest = ClientRequest(options: options, callback: testCallback)
+    XCTAssertEqual(testRequest.url, "https://username:password@66o.tech:8080/path")
+  }
+
 }
 
 extension ClientRequestTests {
@@ -117,7 +124,8 @@ extension ClientRequestTests {
              ("testClientRequestAppendsPathCorrectly", testClientRequestAppendsPathCorrectly),
              ("testClientRequestAppendsMisformattedPathCorrectly", testClientRequestAppendsMisformattedPathCorrectly),
              ("testClientRequestAppendsPort", testClientRequestAppendsPort),
-             ("testClientRequestSet", testClientRequestSet)
+             ("testClientRequestSet", testClientRequestSet),
+             ("testClientRequestPrase", testClientRequestPrase)
     ]
   }
 }

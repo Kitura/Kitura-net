@@ -149,7 +149,7 @@ public class ClientRequest {
     /// Set a single option in the request.  URL parameters must be set in init()
     ///
     /// - Parameter option: an option describing the request
-    func set(_ option: Options) {
+    public func set(_ option: Options) {
 
         switch(option) {
         case .schema, .hostname, .port, .path, .username, .password:
@@ -165,6 +165,64 @@ public class ClientRequest {
         case .disableSSLVerification:
             self.disableSSLVerification = true
         }
+    }
+
+    /// Parse an URL String into options
+    ///
+    /// - Parameter urlString: URL of a String type
+    ///
+    /// - Returns: a ClientRequest.Options array
+    public class func parse(_ urlString: String) -> [ClientRequest.Options] {
+
+        if let url = URL(string: urlString) {
+            return parse(url)
+        }
+        return []
+    }
+
+    /// Parse an URL class into options
+    ///
+    /// - Parameter url: Foundation URL class
+    ///
+    /// - Returns: a ClientRequest.Options array
+    public class func parse(_ url: URL) -> [ClientRequest.Options] {
+
+        var options: [ClientRequest.Options] = []
+
+        if let scheme = url.scheme {
+            options.append(.schema("\(scheme)://"))
+        }
+        if let host = url.host {
+            options.append(.hostname(host))
+        }
+        #if os(Linux)
+            if var fullPath = url.path {
+                // query strings and parameters need to be appended here
+                if let query = url.query {
+                    fullPath += "?"
+                    fullPath += query
+                }
+                options.append(.path(fullPath))
+            }
+        #else
+            var fullPath = url.path
+            // query strings and parameters need to be appended here
+            if let query = url.query {
+                fullPath += "?"
+                fullPath += query
+            }
+            options.append(.path(fullPath))
+        #endif
+        if let port = url.port {
+            options.append(.port(Int16(port)))
+        }
+        if let username = url.user {
+            options.append(.username(username))
+        }
+        if let password = url.password {
+            options.append(.password(password))
+        }
+        return options
     }
 
     /// Instance destruction
