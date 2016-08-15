@@ -33,7 +33,7 @@ public class ClientRequest {
     // MARK: -- Private
     
     /// URL used for the request
-    public private(set) var url: String
+    public private(set) var url: String = ""
     
     /// HTTP method (GET, POST, PUT, DELETE) for the request
     public private(set) var method: String = "get"
@@ -47,6 +47,9 @@ public class ClientRequest {
     /// Maximum number of redirects before failure
     public private(set) var maxRedirects = 10
     
+    /// Adds the "Connection: close" header
+    public private(set) var closeConnection = false
+
     /// Handle for working with libCurl
     private var handle: UnsafeMutablePointer<Void>?
     
@@ -107,8 +110,9 @@ public class ClientRequest {
         for option in options  {
             switch(option) {
 
-                case .method(let method):
-                    self.method = method
+                case .method, .headers, .maxRedirects, .disableSSLVerification:
+                    // call set() for Options that do not construct the URL
+                    set(option)
                 case .schema(var schema):
                     if !schema.contains("://") && !schema.isEmpty {
                       schema += "://"
@@ -123,18 +127,10 @@ public class ClientRequest {
                       thePath = "/" + thePath
                     }
                     path = thePath
-                case .headers(let headers):
-                    for (key, value) in headers {
-                        self.headers[key] = value
-                    }
                 case .username(let userName):
                     self.userName = userName
                 case .password(let password):
                     self.password = password
-                case .maxRedirects(let maxRedirects):
-                    self.maxRedirects = maxRedirects
-                case .disableSSLVerification:
-                    self.disableSSLVerification = true
             }
         }
 
@@ -148,6 +144,85 @@ public class ClientRequest {
 
         url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
 
+    }
+
+    /// Set a single option in the request.  URL parameters must be set in init()
+    ///
+    /// - Parameter option: an option describing the request
+    public func set(_ option: Options) {
+
+        switch(option) {
+        case .schema, .hostname, .port, .path, .username, .password:
+            Log.error("Must use ClientRequest.init() to set URL components")
+        case .method(let method):
+            self.method = method
+        case .headers(let headers):
+            for (key, value) in headers {
+                self.headers[key] = value
+            }
+        case .maxRedirects(let maxRedirects):
+            self.maxRedirects = maxRedirects
+        case .disableSSLVerification:
+            self.disableSSLVerification = true
+        }
+    }
+
+    /// Parse an URL String into options
+    ///
+    /// - Parameter urlString: URL of a String type
+    ///
+    /// - Returns: a ClientRequest.Options array
+    public class func parse(_ urlString: String) -> [ClientRequest.Options] {
+
+        if let url = URL(string: urlString) {
+            return parse(url)
+        }
+        return []
+    }
+
+    /// Parse an URL class into options
+    ///
+    /// - Parameter url: Foundation URL class
+    ///
+    /// - Returns: a ClientRequest.Options array
+    public class func parse(_ url: URL) -> [ClientRequest.Options] {
+
+        var options: [ClientRequest.Options] = []
+
+        if let scheme = url.scheme {
+            options.append(.schema("\(scheme)://"))
+        }
+        if let host = url.host {
+            options.append(.hostname(host))
+        }
+        #if os(Linux)
+            if var fullPath = url.path {
+                // query strings and parameters need to be appended here
+                if let query = url.query {
+                    fullPath += "?"
+                    fullPath += query
+                }
+                options.append(.path(fullPath))
+            }
+        #else
+            var fullPath = url.path
+            // query strings and parameters need to be appended here
+            if let query = url.query {
+                fullPath += "?"
+                fullPath += query
+            }
+            options.append(.path(fullPath))
+        #endif
+        if let port = url.port {
+            options.append(.port(Int16(port)))
+        }
+        if let username = url.user {
+            options.append(.username(username))
+        }
+        if let password = url.password {
+            options.append(.password(password))
+        }
+        return options
     }
 
     /// Instance destruction
@@ -186,26 +261,32 @@ public class ClientRequest {
     /// End servicing the request, send response back
     ///
     /// - Parameter data: string to send before ending
-    public func end(_ data: String) {
+    /// - Parameter close: add the "Connection: close" header
+    public func end(_ data: String, close: Bool = false) {
         
         write(from: data)
-        end()
+        end(close: close)
         
     }
 
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
-    public func end(_ data: Data) {
+    /// - Parameter close: add the "Connection: close" header
+    public func end(_ data: Data, close: Bool = false) {
         
         write(from: data)
-        end()
+        end(close: close)
         
     }
 
     /// End servicing the request, send response back
-    public func end() {
-        
+    ///
+    /// - Parameter close: add the "Connection: close" header
+    public func end(close: Bool = false) {
+
+        closeConnection = close
+
         guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
             callback(response: nil)
             return
@@ -287,7 +368,9 @@ public class ClientRequest {
     /// Sets the headers in libCurl to the ones in headers
     private func setupHeaders() {
 
-        headers["Connection"] = "close"
+        if closeConnection {
+            headers["Connection"] = "close"
+        }
         
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
