@@ -26,29 +26,29 @@ import Foundation
 // MARK: SPIUtils
 
 public class SPIUtils {
-    
+
     ///
     /// Abbreviations for month names
     ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    
+
     ///
     /// Abbreviations for days of the week
     ///
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    
+
     ///
     /// Format the current time for use in HTTP
     ///
     /// - Returns: string representation of timestamp
     ///
     public static func httpDate() -> String {
-        
+
         var theTime = time(nil)
         var timeStruct: tm = tm()
         gmtime_r(&theTime, &timeStruct)
-        
+
         let wday = Int(timeStruct.tm_wday)
         let mday = Int(timeStruct.tm_mday)
         let mon = Int(timeStruct.tm_mon)
@@ -56,9 +56,9 @@ public class SPIUtils {
         let min = Int(timeStruct.tm_min)
         let sec = Int(timeStruct.tm_sec)
         return "\(days[wday]), \(twoDigit(mday)) \(months[mon]) \(timeStruct.tm_year+1900) \(twoDigit(hour)):\(twoDigit(min)):\(twoDigit(sec)) GMT"
-        
+
     }
-    
+
     ///
     /// Format the given date for use in HTTP
     ///

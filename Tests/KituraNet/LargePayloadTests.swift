@@ -22,19 +22,19 @@ import XCTest
 import Socket
 
 class LargePayloadTests: XCTestCase {
-    
-    static var allTests : [(String, (LargePayloadTests) -> () throws -> Void)] {
+
+    static var allTests: [(String, (LargePayloadTests) -> () throws -> Void)] {
         return [
             ("testLargePosts", testLargePosts)
         ]
     }
-    
+
     override func tearDown() {
         doTearDown()
     }
-    
+
     let delegate = TestServerDelegate()
-    
+
     func testLargePosts() {
         performServerTest(delegate, asyncTasks: { expectation in
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
@@ -48,12 +48,10 @@ class LargePayloadTests: XCTestCase {
                     let postValue = String(data: data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, expectedResult)
-                    }
-                    else {
+                    } else {
                         XCTFail("postValue's value wasn't an UTF8 string")
                     }
-                }
-                catch {
+                } catch {
                     XCTFail("Failed reading the body of the response")
                 }
                 expectation.fulfill()
@@ -62,9 +60,9 @@ class LargePayloadTests: XCTestCase {
             }
         })
     }
-    
-    class TestServerDelegate : ServerDelegate {
-        
+
+    class TestServerDelegate: ServerDelegate {
+
         func handle(request: ServerRequest, response: ServerResponse) {
             var body = Data()
             do {
@@ -72,10 +70,9 @@ class LargePayloadTests: XCTestCase {
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]
-                
+
                 try response.end(text: result)
-            }
-            catch {
+            } catch {
                 print("Error reading body or writing response")
             }
         }

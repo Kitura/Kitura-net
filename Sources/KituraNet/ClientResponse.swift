@@ -20,32 +20,32 @@ import Foundation
 // MARK: ClientResponse
 
 public class ClientResponse: HTTPIncomingMessage {
-    
+
     /// Initializes a ClientResponse instance
     ///
     /// - Returns: a ClientResponse instance
     init() {
-        
+
         super.init(isRequest: false)
         setup(self)
-        
+
     }
-    
+
     /// HTTP Status code
     public internal(set) var status = -1 {
-        
+
         didSet {
             statusCode = HTTPStatusCode(rawValue: status)!
         }
-        
+
     }
-    
+
     /// HTTP Status code
     public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.unknown
-    
-    /// BufferList instance for storing the response 
+
+    /// BufferList instance for storing the response
     var responseBuffers = BufferList()
-    
+
     /// Parse the contents of the responseBuffers
     func parse() -> HTTPParserStatus {
         var buffer = Data()
@@ -58,7 +58,7 @@ public class ClientResponse: HTTPIncomingMessage {
 // MARK: protocol extension for IncomingMessageHelper
 
 extension ClientResponse: IncomingMessageHelper {
-    
+
     ///
     ///  Calls the response buffer to fill the buffer with data
     ///
@@ -71,5 +71,5 @@ extension ClientResponse: IncomingMessageHelper {
         let length = responseBuffers.fill(data: &data)
         return  length > 0 ? length : -1
     }
-    
+
 }

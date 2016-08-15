@@ -17,32 +17,31 @@
 import Foundation
 
 public class HeadersContainer {
-    
+
     ///
     /// The header storage
     ///
     internal var headers: [String: [String]] = [:]
-    
+
     ///
     /// The map of case insensitive header fields to their actual names
     ///
     private var caseInsensitiveMap: [String: String] = [:]
-    
+
     public subscript(key: String) -> [String]? {
         get {
             return get(key)
         }
-        
+
         set(newValue) {
             if let newValue = newValue {
                 set(key, value: newValue)
-            }
-            else {
+            } else {
                 remove(key)
             }
         }
     }
-    
+
     ///
     /// Append values to the header
     ///
@@ -50,10 +49,10 @@ public class HeadersContainer {
     /// - Parameter value: the value
     ///
     public func append(_ key: String, value: [String]) {
-        
+
         // Determine how to handle the header (append or merge)
         switch(key.lowercased()) {
-            
+
         // Headers with an array value (can appear multiple times, but can't be merged)
         case "set-cookie":
             if let headerKey = caseInsensitiveMap[key.lowercased()] {
@@ -61,8 +60,8 @@ public class HeadersContainer {
             } else {
                 set(key, value: value)
             }
-            
-            
+
+
         // Headers with a simple value that can be merged
         default:
             guard let headerKey = caseInsensitiveMap[key.lowercased()], let oldValue = headers[headerKey]?.first else {
@@ -73,7 +72,7 @@ public class HeadersContainer {
             headers[headerKey]?[0] = newValue
         }
     }
-    
+
     ///
     /// Append values to the header
     ///
@@ -96,10 +95,10 @@ public class HeadersContainer {
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             return headers[headerKey]
         }
-        
+
         return nil
     }
-    
+
     ///
     /// Remove all of the headers
     ///
@@ -107,7 +106,7 @@ public class HeadersContainer {
         headers = [:]
         caseInsensitiveMap = [:]
     }
-    
+
     ///
     /// Set the header value
     ///
@@ -117,18 +116,18 @@ public class HeadersContainer {
     /// - Returns: the value for the key as a list
     ///
     private func set(_ key: String, value: [String]) {
-        
+
         headers[key] = value
         caseInsensitiveMap[key.lowercased()] = key
     }
-    
+
     ///
     /// Remove the header by key (case insensitive)
     ///
     /// - Parameter key: the key
     ///
     private func remove(_ key: String) {
-        
+
         if let headerKey = caseInsensitiveMap[key.lowercased()] {
             headers[headerKey] = nil
         }
@@ -139,9 +138,9 @@ public class HeadersContainer {
 /// Variables and methods to implement the Collection protocol
 extension HeadersContainer {
 
-    public var startIndex:DictionaryIndex<String, [String]> { return headers.startIndex }
+    public var startIndex: DictionaryIndex<String, [String]> { return headers.startIndex }
 
-    public var endIndex:DictionaryIndex<String, [String]> { return headers.endIndex }
+    public var endIndex: DictionaryIndex<String, [String]> { return headers.endIndex }
 
     public subscript(position: DictionaryIndex<String, [String]>) -> (key: String, value: [String]) {
         get {
