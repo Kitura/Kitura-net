@@ -1,0 +1,15 @@
+module: KituraNet
+author: IBM
+github_url: https://github.com/IBM-Swift/Kitura-net/
+
+theme: fullwidth
+clean: true
+exclude: [Packages]
+
+readme: README.md
+
+skip_undocumented: false
+hide_documentation_coverage: false
+
+xcodebuild_arguments: [-project, Kitura-net.xcodeproj, -target, KituraNet, -toolchain, org.swift.3020160725a, LIBRARY_SEARCH_PATHS=.build/debug]
+
