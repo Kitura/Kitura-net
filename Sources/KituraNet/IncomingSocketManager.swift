@@ -121,11 +121,12 @@ class IncomingSocketManager  {
                     }
                     else {
                         if  let handler = socketHandlers[event.data.fd] {
-                            if  (event.events & EPOLLIN.rawValue) == 1 {
-                                handler.handleRead()
-                            }
-                            else {
+    
+                            if  (event.events & EPOLLOUT.rawValue) != 0 {
                                 handler.handleWrite()
+                            }
+                            if  (event.events & EPOLLIN.rawValue) != 0 {
+                                handler.handleRead()
                             }
                         }
                         else {
