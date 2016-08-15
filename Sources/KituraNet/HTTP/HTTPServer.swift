@@ -36,47 +36,47 @@ public class HTTPServer {
     /// HTTPServerDelegate
     ///
     public weak var delegate: ServerDelegate?
-    
-    /// 
+
+    ///
     /// Port number for listening for new connections
     ///
     public private(set) var port: Int?
-    
-    /// 
+
+    ///
     /// TCP socket used for listening for new connections
     ///
     private var listenSocket: Socket?
-    
+
     ///
     /// Whether the HTTP server has stopped listening
     ///
     var stopped = false
-    
+
     ///
     /// Incoming socket handler
     ///
     private let socketManager = IncomingSocketManager()
-    
+
     ///
     /// Maximum number of pending connections
     ///
     private let maxPendingConnections = 100
 
-    
+
     ///
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 8090)
-    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue 
+    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue
     ///
     public func listen(port: Int, notOnMainQueue: Bool=false) {
-        
+
         self.port = port
-		
+
 		do {
-            
+
 			self.listenSocket = try Socket.create()
-            
+
 		} catch let error as Socket.Error {
 			print("Error reported:\n \(error.description)")
 		} catch {
@@ -86,9 +86,9 @@ public class HTTPServer {
 		let queuedBlock = {
 			self.listen(socket: self.listenSocket, port: self.port!)
 		}
-		
+
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
-        
+
     }
 
     ///
@@ -99,7 +99,7 @@ public class HTTPServer {
             stopped = true
             listenSocket.close()
         }
-        
+
     }
 
     ///
@@ -112,14 +112,14 @@ public class HTTPServer {
     /// - Returns: a new HTTPServer instance
     ///
     public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
-        
+
         let server = HTTP.createServer()
         server.delegate = delegate
         server.listen(port: port, notOnMainQueue: notOnMainQueue)
         return server
-        
+
     }
-    
+
     ///
     /// Handles instructions for listening on a socket
     ///
@@ -127,15 +127,15 @@ public class HTTPServer {
     /// - Parameter port: number to listen on
     ///
     func listen(socket: Socket?, port: Int) {
-        
+
         do {
             guard let socket = socket else {
                 return
             }
-            
+
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
-            
+
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptClientConnection()
@@ -144,18 +144,17 @@ public class HTTPServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
+
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
-            }
-            else {
+            } else {
                 Log.error("Error reported:\n \(error.description)")
             }
         } catch {
             Log.error("Unexpected error...")
         }
     }
-    
+
     ///
     /// Handle a new client HTTP request
     ///
@@ -166,16 +165,16 @@ public class HTTPServer {
         guard let delegate = delegate else {
             return
         }
-        
+
         socketManager.handle(socket: clientSocket, using: delegate)
-        
+
     }
-    
+
     ///
     /// Wait for all of the listeners to stop
     ///
     /// TODO: Note that this calls the ListenerGroup object, and is left in for
-    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
+    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift
     /// is patched to directly talk to ListenerGroup.
     ///
     public static func waitForListeners() {

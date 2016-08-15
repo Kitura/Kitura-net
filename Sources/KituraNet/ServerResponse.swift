@@ -23,40 +23,40 @@ import Foundation
 //
 
 public protocol ServerResponse: class {
-    
+
     /// Status code
     var statusCode: HTTPStatusCode? { get set }
-    
+
     /// Headers being sent back as part of the HTTP response.
-    var headers : HeadersContainer { get }
-    
+    var headers: HeadersContainer { get }
+
     /// Write a string as a response
     ///
     /// - Parameter string: String data to be written.
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
     func write(from string: String) throws
-    
+
     /// Write data as a response
     ///
     /// - Parameter data: Data object that contains the data to be written.
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
     func write(from data: Data) throws
-    
+
     /// End the response
     ///
     /// - Parameter text: String to write out socket
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
     func end(text: String) throws
-    
+
     /// End sending the response
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
     func end() throws
-    
+
     /// Reset this response object back to it's initial state
     func reset()
-    
+
 }

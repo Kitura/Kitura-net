@@ -19,7 +19,7 @@ import Socket
 import LoggerAPI
 
 public class FastCGIServer {
- 
+
     ///
     /// Queue for listening and establishing new connections
     ///
@@ -39,7 +39,7 @@ public class FastCGIServer {
     /// Port number for listening for new connections
     ///
     public private(set) var port: Int?
-    
+
     ///
     /// TCP socket used for listening for new connections
     ///
@@ -56,27 +56,27 @@ public class FastCGIServer {
     /// - Parameter port: port number for new connections (ex. 9000)
     ///
     public func listen(port: Int) {
-        
+
         self.port = port
-        
+
         do {
-            
+
             listenSocket = try Socket.create()
-            
+
         } catch let error as Socket.Error {
             print("FastCGI error reported:\n \(error.description)")
         } catch {
             print("Unexpected FastCGI error...")
         }
-        
+
         let queuedBlock = {
             self.listen(socket: self.listenSocket, port: self.port!)
         }
-        
+
         ListenerGroup.enqueueAsynchronously(on: FastCGIServer.listenerQueue, block: queuedBlock)
-        
+
     }
-    
+
     ///
     /// Static method to create a new FastCGIServer and have it listen for conenctions
     ///
@@ -86,14 +86,14 @@ public class FastCGIServer {
     /// - Returns: a new FastCGIServer instance
     ///
     public static func listen(port: Int, delegate: ServerDelegate) -> FastCGIServer {
-        
+
         let server = FastCGI.createServer()
         server.delegate = delegate
         server.listen(port: port)
         return server
-        
+
     }
-    
+
     //
     // Retrieve an appropriate connection backlog value for our listen socket.
     // This log is taken from Nginx, and tests out with good results.
@@ -105,7 +105,7 @@ public class FastCGIServer {
             return -1
         #endif
     }
-    
+
     ///
     /// Handles instructions for listening on a socket
     ///
@@ -113,15 +113,15 @@ public class FastCGIServer {
     /// - Parameter port: number to listen on
     ///
     func listen(socket: Socket?, port: Int) {
-        
+
         do {
             guard let socket = socket else {
                 return
             }
-            
+
             try socket.listen(on: port, maxBacklogSize:FastCGIServer.getConnectionBacklog())
             Log.info("Listening on port \(port) (FastCGI)")
-            
+
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptClientConnection()
@@ -130,18 +130,17 @@ public class FastCGIServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
+
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("FastCGI Server has stopped listening")
-            }
-            else {
+            } else {
                 Log.error("FastCGI Error reported:\n \(error.description)")
             }
         } catch {
             Log.error("Unexpected FastCGI error...")
         }
     }
-    
+
     ///
     /// Send multiplex request rejections
     //
@@ -154,23 +153,23 @@ public class FastCGIServer {
             }
         }
     }
-    
+
     ///
     /// Handle a new client FastCGI request
     ///
     /// - Parameter clientSocket: the socket used for connecting
     ///
     func handleClientRequest(socket clientSocket: Socket) {
-        
+
         guard let delegate = delegate else {
             return
         }
-        
+
         FastCGIServer.clientHandlerQueue.enqueueAsynchronously() {
-            
+
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)
-            
+
             request.parse() { status in
                 switch status {
                 case .success:
@@ -191,21 +190,21 @@ public class FastCGIServer {
                     break
                 }
             }
-            
+
         }
     }
-    
+
     ///
     /// Stop listening for new connections
     ///
     public func stop() {
-        
+
         if let listenSocket = listenSocket {
             stopped = true
             listenSocket.close()
         }
-        
+
     }
 
-    
+
 }

@@ -27,66 +27,66 @@ public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
     static private let oneTime = OneTimeInitializations()
-    
+
     public var headers = [String: String]()
 
     // MARK: -- Private
-    
+
     /// URL used for the request
     public private(set) var url: String
-    
+
     /// HTTP method (GET, POST, PUT, DELETE) for the request
     public private(set) var method: String = "get"
-    
+
     /// Username if using Basic Auth
     public private(set) var userName: String?
-    
+
     /// Password if using Basic Auth
     public private(set) var password: String?
 
     /// Maximum number of redirects before failure
     public private(set) var maxRedirects = 10
-    
+
     /// Handle for working with libCurl
     private var handle: UnsafeMutablePointer<Void>?
-    
+
     /// List of header information
     private var headersList: UnsafeMutablePointer<curl_slist>?
-    
+
     /// BufferList to store bytes to be written
     private var writeBuffers = BufferList()
 
     /// Response instance for communicating with client
     private var response = ClientResponse()
-    
+
     /// The callback to receive the response
     private var callback: Callback
-    
+
     /// Should SSL verification be disabled
     private var disableSSLVerification = false
-    
+
     /// Client request option values
     public enum Options {
-        
+
         case method(String), schema(String), hostname(String), port(Int16), path(String),
         headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
-        
+
     }
-    
+
     /// Response callback closure type
     public typealias Callback = (response: ClientResponse?) -> Void
 
     /// Initializes a ClientRequest instance
     ///
-    /// - Parameter url: url for the request 
+    /// - Parameter url: url for the request
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
     init(url: String, callback: Callback) {
-        
+
         self.url = url
         self.callback = callback
-        
+
     }
 
     /// Initializes a ClientRequest instance
@@ -104,7 +104,7 @@ public class ClientRequest {
         var path = ""
         var port = ""
 
-        for option in options  {
+        for option in options {
             switch(option) {
 
                 case .method(let method):
@@ -153,11 +153,11 @@ public class ClientRequest {
     /// Instance destruction
     deinit {
 
-        if  let handle = handle  {
+        if  let handle = handle {
             curl_easy_cleanup(handle)
         }
 
-        if  headersList != nil  {
+        if  headersList != nil {
             curl_slist_free_all(headersList)
         }
 
@@ -167,50 +167,50 @@ public class ClientRequest {
     ///
     /// - Parameter from: String to be written
     public func write(from string: String) {
-        
-        if  let data = StringUtils.toUtf8String(string)  {
+
+        if  let data = StringUtils.toUtf8String(string) {
             write(from: data)
         }
-        
+
     }
 
     /// Writes data to the response
     ///
     /// - Parameter from: NSData to be written
     public func write(from data: Data) {
-        
+
         writeBuffers.append(data: data)
-        
+
     }
 
     /// End servicing the request, send response back
     ///
     /// - Parameter data: string to send before ending
     public func end(_ data: String) {
-        
+
         write(from: data)
         end()
-        
+
     }
 
     /// End servicing the request, send response back
     ///
     /// - Parameter data: data to send before ending
     public func end(_ data: Data) {
-        
+
         write(from: data)
         end()
-        
+
     }
 
     /// End servicing the request, send response back
     public func end() {
-        
+
         guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
             callback(response: nil)
             return
         }
-        
+
         prepareHandle(using: urlBuffer)
 
         let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
@@ -222,14 +222,14 @@ public class ClientRequest {
             callback(response: nil)
             return
         }
-        
+
         code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
             callback(response: nil)
             return
         }
-        
+
         let parseStatus = response.parse()
         guard  parseStatus.error == nil else {
             Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error!)")
@@ -240,11 +240,11 @@ public class ClientRequest {
         self.callback(response: self.response)
     }
 
-    /// Prepare the handle 
+    /// Prepare the handle
     ///
     /// Parameter using: The URL to use when preparing the handle
     private func prepareHandle(using urlBuffer: Data) {
-        
+
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
@@ -288,10 +288,10 @@ public class ClientRequest {
     private func setupHeaders() {
 
         headers["Connection"] = "close"
-        
+
         for (headerKey, headerValue) in headers {
             let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
-            if  let headerString = headerString  {
+            if  let headerString = headerString {
                 headerString.withUnsafeBytes() { (headerUTF8: UnsafePointer<Int8>) in
                     headersList = curl_slist_append(headersList, headerUTF8)
                 }
@@ -304,50 +304,50 @@ public class ClientRequest {
 
 // MARK: CurlInvokerDelegate extension
 extension ClientRequest: CurlInvokerDelegate {
-    
+
     /// libCurl callback to recieve data sent by the server
     private func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
-        
+
         response.responseBuffers.append(bytes: UnsafePointer<UInt8>(buf), length: size)
         return size
-        
+
     }
 
     /// libCurl callback to provide the data to send to the server
     private func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
-        
+
         let count = writeBuffers.fill(buffer: UnsafeMutablePointer<UInt8>(buf), length: size)
         return count
-        
+
     }
 
     /// libCurl callback invoked when a redirect is about to be done
     private func prepareForRedirect() {
-        
+
         response.responseBuffers.reset()
         writeBuffers.rewind()
-        
+
     }
 }
 
 /// Helper class for invoking commands through libCurl
 private class CurlInvoker {
-    
+
     /// Pointer to the libCurl handle
     private var handle: UnsafeMutablePointer<Void>
-    
+
     /// Delegate that can have a read or write callback
     private weak var delegate: CurlInvokerDelegate?
-    
+
     /// Maximum number of redirects
     private let maxRedirects: Int
 
     /// Initializes a new CurlInvoker instance
     private init(handle: UnsafeMutablePointer<Void>, maxRedirects: Int) {
-        
+
         self.handle = handle
         self.maxRedirects = maxRedirects
-        
+
     }
 
     /// Run the HTTP method through the libCurl library
@@ -368,17 +368,16 @@ private class CurlInvoker {
             repeat {
                 rc = curl_easy_perform(handle)
 
-                if  rc == CURLE_OK  {
+                if  rc == CURLE_OK {
                     var redirectUrl: UnsafeMutablePointer<Int8>? = nil
                     let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
                     if  infoRc == CURLE_OK {
-                        if  redirectUrl != nil  {
+                        if  redirectUrl != nil {
                             curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
                             redirected = true
                             delegate?.prepareForRedirect()
                             redirectCount+=1
-                        }
-                        else {
+                        } else {
                             redirected = false
                         }
                     }
@@ -407,17 +406,17 @@ private class CurlInvoker {
                 return (p?.pointee?.curlWriteCallback(buf!, size: size*nMemb))!
         }
     }
-    
+
 }
 
 
 /// Delegate protocol for objects operated by CurlInvoker
 private protocol CurlInvokerDelegate: class {
-    
+
     func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func prepareForRedirect()
-    
+
 }
 
 
@@ -428,4 +427,3 @@ private struct OneTimeInitializations {
         curl_global_init(Int(CURL_GLOBAL_SSL))
     }
 }
-

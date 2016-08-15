@@ -50,9 +50,9 @@ class HTTPParser {
                 }
             }
         }
-        
+
     }
-    
+
     ///
     /// Whether to upgrade the HTTP connection to HTTP 1.1
     ///
@@ -78,21 +78,21 @@ class HTTPParser {
             p?.pointee?.onURL(data)
             return 0
         }
-        
+
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             p?.pointee?.onHeaderField(data)
             return 0
         }
-        
+
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             p?.pointee?.onHeaderValue(data)
             return 0
         }
-        
+
         settings.on_body = { (parser, chunk, length) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             if p?.pointee?.saveBody == true {
@@ -101,7 +101,7 @@ class HTTPParser {
             }
             return 0
         }
-        
+
         settings.on_headers_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             // TODO: Clean and refactor
@@ -115,32 +115,31 @@ class HTTPParser {
             }
             p?.pointee?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
                 versionMinor: (parser?.pointee.http_minor)!)
-            
+
             return 0
         }
-        
+
         settings.on_message_begin = { (parser) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             p?.pointee?.onMessageBegin()
-            
+
             return 0
         }
-        
+
         settings.on_message_complete = { (parser) -> Int32 in
             let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             if get_status_code(parser) == 100 {
                 p?.pointee?.prepareToReset()
-            }
-            else {
+            } else {
                 p?.pointee?.onMessageComplete()
             }
-            
+
             return 0
         }
-        
-        reset()	
+
+        reset()
     }
-    
+
     ///
     /// Executes the parsing on the byte array
     ///
@@ -153,7 +152,7 @@ class HTTPParser {
         let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
-    }    
+    }
 
     ///
     /// Reset the http_parser context structure.
@@ -175,7 +174,7 @@ class HTTPParser {
 /// Delegate protocol for HTTP parsing stages
 ///
 protocol HTTPParserDelegate: class {
-    var saveBody : Bool { get }
+    var saveBody: Bool { get }
     func onURL(_ url: Data)
     func onHeaderField(_ data: Data)
     func onHeaderValue(_ data: Data)
@@ -183,5 +182,5 @@ protocol HTTPParserDelegate: class {
     func onMessageBegin()
     func onMessageComplete()
     func onBody(_ body: Data)
-    func prepareToReset()    
+    func prepareToReset()
 }
