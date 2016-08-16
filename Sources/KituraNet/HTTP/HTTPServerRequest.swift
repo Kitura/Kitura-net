@@ -25,7 +25,7 @@ import Foundation
 public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
 
     /// Reader for the request
-    private let reader: PseudoSynchronousReader
+    fileprivate let reader: PseudoSynchronousReader
 
     /// server IP address pulled from socket
     public var remoteAddress: String {
