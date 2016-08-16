@@ -33,24 +33,14 @@ import Socket
 ///        DispatchSource is used, as it is used on OSX.
 public class IncomingSocketHandler {
     
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-        typealias DispatchSourceReadType = DispatchSourceRead
-        typealias DispatchSourceWriteType = DispatchSourceWrite
-        static let socketReaderQueue = DispatchQueue(label: "Socket Reader")
-        static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
-    #else
-        #if GCD_ASYNCH
-            typealias DispatchSourceReadType = dispatch_source_t
-            typealias DispatchSourceWriteType = dispatch_source_t
-            static let socketReaderQueue = dispatch_queue_create("Socket Reader", DISPATCH_QUEUE_SERIAL)
-        #endif
-        static let socketWriterQueue = dispatch_queue_create("Socket Writer", DISPATCH_QUEUE_SERIAL)
-    #endif
+    static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+        static let socketReaderQueue = DispatchQueue(label: "Socket Reader")
+    
         // Note: This var is optional to enable it to be constructed in the init function
-        var readerSource: DispatchSourceReadType!
-        var writerSource: DispatchSourceWriteType?
+        var readerSource: DispatchSourceRead!
+        var writerSource: DispatchSourceWrite?
     #endif
 
     let socket: Socket
@@ -66,7 +56,7 @@ public class IncomingSocketHandler {
         self.socket = socket
         processor = using
         
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: IncomingSocketHandler.socketReaderQueue)
         
@@ -77,17 +67,6 @@ public class IncomingSocketHandler {
                 self.handleCancel()
             }
             readerSource.resume()
-        #elseif GCD_ASYNCH
-            readerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_READ, UInt(socket.socketfd), 0,
-		                                          IncomingSocketHandler.socketReaderQueue)
-
-            dispatch_source_set_event_handler(readerSource) {
-                self.handleRead()
-            }
-            dispatch_source_set_cancel_handler(readerSource) {
-                self.handleCancel()
-            }
-            dispatch_resume(readerSource)
         #endif
         
         processor?.handler = self
@@ -147,11 +126,7 @@ public class IncomingSocketHandler {
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
                 if writeBuffer.count == 0, let writerSource = writerSource {
-                    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-                        writerSource.cancel()
-                    #elseif GCD_ASYNCH
-                        dispatch_source_cancel(writerSource)
-                    #endif
+                    writerSource.cancel()
                 }
             #endif
         }
@@ -163,7 +138,7 @@ public class IncomingSocketHandler {
     
     /// create the writer source
     private func createWriterSource() {
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
                                                           queue: IncomingSocketHandler.socketWriterQueue)
             
@@ -174,17 +149,6 @@ public class IncomingSocketHandler {
                 self.writerSource = nil
             }
             writerSource!.resume()
-        #elseif GCD_ASYNCH
-            writerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_WRITE, UInt(socket.socketfd), 0,
-                                                  IncomingSocketHandler.socketWriterQueue)
-            
-            dispatch_source_set_event_handler(writerSource!) {
-                self.handleWriteHelper()
-            }
-            dispatch_source_set_cancel_handler(writerSource!) {
-                self.writerSource = nil
-            }
-            dispatch_resume(writerSource!)
         #endif
     }
     
