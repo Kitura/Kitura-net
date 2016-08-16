@@ -40,7 +40,7 @@ class HTTPParser {
     ///
     /// Delegate used for the parsing
     ///
-    weak var delegate: HTTPParserDelegate? {
+    var delegate: HTTPParserDelegate? {
 
         didSet {
             if let _ = delegate {
