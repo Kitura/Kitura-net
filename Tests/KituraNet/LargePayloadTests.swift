@@ -25,7 +25,8 @@ class LargePayloadTests: XCTestCase {
     
     static var allTests : [(String, (LargePayloadTests) -> () throws -> Void)] {
         return [
-            ("testLargePosts", testLargePosts)
+            ("testLargePosts", testLargePosts),
+            ("testLargeGets", testLargeGets)
         ]
     }
     
@@ -63,9 +64,40 @@ class LargePayloadTests: XCTestCase {
         })
     }
     
+    func testLargeGets() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("get", path: "/largepost", callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                expectation.fulfill()
+            })
+        })
+    }
+    
     class TestServerDelegate : ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
+            if  request.method.uppercased() == "GET" {
+                handleGet(request: request, response: response)
+            }
+            else {
+                handlePost(request: request, response: response)
+            }
+        }
+        
+        func handleGet(request: ServerRequest, response: ServerResponse) {
+            let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
+            let payloadData = payload.data(using: .utf8)!
+            do {
+                response.headers["Content-Length"] = ["\(payloadData.count)"]
+                try response.write(from: payloadData)
+                try response.end()
+            }
+            catch {
+                print("Error writing response.")
+            }
+        }
+        
+        func handlePost(request: ServerRequest, response: ServerResponse) {
             var body = Data()
             do {
                 let length = try request.readAllData(into: &body)
