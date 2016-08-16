@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import KituraSys
+import Dispatch
+
 import LoggerAPI
 import Socket
 
@@ -25,12 +26,12 @@ public class HTTPServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static let listenerQueue = Queue(type: .parallel, label: "HTTPServer.listenerQueue")
+    private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [.concurrent])
 
     ///
     /// Queue for handling client requests
     ///
-    static let clientHandlerQueue = Queue(type: .parallel, label: "HTTPServer.clientHandlerQueue")
+    static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [.concurrent])
 
     ///
     /// HTTPServerDelegate
@@ -83,9 +84,9 @@ public class HTTPServer {
             print("Unexpected error...")
 		}
 
-		let queuedBlock = {
+        let queuedBlock = DispatchWorkItem(block: {
 			self.listen(socket: self.listenSocket, port: self.port!)
-		}
+		})
 		
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
         

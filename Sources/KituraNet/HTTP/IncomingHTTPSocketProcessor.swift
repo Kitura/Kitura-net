@@ -81,7 +81,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             
         case .initial:
             inProgress = true
-            HTTPServer.clientHandlerQueue.enqueueAsynchronously() { [unowned self] in
+            HTTPServer.clientHandlerQueue.async() { [unowned self] in
                 self.parse(buffer)
             }
             

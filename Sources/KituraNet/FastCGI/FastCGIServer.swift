@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import KituraSys
+import Dispatch
+
 import Socket
 import LoggerAPI
 
@@ -23,12 +24,12 @@ public class FastCGIServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static var listenerQueue = Queue(type: .parallel, label: "FastCGIServer.listenerQueue")
+    private static var listenerQueue = DispatchQueue(label: "FastCGIServer.listenerQueue", attributes: [.concurrent])
 
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = Queue(type: .parallel, label: "FastCGIServer.clientHandlerQueue")
+    private static var clientHandlerQueue = DispatchQueue(label: "FastCGIServer.clientHandlerQueue", attributes: [.concurrent])
 
     ///
     /// ServerDelegate
@@ -69,9 +70,9 @@ public class FastCGIServer {
             print("Unexpected FastCGI error...")
         }
         
-        let queuedBlock = {
+        let queuedBlock = DispatchWorkItem(block: {
             self.listen(socket: self.listenSocket, port: self.port!)
-        }
+        })
         
         ListenerGroup.enqueueAsynchronously(on: FastCGIServer.listenerQueue, block: queuedBlock)
         
@@ -166,7 +167,7 @@ public class FastCGIServer {
             return
         }
         
-        FastCGIServer.clientHandlerQueue.enqueueAsynchronously() {
+        FastCGIServer.clientHandlerQueue.async() {
             
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)
