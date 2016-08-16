@@ -59,7 +59,7 @@ class IncomingSocketManager  {
             // Note: The parameter to epoll_create is ignored on modern Linux's
             epollDescriptor = epoll_create(100)
         
-            queue.enqueueAsynchronously() { [unowned self] in self.process() }
+            queue.async() { [unowned self] in self.process() }
         }
     #endif
     
@@ -160,8 +160,7 @@ class IncomingSocketManager  {
             }
             socketHandlers.removeValue(forKey: fileDescriptor)
 
-            #if GCD_ASYNCH
-            #elseif os(Linux)
+            #if !GCD_ASYNCH && os(Linux)
                 let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
                 if  result == -1  {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
