@@ -53,7 +53,7 @@ class IncomingSocketManager  {
         private let epollDescriptor: Int32
         private let epollTimeout: Int32 = 50
     
-        private let queue = Queue(type: .serial, label: "IncomingSocketManager")
+        private let queue = DispatchQueue(label: "IncomingSocketManager")
     
         init() {
             // Note: The parameter to epoll_create is ignored on modern Linux's
