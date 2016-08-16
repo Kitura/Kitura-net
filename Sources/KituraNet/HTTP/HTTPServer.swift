@@ -26,12 +26,12 @@ public class HTTPServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [.concurrent])
+    private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
     ///
     /// Queue for handling client requests
     ///
-    static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [.concurrent])
+    static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
     ///
     /// HTTPServerDelegate

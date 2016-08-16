@@ -100,7 +100,7 @@ public class IncomingSocketHandler {
     /// Write out any buffered data now that the socket can accept more data
     func handleWrite() {
         #if !GCD_ASYNCH  &&  os(Linux)
-            dispatch_sync(IncomingSocketHandler.socketWriterQueue) { [unowned self] in
+            IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
                 self.handleWriteHelper()
             }
         #endif
@@ -168,15 +168,9 @@ public class IncomingSocketHandler {
                 }
             
                 if written != data.count {
-                    let block = { [unowned self] in
+                    IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
                         self.writeBuffer.append(bytes+written, count:data.count-written)
                     }
-                    
-                    #if os(Linux)
-                        dispatch_sync(IncomingSocketHandler.socketWriterQueue, block)
-                    #else
-                        IncomingSocketHandler.socketWriterQueue.sync(execute: block)
-                    #endif
                     
                     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
                         if self.writerSource == nil {
@@ -207,10 +201,8 @@ public class IncomingSocketHandler {
     /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
     /// **Note:** On OSX the cancel handler will actually close the socket.
     private func close() {
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()
-        #elseif GCD_ASYNCH
-            dispatch_source_cancel(readerSource)
         #else
             handleCancel()
         #endif

@@ -24,12 +24,14 @@ public class FastCGIServer {
     ///
     /// Queue for listening and establishing new connections
     ///
-    private static var listenerQueue = DispatchQueue(label: "FastCGIServer.listenerQueue", attributes: [.concurrent])
+    private static var listenerQueue = DispatchQueue(label: "FastCGIServer.listenerQueue",
+                                                     attributes: [DispatchQueue.Attributes.concurrent])
 
     ///
     /// Queue for handling client requests
     ///
-    private static var clientHandlerQueue = DispatchQueue(label: "FastCGIServer.clientHandlerQueue", attributes: [.concurrent])
+    private static var clientHandlerQueue = DispatchQueue(label: "FastCGIServer.clientHandlerQueue",
+                                                          attributes: [DispatchQueue.Attributes.concurrent])
 
     ///
     /// ServerDelegate
