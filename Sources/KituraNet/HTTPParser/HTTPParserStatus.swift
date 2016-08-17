@@ -23,7 +23,6 @@ enum HTTPParserState {
     case headersComplete
     case messageComplete
     case reset
-    
 }
 
 /// HTTP parser error types
@@ -32,7 +31,19 @@ enum HTTPParserErrorType {
     case parsedLessThanRead
     case unexpectedEOF
     case internalError // TODO
-    
+}
+
+extension HTTPParserErrorType: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .internalError:
+            return "An internal error occurred"
+        case .parsedLessThanRead:
+            return "Parsed less bytes than were passed to the HTTP parser"
+        case .unexpectedEOF:
+            return "Unexpectedly got an EOF when reading the request"
+        }
+    }
 }
 
 struct HTTPParserStatus {
