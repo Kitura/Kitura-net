@@ -49,7 +49,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public var inProgress = true
     
     /// Number of remaining requests that will be allowed on the socket being handled by this handler
-    private(set) var numberOfRequests = 20
+    private(set) var numberOfRequests = 100
     
     /// Should this socket actually be kep alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
