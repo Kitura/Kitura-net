@@ -27,55 +27,55 @@ import Foundation
 
 // MARK: URLParser
 
-public class URLParser : CustomStringConvertible {
+public class URLParser: CustomStringConvertible {
 
-    /// 
+    ///
     /// Schema
     ///
     public var schema: String?
 
-    /// 
+    ///
     /// Hostname
     ///
     public var host: String?
-    
+
     ///
     /// Path portion of the URL
     ///
     public var path: String?
-    
+
     ///
     /// The entire query portion of the URL
     ///
     public var query: String?
-    
+
     ///
     /// TODO: ???
     ///
     public var fragment: String?
-    
+
     ///
     /// The userid and password if specified in the URL
     ///
     public var userinfo: String?
-    
+
     ///
     /// The port specified, if any, in the URL
     ///
     public var port: UInt16?
-    
+
     ///
     /// The query parameters brokenn out
     ///
     public var queryParameters: [String:String] = [:]
-    
+
     ///
     /// Nicely formatted description of the parsed result
     ///
     public var description: String {
-        
+
         var desc = ""
-        
+
         if let schema = schema {
             desc += "schema: \(schema) "
         }
@@ -98,11 +98,11 @@ public class URLParser : CustomStringConvertible {
         if let userinfo = userinfo {
             desc += "userinfo: \(userinfo) "
         }
-        
+
         return desc
     }
-    
-    
+
+
     ///
     /// Initializes a new URLParser instance
     ///
@@ -110,17 +110,17 @@ public class URLParser : CustomStringConvertible {
     /// - Parameter isConnect: whether or not a connection has been established
     ///
     public init (url: Data, isConnect: Bool) {
-        
+
         var parsedURL = http_parser_url_url()
         memset(&parsedURL, 0, sizeof(http_parser_url.self))
-        
+
         let cIsConnect: Int32 = (isConnect ? 1 : 0)
         let returnCode = url.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> Int32 in
             return http_parser_parse_url_url(bytes, url.count, cIsConnect, &parsedURL)
         }
-        
+
         guard returnCode == 0  else { return }
-            
+
         let (s, h, ps, p, q, f, u) = parsedURL.field_data
         schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
         host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
@@ -133,39 +133,38 @@ public class URLParser : CustomStringConvertible {
         if let _ = portString {
             port = parsedURL.port
         }
-            
+
         if let query = query {
-                
+
             let pairs = query.components(separatedBy: "&")
             for pair in pairs {
-                    
+
                 let pairArray = pair.components(separatedBy: "=")
                 if pairArray.count == 2 {
                     queryParameters[pairArray[0]] = pairArray[1]
                 }
-                    
+
             }
-               
+
         }
     }
-    
+
     ///
     /// TODO: ???
     ///
     ///
     private func getValueFromURL(_ url: Data, fieldSet: UInt16, fieldIndex: UInt16,
         fieldData: http_parser_url_field_data) -> String? {
-        
+
         if fieldSet & (1 << fieldIndex) != 0 {
             let start = Int(fieldData.off)
             let length = Int(fieldData.len)
             let data = url.subdata(in: start..<start+length)
             return StringUtils.fromUtf8String(data)
         }
-        
+
         return nil
-        
+
     }
 
 }
-

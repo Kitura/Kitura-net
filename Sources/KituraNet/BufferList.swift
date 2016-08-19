@@ -22,12 +22,12 @@
 
 import Foundation
 
-// MARK: BufferList 
+// MARK: BufferList
 
 public class BufferList {
 
-    // MARK: -- Private 
-    
+    // MARK: -- Private
+
     ///
     /// Internal storage buffer
     ///
@@ -36,35 +36,35 @@ public class BufferList {
     #else
         private var localData = Data(capacity: 4096)
     #endif
-    
+
     ///
     /// Byte offset inside of internal storage buffer
     private var byteIndex = 0
-    
-    // MARK: -- Public 
-    
+
+    // MARK: -- Public
+
     ///
     /// Get the number of bytes stored in the BufferList
     public var count: Int {
         return localData.count
     }
-    
+
     ///
     /// Read the data in the BufferList
     ///
     public var data: Data {
         return localData
     }
-    
+
     ///
     /// Initializes a BufferList instance
     ///
     /// - Returns: a BufferList instance
     ///
     public init() {}
-    
-    /// 
-    /// Append bytes in an array to buffer 
+
+    ///
+    /// Append bytes in an array to buffer
     ///
     /// Parameter bytes: a pointer to the array
     /// Parameter length: number of bytes in the array
@@ -72,16 +72,16 @@ public class BufferList {
     public func append(bytes: UnsafePointer<UInt8>, length: Int) {
         localData.append(bytes, count: length)
     }
-    
+
     ///
-    /// Append data into BufferList 
-    /// 
+    /// Append data into BufferList
+    ///
     /// Parameter data: The data to append
     ///
     public func append(data: Data) {
         localData.append(data)
     }
-    
+
     ///
     /// Fill the buffer with a byte array data
     ///
@@ -90,15 +90,15 @@ public class BufferList {
     /// - Returns:
     ///
     public func fill(array: inout [UInt8]) -> Int {
-        
+
         let result = min(array.count, localData.count-byteIndex)
         localData.copyBytes(to: UnsafeMutablePointer<UInt8>(array), from: byteIndex..<byteIndex+result)
         byteIndex += result
-        
+
         return result
-        
+
     }
-    
+
     ///
     /// Fill the buffer with a byte array data
     ///
@@ -108,48 +108,48 @@ public class BufferList {
     /// - Returns:
     ///
     public func fill(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
-        
+
         let result = min(length, localData.count-byteIndex)
         localData.copyBytes(to: buffer, from: byteIndex..<byteIndex+result)
         byteIndex += result
-        
+
         return result
-        
+
     }
-    
+
     ///
-    /// Fill the buffer with data 
+    /// Fill the buffer with data
     ///
     /// - Parameter data: NSMutableData you want in the buffer
     ///
-    /// - Returns: 
+    /// - Returns:
     ///
     public func fill(data: inout Data) -> Int {
-        
+
         let result = localData.count-byteIndex
         data.append(localData.subdata(in: byteIndex..<localData.count))
         byteIndex += result
         return result
-        
+
     }
-    
+
     ///
     /// Resets the buffer to zero length and the beginning position
     ///
     public func reset() {
-        
+
         localData.count = 0
         byteIndex = 0
-        
+
     }
-    
+
     ///
     /// Sets the buffer back to the beginning position
     ///
     public func rewind() {
-        
+
         byteIndex = 0
-        
+
     }
-    
+
 }

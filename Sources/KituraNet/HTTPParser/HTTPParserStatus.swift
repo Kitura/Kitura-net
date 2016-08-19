@@ -18,31 +18,31 @@ import Foundation
 
 /// List of parser states
 enum HTTPParserState {
-    
+
     case initial
     case headersComplete
     case messageComplete
     case reset
-    
+
 }
 
 /// HTTP parser error types
 enum HTTPParserErrorType {
-    
+
     case parsedLessThanRead
     case unexpectedEOF
     case internalError // TODO
-    
+
 }
 
 struct HTTPParserStatus {
-    
+
     init() {}
-    
+
     var state = HTTPParserState.initial
     var error: HTTPParserErrorType? = nil
     var keepAlive = false
-    
+
     mutating func reset() {
         state = HTTPParserState.initial
         error = nil
