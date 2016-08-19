@@ -81,7 +81,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             
         case .initial:
             inProgress = true
-            HTTPServer.clientHandlerQueue.enqueueAsynchronously() { [unowned self] in
+            HTTPServer.clientHandlerQueue.async() { [unowned self] in
                 self.parse(buffer)
             }
             
@@ -105,7 +105,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private func parse(_ buffer: Data) {
         let parsingStatus = request.parse(buffer)
         guard  parsingStatus.error == nil  else  {
-            Log.error("Failed to parse a request")
+            Log.error("Failed to parse a request. \(parsingStatus.error!)")
             if  let response = response {
                 response.statusCode = .badRequest
                 do {

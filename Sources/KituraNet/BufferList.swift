@@ -92,7 +92,7 @@ public class BufferList {
     public func fill(array: inout [UInt8]) -> Int {
         
         let result = min(array.count, localData.count-byteIndex)
-        localData.copyBytes(to: UnsafeMutablePointer<UInt8>(array), from: byteIndex..<byteIndex+result)
+        localData.copyBytes(to: UnsafeMutablePointer<UInt8>(mutating: array), from: byteIndex..<byteIndex+result)
         byteIndex += result
         
         return result

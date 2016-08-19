@@ -17,9 +17,9 @@
 import XCTest
 
 @testable import KituraNet
-@testable import KituraSys
 
 import Foundation
+import Dispatch
 
 
 protocol KituraNetTest {
@@ -33,14 +33,14 @@ extension KituraNetTest {
         //       sleep(10)
     }
     
-    func performServerTest(_ delegate: ServerDelegate, asyncTasks: (expectation: XCTestExpectation) -> Void...) {
+    func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         let server = setupServer(port: 8090, delegate: delegate)
-        let requestQueue = Queue(type: .serial)
+        let requestQueue = DispatchQueue(label: "Request queue")
         
         for (index, asyncTask) in asyncTasks.enumerated() {
             let expectation = self.expectation(index)
-            requestQueue.enqueueAsynchronously {
-                asyncTask(expectation: expectation)
+            requestQueue.async {
+                asyncTask(expectation)
             }
         }
         
@@ -74,7 +74,7 @@ extension KituraNetTest {
 
 extension XCTestCase: KituraNetTest {
     func expectation(_ index: Int) -> XCTestExpectation {
-        let expectationDescription = "\(self.dynamicType)-\(index)"
+        let expectationDescription = "\(type(of: self))-\(index)"
         return self.expectation(description: expectationDescription)
     }
 

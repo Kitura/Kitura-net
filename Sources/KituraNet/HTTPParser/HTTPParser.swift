@@ -44,9 +44,9 @@ class HTTPParser {
 
         didSet {
             if let _ = delegate {
-                withUnsafeMutablePointer(&delegate) {
+                withUnsafeMutablePointer(to: &delegate) {
                     ptr in
-                    self.parser.data = UnsafeMutablePointer<Void>(ptr)
+                    self.parser.data = UnsafeMutableRawPointer(ptr)
                 }
             }
         }
@@ -71,39 +71,35 @@ class HTTPParser {
 
         parser = http_parser()
         settings = http_parser_settings()
-
+        
         settings.on_url = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
-            p?.pointee?.onURL(data)
+            let data = Data(bytes: chunk!, count: length)
+            getDelegate(parser)?.onURL(data)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
-            let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onHeaderField(data)
+            let data = Data(bytes: chunk!, count: length)
+            getDelegate(parser)?.onHeaderField(data)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
-            let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onHeaderValue(data)
+            let data = Data(bytes: chunk!, count: length)
+            getDelegate(parser)?.onHeaderValue(data)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            if p?.pointee?.saveBody == true {
-                let data = Data(bytes: UnsafePointer<UInt8>(chunk!), count: length)
-                p?.pointee?.onBody(data)
+            let delegate = getDelegate(parser)
+            if delegate?.saveBody == true {
+                let data = Data(bytes: chunk!, count: length)
+                delegate?.onBody(data)
             }
             return 0
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
             // TODO: Clean and refactor
             //let method = String( get_method(parser))
             let po =  get_method(parser)
@@ -113,26 +109,25 @@ class HTTPParser {
                 message += String(UnicodeScalar(UInt8((po!+i).pointee)))
                 i += 1
             }
-            p?.pointee?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
+            getDelegate(parser)?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
                 versionMinor: (parser?.pointee.http_minor)!)
             
             return 0
         }
         
         settings.on_message_begin = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
-            p?.pointee?.onMessageBegin()
+            getDelegate(parser)?.onMessageBegin()
             
             return 0
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
-            let p = UnsafePointer<HTTPParserDelegate?>(parser?.pointee.data)
+            let delegate = getDelegate(parser)
             if get_status_code(parser) == 100 {
-                p?.pointee?.prepareToReset()
+                delegate?.prepareToReset()
             }
             else {
-                p?.pointee?.onMessageComplete()
+                delegate?.onMessageComplete()
             }
             
             return 0
@@ -169,6 +164,11 @@ class HTTPParser {
         return isRequest && http_should_keep_alive(&parser) == 1
     }
 
+}
+
+fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDelegate? {
+    let p = parser?.assumingMemoryBound(to: http_parser.self)
+    return p?.pointee.data.assumingMemoryBound(to: HTTPParserDelegate.self).pointee
 }
 
 ///
