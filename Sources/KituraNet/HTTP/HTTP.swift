@@ -62,7 +62,7 @@ public class HTTP {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func request(_ url: String, callback: ClientRequest.Callback) -> ClientRequest {
+    public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
 
         return ClientRequest(url: url, callback: callback)
 
@@ -76,7 +76,7 @@ public class HTTP {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func request(_ options: [ClientRequest.Options], callback: ClientRequest.Callback) -> ClientRequest {
+    public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
         
         return ClientRequest(options: options, callback: callback)
 
@@ -91,7 +91,7 @@ public class HTTP {
     ///
     /// - Returns: a ClientRequest instance
     ///
-    public static func get(_ url: String, callback: ClientRequest.Callback) -> ClientRequest {
+    public static func get(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
 
         let req = ClientRequest(url: url, callback: callback)
         req.end()

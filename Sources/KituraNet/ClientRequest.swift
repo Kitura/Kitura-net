@@ -85,7 +85,7 @@ public class ClientRequest {
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
-    init(url: String, callback: Callback) {
+    init(url: String, callback: @escaping Callback) {
         
         self.url = url
         self.callback = callback
@@ -98,7 +98,7 @@ public class ClientRequest {
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
-    init(options: [Options], callback: Callback) {
+    init(options: [Options], callback: @escaping Callback) {
 
         self.callback = callback
 

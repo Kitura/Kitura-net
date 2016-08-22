@@ -32,7 +32,7 @@ class FastCGIRecordParser {
     var requestId : UInt16 = 0
     var role : UInt16 = 0
     var flags : UInt8 = 0
-    var headers : [Dictionary] = Array<Dictionary<String,String>>()
+    var headers : Array<Dictionary<String,String>> = Array<Dictionary<String,String>>()
     var data : Data? = nil
     var appStatus : UInt32 = 0
     var protocolStatus : UInt8 = 0
