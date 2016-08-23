@@ -195,24 +195,13 @@ public class ClientRequest {
         if let host = url.host {
             options.append(.hostname(host))
         }
-        #if os(Linux)
-            if var fullPath = url.path {
-                // query strings and parameters need to be appended here
-                if let query = url.query {
-                    fullPath += "?"
-                    fullPath += query
-                }
-                options.append(.path(fullPath))
-            }
-        #else
-            var fullPath = url.path
-            // query strings and parameters need to be appended here
-            if let query = url.query {
-                fullPath += "?"
-                fullPath += query
-            }
-            options.append(.path(fullPath))
-        #endif
+        var fullPath = url.path
+        // query strings and parameters need to be appended here
+        if let query = url.query {
+            fullPath += "?"
+            fullPath += query
+        }
+        options.append(.path(fullPath))
         if let port = url.port {
             options.append(.port(Int16(port)))
         }

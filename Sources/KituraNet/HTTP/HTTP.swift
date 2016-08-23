@@ -112,15 +112,9 @@ public class HTTP {
     ///
     public static func escape(url: String) -> String {
 
-        #if os(Linux)
-        if let escaped = url.bridge().stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacterSet) {
-            return escaped
-        }
-        #else
         if let escaped = url.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
             return escaped
         }
-        #endif
 
         return url
     }

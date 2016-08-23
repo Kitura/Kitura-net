@@ -69,11 +69,7 @@ public class SPIUtils {
     public static func httpDate(_ date: Date) -> String {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!
-        #if os(Linux)
-            let components = calendar.components([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)!
-        #else
-            let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
-        #endif
+        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
         let wday = Int(components.weekday!)
         let mday = Int(components.day!)
         let mon = Int(components.month!)

@@ -34,11 +34,7 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// Buffer for HTTP response line, headers, and short bodies
     ///
-    #if os(Linux)
-        private var buffer = Data(capacity: FastCGIServerResponse.bufferSize)!
-    #else
-        private var buffer = Data(capacity: FastCGIServerResponse.bufferSize)
-    #endif
+    private var buffer = Data(capacity: FastCGIServerResponse.bufferSize)
 
     ///
     /// Whether or not the HTTP response line and headers have been flushed.

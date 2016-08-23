@@ -71,18 +71,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     private weak var helper: IncomingMessageHelper?
 
     /// TODO:
-    #if os(Linux)
-        private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)!
-    #else
-        private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
-    #endif
+    private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
     /// TODO: ???
-    #if os(Linux)
-        private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)!
-    #else
-        private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
-    #endif
+    private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
     /// Indicates if the parser should save the message body and call onBody()
     var saveBody = true

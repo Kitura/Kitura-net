@@ -66,11 +66,7 @@ public class HTTPServerResponse : ServerResponse {
     init(processor: IncomingHTTPSocketProcessor) {
 
         self.processor = processor
-        #if os(Linux)
-            buffer = Data(capacity: HTTPServerResponse.bufferSize)!
-        #else
-            buffer = Data(capacity: HTTPServerResponse.bufferSize)
-        #endif
+        buffer = Data(capacity: HTTPServerResponse.bufferSize)
         headers["Date"] = [SPIUtils.httpDate()]
     }
 
