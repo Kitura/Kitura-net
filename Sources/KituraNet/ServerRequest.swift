@@ -17,31 +17,31 @@
 import Foundation
 
 // This is a ServerRequest protocol class that allows requests
-// to be abstracted across different protocols in an agnostic way to the 
+// to be abstracted across different protocols in an agnostic way to the
 // Kitura project Router.
 public protocol ServerRequest: class {
-    
+
     /// Set of headers
-    var headers : HeadersContainer { get set }
-    
+    var headers: HeadersContainer { get set }
+
     /// URL
-    var urlString : String { get }
-    
+    var urlString: String { get }
+
     /// Raw URL
-    var url : Data { get }
+    var url: Data { get }
 
     /// server IP address
     var remoteAddress: String { get }
-    
+
     /// Major version for HTTP
     var httpVersionMajor: UInt16? { get }
 
     /// Minor version for HTTP
     var httpVersionMinor: UInt16? { get }
-    
+
     /// HTTP Method
     var method: String { get }
-    
+
     /// Read data in the message
     ///
     /// - Parameter data: A Data struct to hold the data in the message
@@ -49,14 +49,14 @@ public protocol ServerRequest: class {
     /// - Throws: Socket.error if an error occurred while reading from a socket
     /// - Returns: the number of bytes read
     func read(into data: inout Data) throws -> Int
-    
+
     /// Read the string
     ///
     /// - Throws: Socket.error if an error occurred while reading from a socket
     /// - Returns: an Optional string
     func readString() throws -> String?
-    
-    
+
+
     /// Read all data in the message
     ///
     /// - Parameter data: A Data struct to hold the data in the message

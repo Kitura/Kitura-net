@@ -23,20 +23,20 @@ import Socket
 
 class ClientE2ETests: XCTestCase {
 
-    static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
+    static var allTests: [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testPostRequests", testPostRequests),
             ("testErrorRequests", testErrorRequests)
         ]
     }
-    
+
     override func tearDown() {
         doTearDown()
     }
-    
+
     let delegate = TestServerDelegate()
-    
+
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -46,7 +46,7 @@ class ClientE2ETests: XCTestCase {
             XCTAssertEqual(contentType!, ["text/html"], "Content-Type header wasn't `text/html`")
         }
     }
-    
+
     func testPostRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
@@ -58,18 +58,15 @@ class ClientE2ETests: XCTestCase {
                     let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
-                    }
-                    else {
+                    } else {
                         XCTFail("postValue's value wasn't an UTF8 string")
                     }
-                }
-                catch {
+                } catch {
                     XCTFail("Failed reading the body of the response")
                 }
                 expectation.fulfill()
             })
-        },
-        { expectation in
+        }, { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 do {
@@ -79,12 +76,10 @@ class ClientE2ETests: XCTestCase {
                     let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
-                    }
-                    else {
+                    } else {
                         XCTFail("postValue's value wasn't an UTF8 string")
                     }
-                }
-                catch {
+                } catch {
                     XCTFail("Failed reading the body of the response")
                 }
                 expectation.fulfill()
@@ -93,7 +88,7 @@ class ClientE2ETests: XCTestCase {
             }
         })
     }
-    
+
     func testErrorRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("plover", path: "/xzzy", callback: {response in
@@ -102,10 +97,10 @@ class ClientE2ETests: XCTestCase {
             })
         })
     }
-    
-    
-    class TestServerDelegate : ServerDelegate {
-    
+
+
+    class TestServerDelegate: ServerDelegate {
+
         func handle(request: ServerRequest, response: ServerResponse) {
             var body = Data()
             do {
@@ -113,10 +108,9 @@ class ClientE2ETests: XCTestCase {
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]
-            
+
                 try response.end(text: result)
-            }
-            catch {
+            } catch {
                 print("Error reading body or writing response")
             }
         }

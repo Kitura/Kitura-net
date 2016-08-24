@@ -19,7 +19,7 @@ import Socket
 import LoggerAPI
 
 public class ListenerGroup {
-    
+
     ///
     /// Group for waiting on listeners
     ///
@@ -31,7 +31,7 @@ public class ListenerGroup {
     public static func waitForListeners() {
         group.wait(for: .ever)
     }
-    
+
     //
     // Enqueue a block of code on a given queue, assigning
     // it to the listener group int the process (so we can wait
@@ -40,5 +40,5 @@ public class ListenerGroup {
     public static func enqueueAsynchronously(on queue: Queue, block: () -> Void) {
         ListenerGroup.group.enqueueAsynchronously(on: queue, block: block)
     }
-    
+
 }

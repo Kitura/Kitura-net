@@ -20,7 +20,7 @@ import Foundation
 
 // MARK: HTTPServerResponse
 
-public class HTTPServerResponse : ServerResponse {
+public class HTTPServerResponse: ServerResponse {
 
     /// Size of buffer
     private static let bufferSize = 2000
@@ -35,16 +35,16 @@ public class HTTPServerResponse : ServerResponse {
     /// The headers to be sent to the client as part of the response
     ///
     public var headers = HeadersContainer()
-    
+
     ///
     /// Status code
     ///
     private var status = HTTPStatusCode.OK.rawValue
-    
+
     ///
     /// Corresponding socket processor
     ///
-    private weak var processor : IncomingHTTPSocketProcessor?
+    private weak var processor: IncomingHTTPSocketProcessor?
 
     ///
     /// Status code
@@ -99,14 +99,13 @@ public class HTTPServerResponse : ServerResponse {
 
         if  let processor = processor {
             try flushStart()
-            if  buffer.count + data.count > HTTPServerResponse.bufferSize  &&  buffer.count != 0  {
+            if  buffer.count + data.count > HTTPServerResponse.bufferSize  &&  buffer.count != 0 {
                 processor.write(from: buffer)
                 buffer.count = 0
             }
             if  data.count > HTTPServerResponse.bufferSize {
                 processor.write(from: data)
-            }
-            else {
+            } else {
                 buffer.append(data)
             }
         }
@@ -124,7 +123,7 @@ public class HTTPServerResponse : ServerResponse {
         try write(from: text)
         try end()
     }
-    
+
     ///
     /// End sending the response
     ///
@@ -133,19 +132,19 @@ public class HTTPServerResponse : ServerResponse {
     public func end() throws {
         if let processor = processor {
             processor.drain()
-        
+
             try flushStart()
-            
+
             let keepAlive = processor.isKeepAlive
             if  keepAlive {
                 processor.keepAlive()
             }
-            
-            if  buffer.count > 0  {
+
+            if  buffer.count > 0 {
                 processor.write(from: buffer)
             }
-            
-            if !keepAlive  {
+
+            if !keepAlive {
                 processor.close()
             }
         }
@@ -156,7 +155,7 @@ public class HTTPServerResponse : ServerResponse {
     /// - Throws: Socket.error if an error occurred while writing to a socket
     private func flushStart() throws {
 
-        if  startFlushed  {
+        if  startFlushed {
             return
         }
 
@@ -185,11 +184,10 @@ public class HTTPServerResponse : ServerResponse {
         if  keepAlive {
             headerData.append("Connection: Keep-Alive\r\n")
             headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout)), max=\((processor?.numberOfRequests ?? 1) - 1)\r\n")
-        }
-        else {
+        } else {
             headerData.append("Connection: Close\r\n")
         }
-        
+
         headerData.append("\r\n")
         try writeToSocketThroughBuffer(text: headerData)
         startFlushed = true
@@ -204,18 +202,17 @@ public class HTTPServerResponse : ServerResponse {
             return
         }
 
-        if  buffer.count + utf8Data.count > HTTPServerResponse.bufferSize  &&  buffer.count != 0  {
+        if  buffer.count + utf8Data.count > HTTPServerResponse.bufferSize  &&  buffer.count != 0 {
             processor.write(from: buffer)
             buffer.count = 0
         }
         if  utf8Data.count > HTTPServerResponse.bufferSize {
             processor.write(from: utf8Data)
-        }
-        else {
+        } else {
             buffer.append(utf8Data)
         }
     }
-    
+
     /// Reset this response object back to it's initial state
     public func reset() {
         status = HTTPStatusCode.OK.rawValue
