@@ -77,7 +77,7 @@ public class HTTP {
     /// - Returns: a ClientRequest instance
     ///
     public static func request(_ options: [ClientRequest.Options], callback: ClientRequest.Callback) -> ClientRequest {
-        
+
         return ClientRequest(options: options, callback: callback)
 
     }

@@ -20,13 +20,13 @@ import XCTest
 @testable import KituraNet
 
 class ParserTests: XCTestCase {
-    static var allTests : [(String, (ParserTests) -> () throws -> Void)] {
+    static var allTests: [(String, (ParserTests) -> () throws -> Void)] {
         return [
             ("testParseSimpleUrl", testParseSimpleUrl),
             ("testParseComplexUrl", testParseComplexUrl)
         ]
     }
-    
+
     func testParseSimpleUrl() {
         let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: .utf8)!
         let urlParser = URLParser(url: url, isConnect: false)
@@ -34,7 +34,7 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.host!, "example.org", "Incorrect host")
         XCTAssertEqual(urlParser.path!, "/absolute/URI/with/absolute/path/to/resource.txt", "Incorrect path")
     }
-    
+
     func testParseComplexUrl() {
         let url = "abc://username:password@example.com:123/path/data?key=value&key1=value1#fragid1".data(using: .utf8)!
         let urlParser = URLParser(url: url, isConnect: false)
