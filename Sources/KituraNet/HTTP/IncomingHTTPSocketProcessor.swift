@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright IBM Corporation 2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **/
-
+ */
 
 import Foundation
 
@@ -50,7 +49,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public var inProgress = true
     
     /// Number of remaining requests that will be allowed on the socket being handled by this handler
-    private(set) var numberOfRequests = 20
+    private(set) var numberOfRequests = 100
     
     /// Should this socket actually be kep alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
@@ -98,7 +97,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Close the socket and mark this handler as no longer in progress.
     public func close() {
-        handler?.close()
+        handler?.prepareToClose()
     }
     
     /// Invoke the HTTP parser against the specified buffer of data and

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright IBM Corporation 2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **/
+ */
 
 
 #if !GCD_ASYNCH && os(Linux)
@@ -76,10 +76,9 @@ class IncomingSocketManager  {
             let handler = IncomingSocketHandler(socket: socket, using: processor)
             socketHandlers[socket.socketfd] = handler
             
-            #if GCD_ASYNCH
-            #elseif os(Linux)
+            #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
-                event.events = EPOLLIN.rawValue | EPOLLET.rawValue
+                event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
                 event.data.fd = socket.socketfd
                 let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
                 if  result == -1  {
@@ -114,14 +113,21 @@ class IncomingSocketManager  {
                 for  index in 0  ..< count {
                     let event = pollingEvents[index]
                 
-                    if  (event.events & EPOLLERR.rawValue)  == 1  ||  (event.events & EPOLLHUP.rawValue) == 1  ||  (event.events & EPOLLIN.rawValue) == 0 {
+                    if  (event.events & EPOLLERR.rawValue)  == 1  ||  (event.events & EPOLLHUP.rawValue) == 1  ||
+                                (event.events & (EPOLLIN.rawValue | EPOLLOUT.rawValue)) == 0 {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     
                     }
                     else {
                         if  let handler = socketHandlers[event.data.fd] {
-                            handler.handleRead()
+    
+                            if  (event.events & EPOLLOUT.rawValue) != 0 {
+                                handler.handleWrite()
+                            }
+                            if  (event.events & EPOLLIN.rawValue) != 0 {
+                                handler.handleRead()
+                            }
                         }
                         else {
                             Log.error("No handler for file descriptor \(event.data.fd)")
@@ -162,7 +168,7 @@ class IncomingSocketManager  {
                 }
             #endif
             
-            handler.close()
+            handler.prepareToClose()
         }
         keepAliveIdleLastTimeChecked = Date()
     }
