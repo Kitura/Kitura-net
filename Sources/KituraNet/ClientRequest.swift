@@ -138,7 +138,8 @@ public class ClientRequest {
         let user = self.userName ?? ""
         let pwd = self.password ?? ""
         var authenticationClause = ""
-        if (!user.isEmpty && !pwd.isEmpty) {
+        // If either the userName or password are non-empty, add the authenticationClause
+        if (!user.isEmpty || !pwd.isEmpty) {
           authenticationClause = "\(user):\(pwd)@"
         }
 
