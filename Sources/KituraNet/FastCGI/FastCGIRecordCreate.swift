@@ -72,7 +72,7 @@ class FastCGIRecordCreate {
     
     // A helper method to append various types to a Data object
     private func appendBytes(to: inout Data, bytes: UnsafePointer<Void>, count: Int) {
-        to.append(UnsafePointer<UInt8>(bytes), count: count)
+        to.append(UnsafeRawPointer(bytes).assumingMemoryBound(to: UInt8.self), count: count)
     }
     
     //

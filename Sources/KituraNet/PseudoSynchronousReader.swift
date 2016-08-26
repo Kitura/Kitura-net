@@ -43,23 +43,13 @@ class PseudoSynchronousReader {
     private var noDataToRead = true
     private var buffer = Data()
 
-    #if os(Linux)
-        private let readingSemaphore: dispatch_semaphore_t
-        private let bufferLock: dispatch_semaphore_t
-    #else
-        private let readingSemaphore = DispatchSemaphore(value: 0)
-        private let bufferLock = DispatchSemaphore(value: 1)
-    #endif
+    private let readingSemaphore = DispatchSemaphore(value: 0)
+    private let bufferLock = DispatchSemaphore(value: 1)
     
     var remoteHostname: String { return clientSocket.remoteHostname }
     
     init(clientSocket: Socket) {
         self.clientSocket = clientSocket
-        
-        #if os(Linux)
-            readingSemaphore = dispatch_semaphore_create(0)
-            bufferLock = dispatch_semaphore_create(1)
-        #endif
     }
     
     /// Add data to the internal buffer to be read by the raed function
@@ -74,11 +64,7 @@ class PseudoSynchronousReader {
         buffer.append(from)
         
         if  noDataToRead  {
-            #if os(Linux)
-                dispatch_semaphore_signal(readingSemaphore)
-            #else
-                readingSemaphore.signal()
-            #endif
+            readingSemaphore.signal()
             noDataToRead = false
         }
         if  needToLock  {
@@ -91,11 +77,7 @@ class PseudoSynchronousReader {
     /// - Parameter into: The NSMutableData object to append the data in the buffer to.
     func read(into: inout Data) -> Int {
         if  noDataToRead  {
-            #if os(Linux)
-                dispatch_semaphore_wait(readingSemaphore, DISPATCH_TIME_FOREVER)
-            #else
-                _ = readingSemaphore.wait(timeout: DispatchTime.distantFuture)
-            #endif
+            _ = readingSemaphore.wait(timeout: DispatchTime.distantFuture)
         }
         let result: Int
         if  buffer.count != 0  {
@@ -117,18 +99,10 @@ class PseudoSynchronousReader {
     }
     
     private func lockReadLock() {
-        #if os(Linux)
-            dispatch_semaphore_wait(bufferLock, DISPATCH_TIME_FOREVER)
-        #else
-            _ = bufferLock.wait(timeout: DispatchTime.distantFuture)
-        #endif
+        _ = bufferLock.wait(timeout: DispatchTime.distantFuture)
     }
     
     private func unlockReadLock() {
-        #if os(Linux)
-            dispatch_semaphore_signal(bufferLock)
-        #else
-            bufferLock.signal()
-        #endif
+        bufferLock.signal()
     }
 }

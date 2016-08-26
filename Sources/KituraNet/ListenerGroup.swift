@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-import KituraSys
-import Socket
-import LoggerAPI
+import Dispatch
 
 public class ListenerGroup {
     
     ///
     /// Group for waiting on listeners
     ///
-    private static let group = Group()
+    private static let group = DispatchGroup()
 
     ///
     /// Wait for all of the listeners to stop
     ///
     public static func waitForListeners() {
-        group.wait(for: .ever)
+        _ = group.wait(timeout: DispatchTime.distantFuture)
     }
     
     //
@@ -37,8 +35,8 @@ public class ListenerGroup {
     // it to the listener group int the process (so we can wait
     // on it later).
     //
-    public static func enqueueAsynchronously(on queue: Queue, block: () -> Void) {
-        ListenerGroup.group.enqueueAsynchronously(on: queue, block: block)
+    public static func enqueueAsynchronously(on queue: DispatchQueue, block: DispatchWorkItem) {
+        queue.async(group: ListenerGroup.group, execute: block)
     }
     
 }
