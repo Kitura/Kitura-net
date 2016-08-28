@@ -31,29 +31,29 @@ public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
     public var remoteAddress: String {
         return reader.remoteHostname
     }
-    
+
     /// Initializes a HTTPServerRequest
     ///
     /// - Parameter socket: the socket
     init (reader: PseudoSynchronousReader) {
-        
+
         self.reader = reader
         super.init(isRequest: true)
-        
+
         setup(self)
     }
 }
 
 /// IncomingMessageHelper protocol extension
 extension HTTPServerRequest: IncomingMessageHelper {
-    
+
     /// "Read" data from the actual underlying transport
     ///
     /// - Parameter into: The NSMutableData that will be receiving the data read in.
     func readHelper(into data: inout Data) throws -> Int {
 
         let length = reader.read(into: &data)
-        return length 
+        return length
     }
-    
+
 }

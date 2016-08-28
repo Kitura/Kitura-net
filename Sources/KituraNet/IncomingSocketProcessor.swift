@@ -20,24 +20,24 @@ import Foundation
 /// comes in from a client's request. There should be one IncomingDataProcessor
 /// per incoming request or not.
 public protocol IncomingSocketProcessor: class {
-    
+
     /// The socket if idle will be kep alive until...
     var keepAliveUntil: TimeInterval { get set }
-    
+
     /// A flag to indicate that the socket has a request in progress
     var inProgress: Bool { get set }
 
     /// A back reference to the IncomingSocketHandler processing the socket that
-    /// this IncomingDataProcessor is processing.    
+    /// this IncomingDataProcessor is processing.
     weak var handler: IncomingSocketHandler? { get set }
 
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
     func process(_ buffer: Data)
-    
+
     /// Write data to the socket
     func write(from data: Data)
-    
+
     /// Close the socket and mark this handler as no longer in progress.
     func close()
 }
