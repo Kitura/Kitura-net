@@ -105,11 +105,36 @@ class ClientRequestTests: XCTestCase {
   }
 
   func testClientRequestParse() {
-
+      
     let options = ClientRequest.parse("https://username:password@66o.tech:8080/path")
     let testRequest = ClientRequest(options: options, callback: testCallback)
     XCTAssertEqual(testRequest.url, "https://username:password@66o.tech:8080/path")
   }
+
+  func testClientRequestBasicAuthentcation() {
+      
+    // ensure an empty password works
+    let options: [ClientRequest.Options] = [ .username("myusername"),
+                                             .hostname("66o.tech")
+    ]
+    var testRequest = ClientRequest(options: options, callback: testCallback)
+    XCTAssertEqual(testRequest.url, "http://myusername:@66o.tech")
+
+    // ensure an empty username works
+    let options2: [ClientRequest.Options] = [ .password("mypassword"),
+                                              .hostname("66o.tech")
+    ]
+    testRequest = ClientRequest(options: options2, callback: testCallback)
+    XCTAssertEqual(testRequest.url, "http://:mypassword@66o.tech")
+
+    // ensure username:password works
+    let options3: [ClientRequest.Options] = [ .username("myusername"),
+                                              .password("mypassword"),
+                                              .hostname("66o.tech")
+    ]
+    testRequest = ClientRequest(options: options3, callback: testCallback)
+    XCTAssertEqual(testRequest.url, "http://myusername:mypassword@66o.tech")
+}
 
 }
 
@@ -125,7 +150,8 @@ extension ClientRequestTests {
              ("testClientRequestAppendsMisformattedPathCorrectly", testClientRequestAppendsMisformattedPathCorrectly),
              ("testClientRequestAppendsPort", testClientRequestAppendsPort),
              ("testClientRequestSet", testClientRequestSet),
-             ("testClientRequestParse", testClientRequestParse)
+             ("testClientRequestParse", testClientRequestParse),
+             ("testClientRequestBasicAuthentcation", testClientRequestBasicAuthentcation)
     ]
   }
 }

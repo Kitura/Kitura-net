@@ -373,6 +373,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// When we're ready, really reset everything
     private func reset() {
         lastHeaderWasAValue = false
+        saveBody = true
         url.count = 0
         headers.removeAll()
         bodyChunk.reset()
