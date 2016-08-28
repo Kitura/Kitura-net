@@ -100,9 +100,9 @@ class FastCGIProtocolTests: XCTestCase {
         
         var bytes = [UInt8](repeating: 0, count: numberOfBytes)
         #if os(Linux)
-            for index in stride(from: 0, to: numberOfBytes, by: sizeof(CLong.self)) {
+            for index in stride(from: 0, to: numberOfBytes, by: MemoryLayout<CLong>.size) {
                 var random : CLong = Glibc.random()
-                memcpy(&bytes+index ,&random, sizeof(CLong.self))
+                memcpy(&bytes+index ,&random, MemoryLayout<CLong>.size)
             }
         #else
             Darwin.arc4random_buf(&bytes, numberOfBytes)

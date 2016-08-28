@@ -31,11 +31,7 @@ public class BufferList {
     ///
     /// Internal storage buffer
     ///
-    #if os(Linux)
-        private var localData = Data(capacity: 4096)!
-    #else
-        private var localData = Data(capacity: 4096)
-    #endif
+    private var localData = Data(capacity: 4096)
     
     ///
     /// Byte offset inside of internal storage buffer
@@ -92,7 +88,7 @@ public class BufferList {
     public func fill(array: inout [UInt8]) -> Int {
         
         let result = min(array.count, localData.count-byteIndex)
-        localData.copyBytes(to: UnsafeMutablePointer<UInt8>(array), from: byteIndex..<byteIndex+result)
+        localData.copyBytes(to: UnsafeMutablePointer<UInt8>(mutating: array), from: byteIndex..<byteIndex+result)
         byteIndex += result
         
         return result

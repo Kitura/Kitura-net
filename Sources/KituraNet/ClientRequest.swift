@@ -51,16 +51,16 @@ public class ClientRequest {
     public private(set) var closeConnection = false
 
     /// Handle for working with libCurl
-    private var handle: UnsafeMutablePointer<Void>?
+    private var handle: UnsafeMutableRawPointer?
     
     /// List of header information
     private var headersList: UnsafeMutablePointer<curl_slist>?
     
     /// BufferList to store bytes to be written
-    private var writeBuffers = BufferList()
+    fileprivate var writeBuffers = BufferList()
 
     /// Response instance for communicating with client
-    private var response = ClientResponse()
+    fileprivate var response = ClientResponse()
     
     /// The callback to receive the response
     private var callback: Callback
@@ -77,7 +77,7 @@ public class ClientRequest {
     }
     
     /// Response callback closure type
-    public typealias Callback = (response: ClientResponse?) -> Void
+    public typealias Callback = (ClientResponse?) -> Void
 
     /// Initializes a ClientRequest instance
     ///
@@ -85,7 +85,7 @@ public class ClientRequest {
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
-    init(url: String, callback: Callback) {
+    init(url: String, callback: @escaping Callback) {
         
         self.url = url
         self.callback = callback
@@ -98,7 +98,7 @@ public class ClientRequest {
     /// - Parameter callback:
     ///
     /// - Returns: a ClientRequest instance
-    init(options: [Options], callback: Callback) {
+    init(options: [Options], callback: @escaping Callback) {
 
         self.callback = callback
 
@@ -196,24 +196,13 @@ public class ClientRequest {
         if let host = url.host {
             options.append(.hostname(host))
         }
-        #if os(Linux)
-            if var fullPath = url.path {
-                // query strings and parameters need to be appended here
-                if let query = url.query {
-                    fullPath += "?"
-                    fullPath += query
-                }
-                options.append(.path(fullPath))
-            }
-        #else
-            var fullPath = url.path
-            // query strings and parameters need to be appended here
-            if let query = url.query {
-                fullPath += "?"
-                fullPath += query
-            }
-            options.append(.path(fullPath))
-        #endif
+        var fullPath = url.path
+        // query strings and parameters need to be appended here
+        if let query = url.query {
+            fullPath += "?"
+            fullPath += query
+        }
+        options.append(.path(fullPath))
         if let port = url.port {
             options.append(.port(Int16(port)))
         }
@@ -289,7 +278,7 @@ public class ClientRequest {
         closeConnection = close
 
         guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
-            callback(response: nil)
+            callback(nil)
             return
         }
         
@@ -301,25 +290,25 @@ public class ClientRequest {
         var code = invoker.invoke()
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error, Failed to invoke HTTP request. CURL Return code=\(code)")
-            callback(response: nil)
+            callback(nil)
             return
         }
         
         code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
-            callback(response: nil)
+            callback(nil)
             return
         }
         
         let parseStatus = response.parse()
         guard  parseStatus.error == nil else {
             Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error!)")
-            callback(response: nil)
+            callback(nil)
             return
         }
 
-        self.callback(response: self.response)
+        self.callback(self.response)
     }
 
     /// Prepare the handle 
@@ -390,23 +379,23 @@ public class ClientRequest {
 extension ClientRequest: CurlInvokerDelegate {
     
     /// libCurl callback to recieve data sent by the server
-    private func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
+    fileprivate func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        response.responseBuffers.append(bytes: UnsafePointer<UInt8>(buf), length: size)
+        response.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         return size
         
     }
 
     /// libCurl callback to provide the data to send to the server
-    private func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
+    fileprivate func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        let count = writeBuffers.fill(buffer: UnsafeMutablePointer<UInt8>(buf), length: size)
+        let count = writeBuffers.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         return count
         
     }
 
     /// libCurl callback invoked when a redirect is about to be done
-    private func prepareForRedirect() {
+    fileprivate func prepareForRedirect() {
         
         response.responseBuffers.reset()
         writeBuffers.rewind()
@@ -418,16 +407,16 @@ extension ClientRequest: CurlInvokerDelegate {
 private class CurlInvoker {
     
     /// Pointer to the libCurl handle
-    private var handle: UnsafeMutablePointer<Void>
+    private var handle: UnsafeMutableRawPointer
     
     /// Delegate that can have a read or write callback
-    private weak var delegate: CurlInvokerDelegate?
+    fileprivate weak var delegate: CurlInvokerDelegate?
     
     /// Maximum number of redirects
     private let maxRedirects: Int
 
     /// Initializes a new CurlInvoker instance
-    private init(handle: UnsafeMutablePointer<Void>, maxRedirects: Int) {
+    fileprivate init(handle: UnsafeMutableRawPointer, maxRedirects: Int) {
         
         self.handle = handle
         self.maxRedirects = maxRedirects
@@ -437,14 +426,14 @@ private class CurlInvoker {
     /// Run the HTTP method through the libCurl library
     ///
     /// - Returns: a status code for the success of the operation
-    private func invoke() -> CURLcode {
+    fileprivate func invoke() -> CURLcode {
 
         var rc: CURLcode = CURLE_FAILED_INIT
         if delegate == nil {
             return rc
         }
 
-        withUnsafeMutablePointer(&delegate) {ptr in
+        withUnsafeMutablePointer(to: &delegate) {ptr in
             self.prepareHandle(ptr)
 
             var redirected = false
@@ -479,16 +468,16 @@ private class CurlInvoker {
     /// - Parameter ptr: pointer to the CurlInvokerDelegat
     private func prepareHandle(_ ptr: UnsafeMutablePointer<CurlInvokerDelegate?>) {
 
-        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
+        curlHelperSetOptReadFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutableRawPointer?) -> Int in
 
-                let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlReadCallback(buf!, size: size*nMemb))!
+                let p = privateData?.assumingMemoryBound(to: CurlInvokerDelegate.self).pointee
+                return (p?.curlReadCallback(buf!, size: size*nMemb))!
         }
 
-        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutablePointer<Void>?) -> Int in
+        curlHelperSetOptWriteFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutableRawPointer?) -> Int in
 
-                let p = UnsafePointer<CurlInvokerDelegate?>(privateData)
-                return (p?.pointee?.curlWriteCallback(buf!, size: size*nMemb))!
+                let p = privateData?.assumingMemoryBound(to: CurlInvokerDelegate.self).pointee
+                return (p?.curlWriteCallback(buf!, size: size*nMemb))!
         }
     }
     
