@@ -29,7 +29,11 @@ class LargePayloadTests: XCTestCase {
             ("testLargeGets", testLargeGets)
         ]
     }
-    
+
+    override func setUp() {
+        doSetUp()
+    }
+
     override func tearDown() {
         doTearDown()
     }

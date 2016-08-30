@@ -30,7 +30,11 @@ class ClientE2ETests: XCTestCase {
             ("testErrorRequests", testErrorRequests)
         ]
     }
-    
+
+    override func setUp() {
+        doSetUp()
+    }
+
     override func tearDown() {
         doTearDown()
     }

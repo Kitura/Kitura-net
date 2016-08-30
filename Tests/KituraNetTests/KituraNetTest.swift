@@ -28,7 +28,11 @@ protocol KituraNetTest {
 }
 
 extension KituraNetTest {
-    
+
+    func doSetUp() {
+        PrintLogger.use()
+    }
+
     func doTearDown() {
         //       sleep(10)
     }
