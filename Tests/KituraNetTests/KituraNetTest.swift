@@ -68,7 +68,7 @@ extension KituraNetTest {
     }
     
     private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        return HTTPServer.listen(port: port, delegate: delegate)
+        return try! HTTPServer.listen(port: port, delegate: delegate)
     }
 }
 

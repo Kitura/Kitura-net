@@ -69,26 +69,15 @@ public class HTTPServer {
     ///
     /// - Parameter port: port number for new connections (ex. 8090)
     ///
-    public func listen(port: Int) {
-        
+    public func listen(port: Int) throws {
         self.port = port
-		
-		do {
-            
-			self.listenSocket = try Socket.create()
-            
-		} catch let error as Socket.Error {
-			print("Error reported:\n \(error.description)")
-		} catch {
-            print("Unexpected error...")
-		}
+        self.listenSocket = try Socket.create()
 
         let queuedBlock = DispatchWorkItem(block: {
-			self.listen(socket: self.listenSocket, port: self.port!)
+			try? self.listen(socket: self.listenSocket!, port: self.port!)
 		})
-		
+
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
-        
     }
 
     ///
@@ -110,11 +99,10 @@ public class HTTPServer {
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        
+    public static func listen(port: Int, delegate: ServerDelegate) throws -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
-        server.listen(port: port)
+        try server.listen(port: port)
         return server
         
     }
@@ -125,13 +113,9 @@ public class HTTPServer {
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
     ///
-    func listen(socket: Socket?, port: Int) {
+    func listen(socket: Socket, port: Int) throws {
         
         do {
-            guard let socket = socket else {
-                return
-            }
-            
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
             
@@ -143,15 +127,14 @@ public class HTTPServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
             }
             else {
-                Log.error("Error reported:\n \(error.description)")
+                throw error
             }
         } catch {
-            Log.error("Unexpected error...")
+            throw error
         }
     }
     
