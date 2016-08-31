@@ -274,6 +274,9 @@ public class ClientRequest {
     ///
     /// - Parameter close: add the "Connection: close" header
     public func end(close: Bool = false) {
+        defer {
+          response.close()
+        }
 
         closeConnection = close
 
