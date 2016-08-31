@@ -68,9 +68,8 @@ public class HTTPServer {
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 8090)
-    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue 
     ///
-    public func listen(port: Int, notOnMainQueue: Bool=false) {
+    public func listen(port: Int) {
         
         self.port = port
 		
@@ -108,15 +107,14 @@ public class HTTPServer {
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for HTTP connections
-    /// - Parameter notOnMainQueue: whether to listen for new connections on the main Queue
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
+    public static func listen(port: Int, delegate: ServerDelegate) -> HTTPServer {
         
         let server = HTTP.createServer()
         server.delegate = delegate
-        server.listen(port: port, notOnMainQueue: notOnMainQueue)
+        server.listen(port: port)
         return server
         
     }
