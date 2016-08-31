@@ -364,6 +364,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             freeHTTPParser()
         }
     }
+    
+    /// Signal that the connection is being closed, and resources should be freed
+    func close() {
+        freeHTTPParser()
+    }
 
     /// Signal that reading is being reset
     func prepareToReset() {
