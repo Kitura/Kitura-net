@@ -55,10 +55,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     private var lastHeaderWasAValue = false
 
     /// Bytes of a header key that was just parsed and returned in chunks by the pars
-    private var lastHeaderField = Data()
+    private let lastHeaderField = NSMutableData()
 
     /// Bytes of a header value that was just parsed and returned in chunks by the parser
-    private var lastHeaderValue = Data()
+    private let lastHeaderValue = NSMutableData()
 
     /// The http_parser Swift wrapper
     private var httpParser: HTTPParser?
@@ -97,14 +97,14 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     
     /// Parse the message
     ///
-    /// - Parameter callback: (HTTPParserStatus) -> Void closure
-    func parse (_ buffer: Data) -> HTTPParserStatus {
+    /// - Parameter buffer: An NSData object contaning the data to be parsed
+    func parse (_ buffer: NSData) -> HTTPParserStatus {
         guard let parser = httpParser else {
             status.error = .internalError
             return status
         }
         
-        var length = buffer.count
+        var length = buffer.length
         
         guard length > 0  else {
             /* Handle unexpected EOF. Usually just close the connection. */
@@ -120,27 +120,25 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         
         var start = 0
         while status.state == .initial  &&  status.error == nil  &&  length > 0  {
-            
-            buffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
-                let (numberParsed, upgrade) = parser.execute(bytes+start, length: length)
-                if upgrade == 1 {
-                    // TODO handle new protocol
-                }
-                else if  numberParsed != length  {
-                
-                    if  self.status.state == .reset  {
-                        // Apparently the short message was a Continue. Let's just keep on parsing
-                        start = numberParsed
-                        self.reset()
-                    }
-                    else {
-                        /* Handle error. Usually just close the connection. */
-                        self.freeHTTPParser()
-                        self.status.error = .parsedLessThanRead
-                    }
-                }
-                length -= numberParsed
+            let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self)+start
+            let (numberParsed, upgrade) = parser.execute(bytes, length: length)
+            if upgrade == 1 {
+                // TODO handle new protocol
             }
+            else if  numberParsed != length  {
+                
+                if  self.status.state == .reset  {
+                    // Apparently the short message was a Continue. Let's just keep on parsing
+                    start = numberParsed
+                    self.reset()
+                }
+                else {
+                    /* Handle error. Usually just close the connection. */
+                    self.freeHTTPParser()
+                    self.status.error = .parsedLessThanRead
+                }
+            }
+            length -= numberParsed
         }
         
         return status
@@ -259,20 +257,22 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// Instructions for when reading URL portion
     ///
-    /// - Parameter data: the data
-    func onURL(_ data: Data) {
-        url.append(data)
+    /// - Parameter bytes: The bytes of the parsed URL
+    /// - Parameter count: The number of bytes parsed
+    func onURL(_ bytes: UnsafePointer<UInt8>, count: Int) {
+        url.append(bytes, count: count)
     }
 
-    /// Instructions for when reading header field
+    /// Instructions for when reading header key
     ///
-    /// - Parameter data: the data
-    func onHeaderField (_ data: Data) {
+    /// - Parameter bytes: The bytes of the parsed header key
+    /// - Parameter count: The number of bytes parsed
+    func onHeaderField (_ bytes: UnsafePointer<UInt8>, count: Int) {
         
         if lastHeaderWasAValue {
             addHeader()
         }
-        lastHeaderField.append(data)
+        lastHeaderField.append(bytes, length: count)
 
         lastHeaderWasAValue = false
         
@@ -280,9 +280,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// Instructions for when reading a header value
     ///
-    /// - Parameter data: the data
-    func onHeaderValue (_ data: Data) {
-        lastHeaderValue.append(data)
+    /// - Parameter bytes: The bytes of the parsed header value
+    /// - Parameter count: The number of bytes parsed
+    func onHeaderValue (_ bytes: UnsafePointer<UInt8>, count: Int) {
+        lastHeaderValue.append(bytes, length: count)
 
         lastHeaderWasAValue = true
     }
@@ -290,35 +291,24 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Set the header key-value pair
     private func addHeader() {
 
-        let headerKey = StringUtils.fromUtf8String(lastHeaderField)!
-        let headerValue = StringUtils.fromUtf8String(lastHeaderValue)!
+        let nsHeaderKey = NSString(bytes: lastHeaderField.bytes, length: lastHeaderField.length, encoding: String.Encoding.utf8.rawValue)!
+        let headerKey = String(describing: nsHeaderKey)
+        let nsHeaderValue = NSString(bytes: lastHeaderValue.bytes, length: lastHeaderValue.length, encoding: String.Encoding.utf8.rawValue)!
+        let headerValue = String(describing: nsHeaderValue)
         
-        switch(headerKey.lowercased()) {
-            // Headers with a simple value that are not merged (i.e. duplicates dropped)
-            // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
-            //
-            case "content-type", "content-length", "user-agent", "referer", "host",
-                 "authorization", "proxy-authorization", "if-modified-since",
-                 "if-unmodified-since", "from", "location", "max-forwards",
-                 "retry-after", "etag", "last-modified", "server", "age", "expires":
-                if let _ = headers[headerKey] {
-                    break
-                }
-                fallthrough
-            default:
-                headers.append(headerKey, value: headerValue)
-        }
+        headers.append(headerKey, value: headerValue)
 
-        lastHeaderField.count = 0
-        lastHeaderValue.count = 0
+        lastHeaderField.length = 0
+        lastHeaderValue.length = 0
 
     }
 
     /// Instructions for when reading the body of the message
     ///
-    /// - Parameter data: the data
-    func onBody (_ data: Data) {
-        self.bodyChunk.append(data: data)
+    /// - Parameter bytes: The bytes of the parsed body
+    /// - Parameter count: The number of bytes parsed
+    func onBody (_ bytes: UnsafePointer<UInt8>, count: Int) {
+        self.bodyChunk.append(bytes: bytes, length: count)
 
     }
 

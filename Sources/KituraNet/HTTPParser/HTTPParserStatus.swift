@@ -39,7 +39,7 @@ extension HTTPParserErrorType: CustomStringConvertible {
         case .internalError:
             return "An internal error occurred"
         case .parsedLessThanRead:
-            return "Parsed less bytes than were passed to the HTTP parser"
+            return "Parsed fewer bytes than were passed to the HTTP parser"
         case .unexpectedEOF:
             return "Unexpectedly got an EOF when reading the request"
         }

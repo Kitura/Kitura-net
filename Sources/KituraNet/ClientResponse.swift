@@ -48,8 +48,8 @@ public class ClientResponse: HTTPIncomingMessage {
     
     /// Parse the contents of the responseBuffers
     func parse() -> HTTPParserStatus {
-        var buffer = Data()
-        _ = responseBuffers.fill(data: &buffer)
+        let buffer = NSMutableData()
+        _ = responseBuffers.fill(data: buffer)
         return super.parse(buffer)
     }
 }

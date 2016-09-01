@@ -14,12 +14,6 @@
 * limitations under the License.
 */
 
-#if os(OSX)
-    import Darwin
-#elseif os(Linux)
-    import Glibc
-#endif
-
 import Foundation
 
 // MARK: BufferList 
@@ -31,7 +25,7 @@ public class BufferList {
     ///
     /// Internal storage buffer
     ///
-    private var localData = Data(capacity: 4096)
+    private let localData = NSMutableData(capacity: 4096)!
     
     ///
     /// Byte offset inside of internal storage buffer
@@ -42,14 +36,14 @@ public class BufferList {
     ///
     /// Get the number of bytes stored in the BufferList
     public var count: Int {
-        return localData.count
+        return localData.length
     }
     
     ///
     /// Read the data in the BufferList
     ///
     public var data: Data {
-        return localData
+        return Data(bytes: localData.bytes, count: localData.length)
     }
     
     ///
@@ -66,7 +60,7 @@ public class BufferList {
     /// Parameter length: number of bytes in the array
     ///
     public func append(bytes: UnsafePointer<UInt8>, length: Int) {
-        localData.append(bytes, count: length)
+        localData.append(bytes, length: length)
     }
     
     ///
@@ -87,8 +81,9 @@ public class BufferList {
     ///
     public func fill(array: inout [UInt8]) -> Int {
         
-        let result = min(array.count, localData.count-byteIndex)
-        localData.copyBytes(to: UnsafeMutablePointer<UInt8>(mutating: array), from: byteIndex..<byteIndex+result)
+        let result = min(array.count, localData.length-byteIndex)
+        let bytes = localData.bytes.assumingMemoryBound(to: UInt8.self)+byteIndex
+        UnsafeMutableRawPointer(mutating: array).copyBytes(from: bytes, count: result)
         byteIndex += result
         
         return result
@@ -105,8 +100,9 @@ public class BufferList {
     ///
     public func fill(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
         
-        let result = min(length, localData.count-byteIndex)
-        localData.copyBytes(to: buffer, from: byteIndex..<byteIndex+result)
+        let result = min(length, localData.length-byteIndex)
+        let bytes = localData.bytes.assumingMemoryBound(to: UInt8.self)+byteIndex
+        UnsafeMutableRawPointer(buffer).copyBytes(from: bytes, count: result)
         byteIndex += result
         
         return result
@@ -116,14 +112,30 @@ public class BufferList {
     ///
     /// Fill the buffer with data 
     ///
-    /// - Parameter data: NSMutableData you want in the buffer
+    /// - Parameter data: Data you want in the buffer
     ///
     /// - Returns: 
     ///
     public func fill(data: inout Data) -> Int {
         
-        let result = localData.count-byteIndex
-        data.append(localData.subdata(in: byteIndex..<localData.count))
+        let result = localData.length-byteIndex
+        data.append(localData.bytes.assumingMemoryBound(to: UInt8.self)+byteIndex, count: result)
+        byteIndex += result
+        return result
+        
+    }
+    
+    ///
+    /// Fill the buffer with data
+    ///
+    /// - Parameter data: NSMutableData you want in the buffer
+    ///
+    /// - Returns:
+    ///
+    public func fill(data: NSMutableData) -> Int {
+        
+        let result = localData.length-byteIndex
+        data.append(localData.bytes.assumingMemoryBound(to: UInt8.self)+byteIndex, length: result)
         byteIndex += result
         return result
         
@@ -134,7 +146,7 @@ public class BufferList {
     ///
     public func reset() {
         
-        localData.count = 0
+        localData.length = 0
         byteIndex = 0
         
     }
