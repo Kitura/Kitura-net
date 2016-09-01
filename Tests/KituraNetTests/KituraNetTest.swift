@@ -21,7 +21,6 @@ import XCTest
 import Foundation
 import Dispatch
 
-
 protocol KituraNetTest {
     func expectation(_ index: Int) -> XCTestExpectation
     func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?)
@@ -68,7 +67,9 @@ extension KituraNetTest {
     }
     
     private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        return try! HTTPServer.listen(port: port, delegate: delegate)
+        return HTTPServer.listen(port: port, delegate: delegate, errorHandler: {(error: Swift.Error) -> Void in
+            print("Handling error in KituraNetTest.setupServer \(error)")
+        })
     }
 }
 

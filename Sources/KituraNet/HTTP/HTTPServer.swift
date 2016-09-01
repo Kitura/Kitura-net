@@ -68,14 +68,36 @@ public class HTTPServer {
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 8090)
+    /// - Parameter errorHandler: optional callback for error handling
     ///
-    public func listen(port: Int) throws {
+    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-        self.listenSocket = try Socket.create()
+        do {
+            self.listenSocket = try Socket.create()
+        } catch {
+            if let callback = errorHandler {
+                callback(error)
+            } else {
+                Log.error("Error creating socket: \(error)")
+            }
+        }
+
+        guard let socket = self.listenSocket else {
+            Log.error("Failed to create socket on port \(port)")
+            return
+        }
 
         let queuedBlock = DispatchWorkItem(block: {
-			try? self.listen(socket: self.listenSocket!, port: self.port!)
-		})
+            do {
+                try self.listen(socket: socket, port: port)
+            } catch {
+                if let callback = errorHandler {
+                    callback(error)
+                } else {
+                    Log.error("Error listening on socket: \(error)")
+                }
+            }
+	})
 
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
     }
@@ -88,7 +110,6 @@ public class HTTPServer {
             stopped = true
             listenSocket.close()
         }
-        
     }
 
     ///
@@ -96,15 +117,15 @@ public class HTTPServer {
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for HTTP connections
+    /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: ServerDelegate) throws -> HTTPServer {
+    public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
-        try server.listen(port: port)
+        server.listen(port: port, errorHandler: errorHandler)
         return server
-        
     }
     
     ///
@@ -114,11 +135,10 @@ public class HTTPServer {
     /// - Parameter port: number to listen on
     ///
     func listen(socket: Socket, port: Int) throws {
-        
         do {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
-            
+
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptClientConnection()
@@ -133,8 +153,6 @@ public class HTTPServer {
             else {
                 throw error
             }
-        } catch {
-            throw error
         }
     }
     
