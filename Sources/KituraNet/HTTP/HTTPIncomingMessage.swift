@@ -124,7 +124,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         
         var start = 0
         while status.state == .initial  &&  status.error == nil  &&  length > 0  {
-            let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self)+start
+            let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + start
             let (numberParsed, upgrade) = parser.execute(bytes, length: length)
             if upgrade == 1 {
                 // TODO handle new protocol
