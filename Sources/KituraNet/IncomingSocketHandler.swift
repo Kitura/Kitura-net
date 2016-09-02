@@ -36,7 +36,7 @@ public class IncomingSocketHandler {
     static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-        static let socketReaderQueue = DispatchQueue(label: "Socket Reader")
+        static let socketReaderQueue = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
     
         // Note: This var is optional to enable it to be constructed in the init function
         var readerSource: DispatchSourceRead!
@@ -58,7 +58,7 @@ public class IncomingSocketHandler {
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
-                                                         queue: IncomingSocketHandler.socketReaderQueue)
+                                                         queue: IncomingSocketHandler.socketReaderQueue[Int(socket.socketfd%2)])
         
             readerSource.setEventHandler() {
                 self.handleRead()
