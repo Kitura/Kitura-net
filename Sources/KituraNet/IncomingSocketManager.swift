@@ -49,6 +49,7 @@ class IncomingSocketManager  {
     
     #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
+    
         private let numberOfEpollTasks = 2 // TODO: this tuning parameter should be revisited as Kitura and libdispatch mature
 
         private let epollDescriptors:[Int32]
@@ -61,19 +62,19 @@ class IncomingSocketManager  {
         }
 
         init() {
-	    var t1 = [Int32]()
-	    var t2 = [DispatchQueue]()
-	    for i in 1...numberOfEpollTasks {
+            var t1 = [Int32]()
+            var t2 = [DispatchQueue]()
+            for i in 0 ..< numberOfEpollTasks {
                 // Note: The parameter to epoll_create is ignored on modern Linux's
-		t1 += [epoll_create(100)]
-		t2 += [DispatchQueue(label: "IncomingSocketManager\(i-1)")]
-	    }
+                t1 += [epoll_create(100)]
+                t2 += [DispatchQueue(label: "IncomingSocketManager\(i)")]
+            }
             epollDescriptors = t1
-	    queues = t2
+            queues = t2
 
-	    for i in 0...numberOfEpollTasks-1 {
-	        queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
-	    }
+            for i in 0 ..< numberOfEpollTasks {
+                queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
+            }
         }
     #endif
 
