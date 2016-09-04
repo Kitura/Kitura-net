@@ -49,20 +49,34 @@ class IncomingSocketManager  {
     
     #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
-    
-        private let epollDescriptor: Int32
+        private let numberOfEpollTasks = 2 // TODO: this tuning parameter should be revisited as Kitura and libdispatch mature
+
+        private let epollDescriptors:[Int32]
+        private let queues:[DispatchQueue]
+
         private let epollTimeout: Int32 = 50
-    
-        private let queue = DispatchQueue(label: "IncomingSocketManager")
-    
+
+        private func epollDescriptor(fd:Int32) -> Int32 {
+            return epollDescriptors[Int(fd) % numberOfEpollTasks];
+        }
+
         init() {
-            // Note: The parameter to epoll_create is ignored on modern Linux's
-            epollDescriptor = epoll_create(100)
-        
-            queue.async() { [unowned self] in self.process() }
+	    var t1 = [Int32]()
+	    var t2 = [DispatchQueue]()
+	    for i in 1...numberOfEpollTasks {
+                // Note: The parameter to epoll_create is ignored on modern Linux's
+		t1 += [epoll_create(100)]
+		t2 += [DispatchQueue(label: "IncomingSocketManager\(i-1)")]
+	    }
+            epollDescriptors = t1
+	    queues = t2
+
+	    for i in 0...numberOfEpollTasks-1 {
+	        queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
+	    }
         }
     #endif
-    
+
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
@@ -80,7 +94,7 @@ class IncomingSocketManager  {
                 var event = epoll_event()
                 event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
                 event.data.fd = socket.socketfd
-                let result = epoll_ctl(epollDescriptor, EPOLL_CTL_ADD, handler.fileDescriptor, &event)
+                let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, handler.fileDescriptor, &event)
                 if  result == -1  {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                 }
@@ -95,7 +109,7 @@ class IncomingSocketManager  {
     
     #if !GCD_ASYNCH && os(Linux)
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
-        private func process() {
+        private func process(epollDescriptor:Int32) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
         
             while  true  {
@@ -161,7 +175,7 @@ class IncomingSocketManager  {
             socketHandlers.removeValue(forKey: fileDescriptor)
 
             #if !GCD_ASYNCH && os(Linux)
-                let result = epoll_ctl(epollDescriptor, EPOLL_CTL_DEL, fileDescriptor, nil)
+                let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
                 if  result == -1  {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                 }
