@@ -72,7 +72,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
-    public func process(_ buffer: Data) {
+    public func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
             request.prepareToReset()
@@ -103,7 +103,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
-    private func parse(_ buffer: Data) {
+    private func parse(_ buffer: NSData) {
         let parsingStatus = request.parse(buffer)
         guard  parsingStatus.error == nil  else  {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")

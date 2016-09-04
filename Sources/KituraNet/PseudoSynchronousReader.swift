@@ -41,7 +41,7 @@ class PseudoSynchronousReader {
     private let clientSocket: Socket
     
     private var noDataToRead = true
-    private var buffer = Data()
+    private var buffer = NSMutableData()
 
     private let readingSemaphore = DispatchSemaphore(value: 0)
     private let bufferLock = DispatchSemaphore(value: 1)
@@ -55,13 +55,13 @@ class PseudoSynchronousReader {
     /// Add data to the internal buffer to be read by the raed function
     ///
     /// - Parameter from: The NSData object containing the data to be added
-    func addDataToRead(from: Data) {
-        let needToLock = buffer.count != 0
+    func addDataToRead(from: NSData) {
+        let needToLock = buffer.length != 0
         if  needToLock {
             lockReadLock()
         }
         
-        buffer.append(from)
+        buffer.append(from.bytes, length: from.length)
         
         if  noDataToRead  {
             readingSemaphore.signal()
@@ -80,13 +80,13 @@ class PseudoSynchronousReader {
             _ = readingSemaphore.wait(timeout: DispatchTime.distantFuture)
         }
         let result: Int
-        if  buffer.count != 0  {
+        if  buffer.length != 0  {
             lockReadLock()
             
-            result = buffer.count
-            into.append(buffer)
+            result = buffer.length
+            into.append(buffer.bytes.assumingMemoryBound(to: UInt8.self), count: buffer.length)
             
-            buffer.count = 0
+            buffer.length = 0
             noDataToRead = true
             
             unlockReadLock()

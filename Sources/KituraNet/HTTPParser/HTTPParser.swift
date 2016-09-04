@@ -73,28 +73,28 @@ class HTTPParser {
         settings = http_parser_settings()
         
         settings.on_url = { (parser, chunk, length) -> Int32 in
-            let data = Data(bytes: chunk!, count: length)
-            getDelegate(parser)?.onURL(data)
+            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+            getDelegate(parser)?.onURL(ptr, count: length)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
-            let data = Data(bytes: chunk!, count: length)
-            getDelegate(parser)?.onHeaderField(data)
+            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+            getDelegate(parser)?.onHeaderField(ptr, count: length)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
-            let data = Data(bytes: chunk!, count: length)
-            getDelegate(parser)?.onHeaderValue(data)
+            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+            getDelegate(parser)?.onHeaderValue(ptr, count: length)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
             let delegate = getDelegate(parser)
             if delegate?.saveBody == true {
-                let data = Data(bytes: chunk!, count: length)
-                delegate?.onBody(data)
+                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+                delegate?.onBody(ptr, count: length)
             }
             return 0
         }
@@ -176,12 +176,12 @@ fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDe
 ///
 protocol HTTPParserDelegate: class {
     var saveBody : Bool { get }
-    func onURL(_ url: Data)
-    func onHeaderField(_ data: Data)
-    func onHeaderValue(_ data: Data)
+    func onURL(_ url: UnsafePointer<UInt8>, count: Int)
+    func onHeaderField(_ bytes: UnsafePointer<UInt8>, count: Int)
+    func onHeaderValue(_ bytes: UnsafePointer<UInt8>, count: Int)
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16)
     func onMessageBegin()
     func onMessageComplete()
-    func onBody(_ body: Data)
+    func onBody(_ bytes: UnsafePointer<UInt8>, count: Int)
     func prepareToReset()    
 }
