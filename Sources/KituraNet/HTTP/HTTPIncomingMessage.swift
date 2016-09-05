@@ -22,32 +22,34 @@ import Foundation
 
 // MARK: IncomingMessage
 
+/// A representation of HTTP incoming message.
 public class HTTPIncomingMessage : HTTPParserDelegate {
 
-    /// Default buffer size used for creating a BufferList
-    private static let bufferSize = 2000
-
-    /// Major version for HTTP
+    /// Major version for HTTP of the incoming message.
     public private(set) var httpVersionMajor: UInt16?
 
-    /// Minor version for HTTP
+    /// Minor version for HTTP of the incoming message.
     public private(set) var httpVersionMinor: UInt16?
 
-    /// Set of headers
+    /// Set of HTTP headers of the incoming message.
     public var headers = HeadersContainer()
 
-    /// HTTP Method
-    public private(set) var method: String = "" // TODO: enum?
+    /// HTTP Method of the incoming message.
+    public private(set) var method: String = "" 
 
-    /// URL
+    /// URL of the incoming message.
     public private(set) var urlString = ""
 
-    /// Raw URL
+    /// Raw URL of the incoming message.
     public private(set) var url = Data()
 
-    // MARK: - Private
+    /// Indicates if the parser should save the message body and call onBody()
+    var saveBody = true
+
+    // Private
     
-    // TODO: trailers
+    /// Default buffer size used for creating a BufferList
+    private static let bufferSize = 2000
 
     /// State of callbacks from parser WRT headers
     private var lastHeaderWasAValue = false
@@ -70,17 +72,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Reader helper, reads from underlying data source
     private weak var helper: IncomingMessageHelper?
 
-    /// TODO:
     private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
-    /// TODO: ???
     private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
-    /// Indicates if the parser should save the message body and call onBody()
-    var saveBody = true
     
-    
-
     /// Initializes a new IncomingMessage
     ///
     /// - Parameter isRequest: whether this message is a request
@@ -150,11 +146,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         return status
     }
 
-    /// Read data in the message
+    /// Read a chunk of the body of the message.
     ///
-    /// - Parameter data: An NSMutableData to hold the data in the message
-    ///
-    /// - Returns: the number of bytes read
+    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Throws: if an error occurs while reading the body.
+    /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
         var count = bodyChunk.fill(data: &data)
         if count == 0 {
@@ -195,11 +191,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         return count
     }
 
-    /// Read all data in the message
+    /// Read the whole body of the message.
     ///
-    /// - Parameter data: An NSMutableData to hold the data in the message
-    ///
-    /// - Returns: the number of bytes read
+    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Throws: if an error occurs while reading the data.
+    /// - Returns: the number of bytes read.
     @discardableResult
     public func readAllData(into data: inout Data) throws -> Int {
         var length = try read(into: &data)
@@ -240,12 +236,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         }
     }
 
-    /// Read the string
+    /// Read a chunk of the body and return it as a String.
     ///
-    /// - Throws: TODO ???
-    /// - Returns: an Optional string
+    /// - Throws: if an error occurs while reading the data.
+    /// - Returns: an Optional string.
     public func readString() throws -> String? {
-
         buffer.count = 0
         let length = try read(into: &buffer)
         if length > 0 {
@@ -254,15 +249,12 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         else {
             return nil
         }
-        
     }
 
     /// Free the httpParser from the IncomingMessage
     private func freeHTTPParser () {
-        
         httpParser?.delegate = nil
         httpParser = nil
-        
     }
 
     /// Instructions for when reading URL portion
@@ -394,6 +386,7 @@ protocol IncomingMessageHelper: class {
     /// "Read" data from the actual underlying transport
     ///
     /// - Parameter into: The NSMutableData that will be receiving the data read in.
+    /// - Throws: if an error occurs while reading the data
     func readHelper(into data: inout Data) throws -> Int
 
 }
