@@ -20,6 +20,8 @@ import Foundation
 
 // MARK: HTTPServerResponse
 
+/// This class implements the `ServerResponse` protocol for outgoing server
+/// responses via the HTTP protocol.
 public class HTTPServerResponse : ServerResponse {
 
     /// Size of buffer
@@ -31,24 +33,16 @@ public class HTTPServerResponse : ServerResponse {
     /// Whether or not the HTTP response line and headers have been flushed.
     private var startFlushed = false
 
-    ///
-    /// The headers to be sent to the client as part of the response
-    ///
+    /// The HTTP headers to be sent to the client as part of the response.
     public var headers = HeadersContainer()
     
-    ///
     /// Status code
-    ///
     private var status = HTTPStatusCode.OK.rawValue
     
-    ///
     /// Corresponding socket processor
-    ///
     private weak var processor : IncomingHTTPSocketProcessor?
 
-    ///
-    /// Status code
-    ///
+    /// HTTP status code of the response.
     public var statusCode: HTTPStatusCode? {
         get {
             return HTTPStatusCode(rawValue: status)
@@ -60,39 +54,27 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
 
-    ///
     /// Initializes a HTTPServerResponse instance
-    ///
     init(processor: IncomingHTTPSocketProcessor) {
-
         self.processor = processor
         buffer = Data(capacity: HTTPServerResponse.bufferSize)
         headers["Date"] = [SPIUtils.httpDate()]
     }
 
+    /// Write a string as a response.
     ///
-    /// Write a string as a response
-    ///
-    /// - Parameter string: String data to be written.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
-    ///
+    /// - Parameter from: String data to be written.
+    /// - Throws: Socket.error if an error occurred while writing to a socket.
     public func write(from string: String) throws {
-
         try flushStart()
         try writeToSocketThroughBuffer(text: string)
-
     }
 
+    /// Write data as a response.
     ///
-    /// Write data as a response
-    ///
-    /// - Parameter data: Data object that contains the data to be written.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
-    ///
+    /// - Parameter from: Data object that contains the data to be written.
+    /// - Throws: Socket.error if an error occurred while writing to a socket.
     public func write(from data: Data) throws {
-
         if  let processor = processor {
             try flushStart()
             if  buffer.count + data.count > HTTPServerResponse.bufferSize  &&  buffer.count != 0  {
@@ -106,26 +88,20 @@ public class HTTPServerResponse : ServerResponse {
                 buffer.append(data)
             }
         }
-
     }
 
+    /// Write a string and end sending the response.
     ///
-    /// End the response
-    ///
-    /// - Parameter text: String to write out socket
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
-    ///
+    /// - Parameter text: String to write to a socket.
+    /// - Throws: Socket.error if an error occurred while writing to a socket.
     public func end(text: String) throws {
         try write(from: text)
         try end()
     }
     
+    /// End sending the response.
     ///
-    /// End sending the response
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
-    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket.
     public func end() throws {
         if let processor = processor {
             processor.drain()
@@ -212,7 +188,7 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
     
-    /// Reset this response object back to it's initial state
+    /// Reset this response object back to its initial state
     public func reset() {
         status = HTTPStatusCode.OK.rawValue
         buffer.count = 0
