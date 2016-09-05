@@ -16,6 +16,8 @@
 
 import Foundation
 
+import LoggerAPI
+
 public class HeadersContainer {
     
     /// The header storage
@@ -59,13 +61,14 @@ public class HeadersContainer {
             }
             
         // Headers with a simple value that are not merged (i.e. duplicates dropped)
-        // https://mxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp
+        // https://dxr.mozilla.org/mozilla/source/netwerk/protocol/http/src/nsHttpHeaderArray.cpp#252
         //
         case "content-type", "content-length", "user-agent", "referer", "host",
              "authorization", "proxy-authorization", "if-modified-since",
              "if-unmodified-since", "from", "location", "max-forwards",
              "retry-after", "etag", "last-modified", "server", "age", "expires":
             if let _ = caseInsensitiveMap[lowerCaseKey] {
+                Log.warning("Duplicate header \(key) discarded")
                 break
             }
             fallthrough
