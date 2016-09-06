@@ -84,7 +84,7 @@ public class HTTPServer {
             } else {
                 Log.error("Unexpected error reported...")
             }
-        }
+		}
 
         guard let socket = self.listenSocket else {
         // already did a callback on the error handler or logged error
