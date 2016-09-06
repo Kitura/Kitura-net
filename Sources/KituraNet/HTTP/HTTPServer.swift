@@ -25,10 +25,17 @@ import SSLService
 /// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    /// HTTP `ServerDelegate`.
+    ///
+    /// HTTPServerDelegate
+    ///
     public weak var delegate: ServerDelegate?
 
     /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
+    
+    ///
+    /// SSL cert configs for handling client requests
+    ///
     public var sslConfig: SSLService.Configuration?
     
     /// Port number for listening for new connections.
@@ -56,17 +63,13 @@ public class HTTPServer {
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
 
-		do {
-            
-			self.listenSocket = try Socket.create()
-
-            // If SSL config has been created, 
-            // create and attach the SSLService to the socket
-            if let sslConfig = sslConfig
-            {
-                Log.verbose("SSL configs...")
-
-               self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+        do {
+            self.listenSocket = try Socket.create()
+        
+            // If SSL config has been created,
+            // create and attach the SSLService delegate to the socket
+            if let sslConfig = sslConfig {
+                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
             
         } catch let error {
