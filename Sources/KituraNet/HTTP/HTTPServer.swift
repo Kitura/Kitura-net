@@ -70,7 +70,7 @@ public class HTTPServer {
 
         do {
             self.listenSocket = try Socket.create()
-        
+
             // If SSL config has been created,
             // create and attach the SSLService delegate to the socket
             if let sslConfig = sslConfig {
@@ -92,8 +92,8 @@ public class HTTPServer {
 		}
 
         guard let socket = self.listenSocket else {
-            // already did a callback on the error handler or logged error
-            return
+        // already did a callback on the error handler or logged error
+        return
         }
 
         let queuedBlock = DispatchWorkItem(block: {
