@@ -68,28 +68,38 @@ public class HTTPServer {
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 8090)
-    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue 
+    /// - Parameter errorHandler: optional callback for error handling
     ///
-    public func listen(port: Int, notOnMainQueue: Bool=false) {
-        
+    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-		
-		do {
-            
-			self.listenSocket = try Socket.create()
-            
-		} catch let error as Socket.Error {
-			print("Error reported:\n \(error.description)")
-		} catch {
-            print("Unexpected error...")
-		}
+        do {
+            self.listenSocket = try Socket.create()
+        } catch {
+            if let callback = errorHandler {
+                callback(error)
+            } else {
+                Log.error("Error creating socket: \(error)")
+            }
+        }
+
+        guard let socket = self.listenSocket else {
+            // already did a callback on the error handler or logged error
+            return
+        }
 
         let queuedBlock = DispatchWorkItem(block: {
-			self.listen(socket: self.listenSocket, port: self.port!)
-		})
-		
+            do {
+                try self.listen(socket: socket, port: port)
+            } catch {
+                if let callback = errorHandler {
+                    callback(error)
+                } else {
+                    Log.error("Error listening on socket: \(error)")
+                }
+            }
+	})
+
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
-        
     }
 
     ///
@@ -100,7 +110,6 @@ public class HTTPServer {
             stopped = true
             listenSocket.close()
         }
-        
     }
 
     ///
@@ -108,17 +117,15 @@ public class HTTPServer {
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for HTTP connections
-    /// - Parameter notOnMainQueue: whether to listen for new connections on the main Queue
+    /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new HTTPServer instance
     ///
-    public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
-        
+    public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
-        server.listen(port: port, notOnMainQueue: notOnMainQueue)
+        server.listen(port: port, errorHandler: errorHandler)
         return server
-        
     }
     
     ///
@@ -127,16 +134,11 @@ public class HTTPServer {
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
     ///
-    func listen(socket: Socket?, port: Int) {
-        
+    func listen(socket: Socket, port: Int) throws {
         do {
-            guard let socket = socket else {
-                return
-            }
-            
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
-            
+
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptClientConnection()
@@ -145,15 +147,12 @@ public class HTTPServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("Server has stopped listening")
             }
             else {
-                Log.error("Error reported:\n \(error.description)")
+                throw error
             }
-        } catch {
-            Log.error("Unexpected error...")
         }
     }
     
