@@ -83,7 +83,7 @@ public class HTTPServer {
         }
 
         guard let socket = self.listenSocket else {
-            Log.error("Failed to create socket on port \(port)")
+            // already did a callback on the error handler or logged error
             return
         }
 
