@@ -60,17 +60,13 @@ public class HTTPServer {
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
 
-		do {
+        do {
+            self.listenSocket = try Socket.create()
             
-			self.listenSocket = try Socket.create()
-
-            // If SSL config has been created, 
-            // create and attach the SSLService to the socket
-            if let sslConfig = sslConfig
-            {
-                Log.verbose("SSL configs...")
-
-               self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+            // If SSL config has been created,
+            // create and attach the SSLService delegate to the socket
+            if let sslConfig = sslConfig {
+                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
             
         } catch let error {
@@ -89,11 +85,11 @@ public class HTTPServer {
                 
                 print("Unexpected error reported...")
             }
-        }
+		}
 
         guard let socket = self.listenSocket else {
-            // already did a callback on the error handler or logged error
-            return
+        // already did a callback on the error handler or logged error
+        return
         }
 
         let queuedBlock = DispatchWorkItem(block: {
