@@ -24,12 +24,13 @@ import Socket
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
 /// is read and passed to the current IncomingDataProcessor.
 ///
-/// **Note*** The IncomingDataProcessor can change due to an Upgrade request.
+/// - Note: The IncomingDataProcessor can change due to an Upgrade request.
 ///
-/// **Note:** This class uses different underlying technologies depending on:
-///     1. On Linux if no special compile time options are specified, epoll is used
-///     2. On OSX DispatchSource is used
-///     3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+/// - Note: This class uses different underlying technologies depending on:
+///
+///     1. On Linux, if no special compile time options are specified, epoll is used
+///     2. On OSX, DispatchSource is used
+///     3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
 ///        DispatchSource is used, as it is used on OSX.
 public class IncomingSocketHandler {
     
@@ -44,8 +45,10 @@ public class IncomingSocketHandler {
     #endif
 
     let socket: Socket
-        
+    
+    /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
+    
     private var writeBuffer = Data()
     private var preparingToClose = false
     
@@ -136,7 +139,7 @@ public class IncomingSocketHandler {
         }
     }
     
-    /// create the writer source
+    /// Create the writer source
     private func createWriterSource() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
@@ -153,7 +156,9 @@ public class IncomingSocketHandler {
     }
     
     /// Write as much data to the socket as possible, buffering the rest
-    func write(from data: Data) {
+    ///
+    /// - Parameter data: A Data struct containing the bytes to write to the socket.
+    public func write(from data: Data) {
         guard socket.socketfd > -1  else { return }
         
         data.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<UInt8>) in
@@ -185,9 +190,10 @@ public class IncomingSocketHandler {
         }
     }
     
-    /// If there is data waiting to be written, then set a flag,
-    /// otherwise actaully close the socket
-    func prepareToClose() {
+    /// If there is data waiting to be written, set a flag and the socket will
+    /// be closed when all the buffered data has been written.
+    /// Otherwise, immediately close the socket.
+    public func prepareToClose() {
         if  writeBuffer.count == 0  {
             close()
         }
@@ -198,8 +204,8 @@ public class IncomingSocketHandler {
     
     /// Close the socket and mark this handler as no longer in progress.
     ///
-    /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
-    /// **Note:** On OSX the cancel handler will actually close the socket.
+    /// - Note: On Linux closing the socket causes it to be dropped by epoll.
+    /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()

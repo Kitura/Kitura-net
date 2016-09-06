@@ -16,52 +16,52 @@
 
 import Foundation
 
-// This is a ServerRequest protocol class that allows requests
-// to be abstracted across different protocols in an agnostic way to the 
-// Kitura project Router.
+/// The ServerRequest protocol allows requests to be abstracted 
+/// across different networking protocols in an agnostic way to the
+/// Kitura project Router.
 public protocol ServerRequest: class {
     
-    /// Set of headers
+    /// The set of headers received with the incoming request
     var headers : HeadersContainer { get set }
     
-    /// URL
+    /// The URL from the request in string form
     var urlString : String { get }
     
-    /// Raw URL
+    /// The URL from the request in UTF-8 form
     var url : Data { get }
 
-    /// server IP address
+    /// The IP address of the client
     var remoteAddress: String { get }
     
-    /// Major version for HTTP
+    /// Major version of HTTP of the request
     var httpVersionMajor: UInt16? { get }
 
-    /// Minor version for HTTP
+    /// Minor version of HTTP of the request
     var httpVersionMinor: UInt16? { get }
     
-    /// HTTP Method
+    /// The HTTP Method specified in the request
     var method: String { get }
     
-    /// Read data in the message
+    /// Read data from the body of the request
     ///
-    /// - Parameter data: A Data struct to hold the data in the message
+    /// - Parameter data: A Data struct to hold the data read in.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from a socket
-    /// - Returns: the number of bytes read
+    /// - Throws: Socket.error if an error occurred while reading from the socket
+    /// - Returns: The number of bytes read
     func read(into data: inout Data) throws -> Int
     
-    /// Read the string
+    /// Read a string from the body of the request.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from a socket
-    /// - Returns: an Optional string
+    /// - Throws: Socket.error if an error occurred while reading from the socket
+    /// - Returns: An Optional string
     func readString() throws -> String?
     
     
-    /// Read all data in the message
+    /// Read all of the data in the body of the request
     ///
-    /// - Parameter data: A Data struct to hold the data in the message
+    /// - Parameter data: A Data struct to hold the data read in.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from a socket
-    /// - Returns: the number of bytes read
+    /// - Throws: Socket.error if an error occurred while reading from the socket
+    /// - Returns: The number of bytes read
     func readAllData(into data: inout Data) throws -> Int
 }

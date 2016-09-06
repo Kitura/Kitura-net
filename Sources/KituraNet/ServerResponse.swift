@@ -16,42 +16,39 @@
 
 import Foundation
 
-//
-// This is a ServerResponse protocol class that allows responses
-// to be abstracted across different protocols in an agnostic way to the
-// Kitura project Router.
-//
-
+/// The ServerResponse protocol allows responses to be abstracted
+/// across different networking protocols in an agnostic way to the
+/// Kitura project Router.
 public protocol ServerResponse: class {
     
-    /// Status code
+    /// The status code to send in the HTTP response.
     var statusCode: HTTPStatusCode? { get set }
     
-    /// Headers being sent back as part of the HTTP response.
+    /// The headers to send back as part of the HTTP response.
     var headers : HeadersContainer { get }
     
-    /// Write a string as a response
+    /// Add a string to the body of the HTTP response.
     ///
-    /// - Parameter string: String data to be written.
+    /// - Parameter string: The String data to be added.
     ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     func write(from string: String) throws
     
-    /// Write data as a response
+    /// Add bytes to the body of the HTTP response.
     ///
-    /// - Parameter data: Data object that contains the data to be written.
+    /// - Parameter data: The Data struct that contains the bytes to be added.
     ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     func write(from data: Data) throws
     
-    /// End the response
+    /// Add a string to the body of the HTTP response and complete sending the HTTP response
     ///
-    /// - Parameter text: String to write out socket
+    /// - Parameter text: The String to add to the body of the HTTP response.
     ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     func end(text: String) throws
     
-    /// End sending the response
+    /// Complete sending the HTTP response
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
     func end() throws
