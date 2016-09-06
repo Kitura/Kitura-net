@@ -38,6 +38,11 @@ public class HTTPServer {
     ///
     public var sslConfig: SSLService.Configuration?
     
+    ///
+    /// SSL cert configs for handling client requests
+    ///
+    public var sslConfig: SSLService.Configuration?
+    
     /// Port number for listening for new connections.
     public private(set) var port: Int?
     
@@ -71,7 +76,6 @@ public class HTTPServer {
             if let sslConfig = sslConfig {
                 self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
-            
         } catch let error {
             
             if error is Socket.Error {
@@ -87,7 +91,7 @@ public class HTTPServer {
             } else {
                 Log.error("Unexpected error reported...")
             }
-        }
+		}
 
         guard let socket = self.listenSocket else {
             // already did a callback on the error handler or logged error
