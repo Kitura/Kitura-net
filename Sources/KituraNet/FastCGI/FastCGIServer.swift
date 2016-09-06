@@ -46,24 +46,38 @@ public class FastCGIServer {
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 9000)
-    public func listen(port: Int) {
-        
+    /// - Parameter errorHandler: optional callback for error handling
+    ///
+    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-        
+
         do {
-            
-            listenSocket = try Socket.create()
-            
-        } catch let error as Socket.Error {
-            print("FastCGI error reported:\n \(error.description)")
+            self.listenSocket = try Socket.create()
         } catch {
-            print("Unexpected FastCGI error...")
+            if let callback = errorHandler {
+                callback(error)
+            } else {
+                Log.error("Error creating socket: \(error)")
+            }
         }
-        
+
+        guard let socket = self.listenSocket else {
+            // already did a callback on the error handler or logged error
+            return
+        }
+
         let queuedBlock = DispatchWorkItem(block: {
-            self.listen(socket: self.listenSocket, port: self.port!)
+            do {
+                try self.listen(socket: socket, port: port)
+            } catch {
+                if let callback = errorHandler {
+                    callback(error)
+                } else {
+                    Log.error("Error listening on socket: \(error)")
+                }
+            }
         })
-        
+
         ListenerGroup.enqueueAsynchronously(on: FastCGIServer.listenerQueue, block: queuedBlock)
         
     }
@@ -72,13 +86,14 @@ public class FastCGIServer {
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
+    /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new FastCGIServer instance
-    public static func listen(port: Int, delegate: ServerDelegate) -> FastCGIServer {
+    public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> FastCGIServer {
         
         let server = FastCGI.createServer()
         server.delegate = delegate
-        server.listen(port: port)
+        server.listen(port: port, errorHandler: errorHandler)
         return server
         
     }
@@ -97,13 +112,8 @@ public class FastCGIServer {
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    func listen(socket: Socket?, port: Int) {
-        
+    func listen(socket: Socket, port: Int) throws {
         do {
-            guard let socket = socket else {
-                return
-            }
-            
             try socket.listen(on: port, maxBacklogSize:FastCGIServer.getConnectionBacklog())
             Log.info("Listening on port \(port) (FastCGI)")
             
@@ -115,15 +125,12 @@ public class FastCGIServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("FastCGI Server has stopped listening")
             }
             else {
-                Log.error("FastCGI Error reported:\n \(error.description)")
+                throw error
             }
-        } catch {
-            Log.error("Unexpected FastCGI error...")
         }
     }
     
