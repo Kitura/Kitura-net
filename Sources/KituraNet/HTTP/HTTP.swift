@@ -18,11 +18,10 @@ import Foundation
 
 // MARK: HTTP
 
+/// A set of helpers for HTTP: status codes mapping, server and client request creation.
 public class HTTP {
 
-    ///
-    /// Mapping of integer status codes to the String description
-    ///
+    /// Mapping of integer HTTP status codes to the String description.
     public static let statusCodes = [
 
         100: "Continue", 101: "Switching Protocols", 102: "Processing",
@@ -43,75 +42,52 @@ public class HTTP {
         511: "Network Authentication Required"
     ]
 
+    /// Create a new `HTTPServer`.
     ///
-    /// Creates a new HTTP server
-    ///
-    /// - Returns: an instance of HTTPServer
-    ///
+    /// - Returns: an instance of HTTPServer.
     public static func createServer() -> HTTPServer {
-
         return HTTPServer()
-
     }
 
+    /// Create a new `ClientRequest` using URL.
     ///
-    /// Creates a new ClientRequest using URL
-    ///
-    /// - Parameter url: URL address for the request
-    /// - Parameter callback: closure to run after the request
-    ///
+    /// - Parameter url: URL address for the request.
+    /// - Parameter callback: closure to run after the request.
     /// - Returns: a ClientRequest instance
-    ///
     public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
-
         return ClientRequest(url: url, callback: callback)
-
     }
 
+    /// Create a new `ClientRequest` using a list of options.
     ///
-    /// Creates a new ClientRequest using a list of options
-    ///
-    /// - Parameter options: a list of ClientRequestOptions
-    /// - Parameter callback: closure to run after the request
-    ///
+    /// - Parameter options: a list of `ClientRequest.Options`.
+    /// - Parameter callback: closure to run after the request.
     /// - Returns: a ClientRequest instance
-    ///
     public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
-        
         return ClientRequest(options: options, callback: callback)
-
     }
 
+    /// Create a new `ClientRequest` using URL.
     ///
-    /// Creates a new ClientRequest using URL
-    /// *Note*: This method will end the ClientRequest immediately after creation
+    /// - Parameter url: URL address for the request.
+    /// - Parameter callback: closure to run after the request.
+    /// - Returns: a ClientRequest instance.
     ///
-    /// - Parameter url: URL address for the request
-    /// - Parameter callback: closure to run after the request
-    ///
-    /// - Returns: a ClientRequest instance
-    ///
+    /// - note: This method will end the ClientRequest immediately after creation.
     public static func get(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
-
         let req = ClientRequest(url: url, callback: callback)
         req.end()
         return req
-
     }
 
-    ///
-    /// A set of characters that are valid in requests
-    ///
+    /// A set of characters that are valid in requests.
     private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|} ").inverted
 
+    /// Transform the URL into escaped characters.
     ///
-    /// Transform the URL into escaped characters
-    ///
-    /// *Note*: URLS can only be sent over the Internet using the ASCII character set, so character escaping will
+    /// - note: URLs can only be sent over the Internet using the ASCII character set, so character escaping will
     /// transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
-    ///
     public static func escape(url: String) -> String {
-
         if let escaped = url.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
             return escaped
         }
@@ -121,9 +97,9 @@ public class HTTP {
 }
 
 
-///
-/// HTTP status codes and numbers
-///
+// MARK HTTPStatusCode
+
+/// HTTP status codes and numbers.
 public enum HTTPStatusCode: Int {
 
     case accepted = 202, badGateway = 502, badRequest = 400, conflict = 409, `continue` = 100, created = 201

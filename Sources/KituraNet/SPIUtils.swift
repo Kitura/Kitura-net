@@ -25,26 +25,20 @@ import Foundation
 
 // MARK: SPIUtils
 
+/// A set of utility functions.
 public class SPIUtils {
     
-    ///
     /// Abbreviations for month names
-    ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
-    ///
     /// Abbreviations for days of the week
-    ///
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
+    /// Format the current time for use in HTTP.
     ///
-    /// Format the current time for use in HTTP
-    ///
-    /// - Returns: string representation of timestamp
-    ///
+    /// - Returns: string representation of timestamp.
     public static func httpDate() -> String {
-        
         var theTime = time(nil)
         var timeStruct: tm = tm()
         gmtime_r(&theTime, &timeStruct)
@@ -75,13 +69,10 @@ public class SPIUtils {
         
     }
     
+    /// Format the given date for use in HTTP.
     ///
-    /// Format the given date for use in HTTP
-    ///
-    /// - Parameter date: the date
-    ///
-    /// - Returns: string representation of timestamp
-    ///
+    /// - Parameter date: the date to format.
+    /// - Returns: string representation of timestamp.
     public static func httpDate(_ date: Date) -> String {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(abbreviation: "UTC")!

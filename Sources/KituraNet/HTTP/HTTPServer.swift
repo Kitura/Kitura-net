@@ -21,57 +21,39 @@ import Socket
 
 // MARK: HTTPServer
 
+/// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    ///
-    /// Queue for listening and establishing new connections
-    ///
+    /// Queue for listening and establishing new connections`
     private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
-    ///
     /// Queue for handling client requests
-    ///
     static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
-    ///
-    /// HTTPServerDelegate
-    ///
+    /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
     
-    /// 
-    /// Port number for listening for new connections
-    ///
+    /// Port number for listening for new connections.
     public private(set) var port: Int?
     
-    /// 
     /// TCP socket used for listening for new connections
-    ///
     private var listenSocket: Socket?
     
-    ///
     /// Whether the HTTP server has stopped listening
-    ///
     var stopped = false
     
-    ///
     /// Incoming socket handler
-    ///
     private let socketManager = IncomingSocketManager()
     
-    ///
     /// Maximum number of pending connections
-    ///
     private let maxPendingConnections = 100
 
     
+    /// Listen for connections on a socket.
     ///
-    /// Listens for connections on a socket
-    ///
-    /// - Parameter port: port number for new connections (ex. 8090)
-    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue 
-    ///
+    /// - Parameter port: port number for new connections (ex. 8090).
+    /// - Parameter notOnMainQueue: whether to have the listener run on the main queue.
     public func listen(port: Int, notOnMainQueue: Bool=false) {
-        
         self.port = port
 		
 		do {
@@ -89,46 +71,34 @@ public class HTTPServer {
 		})
 		
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
-        
     }
 
-    ///
-    /// Stop listening for new connections
-    ///
+    /// Stop listening for new connections.
     public func stop() {
         if let listenSocket = listenSocket {
             stopped = true
             listenSocket.close()
         }
-        
     }
 
+    /// Static method to create a new HTTPServer and have it listen for conenctions.
     ///
-    /// Static method to create a new HTTPServer and have it listen for conenctions
-    ///
-    /// - Parameter port: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for HTTP connections
-    /// - Parameter notOnMainQueue: whether to listen for new connections on the main Queue
-    ///
-    /// - Returns: a new HTTPServer instance
-    ///
+    /// - Parameter port: port number for accepting new connections.
+    /// - Parameter delegate: the delegate handler for HTTP connections.
+    /// - Parameter notOnMainQueue: whether to listen for new connections on the main queue.
+    /// - Returns: a new HTTPServer instance.
     public static func listen(port: Int, delegate: ServerDelegate, notOnMainQueue: Bool=false) -> HTTPServer {
-        
         let server = HTTP.createServer()
         server.delegate = delegate
         server.listen(port: port, notOnMainQueue: notOnMainQueue)
         return server
-        
     }
     
-    ///
-    /// Handles instructions for listening on a socket
+    /// Handle instructions for listening on a socket
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    ///
     func listen(socket: Socket?, port: Int) {
-        
         do {
             guard let socket = socket else {
                 return
@@ -157,11 +127,9 @@ public class HTTPServer {
         }
     }
     
-    ///
     /// Handle a new client HTTP request
     ///
     /// - Parameter clientSocket: the socket used for connecting
-    ///
     func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
 
         guard let delegate = delegate else {
@@ -169,16 +137,13 @@ public class HTTPServer {
         }
         
         socketManager.handle(socket: clientSocket, using: delegate)
-        
     }
     
+    /// Wait for all of the listeners to stop.
     ///
-    /// Wait for all of the listeners to stop
-    ///
-    /// TODO: Note that this calls the ListenerGroup object, and is left in for
+    /// - todo: Note that this calls the ListenerGroup object, and is left in for
     /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
     /// is patched to directly talk to ListenerGroup.
-    ///
     public static func waitForListeners() {
         ListenerGroup.waitForListeners()
     }
