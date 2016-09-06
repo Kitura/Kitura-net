@@ -18,6 +18,7 @@ import Dispatch
 
 import LoggerAPI
 import Socket
+import SSLService
 
 // MARK: HTTPServer
 
@@ -26,6 +27,9 @@ public class HTTPServer {
 
     /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
+
+    /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
     
     /// Port number for listening for new connections.
     public private(set) var port: Int?
@@ -51,15 +55,25 @@ public class HTTPServer {
     /// - Parameter errorHandler: optional callback for error handling
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-        do {
-            self.listenSocket = try Socket.create()
-        } catch {
-            if let callback = errorHandler {
-                callback(error)
-            } else {
-                Log.error("Error creating socket: \(error)")
+
+		do {
+            
+			self.listenSocket = try Socket.create()
+
+            // If SSL config has been created, 
+            // create and attach the SSLService to the socket
+            if let sslConfig = sslConfig
+            {
+                Log.verbose("SSL configs...")
+
+               self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
-        }
+            
+		} catch let error as Socket.Error {
+			print("Error reported:\n \(error.description)")
+		} catch {
+            print("Unexpected error...")
+		}
 
         guard let socket = self.listenSocket else {
             // already did a callback on the error handler or logged error
@@ -114,6 +128,7 @@ public class HTTPServer {
 
             // TODO: Change server exit to not rely on error being thrown
             repeat {
+                Log.verbose("listen on repeat")
                 let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
