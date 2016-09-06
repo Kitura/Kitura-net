@@ -18,6 +18,7 @@ import Dispatch
 
 import LoggerAPI
 import Socket
+import SSLService
 
 // MARK: HTTPServer
 
@@ -33,6 +34,11 @@ public class HTTPServer {
     ///
     static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
+    ///
+    /// SSL cert configs for handling client requests
+    ///
+    public var sslConfig: SSLService.Configuration?
+    
     ///
     /// HTTPServerDelegate
     ///
@@ -77,6 +83,15 @@ public class HTTPServer {
 		do {
             
 			self.listenSocket = try Socket.create()
+
+            // If SSL config has been created, 
+            // create and attach the SSLService to the socket
+            if let sslConfig = sslConfig
+            {
+                Log.verbose("SSL configs...")
+
+               self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+            }
             
 		} catch let error as Socket.Error {
 			print("Error reported:\n \(error.description)")
@@ -139,6 +154,7 @@ public class HTTPServer {
             
             // TODO: Change server exit to not rely on error being thrown
             repeat {
+                Log.verbose("listen on repeat")
                 let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
