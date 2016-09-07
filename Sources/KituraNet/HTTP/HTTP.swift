@@ -44,7 +44,7 @@ public class HTTP {
 
     /// Create a new `HTTPServer`.
     ///
-    /// - Returns: an instance of HTTPServer.
+    /// - Returns: an instance of `HTTPServer`.
     public static func createServer() -> HTTPServer {
         return HTTPServer()
     }
@@ -53,7 +53,7 @@ public class HTTP {
     ///
     /// - Parameter url: URL address for the request.
     /// - Parameter callback: closure to run after the request.
-    /// - Returns: a ClientRequest instance
+    /// - Returns: a `ClientRequest` instance
     public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(url: url, callback: callback)
     }
@@ -62,7 +62,7 @@ public class HTTP {
     ///
     /// - Parameter options: a list of `ClientRequest.Options`.
     /// - Parameter callback: closure to run after the request.
-    /// - Returns: a ClientRequest instance
+    /// - Returns: a `ClientRequest` instance
     public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(options: options, callback: callback)
     }
@@ -73,7 +73,8 @@ public class HTTP {
     /// - Parameter callback: closure to run after the request.
     /// - Returns: a ClientRequest instance.
     ///
-    /// - note: This method will end the ClientRequest immediately after creation.
+    /// - Note: This method will invoke the end function of the `ClientRequest`
+    ///        immediately after its creation.
     public static func get(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
         let req = ClientRequest(url: url, callback: callback)
         req.end()

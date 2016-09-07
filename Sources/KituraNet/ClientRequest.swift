@@ -23,7 +23,7 @@ import Foundation
 
 // MARK: ClientRequest
 
-/// This class provides a set of low level APIs for issueing HTTP requests to another server.
+/// This class provides a set of low level APIs for issuing HTTP requests to another server.
 public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
@@ -126,7 +126,7 @@ public class ClientRequest {
         
     }
 
-    /// Initializes a ClientRequest instance
+    /// Initializes a `ClientRequest` instance
     ///
     /// - Parameter options: An array of `Options' describing the request
     /// - Parameter callback: The closure of type `Callback` to be used for the callback.

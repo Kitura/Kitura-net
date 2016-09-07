@@ -24,7 +24,7 @@ import Socket
 /// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    /// Queue for listening and establishing new connections`
+    /// Queue for listening and establishing new connections.
     private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [DispatchQueue.Attributes.concurrent])
 
     /// Queue for handling client requests
@@ -53,7 +53,7 @@ public class HTTPServer {
     ///
     /// Listens for connections on a socket
     ///
-    /// - Parameter port: port number for new connections (ex. 8090)
+    /// - Parameter port: port number for new connections (eg. 8090)
     /// - Parameter errorHandler: optional callback for error handling
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
@@ -82,7 +82,7 @@ public class HTTPServer {
                     Log.error("Error listening on socket: \(error)")
                 }
             }
-	})
+        })
 
         ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
     }
@@ -95,7 +95,7 @@ public class HTTPServer {
         }
     }
 
-    /// Static method to create a new HTTPServer and have it listen for conenctions.
+    /// Static method to create a new HTTPServer and have it listen for connections.
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for HTTP connections

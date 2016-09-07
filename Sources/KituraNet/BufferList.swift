@@ -102,7 +102,7 @@ public class BufferList {
     /// - Parameter data: The Data struct to fill from data in the buffer
     ///
     /// - Returns: The number of bytes actually copied from the buffer. It will be equal
-    ///           to the number of bytes lect in the buffer.
+    ///           to the number of bytes left in the buffer.
     public func fill(data: inout Data) -> Int {
         
         let result = localData.length - byteIndex
@@ -117,7 +117,7 @@ public class BufferList {
     /// - Parameter data: The NSMutableData object to fill from data in the buffer
     ///
     /// - Returns: The number of bytes actually copied from the buffer. It will be equal
-    ///           to the number of bytes lect in the buffer.
+    ///           to the number of bytes left in the buffer.
     public func fill(data: NSMutableData) -> Int {
         
         let result = localData.length - byteIndex

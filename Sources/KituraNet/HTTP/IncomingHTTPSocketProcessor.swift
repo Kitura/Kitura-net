@@ -53,7 +53,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// The number of remaining requests that will be allowed on the socket being handled by this handler
     private(set) var numberOfRequests = 100
     
-    /// Should this socket actually be kep alive?
+    /// Should this socket actually be kept alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
     
     /// An enum for internal state

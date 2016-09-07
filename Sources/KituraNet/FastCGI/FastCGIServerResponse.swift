@@ -60,7 +60,7 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// - Parameter socket: The socket to write the ersponse to.
     /// - Parameter request: The `FastCGIServerRequest` object for the request that
-    ///                     FastCGIServerResponse will respond to.
+    ///                     `FastCGIServerResponse` will respond to.
     init(socket: Socket, request: FastCGIServerRequest) {
         self.socket = socket
         self.serverRequest = request
@@ -180,7 +180,7 @@ public class FastCGIServerResponse : ServerResponse {
         return try getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
-    /// Generate an "unsupported role" message. Indicaes to the calling web server
+    /// Generate an "unsupported role" message. Indicates to the calling web server
     /// that we only intend to fulfill a specific role in the FastCGI chain (responder).
     private func getUnsupportedRoleMessage() throws -> Data? {
         

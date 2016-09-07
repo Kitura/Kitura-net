@@ -22,7 +22,7 @@ import LoggerAPI
 import Socket
 
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
-/// is read and passed to the current IncomingDataProcessor.
+/// is read and passed to the current `IncomingDataProcessor`.
 ///
 /// - Note: The IncomingDataProcessor can change due to an Upgrade request.
 ///

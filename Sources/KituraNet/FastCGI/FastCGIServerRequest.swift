@@ -91,7 +91,7 @@ public class FastCGIServerRequest : ServerRequest {
     
     /// Initialize a `FastCGIServerRequest` instance
     ///
-    /// - Parameter socket: The socket to read the request from
+    /// - Parameter socket: The socket to read the request from.
     required public init (socket: Socket) {
         self.socket = socket
     }
@@ -100,8 +100,8 @@ public class FastCGIServerRequest : ServerRequest {
     ///
     /// - Parameter data: A Data struct to hold the data read in.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: The number of bytes read
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: The number of bytes read.
     public func read(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
@@ -110,16 +110,16 @@ public class FastCGIServerRequest : ServerRequest {
     ///
     /// - Parameter data: A Data struct to hold the data read in.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: The number of bytes read
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: The number of bytes read.
     public func readAllData(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
     
     /// Read a string from the body of the request.
     ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: An Optional string
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: An Optional string.
     public func readString() throws -> String? {
         var data = Data()
         let bytes : Int = bodyChunk.fill(data: &data)

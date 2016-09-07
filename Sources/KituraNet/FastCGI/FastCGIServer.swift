@@ -82,13 +82,13 @@ public class FastCGIServer {
         
     }
     
-    /// Static method to create a new FastCGIServer and have it listen for conenctions
+    /// Static method to create a new `FastCGIServer` and have it listen for conenctions
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
     /// - Parameter errorHandler: optional callback for error handling
     ///
-    /// - Returns: a new FastCGIServer instance
+    /// - Returns: a new `FastCGIServer` instance
     public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> FastCGIServer {
         
         let server = FastCGI.createServer()
