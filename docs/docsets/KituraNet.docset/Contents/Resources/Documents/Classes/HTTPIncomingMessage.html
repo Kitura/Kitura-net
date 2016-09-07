@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,13 @@
         <section class="section">
           <div class="section-content">
             <h1>HTTPIncomingMessage</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span> <span class="p">:</span> <span class="kt">HTTPParserDelegate</span></code></pre>
+
+                </div>
+              </div>
+            <p>A representation of HTTP incoming message.</p>
 
           </div>
         </section>
@@ -163,7 +177,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Major version for HTTP</p>
+                        <p>Major version for HTTP of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
@@ -190,7 +204,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Minor version for HTTP</p>
+                        <p>Minor version for HTTP of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
@@ -217,7 +231,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set of headers</p>
+                        <p>Set of HTTP headers of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
@@ -244,31 +258,20 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>HTTP Method</p>
+                        <p>HTTP Method of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">""</span> <span class="c1">// TODO: enum?</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">""</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/TODO:%20enum?"></a>
-                <a name="//apple_ref/swift/Section/TODO: enum?" class="dashAnchor"></a>
-                <a href="#/TODO:%20enum?">
-                  <h3 class="section-name">TODO: enum?</h3>
-                </a>
-              </div>
-              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -282,7 +285,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>URL</p>
+                        <p>URL of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
@@ -309,7 +312,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Raw URL</p>
+                        <p>Raw URL of the incoming message.</p>
 
                       </div>
                       <div class="declaration">
@@ -323,17 +326,6 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/TODO:%20trailers"></a>
-                <a name="//apple_ref/swift/Section/TODO: trailers" class="dashAnchor"></a>
-                <a href="#/TODO:%20trailers">
-                  <h3 class="section-name">TODO: trailers</h3>
-                </a>
-              </div>
-              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -347,17 +339,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read data in the message</p>
+                        <p>Read a chunk of the body of the message.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter data: An NSMutableData to hold the data in the message</p>
+    Parameter into: An NSMutableData to hold the data in the message.
+
+</div>
+
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    if an error occurs while reading the body.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>the number of bytes read</p>
+    the number of bytes read.
 
 </div>
 
@@ -377,12 +375,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>into</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>An NSMutableData to hold the data in the message</p>
+                                  <p>An NSMutableData to hold the data in the message.</p>
 
                                 </div>
                               </td>
@@ -392,7 +390,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>the number of bytes read</p>
+                        <p>the number of bytes read.</p>
 
                       </div>
                     </section>
@@ -411,17 +409,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read all data in the message</p>
+                        <p>Read the whole body of the message.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter data: An NSMutableData to hold the data in the message</p>
+    Parameter into: An NSMutableData to hold the data in the message.
+
+</div>
+
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    if an error occurs while reading the data.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>the number of bytes read</p>
+    the number of bytes read.
 
 </div>
 
@@ -441,12 +445,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>into</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>An NSMutableData to hold the data in the message</p>
+                                  <p>An NSMutableData to hold the data in the message.</p>
 
                                 </div>
                               </td>
@@ -456,7 +460,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>the number of bytes read</p>
+                        <p>the number of bytes read.</p>
 
                       </div>
                     </section>
@@ -475,17 +479,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read the string</p>
+                        <p>Read a chunk of the body and return it as a String.</p>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    TODO ???
+    if an error occurs while reading the data.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    an Optional string
+    an Optional string.
 
 </div>
 
@@ -500,7 +504,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>an Optional string</p>
+                        <p>an Optional string.</p>
 
                       </div>
                     </section>
@@ -514,7 +518,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

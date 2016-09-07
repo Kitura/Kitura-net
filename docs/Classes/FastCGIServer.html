@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,14 @@
         <section class="section">
           <div class="section-content">
             <h1>FastCGIServer</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span></code></pre>
+
+                </div>
+              </div>
+            <p>A server that listens for incoming HTTP requests that are sent using the FastCGI
+protocol.</p>
 
           </div>
         </section>
@@ -163,7 +178,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>ServerDelegate</p>
+                        <p>The <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> to handle incoming requests.</p>
 
                       </div>
                       <div class="declaration">
@@ -207,9 +222,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet13FastCGIServer6listenFT4portSi_T_"></a>
-                    <a name="//apple_ref/swift/Method/listen(port:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet13FastCGIServer6listenFT4portSi_T_">listen(port:)</a>
+                    <a name="/s:FC9KituraNet13FastCGIServer6listenFT4portSi12errorHandlerGSqFPs5Error_T___T_"></a>
+                    <a name="//apple_ref/swift/Method/listen(port:errorHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9KituraNet13FastCGIServer6listenFT4portSi12errorHandlerGSqFPs5Error_T___T_">listen(port:errorHandler:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -225,12 +240,18 @@
 
 </div>
 
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter errorHandler: optional callback for error handling
+
+</div>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="p">((</span><span class="kt">Swift</span><span class="o">.</span><span class="kt"><a href="../Enums/Error.html">Error</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -251,6 +272,19 @@
                                 </div>
                               </td>
                             </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>errorHandler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>optional callback for error handling</p>
+
+                                </div>
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
@@ -260,9 +294,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet13FastCGIServer6listenFT4portSi8delegatePS_14ServerDelegate__S0_"></a>
-                    <a name="//apple_ref/swift/Method/listen(port:delegate:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet13FastCGIServer6listenFT4portSi8delegatePS_14ServerDelegate__S0_">listen(port:delegate:)</a>
+                    <a name="/s:ZFC9KituraNet13FastCGIServer6listenFT4portSi8delegatePS_14ServerDelegate_12errorHandlerGSqFPs5Error_T___S0_"></a>
+                    <a name="//apple_ref/swift/Method/listen(port:delegate:errorHandler:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:ZFC9KituraNet13FastCGIServer6listenFT4portSi8delegatePS_14ServerDelegate_12errorHandlerGSqFPs5Error_T___S0_">listen(port:delegate:errorHandler:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -270,7 +304,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Static method to create a new FastCGIServer and have it listen for conenctions</p>
+                        <p>Static method to create a new <code>FastCGIServer</code> and have it listen for conenctions</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
@@ -280,13 +314,19 @@
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter delegate: the delegate handler for FastCGI/HTTP connections</p>
+    Parameter delegate: the delegate handler for FastCGI/HTTP connections
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    <p>Parameter errorHandler: optional callback for error handling</p>
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a new FastCGIServer instance</p>
+    <p>a new <code>FastCGIServer</code> instance</p>
 
 </div>
 
@@ -295,7 +335,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">FastCGIServer</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="p">((</span><span class="kt">Swift</span><span class="o">.</span><span class="kt"><a href="../Enums/Error.html">Error</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">FastCGIServer</span></code></pre>
 
                         </div>
                       </div>
@@ -329,12 +369,25 @@
                                 </div>
                               </td>
                             </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>errorHandler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>optional callback for error handling</p>
+
+                                </div>
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a new FastCGIServer instance</p>
+                        <p>a new <code>FastCGIServer</code> instance</p>
 
                       </div>
                     </section>
@@ -375,7 +428,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
