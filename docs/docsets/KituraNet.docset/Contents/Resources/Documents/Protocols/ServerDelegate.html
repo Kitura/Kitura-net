@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,14 @@
         <section class="section">
           <div class="section-content">
             <h1>ServerDelegate</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+
+                </div>
+              </div>
+            <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
+The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
 
           </div>
         </section>
@@ -163,8 +178,65 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Handle new incoming requests to the server</p>
 
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter request: The ServerRequest class instance for working with this request.
+                The ServerRequest object enables you to get the query parameters, headers, and body amongst other
+                information about the incoming request.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter response: The ServerResponse class instance for working with this request.
+                The ServerResponse object enables you to build and send your response to the client who sent
+                the request. This includes headers, the body, and the response code.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>request</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ServerRequest class instance for working with this request. The ServerRequest object enables you to get the query parameters, headers, and body amongst other information about the incoming request.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>response</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ServerResponse class instance for working with this request. The ServerResponse object enables you to build and send your response to the client who sent the request. This includes headers, the body, and the response code.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -177,7 +249,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

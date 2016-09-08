@@ -18,47 +18,33 @@ import Foundation
 import Socket
 import KituraSys
 
+/// The FastCGIServerRequest class implements the `ServerResponse` protocol
+/// for incoming HTTP requests that come in over a FastCGI connection.
 public class FastCGIServerResponse : ServerResponse {
  
-    ///
     /// Socket for the ServerResponse
-    ///
     private var socket: Socket?
 
-    ///
     /// Size of buffers (64 * 1024 is the max size for a FastCGI outbound record)
     /// Which also gives a bit more internal buffer room.
-    ///
     private static let bufferSize = 64 * 1024
     
-    ///
     /// Buffer for HTTP response line, headers, and short bodies
-    ///
     private var buffer = Data(capacity: FastCGIServerResponse.bufferSize)
 
-    ///
     /// Whether or not the HTTP response line and headers have been flushed.
-    ///
     private var startFlushed = false
 
-    ///
-    /// TODO: ???
-    ///
+    /// The headers to send back as part of the HTTP response.
     public var headers = HeadersContainer()
     
-    ///
     /// Status code
-    ///
     private var status = HTTPStatusCode.OK.rawValue
     
-    ///
     /// Corresponding server request
-    ///
     private weak var serverRequest : FastCGIServerRequest?
     
-    ///
-    /// Status code
-    ///
+    /// The status code to send in the HTTP response.
     public var statusCode: HTTPStatusCode? {
         get {
             return HTTPStatusCode(rawValue: status)
@@ -70,32 +56,41 @@ public class FastCGIServerResponse : ServerResponse {
         }
     }
     
+    /// Initializes a `FastCGIServerResponse` instance
     ///
-    /// Initializes a ServerResponse instance
-    ///
+    /// - Parameter socket: The socket to write the ersponse to.
+    /// - Parameter request: The `FastCGIServerRequest` object for the request that
+    ///                     `FastCGIServerResponse` will respond to.
     init(socket: Socket, request: FastCGIServerRequest) {
         self.socket = socket
         self.serverRequest = request
         self.headers["Date"] = [SPIUtils.httpDate()]
     }
     
-    
-    // 
-    // The following write and end methods are basically convenience methods
-    // They rely on other methods to do their work.
-    //
+    /// Add a string to the body of the HTTP response and complete sending the HTTP response
+    ///
+    /// - Parameter text: The String to add to the body of the HTTP response.
+    ///
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     public func end(text: String) throws {
         try write(from: text)
         try end()
     }
 
+    /// Add a string to the body of the HTTP response.
+    ///
+    /// - Parameter string: The String data to be added.
+    ///
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     public func write(from string: String) throws {
         try write(from: StringUtils.toUtf8String(string)!)
     }
     
-    //
-    // Actual write methods
-    //
+    /// Add bytes to the body of the HTTP response.
+    ///
+    /// - Parameter data: The Data struct that contains the bytes to be added.
+    ///
+    /// - Throws: Socket.error if an error occurred while writing to the socket
     public func write(from data: Data) throws {
         
         try startResponse()
@@ -107,12 +102,14 @@ public class FastCGIServerResponse : ServerResponse {
         buffer.append(data)
     }
     
+    /// Complete sending the HTTP response
+    ///
+    /// - Throws: Socket.error if an error occurred while writing to a socket
     public func end() throws {
         try startResponse()
         try concludeResponse()
     }
     
-    ///
     /// Begin the buffer flush.
     ///
     /// This can only happen once and is called by all the tools that write
@@ -121,7 +118,6 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// Note that we can jump the queue internally to bypass this for writing
     /// FastCGI error messages.
-    ///
     private func startResponse() throws {
         
         guard socket != nil && !startFlushed else {
@@ -151,9 +147,7 @@ public class FastCGIServerResponse : ServerResponse {
         startFlushed = true
     }
     
-    /// 
     /// Get messages for FastCGI.
-    ///
     private func getEndRequestMessage(requestId: UInt16, protocolStatus: UInt8) throws -> Data {
         
         let record = FastCGIRecordCreate()
@@ -166,10 +160,8 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
     
-    //
-    // Generate a "request complete" message to be transmitted to the server, indicating 
-    // that the response is finished.
-    //
+    /// Generate a "request complete" message to be transmitted to the server, indicating
+    /// that the response is finished.
     private func getRequestCompleteMessage() throws -> Data {
         
         guard let serverRequest = self.serverRequest else {
@@ -181,19 +173,15 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
 
-    //
-    // Generate a "Can't Multiplex" messages for the specified request ID. 
-    // This indicates to the calling web server that we won't be honoring requests
-    // beyond the first one until the first one is complete.
-    //
+    /// Generate a "Can't Multiplex" messages for the specified request ID.
+    /// This indicates to the calling web server that we won't be honoring requests
+    /// beyond the first one until the first one is complete.
     private func getNoMultiplexingMessage(requestId: UInt16) throws -> Data {
         return try getEndRequestMessage(requestId: requestId, protocolStatus: FastCGI.Constants.FCGI_CANT_MPX_CONN)
     }
 
-    //
-    // Generate an "unsupported role" message. Indicaes to the calling web server
-    // that we only intend to fulfill a specific role in the FastCGI chain (responder).
-    //
+    /// Generate an "unsupported role" message. Indicates to the calling web server
+    /// that we only intend to fulfill a specific role in the FastCGI chain (responder).
     private func getUnsupportedRoleMessage() throws -> Data? {
         
         guard let serverRequest = self.serverRequest else {
@@ -207,17 +195,15 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
 
+    /// External message write for multiplex rejection
     ///
-    /// External message write for multiplex rejection    
-    ///
+    /// - Parameter requestId: The id of the request to reject.
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
         let message = try getNoMultiplexingMessage(requestId: requestId)
         try writeToSocket(message, wrapAsMessage: false)
     }
     
-    /// 
     /// External message write for role rejection
-    ///
     public func rejectUnsupportedRole() throws {
         guard let message = try getUnsupportedRoleMessage() else {
             return
@@ -225,18 +211,13 @@ public class FastCGIServerResponse : ServerResponse {
         try writeToSocket(message, wrapAsMessage: false)
     }
 
-    ///
-    /// TBD
-    ///
     /// Reset the request for reuse in Keep alive
-    ///
     public func reset() {
+        /*****  TBD *******/
     }
     
-    ///
     /// Get a FastCGI STDOUT message, wrapping the specified data
     /// for delivery.
-    ///
     private func getMessage(buffer: Data?) throws -> Data {
         
         let record = FastCGIRecordCreate()
@@ -252,9 +233,7 @@ public class FastCGIServerResponse : ServerResponse {
                 
     }
     
-    ///
     /// Write NSData to the socket
-    ///
     private func writeToSocket(_ data: Data, wrapAsMessage: Bool = true) throws {
 
         guard let socket = socket else {
@@ -269,10 +248,8 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
     
-    ///
     /// Flush any data in the buffer to the socket, then
     /// reest the buffer for more data.
-    ///
     private func flush() throws {
         
         guard buffer.count > 0 else {
@@ -285,13 +262,11 @@ public class FastCGIServerResponse : ServerResponse {
         
     }
     
-    ///
     /// Conclude this response.
     ///
     /// We're basically sending out anything left in the buffer, followed 
     /// by a blank STDOUT message, followed by an "END REQUEST" record with 
     /// "REQUEST COMPLETE" as it's protocol status.
-    ///
     private func concludeResponse() throws {    
         
         // flush the reset of the buffer

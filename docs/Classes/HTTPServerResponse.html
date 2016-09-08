@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,14 @@
         <section class="section">
           <div class="section-content">
             <h1>HTTPServerResponse</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerResponse</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+
+                </div>
+              </div>
+            <p>This class implements the <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
+responses via the HTTP protocol.</p>
 
           </div>
         </section>
@@ -163,7 +178,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The headers to be sent to the client as part of the response</p>
+                        <p>The HTTP headers to be sent to the client as part of the response.</p>
 
                       </div>
                       <div class="declaration">
@@ -190,7 +205,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Status code</p>
+                        <p>HTTP status code of the response.</p>
 
                       </div>
                       <div class="declaration">
@@ -217,17 +232,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Write a string as a response</p>
+                        <p>Write a string as a response.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter string: String data to be written.</p>
+    Parameter from: String data to be written.
 
 </div>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    <p>Socket.error if an error occurred while writing to a socket</p>
+    Socket.error if an error occurred while writing to a socket.
 
 </div>
 
@@ -247,7 +262,7 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>string</em>
+                                <em>from</em>
                                 </code>
                               </td>
                               <td>
@@ -276,17 +291,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Write data as a response</p>
+                        <p>Write data as a response.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter data: Data object that contains the data to be written.</p>
+    Parameter from: Data object that contains the data to be written.
 
 </div>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    <p>Socket.error if an error occurred while writing to a socket</p>
+    Socket.error if an error occurred while writing to a socket.
 
 </div>
 
@@ -306,7 +321,7 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>from</em>
                                 </code>
                               </td>
                               <td>
@@ -335,17 +350,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End the response</p>
+                        <p>Write a string and end sending the response.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter text: String to write out socket</p>
+    Parameter text: String to write to a socket.
 
 </div>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    <p>Socket.error if an error occurred while writing to a socket</p>
+    Socket.error if an error occurred while writing to a socket.
 
 </div>
 
@@ -370,7 +385,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>String to write out socket</p>
+                                  <p>String to write to a socket.</p>
 
                                 </div>
                               </td>
@@ -394,11 +409,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End sending the response</p>
+                        <p>End sending the response.</p>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while writing to a socket
+    Socket.error if an error occurred while writing to a socket.
 
 </div>
 
@@ -427,7 +442,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Reset this response object back to it&rsquo;s initial state</p>
+                        <p>Reset this response object back to its initial state</p>
 
                       </div>
                       <div class="declaration">
@@ -449,7 +464,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

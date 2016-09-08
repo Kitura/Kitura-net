@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,15 @@
         <section class="section">
           <div class="section-content">
             <h1>URLParser</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">URLParser</span> <span class="p">:</span> <span class="kt">CustomStringConvertible</span></code></pre>
+
+                </div>
+              </div>
+            <p>A parsing of HTTP URL according to the folowing format:</p>
+
+<p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
 
           </div>
         </section>
@@ -163,7 +179,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Schema</p>
+                        <p>Schema.</p>
 
                       </div>
                       <div class="declaration">
@@ -190,7 +206,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Hostname</p>
+                        <p>Hostname.</p>
 
                       </div>
                       <div class="declaration">
@@ -217,7 +233,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Path portion of the URL</p>
+                        <p>Path portion of the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -244,7 +260,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The entire query portion of the URL</p>
+                        <p>The entire query portion of the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -271,7 +287,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>TODO: ???</p>
+                        <p>An optional fragment identifier providing direction to a secondary resource.</p>
 
                       </div>
                       <div class="declaration">
@@ -298,7 +314,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The userid and password if specified in the URL</p>
+                        <p>The userid and password if specified in the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -325,7 +341,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The port specified, if any, in the URL</p>
+                        <p>The port specified, if any, in the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -352,7 +368,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The query parameters brokenn out</p>
+                        <p>The query parameters broken out.</p>
 
                       </div>
                       <div class="declaration">
@@ -379,7 +395,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Nicely formatted description of the parsed result</p>
+                        <p>Nicely formatted description of the parsed result.</p>
 
                       </div>
                       <div class="declaration">
@@ -406,17 +422,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Initializes a new URLParser instance</p>
+                        <p>Initialize a new URLParser instance.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter url: url to be parsed
+    Parameter url: URL to be parsed.
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter isConnect: whether or not a connection has been established
+    Parameter isConnect: whether or not a connection has been established.
 
 </div>
 
@@ -441,7 +457,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>url to be parsed</p>
+                                  <p>URL to be parsed.</p>
 
                                 </div>
                               </td>
@@ -454,7 +470,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>whether or not a connection has been established</p>
+                                  <p>whether or not a connection has been established.</p>
 
                                 </div>
                               </td>
@@ -473,7 +489,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

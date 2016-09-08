@@ -27,53 +27,37 @@ import Foundation
 
 // MARK: URLParser
 
+/// A parsing of HTTP URL according to the folowing format:
+///
+/// scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
 public class URLParser : CustomStringConvertible {
 
-    ///
-    /// Schema
-    ///
+    /// Schema.
     public var schema: String?
 
-    ///
-    /// Hostname
-    ///
+    /// Hostname.
     public var host: String?
 
-    ///
-    /// Path portion of the URL
-    ///
+    /// Path portion of the URL.
     public var path: String?
 
-    ///
-    /// The entire query portion of the URL
-    ///
+    /// The entire query portion of the URL.
     public var query: String?
 
-    ///
-    /// TODO: ???
-    ///
+    /// An optional fragment identifier providing direction to a secondary resource.
     public var fragment: String?
 
-    ///
-    /// The userid and password if specified in the URL
-    ///
+    /// The userid and password if specified in the URL.
     public var userinfo: String?
 
-    ///
-    /// The port specified, if any, in the URL
-    ///
+    /// The port specified, if any, in the URL.
     public var port: UInt16?
 
-    ///
-    /// The query parameters brokenn out
-    ///
+    /// The query parameters broken out.
     private(set) public var queryParameters = Query.null
 
-    ///
-    /// Nicely formatted description of the parsed result
-    ///
+    /// Nicely formatted description of the parsed result.
     public var description: String {
-
         var desc = ""
 
         if let schema = schema {
@@ -103,12 +87,10 @@ public class URLParser : CustomStringConvertible {
     }
 
 
+    /// Initialize a new URLParser instance.
     ///
-    /// Initializes a new URLParser instance
-    ///
-    /// - Parameter url: url to be parsed
-    /// - Parameter isConnect: whether or not a connection has been established
-    ///
+    /// - Parameter url: URL to be parsed.
+    /// - Parameter isConnect: whether or not a connection has been established.
     public init (url: Data, isConnect: Bool) {
 
         var parsedURL = http_parser_url_url()
@@ -152,7 +134,5 @@ public class URLParser : CustomStringConvertible {
         }
 
         return nil
-
     }
-
 }

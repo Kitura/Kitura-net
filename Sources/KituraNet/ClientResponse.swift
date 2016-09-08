@@ -19,11 +19,12 @@ import Foundation
 
 // MARK: ClientResponse
 
+/// This class describes the response sent by the remote server to an HTTP request
+/// sent using the `ClientRequest` class. This class is an extension of the 
+/// `HTTPIncomingMessage` class.
 public class ClientResponse: HTTPIncomingMessage {
     
-    /// Initializes a ClientResponse instance
-    ///
-    /// - Returns: a ClientResponse instance
+    /// Initializes a `ClientResponse` instance
     init() {
         
         super.init(isRequest: false)
@@ -31,7 +32,7 @@ public class ClientResponse: HTTPIncomingMessage {
         
     }
     
-    /// HTTP Status code
+    /// The HTTP Status code, as an Int, sent in the response by the remote server.
     public internal(set) var status = -1 {
         
         didSet {
@@ -40,7 +41,7 @@ public class ClientResponse: HTTPIncomingMessage {
         
     }
     
-    /// HTTP Status code
+    /// The HTTP Status code, as an `HTTPStatusCode`, sent in the response by the remote server.
     public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.unknown
     
     /// BufferList instance for storing the response 
@@ -48,8 +49,8 @@ public class ClientResponse: HTTPIncomingMessage {
     
     /// Parse the contents of the responseBuffers
     func parse() -> HTTPParserStatus {
-        var buffer = Data()
-        _ = responseBuffers.fill(data: &buffer)
+        let buffer = NSMutableData()
+        _ = responseBuffers.fill(data: buffer)
         return super.parse(buffer)
     }
 }
