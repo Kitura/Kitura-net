@@ -63,7 +63,7 @@ public class ClientRequest {
     fileprivate var writeBuffers = BufferList()
 
     /// Response instance for communicating with client
-    fileprivate var response = ClientResponse()
+    fileprivate var response: ClientResponse?
     
     /// The callback to receive the response
     private var callback: Callback
@@ -323,28 +323,39 @@ public class ClientRequest {
 
         let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
         invoker.delegate = self
-
+        response = ClientResponse()
+        
         var code = invoker.invoke()
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error, Failed to invoke HTTP request. CURL Return code=\(code)")
+            response!.release()
             callback(nil)
             return
         }
         
-        code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
+        code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response!.status)
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
+            response!.release()
             callback(nil)
             return
         }
         
-        let parseStatus = response.parse()
-        guard  parseStatus.error == nil else {
-            Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error!)")
+        let parseStatus = response!.parse()
+        guard parseStatus.error == nil else {
+            Log.error("ClientRequest error. Failed to parse response. Error=\(parseStatus.error!)")
+            response!.release()
             callback(nil)
             return
         }
-
+        
+        guard parseStatus.state == .headersComplete || parseStatus.state == .messageComplete else {
+            Log.error("ClientRequest error. Failed to parse response. Status=\(parseStatus.state)")
+            response!.release()
+            callback(nil)
+            return
+        }
+        
         self.callback(self.response)
     }
 
@@ -418,7 +429,7 @@ extension ClientRequest: CurlInvokerDelegate {
     /// libCurl callback to recieve data sent by the server
     fileprivate func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        response.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+        response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         return size
         
     }
@@ -434,7 +445,7 @@ extension ClientRequest: CurlInvokerDelegate {
     /// libCurl callback invoked when a redirect is about to be done
     fileprivate func prepareForRedirect() {
         
-        response.responseBuffers.reset()
+        response?.responseBuffers.reset()
         writeBuffers.rewind()
         
     }

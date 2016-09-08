@@ -108,7 +108,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         
         guard length > 0  else {
             /* Handle unexpected EOF. Usually just close the connection. */
-            freeHTTPParser()
+            release()
             status.error = .unexpectedEOF
             return status
         }
@@ -134,7 +134,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 }
                 else {
                     /* Handle error. Usually just close the connection. */
-                    self.freeHTTPParser()
+                    self.release()
                     self.status.error = .parsedLessThanRead
                 }
             }
@@ -166,7 +166,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                         }
                         else if (numberParsed != count) {
                             /* Handle error. Usually just close the connection. */
-                            self.freeHTTPParser()
+                            self.release()
                             self.status.error = .parsedLessThanRead
                         }
                         else {
@@ -179,7 +179,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 }
                 catch let error {
                     /* Handle error. Usually just close the connection. */
-                    freeHTTPParser()
+                    release()
                     status.error = .internalError
                     throw error
                 }
@@ -217,7 +217,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                         ioBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
                             let (numberParsed, _) = parser.execute(bytes, length: count)
                             if (numberParsed != count) {
-                                self.freeHTTPParser()
+                                self.release()
                                 self.status.error = .parsedLessThanRead
                             }
                         }
@@ -227,7 +227,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                     }
                 }
                 catch {
-                    freeHTTPParser()
+                    release()
                     status.error = .internalError
                 }
             }
@@ -343,12 +343,12 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         status.keepAlive = httpParser?.isKeepAlive() ?? false
         status.state = .messageComplete
         if  !status.keepAlive  {
-            freeHTTPParser()
+            release()
         }
     }
     
     /// Signal that the connection is being closed, and resources should be freed
-    func close() {
+    func release() {
         freeHTTPParser()
     }
 

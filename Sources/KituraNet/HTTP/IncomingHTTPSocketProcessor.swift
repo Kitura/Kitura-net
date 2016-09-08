@@ -105,7 +105,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Close the socket and mark this handler as no longer in progress.
     public func close() {
         handler?.prepareToClose()
-        request.close()
+        request.release()
     }
     
     /// Invoke the HTTP parser against the specified buffer of data and
