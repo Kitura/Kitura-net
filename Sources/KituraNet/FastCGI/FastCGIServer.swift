@@ -22,14 +22,6 @@ import LoggerAPI
 /// A server that listens for incoming HTTP requests that are sent using the FastCGI
 /// protocol.
 public class FastCGIServer {
- 
-    /// Queue for listening and establishing new connections
-    private static var listenerQueue = DispatchQueue(label: "FastCGIServer.listenerQueue",
-                                                     attributes: [DispatchQueue.Attributes.concurrent])
-
-    /// Queue for handling client requests
-    private static var clientHandlerQueue = DispatchQueue(label: "FastCGIServer.clientHandlerQueue",
-                                                          attributes: [DispatchQueue.Attributes.concurrent])
 
     /// The `ServerDelegate` to handle incoming requests.
     public weak var delegate: ServerDelegate?
@@ -78,7 +70,7 @@ public class FastCGIServer {
             }
         })
 
-        ListenerGroup.enqueueAsynchronously(on: FastCGIServer.listenerQueue, block: queuedBlock)
+        ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
         
     }
     
@@ -154,7 +146,7 @@ public class FastCGIServer {
             return
         }
         
-        FastCGIServer.clientHandlerQueue.async() {
+        DispatchQueue.global().async() {
             
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)

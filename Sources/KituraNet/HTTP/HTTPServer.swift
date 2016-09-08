@@ -24,12 +24,6 @@ import Socket
 /// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    /// Queue for listening and establishing new connections.
-    private static let listenerQueue = DispatchQueue(label: "HTTPServer.listenerQueue", attributes: [DispatchQueue.Attributes.concurrent])
-
-    /// Queue for handling client requests
-    static let clientHandlerQueue = DispatchQueue(label: "HTTPServer.clientHandlerQueue", attributes: [DispatchQueue.Attributes.concurrent])
-
     /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
     
@@ -84,7 +78,7 @@ public class HTTPServer {
             }
         })
 
-        ListenerGroup.enqueueAsynchronously(on: HTTPServer.listenerQueue, block: queuedBlock)
+        ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
     }
 
     /// Stop listening for new connections.

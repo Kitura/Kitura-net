@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import Dispatch
 
 import LoggerAPI
 import Socket
@@ -85,7 +86,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             
         case .initial:
             inProgress = true
-            HTTPServer.clientHandlerQueue.async() { [unowned self] in
+            DispatchQueue.global().async() { [unowned self] in
                 self.parse(buffer)
             }
             
