@@ -16,6 +16,9 @@
 
 import Foundation
 
+// MARK: Query
+
+
 public struct Query: CustomStringConvertible {
 
 #if os(Linux)
@@ -24,6 +27,7 @@ public struct Query: CustomStringConvertible {
     typealias RegularExpressionType = NSRegularExpression
 #endif
 
+    /// Regular expression used to parse dicrionary or array passed as query object
     static var indexedParameterRegex: RegularExpressionType? = {
         return try? RegularExpressionType(pattern: "([^\\[\\]\\,\\.\\s]*)\\[([^\\[\\]\\,\\.\\s]*)\\]", options: .caseInsensitive)
     }()
@@ -44,10 +48,14 @@ public struct Query: CustomStringConvertible {
 
     private init() { }
 
+    /// Initialize a new Query instance.
+    ///
+    /// - Parameter object: object to be parsed as query parameter.
     public init(_ object: Any) {
         self.object = object
     }
 
+    /// Formatted description of the parsed query parameter.
     public var description: String {
         return "\(self.object)"
     }
@@ -55,6 +63,7 @@ public struct Query: CustomStringConvertible {
 
 extension Query {
 
+    /// Object contained in query parameter.
     fileprivate(set) public var object: Any {
         get {
             switch self.type {

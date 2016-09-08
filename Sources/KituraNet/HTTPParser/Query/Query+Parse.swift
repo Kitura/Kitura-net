@@ -18,6 +18,7 @@ import Foundation
 
 extension String {
 
+    ///
     fileprivate var parameter: String? {
         let urlCharacterSet = CharacterSet(charactersIn: " \"\n")
         return self.removingPercentEncoding?.trimmingCharacters(in: urlCharacterSet)
@@ -27,6 +28,9 @@ extension String {
 //MARK: query parsing
 extension Query {
 
+    /// Initialize a new Query instance by parsing URL query string.
+    ///
+    /// - Parameter query: URL query string to be parsed.
     public init(fromText query: String?) {
         self.init([:])
 
@@ -36,6 +40,10 @@ extension Query {
         Query.parse(fromText: query, into: &self)
     }
 
+    ///
+    ///
+    ///
+    ///
     static private func parse(fromText query: String, into root: inout Query) {
         let pairs = query.components(separatedBy: "&")
 
@@ -56,6 +64,10 @@ extension Query {
         }
     }
 
+    ///
+    ///
+    ///
+    ///
     static private func parse(root: inout Query, key: String?, value: Query) {
         if let key = key,
             let regex = Query.indexedParameterRegex,
@@ -103,6 +115,10 @@ extension Query {
         }
     }
 
+    ///
+    ///
+    ///
+    ///
     static private func parse(root: inout Query,
         key: String,
         parameterKey: String,

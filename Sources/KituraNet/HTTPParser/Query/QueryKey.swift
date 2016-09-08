@@ -14,14 +14,21 @@
  * limitations under the License.
  **/
 
+// MARK: QueryKey
+
+
 public enum QueryKey {
 
+    ///
     case index(Int)
+
+    ///
     case key(String)
 }
 
 public protocol QueryKeyProtocol {
 
+    ///
     var queryKey: QueryKey { get }
 }
 
