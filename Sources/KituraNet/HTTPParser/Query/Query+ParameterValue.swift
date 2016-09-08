@@ -16,6 +16,9 @@
 
 import Foundation
 
+// MARK: Query
+
+
 extension Bool {
 
     /// Convenience initializer from string.
@@ -27,6 +30,7 @@ extension Bool {
     }
 }
 
+// MARK: ParameterValue
 extension Query: ParameterValue {
 
     /// Query parameter as optional 'String' value

@@ -17,6 +17,9 @@
 // MARK: QueryKey
 
 
+/// Enum type that can be used in subscript
+///
+///
 public enum QueryKey {
 
     ///
@@ -26,12 +29,16 @@ public enum QueryKey {
     case key(String)
 }
 
+/// Protocol for implementing query key for types used in subscripting
+///
+///
 public protocol QueryKeyProtocol {
 
     ///
     var queryKey: QueryKey { get }
 }
 
+/// 
 extension Int: QueryKeyProtocol {
 
     public var queryKey: QueryKey {
@@ -39,6 +46,7 @@ extension Int: QueryKeyProtocol {
     }
 }
 
+///
 extension String: QueryKeyProtocol {
 
     public var queryKey: QueryKey {

@@ -16,6 +16,9 @@
 
 import Foundation
 
+// MARK: Query
+
+
 extension String {
 
     ///
@@ -25,7 +28,7 @@ extension String {
     }
 }
 
-//MARK: query parsing
+// MARK: Query parsing.
 extension Query {
 
     /// Initialize a new Query instance by parsing URL query string.
