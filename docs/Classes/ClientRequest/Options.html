@@ -20,7 +20,7 @@
         <a class="header-link" href="../../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -147,7 +155,7 @@
 
                 </div>
               </div>
-            <p>Client request option values</p>
+            <p>Client request option enum</p>
 
           </div>
         </section>
@@ -169,20 +177,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the HTTP method (i.e. PUT, POST&hellip;) to be sent in the request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">method</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -196,20 +208,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the schema (i.e. HTTP, HTTPS) to be used in the URL of request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">schema</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -223,20 +239,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the host name to be used in the URL of request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">hostname</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -250,20 +270,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the port to be used in the URL of request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">port</span><span class="p">(</span><span class="kt">Int16</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -277,20 +301,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the path to be used in the URL of request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">path</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -304,20 +332,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the HTTP headers to be sent with the request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">headers</span><span class="p">([</span><span class="kt">String</span><span class="p">:</span> <span class="kt">String</span><span class="p">])</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -331,20 +363,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the user name to be sent with the request, when using basic auth authentication</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">username</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -358,20 +394,24 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the password to be sent with the request, when using basic auth authentication</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">password</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -385,20 +425,25 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the maximum number of redirect responses that will be followed (i.e. re-issue the
+request to the location received in the redirect response)</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">maxRedirects</span><span class="p">(</span><span class="kt">Int</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -412,14 +457,20 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>If present, the SSL credentials of the remote server will not be verified.</p>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    This is very useful when working with self signed certificates.
+
+</div>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="n">disableSSLVerification</span></code></pre>
 
                         </div>
                       </div>
@@ -434,7 +485,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

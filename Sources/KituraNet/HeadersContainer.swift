@@ -18,6 +18,8 @@ import Foundation
 
 import LoggerAPI
 
+/// A class that abstracts out the HTTP header APIs of the `ServerRequest` and
+/// `ServerResponse` protocols.
 public class HeadersContainer {
     
     /// The header storage
@@ -26,6 +28,12 @@ public class HeadersContainer {
     /// The map of case insensitive header fields to their actual names
     private var caseInsensitiveMap: [String: String] = [:]
     
+    /// Access the value of a HTTP header using subscript syntax.
+    ///
+    /// - Parameter key: The HTTP header key
+    ///
+    /// - Returns: An array of strings representing the set of values for the HTTP
+    ///           header key. If the HTTP header is not found, nil will be returned.
     public subscript(key: String) -> [String]? {
         get {
             return get(key)
@@ -41,10 +49,10 @@ public class HeadersContainer {
         }
     }
     
-    /// Append values to the header
+    /// Append values to an HTTP header
     ///
-    /// - Parameter key: the key
-    /// - Parameter value: the value
+    /// - Parameter key: The HTTP header key
+    /// - Parameter value: An array of strings to add as values of the HTTP header
     public func append(_ key: String, value: [String]) {
         
         let lowerCaseKey = key.lowercased()
@@ -84,10 +92,10 @@ public class HeadersContainer {
         }
     }
     
-    /// Append values to the header
+    /// Append values to an HTTP header
     ///
-    /// - Parameter key: the key
-    /// - Parameter value: the value
+    /// - Parameter key: The HTTP header key
+    /// - Parameter value: A string to be appended to the value of the HTTP header
     public func append(_ key: String, value: String) {
 
         append(key, value: [value])
@@ -141,19 +149,32 @@ public class HeadersContainer {
     }
 }
 
-/// Variables and methods to implement the Collection protocol
-extension HeadersContainer {
+/// Conformance to the `Collection` protocol
+extension HeadersContainer: Collection {
 
+    /// The starting index of the `HeadersContainer` collection
     public var startIndex:DictionaryIndex<String, [String]> { return headers.startIndex }
 
+    /// The ending index of the `HeadersContainer` collection
     public var endIndex:DictionaryIndex<String, [String]> { return headers.endIndex }
 
+    /// Get a (key value) tuple from the `HeadersContainer` collection at the specified position.
+    ///
+    /// - Parameter position: The position in the `HeadersContainer` collection of the
+    ///                      (key, value) tuple to return.
+    ///
+    /// - Returns: A (key, value) tuple.
     public subscript(position: DictionaryIndex<String, [String]>) -> (key: String, value: [String]) {
         get {
             return headers[position]
         }
     }
 
+    /// Get the next Index in the `HeadersContainer` collection after the one specified.
+    ///
+    /// - Parameter after: The Index whose successor is to be returned.
+    ///
+    /// - Returns: The Index in the `HeadersContainer` collection after the one specified.
     public func index(after i: DictionaryIndex<String, [String]>) -> DictionaryIndex<String, [String]> {
         return headers.index(after: i)
     }
@@ -163,9 +184,9 @@ extension HeadersContainer {
 extension HeadersContainer: Sequence {
     public typealias Iterator = DictionaryIterator<String, Array<String>>
 
-    ///
     /// Creates an iterator of the underlying dictionary
     ///
+    /// - Returns: The iterator for the `HeadersContainer`
     public func makeIterator() -> HeadersContainer.Iterator {
         return headers.makeIterator()
     }
