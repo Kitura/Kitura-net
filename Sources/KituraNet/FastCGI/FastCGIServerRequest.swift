@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import KituraSys
 import Socket
 
 /// The FastCGIServerRequest class implements the `ServerRequest` protocol
@@ -45,7 +44,7 @@ public class FastCGIServerRequest : ServerRequest {
         guard url.count > 0 else {
             return ""
         }
-        return StringUtils.fromUtf8String(url)!
+        return String(data: url, encoding: .utf8)!
     }
     
     /// URI Component received from FastCGI
@@ -125,7 +124,7 @@ public class FastCGIServerRequest : ServerRequest {
         let bytes : Int = bodyChunk.fill(data: &data)
         
         if bytes > 0 {
-            return StringUtils.fromUtf8String(data)
+            return String(data: data, encoding: .utf8)
         } else {
             return ""
         }
@@ -143,10 +142,10 @@ public class FastCGIServerRequest : ServerRequest {
         if let requestUri = requestUri, requestUri.characters.count > 0 {
             
             // use the URI as received
-            url.append(StringUtils.toUtf8String(requestUri)!)
+            url.append(requestUri.data(using: .utf8)!)
         }
         else {
-            url.append(StringUtils.toUtf8String("/")!)
+            url.append("/".data(using: .utf8)!)
         }
                 
     }

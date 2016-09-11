@@ -15,7 +15,6 @@
  */
 
 
-import KituraSys
 import Socket
 
 import Foundation
@@ -242,7 +241,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         buffer.count = 0
         let length = try read(into: &buffer)
         if length > 0 {
-            return StringUtils.fromUtf8String(buffer)
+            return String(data: buffer, encoding: .utf8)
         }
         else {
             return nil
@@ -322,7 +321,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
-        urlString = StringUtils.fromUtf8String(url) ?? ""
+        urlString = String(data: url, encoding: .utf8) ?? ""
 
         if  lastHeaderWasAValue  {
             addHeader()

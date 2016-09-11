@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import KituraSys
 import CHTTPParser
 
 import Foundation
@@ -139,7 +138,7 @@ public class URLParser : CustomStringConvertible {
             let start = Int(fieldData.off)
             let length = Int(fieldData.len)
             let data = url.subdata(in: start..<start+length)
-            return StringUtils.fromUtf8String(data)
+            return String(data: data, encoding: .utf8)
         }
         
         return nil
