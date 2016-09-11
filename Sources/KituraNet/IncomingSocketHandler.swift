@@ -165,15 +165,11 @@ public class IncomingSocketHandler {
         write(from: data.bytes, length: data.length)
     }
     
-    /// Write a null terminated sequence of bytes in an array to the socket
+    /// Write a sequence of bytes in an array to the socket
     ///
-    /// - Parameter from: An array containing a null terminated sequence of bytes to be written
-    ///                  to the socket.
-    public func write(from array: [CChar]) {
-        write(from: UnsafePointer(array), length: array.count - 1)
-    }
-    
-    private func write(from bytes: UnsafeRawPointer, length: Int) {
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
         guard socket.socketfd > -1  else { return }
         
         do {

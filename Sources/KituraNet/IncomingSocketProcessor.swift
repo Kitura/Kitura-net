@@ -42,11 +42,11 @@ public protocol IncomingSocketProcessor: class {
     /// - Parameter from: An NSData object containing the bytes to be written to the socket.
     func write(from data: NSData)
     
-    /// Write a null terminated sequence of bytes in an array to the socket
+    /// Write a sequence of bytes in an array to the socket
     ///
-    /// - Parameter from: An array containing a null terminated sequence of bytes to be written
-    ///                  to the socket.
-    func write(from array: [CChar])
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    func write(from bytes: UnsafeRawPointer, length: Int)
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()

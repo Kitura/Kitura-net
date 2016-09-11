@@ -102,12 +102,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         handler?.write(from: data)
     }
     
-    /// Write a null terminated sequence of bytes in an array to the socket
+    /// Write a sequence of bytes in an array to the socket
     ///
-    /// - Parameter from: An array containing a null terminated sequence of bytes to be written
-    ///                  to the socket.
-    public func write(from array: [CChar]) {
-        handler?.write(from: array)
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
+        handler?.write(from: bytes, length: length)
     }
     
     /// Close the socket and mark this handler as no longer in progress.

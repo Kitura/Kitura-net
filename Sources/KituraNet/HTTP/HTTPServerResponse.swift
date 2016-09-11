@@ -172,20 +172,25 @@ public class HTTPServerResponse : ServerResponse {
     ///
     /// Throws: Socket.error if an error occurred while writing to a socket
     private func writeToSocketThroughBuffer(text: String) throws {
-        guard let processor = processor,
-              let utf8 = text.cString(using: .utf8) else {
+        guard let processor = processor else {
             return
         }
         
-        if  buffer.length + utf8.count - 1 > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
+        let utf8Length = text.lengthOfBytes(using: .utf8)
+        var utf8: [CChar] = Array<CChar>(repeating: 0, count: utf8Length + 10) // A little bit of padding
+        guard text.getCString(&utf8, maxLength: utf8Length + 10, encoding: .utf8)  else {
+            return
+        }
+        
+        if  buffer.length + utf8.count > HTTPServerResponse.bufferSize  &&  buffer.length != 0  {
             processor.write(from: buffer)
             buffer.length = 0
         }
-        if  utf8.count - 1 > HTTPServerResponse.bufferSize {
-            processor.write(from: utf8)
+        if  utf8.count > HTTPServerResponse.bufferSize {
+            processor.write(from: utf8, length: utf8Length)
         }
         else {
-            buffer.append(UnsafePointer(utf8), length: utf8.count - 1)
+            buffer.append(UnsafePointer(utf8), length: utf8Length)
         }
     }
     
