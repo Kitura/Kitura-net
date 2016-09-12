@@ -83,7 +83,6 @@ public class HTTPServer {
             }
         } catch let error {
             if error is Socket.Error {
-                
                 let socketError = error as! Socket.Error
                 Log.error("Error reported:\n \(socketError.description)")
             } else if error is SSLError {
