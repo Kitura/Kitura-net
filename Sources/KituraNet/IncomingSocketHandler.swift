@@ -63,12 +63,8 @@ public class IncomingSocketHandler {
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: IncomingSocketHandler.socketReaderQueue[Int(socket.socketfd%2)])
         
-            readerSource.setEventHandler() {
-                self.handleRead()
-            }
-            readerSource.setCancelHandler() {
-                self.handleCancel()
-            }
+            readerSource.setEventHandler(handler: self.handleRead)
+            readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
         
@@ -145,9 +141,7 @@ public class IncomingSocketHandler {
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
                                                           queue: IncomingSocketHandler.socketWriterQueue)
             
-            writerSource!.setEventHandler() {
-                self.handleWriteHelper()
-            }
+            writerSource!.setEventHandler(handler: self.handleWriteHelper)
             writerSource!.setCancelHandler() {
                 self.writerSource = nil
             }
