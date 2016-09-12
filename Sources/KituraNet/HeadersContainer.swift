@@ -134,7 +134,7 @@ public class HeadersContainer {
     /// - Parameter value: the value
     private func set(_ key: String, lowerCaseKey: String, value: [String]) {
         headers[key] = value
-        caseInsensitiveMap[key.lowercased()] = key
+        caseInsensitiveMap[lowerCaseKey] = key
     }
     
     /// Remove the header by key (case insensitive)
@@ -142,10 +142,9 @@ public class HeadersContainer {
     /// - Parameter key: the key
     private func remove(_ key: String) {
         
-        if let headerKey = caseInsensitiveMap[key.lowercased()] {
+        if let headerKey = caseInsensitiveMap.removeValue(forKey: key.lowercased()) {
             headers[headerKey] = nil
         }
-        caseInsensitiveMap[key.lowercased()] = nil
     }
 }
 
