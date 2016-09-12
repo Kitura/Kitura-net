@@ -93,11 +93,23 @@ public class HTTPServer {
                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
             
-		} catch let error as Socket.Error {
-			print("Error reported:\n \(error.description)")
-		} catch {
-            print("Unexpected error...")
-		}
+        } catch let error {
+            
+            if error is Socket.Error {
+                
+                let socketError = error as! Socket.Error
+                print("Error reported:\n \(socketError.description)")
+                
+            } else if error is SSLError {
+                
+                let sslError = error as! SSLError
+                print("Error reported:\n \(sslError.description)")
+                
+            } else {
+                
+                print("Unexpected error reported...")
+            }
+        }
 
         let queuedBlock = DispatchWorkItem(block: {
 			self.listen(socket: self.listenSocket, port: self.port!)
