@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import KituraSys
 import CHTTPParser
 import Foundation
 

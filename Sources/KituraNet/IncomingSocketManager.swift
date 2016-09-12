@@ -23,7 +23,6 @@
 import Dispatch
 import Foundation
 
-import KituraSys
 import LoggerAPI
 import Socket
 

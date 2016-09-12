@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import KituraSys
-
 import Foundation
 
 // MARK: HTTPServerResponse
@@ -172,7 +170,7 @@ public class HTTPServerResponse : ServerResponse {
     /// Throws: Socket.error if an error occurred while writing to a socket
     private func writeToSocketThroughBuffer(text: String) throws {
         guard let processor = processor,
-              let utf8Data = StringUtils.toUtf8String(text) else {
+            let utf8Data = text.data(using: .utf8) else {
             return
         }
 
