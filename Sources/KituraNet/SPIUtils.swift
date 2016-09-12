@@ -51,6 +51,7 @@ public class SPIUtils {
         let min = Int(timeStruct.tm_min)
         let sec = Int(timeStruct.tm_sec)
         var s = days[wday]
+        s.reserveCapacity(29)
         s.append(", ")
         s.append(twoDigit[mday])
         s.append(" ")
