@@ -144,9 +144,9 @@ public class HTTPServerResponse : ServerResponse {
         headerData.append(statusText!)
         headerData.append("\r\n")
 
-        for (key, valueSet) in headers.headers {
-            for value in valueSet.value {
-                headerData.append(key)
+        for (_, entry) in headers.headers {
+            for value in entry.value {
+                headerData.append(entry.key)
                 headerData.append(": ")
                 headerData.append(value)
                 headerData.append("\r\n")
