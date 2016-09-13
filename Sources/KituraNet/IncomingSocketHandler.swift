@@ -95,8 +95,10 @@ public class IncomingSocketHandler {
         }
         catch let error as Socket.Error {
             Log.error(error.description)
+            prepareToClose()
         } catch {
             Log.error("Unexpected error...")
+            prepareToClose()
         }
     }
     
