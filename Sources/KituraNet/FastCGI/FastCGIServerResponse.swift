@@ -130,7 +130,7 @@ public class FastCGIServerResponse : ServerResponse {
 
         // add the rest of our response headers
         for (key, valueSet) in headers.headers {
-            for value in valueSet {
+            for value in valueSet.value {
                 headerData.append(key)
                 headerData.append(": ")
                 headerData.append(value)

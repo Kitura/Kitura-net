@@ -145,7 +145,7 @@ public class HTTPServerResponse : ServerResponse {
         headerData.append("\r\n")
 
         for (key, valueSet) in headers.headers {
-            for value in valueSet {
+            for value in valueSet.value {
                 headerData.append(key)
                 headerData.append(": ")
                 headerData.append(value)
