@@ -60,24 +60,22 @@ public class HTTPServer {
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
 
-        do {
-            self.listenSocket = try Socket.create()
-            
-            // If SSL config has been created,
+		do {
+			self.listenSocket = try Socket.create()
+
+            // If SSL config has been created, 
             // create and attach the SSLService delegate to the socket
             if let sslConfig = sslConfig {
-                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+               self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
             
         } catch let error {
             
             if error is Socket.Error {
-                
                 let socketError = error as! Socket.Error
                 Log.error("Error reported:\n \(socketError.description)")
                 
             } else if error is SSLError {
-                
                 let sslError = error as! SSLError
                 Log.error("Error reported:\n \(sslError.description)")
                 
