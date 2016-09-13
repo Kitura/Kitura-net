@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import KituraSys
-
 import Foundation
 
 // MARK: HTTPServerResponse
@@ -134,6 +132,7 @@ public class HTTPServerResponse : ServerResponse {
         }
 
         var headerData = ""
+        headerData.reserveCapacity(254)
         headerData.append("HTTP/1.1 ")
         headerData.append(String(status))
         headerData.append(" ")
