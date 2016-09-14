@@ -82,7 +82,7 @@ public class HTTPServer {
                 let socketError = error as! Socket.Error
                 Log.error("Error reported:\n \(socketError.description)")
             } else if error is SSLError {
-                
+                // we have to catch SSLErrors separately since we are calling SSLService.Configuration
                 let sslError = error as! SSLError
                 Log.error("Error reported:\n \(sslError.description)")
                 
