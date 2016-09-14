@@ -89,7 +89,7 @@ public class IncomingSocketHandler {
                 processor?.process(buffer)
             }
             else {
-                if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
+                if  socket.remoteConnectionClosed  {
                     prepareToClose()
                 }
             }
