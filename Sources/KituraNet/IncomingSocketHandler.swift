@@ -49,7 +49,8 @@ public class IncomingSocketHandler {
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
-    private var writeBuffer = Data()
+    private var writeBuffer = NSMutableData()
+    private var writeBufferPosition = 0
     private var preparingToClose = false
     
     /// The file descriptor of the incoming socket
@@ -112,15 +113,17 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
-        if  writeBuffer.count != 0 {
+        if  writeBuffer.length != 0 {
             do {
-                let written = try socket.write(from: writeBuffer)
+                let written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
+                                               bufSize: writeBuffer.length - writeBufferPosition)
                 
-                if written != writeBuffer.count {
-                    writeBuffer = writeBuffer.subdata(in: written..<writeBuffer.count)
+                if written != writeBuffer.length {
+                    writeBufferPosition += written
                 }
                 else {
-                    writeBuffer = Data()
+                    writeBuffer.length = 0
+                    writeBufferPosition = 0
                 }
             }
             catch {
@@ -128,7 +131,7 @@ public class IncomingSocketHandler {
             }
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                if writeBuffer.count == 0, let writerSource = writerSource {
+                if writeBuffer.length == 0, let writerSource = writerSource {
                     writerSource.cancel()
                 }
             #endif
@@ -157,36 +160,42 @@ public class IncomingSocketHandler {
     
     /// Write as much data to the socket as possible, buffering the rest
     ///
-    /// - Parameter data: A Data struct containing the bytes to write to the socket.
-    public func write(from data: Data) {
+    /// - Parameter data: The NSData object containing the bytes to write to the socket.
+    public func write(from data: NSData) {
+        write(from: data.bytes, length: data.length)
+    }
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
         guard socket.socketfd > -1  else { return }
         
-        data.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<UInt8>) in
-            do {
-                let written: Int
+        do {
+            let written: Int
             
-                if  self.writeBuffer.count == 0 {
-                    written = try self.socket.write(from: bytes, bufSize: data.count)
-                }
-                else {
-                    written = 0
-                }
+            if  self.writeBuffer.length == 0 {
+                written = try self.socket.write(from: bytes, bufSize: length)
+            }
+            else {
+                written = 0
+            }
             
-                if written != data.count {
-                    IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
-                        self.writeBuffer.append(bytes+written, count:data.count-written)
+            if written != length {
+                IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
+                    self.writeBuffer.append(bytes + written, length: length - written)
+                }
+                
+                #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+                    if self.writerSource == nil {
+                        self.createWriterSource()
                     }
-                    
-                    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                        if self.writerSource == nil {
-                            self.createWriterSource()
-                        }
-                    #endif
-                }
+                #endif
             }
-            catch {
-                Log.error("Write to socket (file descriptor \(self.socket.socketfd) failed. Error number=\(errno). Message=\(self.errorString(error: errno)).")
-            }
+        }
+        catch {
+            Log.error("Write to socket (file descriptor \(self.socket.socketfd) failed. Error number=\(errno). Message=\(self.errorString(error: errno)).")
         }
     }
     
@@ -194,7 +203,7 @@ public class IncomingSocketHandler {
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if  writeBuffer.count == 0  {
+        if  writeBuffer.length == 0  {
             close()
         }
         else {

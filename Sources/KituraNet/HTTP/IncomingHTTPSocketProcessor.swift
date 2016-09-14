@@ -97,9 +97,17 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Write data to the socket
     ///
-    /// - Parameter data: A Data struct containing the bytes to be written to the socket.
-    public func write(from data: Data) {
+    /// - Parameter data: An NSData object containing the bytes to be written to the socket.
+    public func write(from data: NSData) {
         handler?.write(from: data)
+    }
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
+        handler?.write(from: bytes, length: length)
     }
     
     /// Close the socket and mark this handler as no longer in progress.
