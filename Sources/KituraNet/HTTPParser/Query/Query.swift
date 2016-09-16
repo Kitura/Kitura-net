@@ -18,8 +18,7 @@ import Foundation
 
 // MARK: Query
 
-
-///
+/// Type for storing query key - parameter values
 ///
 ///
 public struct Query: CustomStringConvertible {

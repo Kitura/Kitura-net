@@ -18,7 +18,7 @@ import Foundation
 
 // MARK: ParameterValue
 
-///
+/// Enum describing parameter return types
 ///
 ///
 public protocol ParameterValue {

@@ -23,6 +23,7 @@ extension String {
         return self.trimmingCharacters(in: characterSet)
     }
 }
+
 // MARK: Query parsing.
 extension Query {
 
@@ -39,10 +40,6 @@ extension Query {
         Query.parse(fromText: escapedQuery, into: &self)
     }
 
-    ///
-    ///
-    ///
-    ///
     static private func parse(fromText query: String, into root: inout Query) {
         let pairs = query.components(separatedBy: "&")
 
@@ -67,10 +64,6 @@ extension Query {
         }
     }
 
-    ///
-    ///
-    ///
-    ///
     static private func parse(root: inout Query, key: String?, value: Query) {
         if let key = key,
             let regex = Query.indexedParameterRegex,
@@ -116,10 +109,6 @@ extension Query {
         }
     }
 
-    ///
-    ///
-    ///
-    ///
     static private func parse(root: inout Query,
         key: String,
         parameterKey: String,
