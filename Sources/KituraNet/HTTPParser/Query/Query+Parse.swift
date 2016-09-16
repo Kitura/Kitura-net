@@ -16,18 +16,13 @@
 
 import Foundation
 
-// MARK: Query
-
-
 extension String {
 
-    ///
-    fileprivate var parameter: String? {
-        let urlCharacterSet = CharacterSet(charactersIn: " \"\n")
-        return self.removingPercentEncoding?.trimmingCharacters(in: urlCharacterSet)
+    var trimmed: String {
+        let characterSet = CharacterSet(charactersIn: " \"\n")
+        return self.trimmingCharacters(in: characterSet)
     }
 }
-
 // MARK: Query parsing.
 extension Query {
 
@@ -37,10 +32,11 @@ extension Query {
     public init(fromText query: String?) {
         self.init([:])
 
-        guard let query = query else {
-            return
+        guard let query = query,
+            let escapedQuery = query.removingPercentEncoding else {
+                return
         }
-        Query.parse(fromText: query, into: &self)
+        Query.parse(fromText: escapedQuery, into: &self)
     }
 
     ///
@@ -53,10 +49,14 @@ extension Query {
         for pair in pairs {
             let pairArray = pair.components(separatedBy: "=")
 
-            guard pairArray.count == 2,
-                let valueString = pairArray[1].parameter,
-                !valueString.isEmpty,
-                let key = pairArray[0].parameter,
+            guard pairArray.count == 2 else {
+                continue
+            }
+
+            let key = pairArray[0]
+            let valueString = pairArray[1]
+
+            guard !valueString.isEmpty,
                 !key.isEmpty else {
                     continue
             }
@@ -87,10 +87,8 @@ extension Query {
                 let indexRange = match.rangeAt(2)
             #endif
 
-                guard let parameterKey = nsKey.substring(with: parameterRange).parameter,
-                    let indexKey = nsKey.substring(with: indexRange).parameter else {
-                        return
-                }
+                let parameterKey = nsKey.substring(with: parameterRange).trimmed
+                let indexKey = nsKey.substring(with: indexRange).trimmed
 
                 let nextKey = nsKey.replacingCharacters(in: matchRange, with: indexKey)
 

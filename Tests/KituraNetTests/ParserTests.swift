@@ -79,8 +79,8 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.queryParameters["key2"]["sub1"].bool, true, "Incorrect query")
         XCTAssertEqual(urlParser.queryParameters["key2", "sub1"].string, "true", "Incorrect query")
 
-        XCTAssertEqual(urlParser.queryParameters["key3"]["sub"]["sub1"]["sub2"].string, "text", "Incorrect query")
-        XCTAssertEqual(urlParser.queryParameters["key3", "sub", "sub1", "sub2"].string, "text", "Incorrect query")
+        XCTAssertEqual(urlParser.queryParameters["key3"]["sub"]["sub1"]["sub2"].string, "\"text\"", "Incorrect query")
+        XCTAssertEqual(urlParser.queryParameters["key3", "sub", "sub1", "sub2"].string, "\"text\"", "Incorrect query")
 
         XCTAssertNil(urlParser.queryParameters["nonexisting"]["sub"]["sub1"]["sub2"].string, "Wrong nonexisting key")
 
