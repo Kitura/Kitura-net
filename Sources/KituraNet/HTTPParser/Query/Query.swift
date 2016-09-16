@@ -16,6 +16,11 @@
 
 import Foundation
 
+// MARK: Query
+
+/// Type for storing query key - parameter values
+///
+///
 public struct Query: CustomStringConvertible {
 
 #if os(Linux)
@@ -24,30 +29,52 @@ public struct Query: CustomStringConvertible {
     typealias RegularExpressionType = NSRegularExpression
 #endif
 
+    /// Regular expression used to parse dicrionary or array passed as query object
     static var indexedParameterRegex: RegularExpressionType? = {
         return try? RegularExpressionType(pattern: "([^\\[\\]\\,\\.\\s]*)\\[([^\\[\\]\\,\\.\\s]*)\\]", options: .caseInsensitive)
     }()
 
     public static let null = Query()
 
+    /// Query parameter types
+    ///
+    ///
     public enum ParameterType {
+
+        /// Parameter with invalid object or of unknown type
         case null(object: Any)
-        case array(value: [Any])
-        case dictionary(value: [String : Any])
-        case int(value: Int)
-        case string(value: String)
-        case double(value: Double)
-        case bool(value: Bool)
+
+        /// Parameter of array type
+        case array([Any])
+
+        /// Parameter of dictionary type
+        case dictionary([String : Any])
+
+        /// Parameter of integer type
+        case int(Int)
+
+        /// Parameter of string type
+        case string(String)
+
+        /// Parameter of floating-point type
+        case double(Double)
+
+        /// Parameter of boolean type
+        case bool(Bool)
     }
 
     fileprivate(set) public var type: ParameterType = .null(object: NSNull())
 
     private init() { }
 
+    /// Initialize a new Query instance.
+    ///
+    /// - Parameter object: object to be parsed as query parameter.
     public init(_ object: Any) {
         self.object = object
     }
 
+    /// Formatted description of the parsed query parameter.
     public var description: String {
         return "\(self.object)"
     }
@@ -55,6 +82,7 @@ public struct Query: CustomStringConvertible {
 
 extension Query {
 
+    /// Object contained in query parameter.
     fileprivate(set) public var object: Any {
         get {
             switch self.type {
@@ -78,24 +106,24 @@ extension Query {
             switch newValue {
             case let string as String where !string.isEmpty:
                 if let int = Int(string) {
-                    self.type = .int(value: int)
+                    self.type = .int(int)
                 } else if let double = Double(string) {
-                    self.type = .double(value: double)
+                    self.type = .double(double)
                 } else if let bool = Bool(string) {
-                    self.type = .bool(value: bool)
+                    self.type = .bool(bool)
                 } else {
-                    self.type = .string(value: string)
+                    self.type = .string(string)
                 }
             case let int as Int:
-                self.type = .int(value: int)
+                self.type = .int(int)
             case let double as Double:
-                self.type = .double(value: double)
+                self.type = .double(double)
             case let bool as Bool:
-                self.type = .bool(value: bool)
+                self.type = .bool(bool)
             case let array as [Any]:
-                self.type = .array(value: array)
+                self.type = .array(array)
             case let dictionary as [String : Any]:
-                self.type = .dictionary(value: dictionary)
+                self.type = .dictionary(dictionary)
             default:
                 self.type = .null(object: newValue)
             }
@@ -108,7 +136,7 @@ extension Query {
             switch (realKey, self.type) {
             case (.key(let key), .dictionary(var dictionary)):
                 dictionary[key] = newValue.object
-                self.type = .dictionary(value: dictionary)
+                self.type = .dictionary(dictionary)
             default:
                 break
             }

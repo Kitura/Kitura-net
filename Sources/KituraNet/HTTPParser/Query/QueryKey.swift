@@ -14,14 +14,27 @@
  * limitations under the License.
  **/
 
+// MARK: QueryKey
+
+
+/// Enum type that descripbes subscript keys
+///
+///
 public enum QueryKey {
 
+    /// Subscript key based on Int
     case index(Int)
+
+    /// Subscript key based on String
     case key(String)
 }
 
+/// Protocol for implementing query key for types used in subscripting
+///
+///
 public protocol QueryKeyProtocol {
 
+    /// 'QueryKey' value
     var queryKey: QueryKey { get }
 }
 

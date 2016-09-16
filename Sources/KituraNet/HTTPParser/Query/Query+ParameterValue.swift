@@ -18,14 +18,19 @@ import Foundation
 
 extension Bool {
 
+    /// Convenience initializer from string.
+    ///
+    /// - Parameter string: string to be used for conversion.
     fileprivate init?(_ string: String) {
         guard string == "true" || string == "false" else { return nil }
         self.init(string == "true")
     }
 }
 
+// MARK: Query parameter return values.
 extension Query: ParameterValue {
 
+    /// Query parameter as optional 'String' value
     public var string: String? {
         switch self.type {
         case .string(let value):
@@ -41,6 +46,7 @@ extension Query: ParameterValue {
         }
     }
 
+    /// Query parameter as optional 'Int' value
     public var int: Int? {
         switch self.type {
         case .string(let value):
@@ -56,6 +62,7 @@ extension Query: ParameterValue {
         }
     }
 
+    /// Query parameter as optional 'Double' value
     public var double: Double? {
         switch self.type {
         case .string(let value):
@@ -69,6 +76,7 @@ extension Query: ParameterValue {
         }
     }
 
+    /// Query parameter as optional 'Bool' value
     public var bool: Bool? {
         switch self.type {
         case .bool(let value):
@@ -82,6 +90,7 @@ extension Query: ParameterValue {
         }
     }
 
+    /// Query parameter as optional array value
     public var array: [Any]? {
         switch self.type {
         case .array(let value):
@@ -91,6 +100,7 @@ extension Query: ParameterValue {
         }
     }
 
+    /// Query parameter as optional dictionary value
     public var dictionary: [String : Any]? {
         switch self.type {
         case .dictionary(let value):

@@ -16,19 +16,31 @@
 
 import Foundation
 
+// MARK: ParameterValue
+
+/// Enum describing parameter return types
+///
+///
 public protocol ParameterValue {
 
+    /// Object representing parameter.
     var object: Any { get }
 
+    /// String representing parameter.
     var string: String? { get }
 
+    /// Integer representing parameter.
     var int: Int? { get }
 
+    /// Floating-point representing parameter.
     var double: Double? { get }
 
+    /// Bool representing parameter.
     var bool: Bool? { get }
 
+    /// Array representing parameter.
     var array: [Any]? { get }
 
+    /// Dictionary representing parameter.
     var dictionary: [String : Any]? { get }
 }
