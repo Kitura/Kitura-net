@@ -59,8 +59,8 @@ public class HTTPServer {
     /// - Parameter errorHandler: optional callback for error handling
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-		
-		do {
+
+        do {
 			self.listenSocket = try Socket.create()
 
             // If SSL config has been created, 
