@@ -91,7 +91,7 @@ public class HTTPServer {
                 Log.error("Error reported:\n \(sslError.description)")
                 
             } else {
-                Log.error("Unexpected error reported...")
+                Log.error("Error creating socket: \(error)")
             }
         }
 
@@ -148,7 +148,6 @@ public class HTTPServer {
 
             // TODO: Change server exit to not rely on error being thrown
             repeat {
-                Log.verbose("listen on repeat")
                 let clientSocket = try socket.acceptClientConnection()
                 Log.info("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
