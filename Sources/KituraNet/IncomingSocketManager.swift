@@ -176,8 +176,10 @@ class IncomingSocketManager  {
 
             #if !GCD_ASYNCH && os(Linux)
                 let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-                if  result == -1  {
-                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                if result == -1 {
+                    if errno != EBADF {  // Ignore EBADF error (bad file descriptor), probably got closed.
+                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                    }
                 }
             #endif
             
