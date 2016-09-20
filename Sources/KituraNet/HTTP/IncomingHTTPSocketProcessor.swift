@@ -153,6 +153,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         numberOfRequests -= 1
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
+        handler?.startReadPolling()
     }
     
     /// Private method to return a string representation on a value of errno.
