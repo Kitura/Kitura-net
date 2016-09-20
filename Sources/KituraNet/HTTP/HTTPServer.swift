@@ -25,14 +25,10 @@ import SSLService
 /// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    ///
-    /// HTTPServerDelegate
-    ///
+    /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
     
-    ///
     /// SSL cert configs for handling client requests
-    ///
     public var sslConfig: SSLService.Configuration?
     
     /// Port number for listening for new connections.
@@ -61,7 +57,7 @@ public class HTTPServer {
         self.port = port
 
         do {
-			self.listenSocket = try Socket.create()
+            self.listenSocket = try Socket.create()
 
             // If SSL config has been created, 
             // create and attach the SSLService delegate to the socket
@@ -69,25 +65,22 @@ public class HTTPServer {
                 self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
             
-        } catch let error {
-            
-            if error is Socket.Error {
-                let socketError = error as! Socket.Error
-                Log.error("Error reported:\n \(socketError.description)")
-                
-            } else if error is SSLError {
-                // we have to catch SSLErrors separately since we are calling SSLService.Configuration
-                let sslError = error as! SSLError
-                Log.error("Error reported:\n \(sslError.description)")
-                
+        }
+        catch let error {
+            if let socketError = error as? Socket.Error {
+                Log.error("Error creating socket reported:\n \(socketError.description)")
+            } else if let sslError = error as? SSLError {
+                // we have to catch SSLErrors separately since we are
+                // calling SSLService.Configuration
+                Log.error("Error creating socket reported:\n \(sslError.description)")
             } else {
                 Log.error("Error creating socket: \(error)")
             }
         }
 
         guard let socket = self.listenSocket else {
-        // already did a callback on the error handler or logged error
-        return
+            // already did a callback on the error handler or logged error
+            return
         }
 
         let queuedBlock = DispatchWorkItem(block: {
