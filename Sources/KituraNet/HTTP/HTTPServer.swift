@@ -98,8 +98,8 @@ public class HTTPServer {
         }
 
         guard let socket = self.listenSocket else {
-        // already did a callback on the error handler or logged error
-        return
+            // already did a callback on the error handler or logged error
+            return
         }
 
         let queuedBlock = DispatchWorkItem(block: {
