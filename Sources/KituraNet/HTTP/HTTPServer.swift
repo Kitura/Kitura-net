@@ -48,6 +48,9 @@ public class HTTPServer {
     ///
     public var sslConfig: SSLService.Configuration?
     
+    /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
+    
     /// Port number for listening for new connections.
     public private(set) var port: Int?
     
@@ -81,15 +84,14 @@ public class HTTPServer {
             if let sslConfig = sslConfig {
                 self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
             }
-        } catch let error {
-            if error is Socket.Error {
-                let socketError = error as! Socket.Error
-                Log.error("Error reported:\n \(socketError.description)")
-            } else if error is SSLError {
-                // we have to catch SSLErrors separately since we are calling SSLService.Configuration
-                let sslError = error as! SSLError
-                Log.error("Error reported:\n \(sslError.description)")
-                
+        }
+        catch let error {
+            if let socketError = error as? Socket.Error {
+                Log.error("Error creating socket reported:\n \(socketError.description)")
+            } else if let sslError = error as? SSLError {
+                // we have to catch SSLErrors separately since we are
+                // calling SSLService.Configuration
+                Log.error("Error creating socket reported:\n \(sslError.description)")
             } else {
                 Log.error("Error creating socket: \(error)")
             }
