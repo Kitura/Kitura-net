@@ -106,15 +106,15 @@ public class HTTPServerResponse : ServerResponse {
             try flushStart()
             
             let keepAlive = processor.isKeepAlive
-            if  keepAlive {
-                processor.keepAlive()
-            }
             
             if  buffer.length > 0  {
                 processor.write(from: buffer)
             }
             
-            if !keepAlive  {
+            if  keepAlive {
+                processor.keepAlive()
+            }
+            else {
                 processor.close()
             }
         }

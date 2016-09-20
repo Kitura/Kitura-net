@@ -49,6 +49,8 @@ public class IncomingSocketHandler {
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
+    private weak var manager: IncomingSocketManager?
+    
     private var writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
     private var preparingToClose = false
@@ -56,9 +58,10 @@ public class IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor) {
+    init(socket: Socket, using: IncomingSocketProcessor, managedBy: IncomingSocketManager) {
         self.socket = socket
         processor = using
+        manager = managedBy
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
@@ -70,10 +73,26 @@ public class IncomingSocketHandler {
             readerSource.setCancelHandler() {
                 self.handleCancel()
             }
-            readerSource.resume()
+            startReadPolling()
         #endif
         
         processor?.handler = self
+    }
+    
+    func startReadPolling() {
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+            readerSource.resume()
+        #else
+            manager?.startEpoll(for: socket.socketfd)
+        #endif
+    }
+    
+    func stopReadPolling() {
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+            readerSource.suspend()
+        #else
+            manager?.stopEpoll(for: socket.socketfd)
+        #endif
     }
     
     /// Read in the available data and hand off to common processing code

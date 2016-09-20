@@ -141,6 +141,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Parsing has completed. Invoke the ServerDelegate to handle the request
     private func parsingComplete() {
         state = .messageCompletelyRead
+        handler?.stopReadPolling()
         DispatchQueue.global().async() { [unowned self] in
             self.delegate?.handle(request: self.request, response: self.response)
         }
