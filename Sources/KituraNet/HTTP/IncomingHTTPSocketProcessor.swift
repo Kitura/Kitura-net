@@ -31,8 +31,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         
     private weak var delegate: ServerDelegate?
     
-    private let reader: PseudoSynchronousReader
-    
     private let request: HTTPServerRequest
     
     /// The `ServerResponse` object used to enable the `ServerDelegate` to respond to the incoming request
@@ -59,7 +57,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// An enum for internal state
     enum State {
-        case reset, initial, parsedHeaders
+        case reset, initial, messageCompletelyRead
     }
     
     /// The state of this handler
@@ -67,8 +65,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     init(socket: Socket, using: ServerDelegate) {
         delegate = using
-        reader = PseudoSynchronousReader(clientSocket: socket)
-        request = HTTPServerRequest(reader: reader)
+        request = HTTPServerRequest(socket: socket)
         
         response = HTTPServerResponse(processor: self)
     }
@@ -86,12 +83,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             
         case .initial:
             inProgress = true
-            DispatchQueue.global().async() { [unowned self] in
-                self.parse(buffer)
-            }
+            parse(buffer)
             
-        case .parsedHeaders:
-            reader.addDataToRead(from: buffer)
+        case .messageCompletelyRead:
+            print("Received data after message was completely read")
         }
     }
     
@@ -135,18 +130,20 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         switch(parsingStatus.state) {
         case .initial:
             break
-        case .headersComplete, .messageComplete:
+        case .messageComplete:
             clientRequestedKeepAlive = parsingStatus.keepAlive
             parsingComplete()
-        case .reset:
+        case .reset, .headersComplete:
             break
         }
     }
     
-    /// Parsing has completed enough to invoke the ServerDelegate to handle the request
+    /// Parsing has completed. Invoke the ServerDelegate to handle the request
     private func parsingComplete() {
-        state = .parsedHeaders
-        delegate?.handle(request: request, response: response)
+        state = .messageCompletelyRead
+        DispatchQueue.global().async() { [unowned self] in
+            self.delegate?.handle(request: self.request, response: self.response)
+        }
     }
     
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
@@ -155,11 +152,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         numberOfRequests -= 1
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
-    }
-    
-    /// Drain the socket of the data of the current request.
-    func drain() {
-        request.drain()
     }
     
     /// Private method to return a string representation on a value of errno.

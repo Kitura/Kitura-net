@@ -68,9 +68,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
 
-    /// Reader helper, reads from underlying data source
-    private weak var helper: IncomingMessageHelper?
-
     private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
     private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
@@ -87,13 +84,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpParser!.delegate = self
     }
 
-    /// Sets a helper delegate
-    ///
-    /// - Parameter helper: the IncomingMessageHelper
-    func setup(_ helper: IncomingMessageHelper) {
-        self.helper = helper
-    }
-    
     /// Parse the message
     ///
     /// - Parameter buffer: An NSData object contaning the data to be parsed
@@ -118,7 +108,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         }
         
         var start = 0
-        while status.state == .initial  &&  status.error == nil  &&  length > 0  {
+        while status.state != .messageComplete  &&  status.error == nil  &&  length > 0  {
             let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + start
             let (numberParsed, upgrade) = parser.execute(bytes, length: length)
             if upgrade == 1 {
@@ -149,42 +139,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Throws: if an error occurs while reading the body.
     /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
-        var count = bodyChunk.fill(data: &data)
-        if count == 0 {
-            if let parser = httpParser, status.state == .headersComplete {
-                do {
-                    ioBuffer.count = 0
-                    count = try helper!.readHelper(into: &ioBuffer)
-                    if count > 0 {
-                        let (numberParsed, upgrade) =
-                                ioBuffer.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> (Int, UInt32) in
-                            return parser.execute(bytes, length: count)
-                        }
-                        if upgrade == 1 {
-                            // TODO: handle new protocol
-                        }
-                        else if (numberParsed != count) {
-                            /* Handle error. Usually just close the connection. */
-                            self.release()
-                            self.status.error = .parsedLessThanRead
-                        }
-                        else {
-                            count = self.bodyChunk.fill(data: &data)
-                        }
-                    }
-                    else {
-                        onMessageComplete()
-                    }
-                }
-                catch let error {
-                    /* Handle error. Usually just close the connection. */
-                    release()
-                    status.error = .internalError
-                    throw error
-                }
-            }
-        }
-
+        let count = bodyChunk.fill(data: &data)
         return count
     }
 
@@ -202,35 +157,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             bytesRead += length
         }
         return bytesRead
-    }
-
-    /// Read message body without storing it anywhere
-    func drain() {
-        if let parser = httpParser {
-            saveBody = false
-            while status.state == .headersComplete {
-                do {
-                    ioBuffer.count = 0
-                    let count = try helper!.readHelper(into: &ioBuffer)
-                    if count > 0 {
-                        ioBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
-                            let (numberParsed, _) = parser.execute(bytes, length: count)
-                            if (numberParsed != count) {
-                                self.release()
-                                self.status.error = .parsedLessThanRead
-                            }
-                        }
-                    }
-                    else {
-                        onMessageComplete()
-                    }
-                }
-                catch {
-                    release()
-                    status.error = .internalError
-                }
-            }
-        }
     }
 
     /// Read a chunk of the body and return it as a String.
@@ -366,16 +292,4 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         status.reset()
         httpParser?.reset()
     }
-}
-
-
-/// Protocol for IncomingMessageHelper
-protocol IncomingMessageHelper: class {
-
-    /// "Read" data from the actual underlying transport
-    ///
-    /// - Parameter into: The NSMutableData that will be receiving the data read in.
-    /// - Throws: if an error occurs while reading the data
-    func readHelper(into data: inout Data) throws -> Int
-
 }
