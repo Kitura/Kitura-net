@@ -117,10 +117,19 @@ public class IncomingSocketHandler {
     private func handleWriteHelper() {
         if  writeBuffer.length != 0 {
             do {
-                let written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
-                                               bufSize: writeBuffer.length - writeBufferPosition)
+                let amountToWrite = writeBuffer.length - writeBufferPosition
                 
-                if written != writeBuffer.length {
+                let written: Int
+                    
+                if amountToWrite > 0 {
+                    written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
+                                               bufSize: amountToWrite)
+                }
+                else {
+                    written = amountToWrite
+                }
+                
+                if written != amountToWrite {
                     writeBufferPosition += written
                 }
                 else {
