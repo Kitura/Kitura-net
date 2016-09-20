@@ -25,9 +25,7 @@ import SSLService
 /// An HTTP server that listens for connections on a socket.
 public class HTTPServer {
 
-    ///
     /// HTTPServerDelegate
-    ///
     public weak var delegate: ServerDelegate?
 
     /// SSL cert configs for handling client requests
