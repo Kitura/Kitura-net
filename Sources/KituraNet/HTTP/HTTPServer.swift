@@ -18,6 +18,7 @@ import Dispatch
 
 import LoggerAPI
 import Socket
+import SSLService
 
 // MARK: HTTPServer
 
@@ -26,6 +27,9 @@ public class HTTPServer {
 
     /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
+
+    /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
     
     /// Port number for listening for new connections.
     public private(set) var port: Int?
@@ -53,9 +57,20 @@ public class HTTPServer {
         self.port = port
         do {
             self.listenSocket = try Socket.create()
-        } catch {
-            if let callback = errorHandler {
-                callback(error)
+
+            // If SSL config has been created,
+            // create and attach the SSLService delegate to the socket
+            if let sslConfig = sslConfig {
+                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+            }
+        }
+        catch let error {
+            if let socketError = error as? Socket.Error {
+                Log.error("Error creating socket reported:\n \(socketError.description)")
+            } else if let sslError = error as? SSLError {
+                // we have to catch SSLErrors separately since we are
+                // calling SSLService.Configuration
+                Log.error("Error creating socket reported:\n \(sslError.description)")
             } else {
                 Log.error("Error creating socket: \(error)")
             }
