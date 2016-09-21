@@ -83,7 +83,7 @@ public class IncomingSocketHandler {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.resume()
         #else
-            manager?.startEpoll(for: socket.socketfd)
+            manager?.manageReaderEpoll(start: true, for: socket.socketfd)
         #endif
     }
     
@@ -91,7 +91,7 @@ public class IncomingSocketHandler {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.suspend()
         #else
-            manager?.stopEpoll(for: socket.socketfd)
+            manager?.manageReaderEpoll(start: false, for: socket.socketfd)
         #endif
     }
     
@@ -209,8 +209,8 @@ public class IncomingSocketHandler {
         do {
             let written: Int
             
-            if  self.writeBuffer.length == 0 {
-                written = try self.socket.write(from: bytes, bufSize: length)
+            if  writeBuffer.length == 0 {
+                written = try socket.write(from: bytes, bufSize: length)
             }
             else {
                 written = 0
@@ -222,8 +222,8 @@ public class IncomingSocketHandler {
                 }
                 
                 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                    if self.writerSource == nil {
-                        self.createWriterSource()
+                    if writerSource == nil {
+                        createWriterSource()
                     }
                 #endif
             }
@@ -237,7 +237,7 @@ public class IncomingSocketHandler {
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if  writeBuffer.length == 0  {
+        if  writeBuffer.length == writeBufferPosition  {
             close()
         }
         else {

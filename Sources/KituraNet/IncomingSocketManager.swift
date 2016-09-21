@@ -91,7 +91,13 @@ class IncomingSocketManager  {
             socketHandlers[socket.socketfd] = handler
             
             #if !GCD_ASYNCH && os(Linux)
-                startEpoll(for: socket.socketfd)
+                var event = epoll_event()
+                event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
+                event.data.fd = socket.socketfd
+                let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, socket.socketfd, &event)
+                if  result == -1  {
+                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                }
             #endif
         }
         catch {
@@ -145,24 +151,19 @@ class IncomingSocketManager  {
             }
         }
 
-        func startEpoll(for fileDescriptor: Int32) {
+        func manageReaderEpoll(start: Bool, for fileDescriptor: Int32) {
             var event = epoll_event()
-            event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
+            event.events = EPOLLOUT.rawValue | EPOLLET.rawValue
+            if start {
+                event.events |= EPOLLIN.rawValue
+            }
             event.data.fd = fileDescriptor
-            let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_ADD, fileDescriptor, &event)
+            let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_MOD, fileDescriptor, &event)
             if  result == -1  {
                 Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
             }
         }
 
-        func stopEpoll(for fileDescriptor: Int32) {
-            let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-            if result == -1 {
-                if errno != EBADF {  // Ignore EBADF error (bad file descriptor), probably got closed.
-                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-                }
-            }
-        }
     #endif
     
     /// Clean up idle sockets by:
@@ -188,7 +189,12 @@ class IncomingSocketManager  {
             socketHandlers.removeValue(forKey: fileDescriptor)
 
             #if !GCD_ASYNCH && os(Linux)
-                stopEpoll(for: fileDescriptor)
+                let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
+                if result == -1 {
+                    if errno != EBADF {  // Ignore EBADF error (bad file descriptor), probably got closed.
+                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                    }
+                }
             #endif
             
             handler.prepareToClose()
