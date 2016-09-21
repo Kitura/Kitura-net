@@ -126,6 +126,10 @@ public class IncomingSocketHandler {
                                                bufSize: amountToWrite)
                 }
                 else {
+                    if amountToWrite < 0 {
+                        Log.error("Amount of bytes to write to file descriptor \(socket.socketfd) was negative \(amountToWrite)")
+                    }
+                    
                     written = amountToWrite
                 }
                 
