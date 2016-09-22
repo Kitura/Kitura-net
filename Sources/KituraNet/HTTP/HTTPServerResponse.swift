@@ -107,14 +107,15 @@ public class HTTPServerResponse : ServerResponse {
             
             let keepAlive = processor.isKeepAlive
             
+            if  keepAlive {
+                processor.keepAlive()
+            }
+            
             if  buffer.length > 0  {
                 processor.write(from: buffer)
             }
             
-            if  keepAlive {
-                processor.keepAlive()
-            }
-            else {
+            if !keepAlive {
                 processor.close()
             }
         }
