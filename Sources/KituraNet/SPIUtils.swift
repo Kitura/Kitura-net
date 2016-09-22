@@ -31,7 +31,7 @@ public class SPIUtils {
     /// Abbreviations for month names
     ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+                                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
     ///
     /// Abbreviations for days of the week
@@ -39,13 +39,15 @@ public class SPIUtils {
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
     ///
-    /// Format the current time for use in HTTP
+    /// Format the given time for use in HTTP, default value is current time.
+    ///
+    /// - Parameter timestamp: the time ( default value is current timestamp )
     ///
     /// - Returns: string representation of timestamp
     ///
-    public static func httpDate() -> String {
+    public static func httpDate(from timestamp: time_t = time(nil)) -> String {
         
-        var theTime = time(nil)
+        var theTime = timestamp
         var timeStruct: tm = tm()
         gmtime_r(&theTime, &timeStruct)
         
@@ -57,6 +59,7 @@ public class SPIUtils {
         let min = Int(timeStruct.tm_min)
         let sec = Int(timeStruct.tm_sec)
         var s = days[wday]
+        s.reserveCapacity(30)
         s.append(", ")
         s.append(twoDigit[mday])
         s.append(" ")
@@ -80,20 +83,10 @@ public class SPIUtils {
     ///
     /// - Parameter date: the date
     ///
-    /// - Returns: string representation of timestamp
+    /// - Returns: string representation of Date
     ///
     public static func httpDate(_ date: Date) -> String {
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone(abbreviation: "UTC")!
-        let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekday], from: date)
-        let wday = Int(components.weekday!)
-        let mday = Int(components.day!)
-        let mon = Int(components.month!)
-        let year = Int(components.year!)
-        let hour = Int(components.hour!)
-        let min = Int(components.minute!)
-        let sec = Int(components.second!)
-        return "\(days[wday-1]), \(twoDigit[mday]) \(months[mon-1]) \(year) \(twoDigit[hour]):\(twoDigit[min]):\(twoDigit[sec]) GMT"
+        return httpDate(from: time_t(date.timeIntervalSince1970))
     }
 
     ///
@@ -109,4 +102,16 @@ public class SPIUtils {
                                    "70", "71", "72", "73", "74", "75", "76", "77", "78", "79",
                                    "80", "81", "82", "83", "84", "85", "86", "87", "88", "89",
                                    "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+}
+
+
+extension Date {
+    ///
+    /// Format the date for use in HTTP
+    ///
+    /// - Returns: string representation of Date
+    ///
+    var httpDate: String {
+        return SPIUtils.httpDate(self)
+    }
 }
