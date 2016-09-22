@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -148,15 +156,25 @@
                 </div>
               </div>
             <p>This class handles incoming sockets to the HTTPServer. The data sent by the client
-is read and passed to the current IncomingDataProcessor.</p>
+is read and passed to the current <code>IncomingDataProcessor</code>.</p>
 
-<p><strong>Note</strong>* The IncomingDataProcessor can change due to an Upgrade request.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>The IncomingDataProcessor can change due to an Upgrade request.</p>
 
-<p><strong>Note:</strong> This class uses different underlying technologies depending on:
-    1. On Linux if no special compile time options are specified, epoll is used
-    2. On OSX DispatchSource is used
-    3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
-       DispatchSource is used, as it is used on OSX.</p>
+</div>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This class uses different underlying technologies depending on:</p>
+
+</div>
+
+<pre class="highlight plaintext"><code>1. On Linux, if no special compile time options are specified, epoll is used
+2. On OSX, DispatchSource is used
+3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+   DispatchSource is used, as it is used on OSX.
+</code></pre>
 
           </div>
         </section>
@@ -178,14 +196,168 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> instance that processes data read from the underlying socket.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketHandler</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromCSo6NSData_T_"></a>
+                    <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromCSo6NSData_T_">write(from:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Write as much data to the socket as possible, buffering the rest</p>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter data: The NSData object containing the bytes to write to the socket.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">NSData</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>data</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The NSData object containing the bytes to write to the socket.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromSV6lengthSi_T_"></a>
+                    <a name="//apple_ref/swift/Method/write(from:length:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromSV6lengthSi_T_">write(from:length:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Write a sequence of bytes in an array to the socket</p>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter length: The number of bytes to write to the socket.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">bytes</span><span class="p">:</span> <span class="kt">UnsafeRawPointer</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>from</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An UnsafeRawPointer to the sequence of bytes to be written to the socket.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>length</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The number of bytes to write to the socket.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC9KituraNet21IncomingSocketHandler14prepareToCloseFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/prepareToClose()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler14prepareToCloseFT_T_">prepareToClose()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>If there is data waiting to be written, set a flag and the socket will
+be closed when all the buffered data has been written.
+Otherwise, immediately close the socket.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prepareToClose</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -200,7 +372,7 @@ is read and passed to the current IncomingDataProcessor.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

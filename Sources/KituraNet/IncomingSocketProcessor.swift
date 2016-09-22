@@ -17,8 +17,8 @@
 import Foundation
 
 /// This protocol defines the API of the classes used to process the data that
-/// comes in from a client's request. There should be one IncomingDataProcessor
-/// per incoming request or not.
+/// comes in from a client's request. There should be one `IncomingDataProcessor`
+/// instance per incoming request.
 public protocol IncomingSocketProcessor: class {
     
     /// The socket if idle will be kep alive until...
@@ -27,16 +27,26 @@ public protocol IncomingSocketProcessor: class {
     /// A flag to indicate that the socket has a request in progress
     var inProgress: Bool { get set }
 
-    /// A back reference to the IncomingSocketHandler processing the socket that
-    /// this IncomingDataProcessor is processing.    
+    /// A back reference to the `IncomingSocketHandler` processing the socket that
+    /// this `IncomingDataProcessor` is processing.
     weak var handler: IncomingSocketHandler? { get set }
 
-    /// Process data read from the socket. It is either passed to the HTTP parser or
-    /// it is saved in the Pseudo synchronous reader to be read later on.
+    /// Process data read from the socket.
+    ///
+    /// - Parameter buffer: An NSData object containing the data that was read in
+    ///                    and needs to be processed.
     func process(_ buffer: NSData)
     
     /// Write data to the socket
-    func write(from data: Data)
+    ///
+    /// - Parameter from: An NSData object containing the bytes to be written to the socket.
+    func write(from data: NSData)
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    func write(from bytes: UnsafeRawPointer, length: Int)
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()

@@ -15,88 +15,62 @@
  */
 
 import Foundation
-import KituraSys
 import Socket
 
+/// The FastCGIServerRequest class implements the `ServerRequest` protocol
+/// for incoming HTTP requests that come in over a FastCGI connection.
 public class FastCGIServerRequest : ServerRequest {
     
-    ///
     /// Socket for the request
-    ///
     private let socket: Socket
     
-    ///
-    /// server IP address pulled from socket
-    ///
+    /// The IP address of the client
     public private(set) var remoteAddress: String = ""
 
-    ///
-    /// Major version for HTTP
-    ///
+    /// Major version of HTTP of the request
     public private(set) var httpVersionMajor: UInt16? = 0
     
-    ///
-    /// Minor version for HTTP
-    ///
+    /// Minor version of HTTP of the request
     public private(set) var httpVersionMinor: UInt16? = 9
     
-    ///
-    /// Set of headers
-    ///
+    /// The set of headers received with the incoming request
     public var headers = HeadersContainer()
     
-    ///
-    /// HTTP Method
-    ///
+    /// The HTTP Method specified in the request
     public private(set) var method: String = ""
     
-    ///
-    /// URL strings.
-    ///
+    /// The URL from the request in string form
     public var urlString : String {
         guard url.count > 0 else {
             return ""
         }
-        return StringUtils.fromUtf8String(url)!
+        return String(data: url, encoding: .utf8)!
     }
     
-    ///
     /// URI Component received from FastCGI
-    ///
     private var requestUri : String? = nil
     
-    ///
-    /// Raw URL
-    ///
+    /// The URL from the request in UTF-8 form
     public private(set) var url = Data()
 
-    ///
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
-    ///
     private var bodyChunk = BufferList()
 
-    ///
     /// State of incoming message handling
-    ///
     private var status = Status.initial
     
-    ///
-    /// The request ID established by the FastCGI client
-    /// We also store an array of request ID's that are not our primary
-    /// one. When the main request is done, the FastCGIServer can reject the
-    /// extra requests as being unusable.
-    ///
+    /// The request ID established by the FastCGI client.
     public private(set) var requestId : UInt16 = 0
+    
+    /// An array of request ID's that are not our primary one.
+    /// When the main request is done, the FastCGIServer can reject the
+    /// extra requests as being unusable.
     public private(set) var extraRequestIds : [UInt16] = []
     
-    ///
     /// Some defaults
-    ///
     private static let defaultMethod : String = "GET"
     
-    ///
     /// List of status states
-    ///
     private enum Status {
         case initial
         case requestStarted
@@ -104,9 +78,7 @@ public class FastCGIServerRequest : ServerRequest {
         case requestComplete
     }
     
-    ///
     /// HTTP parser error types
-    ///
     public enum FastCGIParserErrorType {
         case success
         case protocolError
@@ -116,44 +88,49 @@ public class FastCGIServerRequest : ServerRequest {
         case internalError
     }
     
+    /// Initialize a `FastCGIServerRequest` instance
     ///
-    /// Constructor
-    ///
+    /// - Parameter socket: The socket to read the request from.
     required public init (socket: Socket) {
         self.socket = socket
     }
     
-    // 
-    // Read data received (perhaps from POST) into an NSData object
-    //
+    /// Read data from the body of the request
+    ///
+    /// - Parameter data: A Data struct to hold the data read in.
+    ///
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: The number of bytes read.
     public func read(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
     
-    //
-    // Read all data into the object.
-    //
+    /// Read all of the data in the body of the request
+    ///
+    /// - Parameter data: A Data struct to hold the data read in.
+    ///
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: The number of bytes read.
     public func readAllData(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
     
-    //
-    // Read data received (perhaps from POST) as a string
-    //
+    /// Read a string from the body of the request.
+    ///
+    /// - Throws: Socket.error if an error occurred while reading from the socket.
+    /// - Returns: An Optional string.
     public func readString() throws -> String? {
         var data = Data()
         let bytes : Int = bodyChunk.fill(data: &data)
         
         if bytes > 0 {
-            return StringUtils.fromUtf8String(data)
+            return String(data: data, encoding: .utf8)
         } else {
             return ""
         }
     }
     
-    //
-    // Proces the original request URI
-    //
+    /// Proces the original request URI
     func postProcessUrlParameter() -> Void {
         
         // reset the current url
@@ -165,19 +142,17 @@ public class FastCGIServerRequest : ServerRequest {
         if let requestUri = requestUri, requestUri.characters.count > 0 {
             
             // use the URI as received
-            url.append(StringUtils.toUtf8String(requestUri)!)
+            url.append(requestUri.data(using: .utf8)!)
         }
         else {
-            url.append(StringUtils.toUtf8String("/")!)
+            url.append("/".data(using: .utf8)!)
         }
                 
     }
     
-    //
-    // We've received all the parameters the server is going to send us, 
-    // so lets massage these into place and make sure, at worst, sane 
-    // defaults are in place.
-    //
+    /// We've received all the parameters the server is going to send us,
+    /// so lets massage these into place and make sure, at worst, sane
+    /// defaults are in place.
     private func postProcessParameters() {
         
         // make sure our method is set
@@ -195,11 +170,9 @@ public class FastCGIServerRequest : ServerRequest {
         
     }
     
-    //
-    // FastCGI delivers headers that were originally sent by the browser/client
-    // with "HTTP_" prefixed. We want to normalize these out to remove HTTP_
-    // and correct the capitilization (first letter of each word capitilized).
-    //
+    /// FastCGI delivers headers that were originally sent by the browser/client
+    /// with "HTTP_" prefixed. We want to normalize these out to remove HTTP_
+    /// and correct the capitilization (first letter of each word capitilized).
     private func processHttpHeader(_ name: String, value: String, remove: String) {
         
         var processedName : String = name.substring(from:
@@ -211,9 +184,7 @@ public class FastCGIServerRequest : ServerRequest {
         headers.append(processedName as String, value: value)
     }
     
-    //
-    // Parse the server protocol into a major and minor version
-    //
+    /// Parse the server protocol into a major and minor version
     private func processServerProtocol(_ protocolString: String) {
         
         guard protocolString.characters.count > 0 else {
@@ -263,12 +234,11 @@ public class FastCGIServerRequest : ServerRequest {
     }
     
     
-    // process our headers.
-    //
-    // a) there are some special case headers we want to deal with directly.
-    // b) we want to add HTTP_ headers to the header table after noralizing
-    // c) everything else just discard
-    //
+    /// Process our headers.
+    ///
+    /// a) there are some special case headers we want to deal with directly.
+    /// b) we want to add HTTP_ headers to the header table after noralizing
+    /// c) everything else just discard
     private func processHeader (_ name : String, value: String) {
         
         if name.caseInsensitiveCompare("REQUEST_METHOD") == .orderedSame {
@@ -317,9 +287,8 @@ public class FastCGIServerRequest : ServerRequest {
         
     }
     
-    // process a record parsed from the connection.
-    // this has already been parsed and is just waiting for us to make a decision.
-    //
+    /// process a record parsed from the connection.
+    /// this has already been parsed and is just waiting for us to make a decision.
     private func processRecord (_ record : FastCGIRecordParser) throws {
         
         // is this record for a request that is an extra
@@ -425,9 +394,7 @@ public class FastCGIServerRequest : ServerRequest {
         
     }
     
-    //
-    // Parse the request from FastCGI.
-    //
+    /// Parse the request from FastCGI.
     func parse (_ callback: (FastCGIParserErrorType) -> Void) {
         
         

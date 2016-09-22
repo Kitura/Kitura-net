@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,15 @@
         <section class="section">
           <div class="section-content">
             <h1>ServerRequest</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerRequest</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+
+                </div>
+              </div>
+            <p>The ServerRequest protocol allows requests to be abstracted 
+across different networking protocols in an agnostic way to the
+Kitura project Router.</p>
 
           </div>
         </section>
@@ -163,7 +179,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set of headers</p>
+                        <p>The set of headers received with the incoming request</p>
 
                       </div>
                       <div class="declaration">
@@ -190,7 +206,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>URL</p>
+                        <p>The URL from the request in string form</p>
 
                       </div>
                       <div class="declaration">
@@ -217,7 +233,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Raw URL</p>
+                        <p>The URL from the request in UTF-8 form</p>
 
                       </div>
                       <div class="declaration">
@@ -244,7 +260,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>server IP address</p>
+                        <p>The IP address of the client</p>
 
                       </div>
                       <div class="declaration">
@@ -271,7 +287,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Major version for HTTP</p>
+                        <p>Major version of HTTP of the request</p>
 
                       </div>
                       <div class="declaration">
@@ -298,7 +314,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Minor version for HTTP</p>
+                        <p>Minor version of HTTP of the request</p>
 
                       </div>
                       <div class="declaration">
@@ -325,7 +341,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>HTTP Method</p>
+                        <p>The HTTP Method specified in the request</p>
 
                       </div>
                       <div class="declaration">
@@ -352,23 +368,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read data in the message</p>
+                        <p>Read data from the body of the request</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data in the message</p>
+    <p>Parameter data: A Data struct to hold the data read in.</p>
 
 </div>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    <p>Socket.error if an error occurred while reading from a socket</p>
+    <p>Socket.error if an error occurred while reading from the socket</p>
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>the number of bytes read</p>
+    <p>The number of bytes read</p>
 
 </div>
 
@@ -393,7 +409,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>A Data struct to hold the data in the message</p>
+                                  <p>A Data struct to hold the data read in.</p>
 
                                 </div>
                               </td>
@@ -403,7 +419,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>the number of bytes read</p>
+                        <p>The number of bytes read</p>
 
                       </div>
                     </section>
@@ -422,17 +438,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read the string</p>
+                        <p>Read a string from the body of the request.</p>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while reading from a socket
+    Socket.error if an error occurred while reading from the socket
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    an Optional string
+    An Optional string
 
 </div>
 
@@ -447,7 +463,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>an Optional string</p>
+                        <p>An Optional string</p>
 
                       </div>
                     </section>
@@ -466,23 +482,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Read all data in the message</p>
+                        <p>Read all of the data in the body of the request</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data in the message</p>
+    <p>Parameter data: A Data struct to hold the data read in.</p>
 
 </div>
 
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
-    <p>Socket.error if an error occurred while reading from a socket</p>
+    <p>Socket.error if an error occurred while reading from the socket</p>
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>the number of bytes read</p>
+    <p>The number of bytes read</p>
 
 </div>
 
@@ -507,7 +523,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>A Data struct to hold the data in the message</p>
+                                  <p>A Data struct to hold the data read in.</p>
 
                                 </div>
                               </td>
@@ -517,7 +533,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>the number of bytes read</p>
+                        <p>The number of bytes read</p>
 
                       </div>
                     </section>
@@ -531,7 +547,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

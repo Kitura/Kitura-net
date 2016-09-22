@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,13 @@
         <section class="section">
           <div class="section-content">
             <h1>HTTP</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTP</span></code></pre>
+
+                </div>
+              </div>
+            <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
 
           </div>
         </section>
@@ -163,7 +177,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Mapping of integer status codes to the String description</p>
+                        <p>Mapping of integer HTTP status codes to the String description.</p>
 
                       </div>
                       <div class="declaration">
@@ -190,11 +204,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Creates a new HTTP server</p>
+                        <p>Create a new <code><a href="../Classes/HTTPServer.html">HTTPServer</a></code>.</p>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    an instance of HTTPServer
+    an instance of <code><a href="../Classes/HTTPServer.html">HTTPServer</a></code>.
 
 </div>
 
@@ -209,7 +223,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>an instance of HTTPServer</p>
+                        <p>an instance of <code><a href="../Classes/HTTPServer.html">HTTPServer</a></code>.</p>
 
                       </div>
                     </section>
@@ -218,9 +232,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet4HTTP7requestFTSS8callbackFT8responseGSqCS_14ClientResponse__T__CS_13ClientRequest"></a>
+                    <a name="/s:ZFC9KituraNet4HTTP7requestFTSS8callbackFGSqCS_14ClientResponse_T__CS_13ClientRequest"></a>
                     <a name="//apple_ref/swift/Method/request(_:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet4HTTP7requestFTSS8callbackFT8responseGSqCS_14ClientResponse__T__CS_13ClientRequest">request(_:callback:)</a>
+                    <a class="token" href="#/s:ZFC9KituraNet4HTTP7requestFTSS8callbackFGSqCS_14ClientResponse_T__CS_13ClientRequest">request(_:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -228,23 +242,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Creates a new ClientRequest using URL</p>
+                        <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using URL.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter url: URL address for the request
+    Parameter url: URL address for the request.
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter callback: closure to run after the request</p>
+    Parameter callback: closure to run after the request.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a ClientRequest instance</p>
+    a <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> instance
 
 </div>
 
@@ -253,7 +267,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
 
                         </div>
                       </div>
@@ -269,7 +283,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>URL address for the request</p>
+                                  <p>URL address for the request.</p>
 
                                 </div>
                               </td>
@@ -282,7 +296,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>closure to run after the request</p>
+                                  <p>closure to run after the request.</p>
 
                                 </div>
                               </td>
@@ -292,7 +306,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a ClientRequest instance</p>
+                        <p>a <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> instance</p>
 
                       </div>
                     </section>
@@ -301,9 +315,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet4HTTP7requestFTGSaOCS_13ClientRequest7Options_8callbackFT8responseGSqCS_14ClientResponse__T__S1_"></a>
+                    <a name="/s:ZFC9KituraNet4HTTP7requestFTGSaOCS_13ClientRequest7Options_8callbackFGSqCS_14ClientResponse_T__S1_"></a>
                     <a name="//apple_ref/swift/Method/request(_:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet4HTTP7requestFTGSaOCS_13ClientRequest7Options_8callbackFT8responseGSqCS_14ClientResponse__T__S1_">request(_:callback:)</a>
+                    <a class="token" href="#/s:ZFC9KituraNet4HTTP7requestFTGSaOCS_13ClientRequest7Options_8callbackFGSqCS_14ClientResponse_T__S1_">request(_:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -311,23 +325,23 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Creates a new ClientRequest using a list of options</p>
+                        <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using a list of options.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter options: a list of ClientRequestOptions
+    Parameter options: a list of <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code>.
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter callback: closure to run after the request</p>
+    Parameter callback: closure to run after the request.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a ClientRequest instance</p>
+    a <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> instance
 
 </div>
 
@@ -336,7 +350,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Options</span><span class="p">],</span> <span class="nv">callback</span><span class="p">:</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[</span><span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Options</span><span class="p">],</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
 
                         </div>
                       </div>
@@ -352,7 +366,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>a list of ClientRequestOptions</p>
+                                  <p>a list of <code>ClientRequest.Options</code>.</p>
 
                                 </div>
                               </td>
@@ -365,7 +379,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>closure to run after the request</p>
+                                  <p>closure to run after the request.</p>
 
                                 </div>
                               </td>
@@ -375,7 +389,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a ClientRequest instance</p>
+                        <p>a <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> instance</p>
 
                       </div>
                     </section>
@@ -384,9 +398,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet4HTTP3getFTSS8callbackFT8responseGSqCS_14ClientResponse__T__CS_13ClientRequest"></a>
+                    <a name="/s:ZFC9KituraNet4HTTP3getFTSS8callbackFGSqCS_14ClientResponse_T__CS_13ClientRequest"></a>
                     <a name="//apple_ref/swift/Method/get(_:callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet4HTTP3getFTSS8callbackFT8responseGSqCS_14ClientResponse__T__CS_13ClientRequest">get(_:callback:)</a>
+                    <a class="token" href="#/s:ZFC9KituraNet4HTTP3getFTSS8callbackFGSqCS_14ClientResponse_T__CS_13ClientRequest">get(_:callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -394,24 +408,30 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Creates a new ClientRequest using URL
-<em>Note</em>: This method will end the ClientRequest immediately after creation</p>
+                        <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using URL.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter url: URL address for the request
+    Parameter url: URL address for the request.
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    <p>Parameter callback: closure to run after the request</p>
+    Parameter callback: closure to run after the request.
 
 </div>
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a ClientRequest instance</p>
+    <p>a ClientRequest instance.</p>
+
+</div>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This method will invoke the end function of the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code>
+   immediately after its creation.</p>
 
 </div>
 
@@ -420,7 +440,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">get</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">get</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/ClientRequest.html">ClientRequest</a></span></code></pre>
 
                         </div>
                       </div>
@@ -436,7 +456,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>URL address for the request</p>
+                                  <p>URL address for the request.</p>
 
                                 </div>
                               </td>
@@ -449,7 +469,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>closure to run after the request</p>
+                                  <p>closure to run after the request.</p>
 
                                 </div>
                               </td>
@@ -459,7 +479,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a ClientRequest instance</p>
+                        <p>a ClientRequest instance.</p>
 
                       </div>
                     </section>
@@ -478,10 +498,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Transform the URL into escaped characters</p>
+                        <p>Transform the URL into escaped characters.</p>
 
-<p><em>Note</em>: URLS can only be sent over the Internet using the ASCII character set, so character escaping will
-transform unsafe ASCII characters with a &rsquo;%&rsquo; followed by two hexadecimal digits.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    URLs can only be sent over the Internet using the ASCII character set, so character escaping will
+transform unsafe ASCII characters with a &rsquo;%&rsquo; followed by two hexadecimal digits.
+
+</div>
 
                       </div>
                       <div class="declaration">
@@ -503,7 +527,7 @@ transform unsafe ASCII characters with a &rsquo;%&rsquo; followed by two hexadec
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

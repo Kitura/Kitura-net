@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,14 @@
         <section class="section">
           <div class="section-content">
             <h1>ListenerGroup</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ListenerGroup</span></code></pre>
+
+                </div>
+              </div>
+            <p>A class that provides a set of helper functions that enables a caller to wait
+for a group of listener blocks to finish executing.</p>
 
           </div>
         </section>
@@ -180,9 +195,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onC9KituraSys5Queue5blockFT_T__T_"></a>
+                    <a name="/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onCSo13DispatchQueue5blockC8Dispatch16DispatchWorkItem_T_"></a>
                     <a name="//apple_ref/swift/Method/enqueueAsynchronously(on:block:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onC9KituraSys5Queue5blockFT_T__T_">enqueueAsynchronously(on:block:)</a>
+                    <a class="token" href="#/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onCSo13DispatchQueue5blockC8Dispatch16DispatchWorkItem_T_">enqueueAsynchronously(on:block:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -190,8 +205,64 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Enqueue a block of code on a given queue, assigning
+it to the listener group in the process (so we can wait
+on it later).</p>
 
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter on: The queue on to which the provided block will be enqueued
+           for asynchronous execution.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter block: The block to be enqueued for asynchronous execution.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="n">on</span> <span class="nv">queue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="p">,</span> <span class="nv">block</span><span class="p">:</span> <span class="kt">DispatchWorkItem</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>on</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The queue on to which the provided block will be enqueued for asynchronous execution.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>block</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The block to be enqueued for asynchronous execution.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -204,7 +275,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

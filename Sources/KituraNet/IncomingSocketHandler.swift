@@ -22,14 +22,15 @@ import LoggerAPI
 import Socket
 
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
-/// is read and passed to the current IncomingDataProcessor.
+/// is read and passed to the current `IncomingDataProcessor`.
 ///
-/// **Note*** The IncomingDataProcessor can change due to an Upgrade request.
+/// - Note: The IncomingDataProcessor can change due to an Upgrade request.
 ///
-/// **Note:** This class uses different underlying technologies depending on:
-///     1. On Linux if no special compile time options are specified, epoll is used
-///     2. On OSX DispatchSource is used
-///     3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+/// - Note: This class uses different underlying technologies depending on:
+///
+///     1. On Linux, if no special compile time options are specified, epoll is used
+///     2. On OSX, DispatchSource is used
+///     3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
 ///        DispatchSource is used, as it is used on OSX.
 public class IncomingSocketHandler {
     
@@ -44,9 +45,12 @@ public class IncomingSocketHandler {
     #endif
 
     let socket: Socket
-        
+    
+    /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
-    private var writeBuffer = Data()
+    
+    private var writeBuffer = NSMutableData()
+    private var writeBufferPosition = 0
     private var preparingToClose = false
     
     /// The file descriptor of the incoming socket
@@ -85,15 +89,17 @@ public class IncomingSocketHandler {
                 processor?.process(buffer)
             }
             else {
-                if  errno != EAGAIN  &&  errno != EWOULDBLOCK  {
+                if  socket.remoteConnectionClosed  {
                     prepareToClose()
                 }
             }
         }
         catch let error as Socket.Error {
             Log.error(error.description)
+            prepareToClose()
         } catch {
             Log.error("Unexpected error...")
+            prepareToClose()
         }
     }
     
@@ -109,15 +115,30 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
-        if  writeBuffer.count != 0 {
+        if  writeBuffer.length != 0 {
             do {
-                let written = try socket.write(from: writeBuffer)
+                let amountToWrite = writeBuffer.length - writeBufferPosition
                 
-                if written != writeBuffer.count {
-                    writeBuffer = writeBuffer.subdata(in: written..<writeBuffer.count)
+                let written: Int
+                    
+                if amountToWrite > 0 {
+                    written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
+                                               bufSize: amountToWrite)
                 }
                 else {
-                    writeBuffer = Data()
+                    if amountToWrite < 0 {
+                        Log.error("Amount of bytes to write to file descriptor \(socket.socketfd) was negative \(amountToWrite)")
+                    }
+                    
+                    written = amountToWrite
+                }
+                
+                if written != amountToWrite {
+                    writeBufferPosition += written
+                }
+                else {
+                    writeBuffer.length = 0
+                    writeBufferPosition = 0
                 }
             }
             catch {
@@ -125,7 +146,7 @@ public class IncomingSocketHandler {
             }
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                if writeBuffer.count == 0, let writerSource = writerSource {
+                if writeBuffer.length == 0, let writerSource = writerSource {
                     writerSource.cancel()
                 }
             #endif
@@ -136,7 +157,7 @@ public class IncomingSocketHandler {
         }
     }
     
-    /// create the writer source
+    /// Create the writer source
     private func createWriterSource() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
@@ -153,42 +174,51 @@ public class IncomingSocketHandler {
     }
     
     /// Write as much data to the socket as possible, buffering the rest
-    func write(from data: Data) {
+    ///
+    /// - Parameter data: The NSData object containing the bytes to write to the socket.
+    public func write(from data: NSData) {
+        write(from: data.bytes, length: data.length)
+    }
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
         guard socket.socketfd > -1  else { return }
         
-        data.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<UInt8>) in
-            do {
-                let written: Int
+        do {
+            let written: Int
             
-                if  self.writeBuffer.count == 0 {
-                    written = try self.socket.write(from: bytes, bufSize: data.count)
-                }
-                else {
-                    written = 0
-                }
+            if  self.writeBuffer.length == 0 {
+                written = try self.socket.write(from: bytes, bufSize: length)
+            }
+            else {
+                written = 0
+            }
             
-                if written != data.count {
-                    IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
-                        self.writeBuffer.append(bytes+written, count:data.count-written)
+            if written != length {
+                IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
+                    self.writeBuffer.append(bytes + written, length: length - written)
+                }
+                
+                #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+                    if self.writerSource == nil {
+                        self.createWriterSource()
                     }
-                    
-                    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                        if self.writerSource == nil {
-                            self.createWriterSource()
-                        }
-                    #endif
-                }
+                #endif
             }
-            catch {
-                Log.error("Write to socket (file descriptor \(self.socket.socketfd) failed. Error number=\(errno). Message=\(self.errorString(error: errno)).")
-            }
+        }
+        catch {
+            Log.error("Write to socket (file descriptor \(self.socket.socketfd) failed. Error number=\(errno). Message=\(self.errorString(error: errno)).")
         }
     }
     
-    /// If there is data waiting to be written, then set a flag,
-    /// otherwise actaully close the socket
-    func prepareToClose() {
-        if  writeBuffer.count == 0  {
+    /// If there is data waiting to be written, set a flag and the socket will
+    /// be closed when all the buffered data has been written.
+    /// Otherwise, immediately close the socket.
+    public func prepareToClose() {
+        if  writeBuffer.length == 0  {
             close()
         }
         else {
@@ -198,8 +228,8 @@ public class IncomingSocketHandler {
     
     /// Close the socket and mark this handler as no longer in progress.
     ///
-    /// **Note:** On Linux closing the socket causes it to be dropped by epoll.
-    /// **Note:** On OSX the cancel handler will actually close the socket.
+    /// - Note: On Linux closing the socket causes it to be dropped by epoll.
+    /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()

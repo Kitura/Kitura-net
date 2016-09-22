@@ -19,88 +19,79 @@ import Dispatch
 import Socket
 import LoggerAPI
 
+/// A server that listens for incoming HTTP requests that are sent using the FastCGI
+/// protocol.
 public class FastCGIServer {
- 
-    ///
-    /// Queue for listening and establishing new connections
-    ///
-    private static var listenerQueue = DispatchQueue(label: "FastCGIServer.listenerQueue",
-                                                     attributes: [DispatchQueue.Attributes.concurrent])
 
-    ///
-    /// Queue for handling client requests
-    ///
-    private static var clientHandlerQueue = DispatchQueue(label: "FastCGIServer.clientHandlerQueue",
-                                                          attributes: [DispatchQueue.Attributes.concurrent])
-
-    ///
-    /// ServerDelegate
-    ///
+    /// The `ServerDelegate` to handle incoming requests.
     public weak var delegate: ServerDelegate?
 
-    ///
     /// Port number for listening for new connections
-    ///
     public private(set) var port: Int?
     
-    ///
     /// TCP socket used for listening for new connections
-    ///
     private var listenSocket: Socket?
 
-    ///
     /// Whether the FastCGI server has stopped listening
-    ///
     var stopped = false
 
-    ///
     /// Listens for connections on a socket
     ///
     /// - Parameter port: port number for new connections (ex. 9000)
+    /// - Parameter errorHandler: optional callback for error handling
     ///
-    public func listen(port: Int) {
-        
+    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         self.port = port
-        
+
         do {
-            
-            listenSocket = try Socket.create()
-            
-        } catch let error as Socket.Error {
-            print("FastCGI error reported:\n \(error.description)")
+            self.listenSocket = try Socket.create()
         } catch {
-            print("Unexpected FastCGI error...")
+            if let callback = errorHandler {
+                callback(error)
+            } else {
+                Log.error("Error creating socket: \(error)")
+            }
         }
-        
+
+        guard let socket = self.listenSocket else {
+            // already did a callback on the error handler or logged error
+            return
+        }
+
         let queuedBlock = DispatchWorkItem(block: {
-            self.listen(socket: self.listenSocket, port: self.port!)
+            do {
+                try self.listen(socket: socket, port: port)
+            } catch {
+                if let callback = errorHandler {
+                    callback(error)
+                } else {
+                    Log.error("Error listening on socket: \(error)")
+                }
+            }
         })
-        
-        ListenerGroup.enqueueAsynchronously(on: FastCGIServer.listenerQueue, block: queuedBlock)
+
+        ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
         
     }
     
-    ///
-    /// Static method to create a new FastCGIServer and have it listen for conenctions
+    /// Static method to create a new `FastCGIServer` and have it listen for conenctions
     ///
     /// - Parameter port: port number for accepting new connections
     /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
+    /// - Parameter errorHandler: optional callback for error handling
     ///
-    /// - Returns: a new FastCGIServer instance
-    ///
-    public static func listen(port: Int, delegate: ServerDelegate) -> FastCGIServer {
+    /// - Returns: a new `FastCGIServer` instance
+    public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> FastCGIServer {
         
         let server = FastCGI.createServer()
         server.delegate = delegate
-        server.listen(port: port)
+        server.listen(port: port, errorHandler: errorHandler)
         return server
         
     }
     
-    //
-    // Retrieve an appropriate connection backlog value for our listen socket.
-    // This log is taken from Nginx, and tests out with good results.
-    //
+    /// Retrieve an appropriate connection backlog value for our listen socket.
+    /// This log is taken from Nginx, and tests out with good results.
     private static func getConnectionBacklog() -> Int {
         #if os(Linux)
             return 511
@@ -109,19 +100,12 @@ public class FastCGIServer {
         #endif
     }
     
-    ///
     /// Handles instructions for listening on a socket
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    ///
-    func listen(socket: Socket?, port: Int) {
-        
+    func listen(socket: Socket, port: Int) throws {
         do {
-            guard let socket = socket else {
-                return
-            }
-            
             try socket.listen(on: port, maxBacklogSize:FastCGIServer.getConnectionBacklog())
             Log.info("Listening on port \(port) (FastCGI)")
             
@@ -133,21 +117,16 @@ public class FastCGIServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                 Log.info("FastCGI Server has stopped listening")
             }
             else {
-                Log.error("FastCGI Error reported:\n \(error.description)")
+                throw error
             }
-        } catch {
-            Log.error("Unexpected FastCGI error...")
         }
     }
     
-    ///
     /// Send multiplex request rejections
-    //
     func sendMultiplexRequestRejections(request: FastCGIServerRequest, response: FastCGIServerResponse) {
         if request.extraRequestIds.count > 0 {
             for requestId in request.extraRequestIds {
@@ -158,18 +137,16 @@ public class FastCGIServer {
         }
     }
     
-    ///
     /// Handle a new client FastCGI request
     ///
     /// - Parameter clientSocket: the socket used for connecting
-    ///
     func handleClientRequest(socket clientSocket: Socket) {
         
         guard let delegate = delegate else {
             return
         }
         
-        FastCGIServer.clientHandlerQueue.async() {
+        DispatchQueue.global().async() {
             
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)
@@ -198,9 +175,7 @@ public class FastCGIServer {
         }
     }
     
-    ///
     /// Stop listening for new connections
-    ///
     public func stop() {
         
         if let listenSocket = listenSocket {
@@ -209,6 +184,5 @@ public class FastCGIServer {
         }
         
     }
-
     
 }

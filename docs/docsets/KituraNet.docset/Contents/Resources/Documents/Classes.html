@@ -19,7 +19,7 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -117,6 +117,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -169,9 +177,22 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>This class provides an implementation of a buffer that can be added to and
+<q>taken</q> from in chunks. Data is always added to the end of the buffer and
+data is <q>taken</q> from the buffer from the beginning towards the end. A pointer
+is maintained as where the next chunk of data will be <q>taken</q> from. This
+pointer can be reset, to enable the data in the buffer to be fetched from the
+beginning again.</p>
 
                         <a href="Classes/BufferList.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">BufferList</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -200,9 +221,17 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>This class provides a set of low level APIs for issuing HTTP requests to another server.</p>
 
                         <a href="Classes/ClientRequest.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientRequest</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -231,9 +260,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>This class describes the response sent by the remote server to an HTTP request
+sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></code> class. This class is an extension of the 
+<code><a href="Classes/HTTPIncomingMessage.html">HTTPIncomingMessage</a></code> class.</p>
 
                         <a href="Classes/ClientResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientResponse</span><span class="p">:</span> <span class="kt"><a href="Classes/HTTPIncomingMessage.html">HTTPIncomingMessage</a></span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -255,9 +294,18 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A class that abstracts out the HTTP header APIs of the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> and
+<code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
 
                         <a href="Classes/HeadersContainer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HeadersContainer</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -280,15 +328,25 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>This class handles incoming sockets to the HTTPServer. The data sent by the client
-is read and passed to the current IncomingDataProcessor.</p>
+is read and passed to the current <code>IncomingDataProcessor</code>.</p>
 
-<p><strong>Note</strong>* The IncomingDataProcessor can change due to an Upgrade request.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>The IncomingDataProcessor can change due to an Upgrade request.</p>
 
-<p><strong>Note:</strong> This class uses different underlying technologies depending on:
-    1. On Linux if no special compile time options are specified, epoll is used
-    2. On OSX DispatchSource is used
-    3. On Linux if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
-       DispatchSource is used, as it is used on OSX.</p>
+</div>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This class uses different underlying technologies depending on:</p>
+
+</div>
+
+<pre class="highlight plaintext"><code>1. On Linux, if no special compile time options are specified, epoll is used
+2. On OSX, DispatchSource is used
+3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+   DispatchSource is used, as it is used on OSX.
+</code></pre>
 
                         <a href="Classes/IncomingSocketHandler.html" class="slightly-smaller">See more</a>
                       </div>
@@ -320,9 +378,18 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A class that provides a set of helper functions that enables a caller to wait
+for a group of listener blocks to finish executing.</p>
 
                         <a href="Classes/ListenerGroup.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ListenerGroup</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -351,9 +418,17 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A set of utility functions.</p>
 
                         <a href="Classes/SPIUtils.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SPIUtils</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -375,9 +450,17 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The <q>root</q> class for the FastCGI server implementation.</p>
 
                         <a href="Classes/FastCGI.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGI</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -399,9 +482,18 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A server that listens for incoming HTTP requests that are sent using the FastCGI
+protocol.</p>
 
                         <a href="Classes/FastCGIServer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -423,9 +515,18 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol
+for incoming HTTP requests that come in over a FastCGI connection.</p>
 
                         <a href="Classes/FastCGIServerRequest.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerRequest</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -447,9 +548,18 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol
+for incoming HTTP requests that come in over a FastCGI connection.</p>
 
                         <a href="Classes/FastCGIServerResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -478,9 +588,17 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
 
                         <a href="Classes/HTTP.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTP</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -509,9 +627,17 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A representation of HTTP incoming message.</p>
 
                         <a href="Classes/HTTPIncomingMessage.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span> <span class="p">:</span> <span class="kt">HTTPParserDelegate</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -540,9 +666,17 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>An HTTP server that listens for connections on a socket.</p>
 
                         <a href="Classes/HTTPServer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -571,10 +705,10 @@ is read and passed to the current IncomingDataProcessor.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class implements the ServerRequest protocol for incoming sockets that
+                        <p>This class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
 are communicating via the HTTP protocol. Most of the implementation is in
-the HTTPIncomingMessage class which implements logic common to this class
-and the ClientResponse class.</p>
+the <code><a href="Classes/HTTPIncomingMessage.html">HTTPIncomingMessage</a></code> class which implements logic common to this class
+and the <code><a href="Classes/ClientResponse.html">ClientResponse</a></code> class.</p>
 
                         <a href="Classes/HTTPServerRequest.html" class="slightly-smaller">See more</a>
                       </div>
@@ -613,9 +747,18 @@ and the ClientResponse class.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>This class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
+responses via the HTTP protocol.</p>
 
                         <a href="Classes/HTTPServerResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -637,9 +780,9 @@ and the ClientResponse class.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class processes the data sent by the client after the data was read. It
-is parsed filling in a ServerRequest object. When parsing is complete the
-ServerDelegate is invoked.</p>
+                        <p>This class processes the data sent by the client after the data was read. The data
+is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServerRequest</a></code> object. When the parsing is complete, the
+<code><a href="Protocols/ServerDelegate.html">ServerDelegate</a></code> is invoked.</p>
 
                         <a href="Classes/IncomingHTTPSocketProcessor.html" class="slightly-smaller">See more</a>
                       </div>
@@ -678,9 +821,19 @@ ServerDelegate is invoked.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>A parsing of HTTP URL according to the folowing format:</p>
+
+<p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
 
                         <a href="Classes/URLParser.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">URLParser</span> <span class="p">:</span> <span class="kt">CustomStringConvertible</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
@@ -693,7 +846,7 @@ ServerDelegate is invoked.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

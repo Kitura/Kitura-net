@@ -11,5 +11,5 @@ readme: README.md
 skip_undocumented: false
 hide_documentation_coverage: false
 
-xcodebuild_arguments: [-project, Kitura-net.xcodeproj, -target, KituraNet, -toolchain, org.swift.3020160725a, LIBRARY_SEARCH_PATHS=.build/debug]
+xcodebuild_arguments: [-project, Kitura-net.xcodeproj, -target, KituraNet, LIBRARY_SEARCH_PATHS=.build/debug]
 

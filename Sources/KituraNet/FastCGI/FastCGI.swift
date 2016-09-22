@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/// The "root" class for the FastCGI server implementation.
 public class FastCGI {
  
     //
@@ -78,10 +79,11 @@ public class FastCGI {
         case protocolError
     }
 
-    // Create a Server
-    // Provided as a convenience and a consistency 
-    // with the HTTP implementation.
-    //
+    /// Create a `FastCGIServer` instance.
+    /// Provided as a convenience and for consistency
+    /// with the HTTP implementation.
+    ///
+    /// - Returns: A `FastCGIServer` instance.
     public static func createServer() -> FastCGIServer {
         return FastCGIServer()
     }

@@ -15,15 +15,18 @@
  */
 
 import Foundation
+import Dispatch
 
 import LoggerAPI
 import Socket
 
-/// This class processes the data sent by the client after the data was read. It
-/// is parsed filling in a ServerRequest object. When parsing is complete the
-/// ServerDelegate is invoked.
+/// This class processes the data sent by the client after the data was read. The data
+/// is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the
+/// `ServerDelegate` is invoked.
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
+    /// A back reference to the `IncomingSocketHandler` processing the socket that
+    /// this `IncomingDataProcessor` is processing.
     public weak var handler: IncomingSocketHandler?
         
     private weak var delegate: ServerDelegate?
@@ -32,26 +35,26 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     private let request: HTTPServerRequest
     
-    /// The ServerResponse object used to enable the ServerDelegate to respond to the incoming request
-    /// Note: This var is optional to enable it to be constructed in the init function
+    /// The `ServerResponse` object used to enable the `ServerDelegate` to respond to the incoming request
+    /// - Note: This var is optional to enable it to be constructed in the init function
     private var response: ServerResponse!
     
     /// Keep alive timeout for idle sockets in seconds
     static let keepAliveTimeout: TimeInterval = 60
     
-    /// A flag indicating that the client has requested that the socket be kep alive
+    /// A flag indicating that the client has requested that the socket be kept alive
     private(set) var clientRequestedKeepAlive = false
     
     /// The socket if idle will be kep alive until...
     public var keepAliveUntil: TimeInterval = 0.0
     
-    /// A flag to indicate that the socket has a request in progress
+    /// A flag that indicates that there is a request in progress
     public var inProgress = true
     
-    /// Number of remaining requests that will be allowed on the socket being handled by this handler
+    /// The number of remaining requests that will be allowed on the socket being handled by this handler
     private(set) var numberOfRequests = 100
     
-    /// Should this socket actually be kep alive?
+    /// Should this socket actually be kept alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
     
     /// An enum for internal state
@@ -72,6 +75,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
     /// it is saved in the Pseudo synchronous reader to be read later on.
+    ///
+    /// - Parameter buffer: An NSData object that contains the data read from the socket.
     public func process(_ buffer: NSData) {
         switch(state) {
         case .reset:
@@ -81,7 +86,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             
         case .initial:
             inProgress = true
-            HTTPServer.clientHandlerQueue.async() { [unowned self] in
+            DispatchQueue.global().async() { [unowned self] in
                 self.parse(buffer)
             }
             
@@ -91,14 +96,24 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     }
     
     /// Write data to the socket
-    public func write(from data: Data) {
+    ///
+    /// - Parameter data: An NSData object containing the bytes to be written to the socket.
+    public func write(from data: NSData) {
         handler?.write(from: data)
+    }
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
+        handler?.write(from: bytes, length: length)
     }
     
     /// Close the socket and mark this handler as no longer in progress.
     public func close() {
         handler?.prepareToClose()
-        request.close()
+        request.release()
     }
     
     /// Invoke the HTTP parser against the specified buffer of data and

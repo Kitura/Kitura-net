@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (57% documented)
+         (76% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -118,6 +118,14 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -141,7 +149,13 @@
         <section class="section">
           <div class="section-content">
             <h1>ClientRequest</h1>
-            <p>Undocumented</p>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientRequest</span></code></pre>
+
+                </div>
+              </div>
+            <p>This class provides a set of low level APIs for issuing HTTP requests to another server.</p>
 
           </div>
         </section>
@@ -165,14 +179,41 @@
                       <div class="abstract">
                         <p>Response callback closure type</p>
 
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter ClientResponse: The <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code> object that describes the response
+                       that was received from the remote server.
+
+</div>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Callback</span> <span class="o">=</span> <span class="p">(</span><span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Classes/ClientResponse.html">ClientResponse</a></span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Callback</span> <span class="o">=</span> <span class="p">(</span><span class="kt"><a href="../Classes/ClientResponse.html">ClientResponse</a></span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
 
                         </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ClientResponse</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code>ClientResponse</code> object that describes the response that was received from the remote server.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -190,23 +231,20 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>The set of HTTP headers to be sent with the request.</p>
 
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">String</span><span class="p">]()</span></code></pre>
+
+                        </div>
                       </div>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/--%20Private"></a>
-                <a name="//apple_ref/swift/Section/-- Private" class="dashAnchor"></a>
-                <a href="#/--%20Private">
-                  <h3 class="section-name">-- Private</h3>
-                </a>
-              </div>
-              <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
@@ -220,7 +258,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>URL used for the request</p>
+                        <p>The URL for the request</p>
 
                       </div>
                       <div class="declaration">
@@ -247,7 +285,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>HTTP method (GET, POST, PUT, DELETE) for the request</p>
+                        <p>The HTTP method (i.e. GET, POST, PUT, DELETE) for the request</p>
 
                       </div>
                       <div class="declaration">
@@ -274,7 +312,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Username if using Basic Auth</p>
+                        <p>The username to be used if using Basic Auth authentication</p>
 
                       </div>
                       <div class="declaration">
@@ -301,7 +339,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Password if using Basic Auth</p>
+                        <p>The password to be used if using Basic Auth authentication.</p>
 
                       </div>
                       <div class="declaration">
@@ -328,7 +366,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Maximum number of redirects before failure</p>
+                        <p>The maximum number of redirects before failure.</p>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    The <code>ClientRequest</code> class will automatically follow redirect responses. To
+   avoid redirect loops, it will at maximum follow <code>maxRedirects</code> redirects.
+
+</div>
 
                       </div>
                       <div class="declaration">
@@ -355,7 +400,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Adds the <q>Connection: close</q> header</p>
+                        <p>If true, the <q>Connection: close</q> header will be added to the request that is sent.</p>
 
                       </div>
                       <div class="declaration">
@@ -382,7 +427,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Client request option values</p>
+                        <p>Client request option enum</p>
 
                         <a href="../Classes/ClientRequest/Options.html" class="slightly-smaller">See more</a>
                       </div>
@@ -414,7 +459,7 @@
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter option: an option describing the request
+    Parameter option: an <code><a href="../Classes/ClientRequest/Options.html">Options</a></code> instance describing the change to be made to the request
 
 </div>
 
@@ -439,7 +484,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>an option describing the request</p>
+                                  <p>an <code>Options</code> instance describing the change to be made to the request</p>
 
                                 </div>
                               </td>
@@ -473,7 +518,7 @@
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a ClientRequest.Options array</p>
+    <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
 
 </div>
 
@@ -508,7 +553,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a ClientRequest.Options array</p>
+                        <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
 
                       </div>
                     </section>
@@ -537,7 +582,7 @@
 
 <div class="aside aside-returns">
     <p class="aside-title">Returns</p>
-    <p>a ClientRequest.Options array</p>
+    <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
 
 </div>
 
@@ -572,7 +617,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a ClientRequest.Options array</p>
+                        <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
 
                       </div>
                     </section>
@@ -591,11 +636,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Writes a string to the response</p>
+                        <p>Add a string to the body of the request to be sent</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter from: String to be written
+    Parameter from: The String to be added
 
 </div>
 
@@ -620,7 +665,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>String to be written</p>
+                                  <p>The String to be added</p>
 
                                 </div>
                               </td>
@@ -644,11 +689,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Writes data to the response</p>
+                        <p>Add the bytes in a Data struct to the body of the request to be sent</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter from: NSData to be written
+    Parameter from: The Data Struct containing the bytes to be added
 
 </div>
 
@@ -673,7 +718,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>NSData to be written</p>
+                                  <p>The Data Struct containing the bytes to be added</p>
 
                                 </div>
                               </td>
@@ -697,17 +742,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End servicing the request, send response back</p>
+                        <p>Add a string to the body of the request to be sent and send the request
+to the remote server</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter data: string to send before ending
+    Parameter from: The String to be added
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter close: add the <q>Connection: close</q> header
+    Parameter close: If true, add the <q>Connection: close</q> header to the set
+              of headers sent with the request
 
 </div>
 
@@ -727,12 +774,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>from</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>string to send before ending</p>
+                                  <p>The String to be added</p>
 
                                 </div>
                               </td>
@@ -745,7 +792,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>add the “Connection: close” header</p>
+                                  <p>If true, add the “Connection: close” header to the set of headers sent with the request</p>
 
                                 </div>
                               </td>
@@ -769,17 +816,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End servicing the request, send response back</p>
+                        <p>Add the bytes in a Data struct to the body of the request to be sent
+and send the request to the remote server</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter data: data to send before ending
+    Parameter from: The Data Struct containing the bytes to be added
 
 </div>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter close: add the <q>Connection: close</q> header
+    Parameter close: If true, add the <q>Connection: close</q> header to the set
+              of headers sent with the request
 
 </div>
 
@@ -799,12 +848,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>data</em>
+                                <em>from</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>data to send before ending</p>
+                                  <p>The Data Struct containing the bytes to be added</p>
 
                                 </div>
                               </td>
@@ -817,7 +866,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>add the “Connection: close” header</p>
+                                  <p>If true, add the “Connection: close” header to the set of headers sent with the request</p>
 
                                 </div>
                               </td>
@@ -841,11 +890,12 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End servicing the request, send response back</p>
+                        <p>Send the request to the remote server</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter close: add the <q>Connection: close</q> header
+    Parameter close: If true, add the <q>Connection: close</q> header to the set
+              of headers sent with the request
 
 </div>
 
@@ -870,7 +920,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>add the “Connection: close” header</p>
+                                  <p>If true, add the “Connection: close” header to the set of headers sent with the request</p>
 
                                 </div>
                               </td>
@@ -889,7 +939,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-08-23)</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

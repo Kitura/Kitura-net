@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import KituraSys
 
 #if os(Linux)
     import Glibc
@@ -180,12 +179,12 @@ class FastCGIRecordCreate {
             // generate our key and value by converting to 
             // Data from String using UTF-8.
             //
-            guard let keyData = StringUtils.toUtf8String(key) else {
+            guard let keyData = key.data(using: .utf8) else {
                 // this key couldn't be copied as data, skip the parameter
                 continue
             }
             
-            guard let valueData = StringUtils.toUtf8String(value)  else {
+            guard let valueData = value.data(using: .utf8)  else {
                 // this key couldn't be copied as data, skip the parameter
                 continue
             }

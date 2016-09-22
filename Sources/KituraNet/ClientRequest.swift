@@ -15,7 +15,6 @@
  */
 
 import LoggerAPI
-import KituraSys
 import CCurl
 import Socket
 
@@ -23,31 +22,34 @@ import Foundation
 
 // MARK: ClientRequest
 
+/// This class provides a set of low level APIs for issuing HTTP requests to another server.
 public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
     static private let oneTime = OneTimeInitializations()
     
+    /// The set of HTTP headers to be sent with the request.
     public var headers = [String: String]()
-
-    // MARK: -- Private
     
-    /// URL used for the request
+    /// The URL for the request
     public private(set) var url: String = ""
     
-    /// HTTP method (GET, POST, PUT, DELETE) for the request
+    /// The HTTP method (i.e. GET, POST, PUT, DELETE) for the request
     public private(set) var method: String = "get"
     
-    /// Username if using Basic Auth
+    /// The username to be used if using Basic Auth authentication
     public private(set) var userName: String?
     
-    /// Password if using Basic Auth
+    /// The password to be used if using Basic Auth authentication.
     public private(set) var password: String?
 
-    /// Maximum number of redirects before failure
+    /// The maximum number of redirects before failure.
+    ///
+    /// - Note: The `ClientRequest` class will automatically follow redirect responses. To
+    ///        avoid redirect loops, it will at maximum follow `maxRedirects` redirects.
     public private(set) var maxRedirects = 10
     
-    /// Adds the "Connection: close" header
+    /// If true, the "Connection: close" header will be added to the request that is sent.
     public private(set) var closeConnection = false
 
     /// Handle for working with libCurl
@@ -60,7 +62,7 @@ public class ClientRequest {
     fileprivate var writeBuffers = BufferList()
 
     /// Response instance for communicating with client
-    fileprivate var response = ClientResponse()
+    fileprivate var response: ClientResponse?
     
     /// The callback to receive the response
     private var callback: Callback
@@ -68,23 +70,54 @@ public class ClientRequest {
     /// Should SSL verification be disabled
     private var disableSSLVerification = false
     
-    /// Client request option values
+    /// Client request option enum
     public enum Options {
         
-        case method(String), schema(String), hostname(String), port(Int16), path(String),
-        headers([String: String]), username(String), password(String), maxRedirects(Int), disableSSLVerification
+        /// Specifies the HTTP method (i.e. PUT, POST...) to be sent in the request
+        case method(String)
+        
+        /// Specifies the schema (i.e. HTTP, HTTPS) to be used in the URL of request
+        case schema(String)
+        
+        /// Specifies the host name to be used in the URL of request
+        case hostname(String)
+        
+        /// Specifies the port to be used in the URL of request
+        case port(Int16)
+        
+        /// Specifies the path to be used in the URL of request
+        case path(String)
+        
+        /// Specifies the HTTP headers to be sent with the request
+        case headers([String: String])
+        
+        /// Specifies the user name to be sent with the request, when using basic auth authentication
+        case username(String)
+        
+        /// Specifies the password to be sent with the request, when using basic auth authentication
+        case password(String)
+        
+        /// Specifies the maximum number of redirect responses that will be followed (i.e. re-issue the
+        /// request to the location received in the redirect response)
+        case maxRedirects(Int)
+        
+        /// If present, the SSL credentials of the remote server will not be verified.
+        ///
+        /// - Note: This is very useful when working with self signed certificates.
+        case disableSSLVerification
         
     }
     
     /// Response callback closure type
+    ///
+    /// - Parameter ClientResponse: The `ClientResponse` object that describes the response
+    ///                            that was received from the remote server.
     public typealias Callback = (ClientResponse?) -> Void
 
-    /// Initializes a ClientRequest instance
+    /// Initializes a `ClientRequest` instance
     ///
     /// - Parameter url: url for the request 
-    /// - Parameter callback:
-    ///
-    /// - Returns: a ClientRequest instance
+    /// - Parameter callback: The closure of type `Callback` to be used for the callback.
     init(url: String, callback: @escaping Callback) {
         
         self.url = url
@@ -92,12 +125,10 @@ public class ClientRequest {
         
     }
 
-    /// Initializes a ClientRequest instance
+    /// Initializes a `ClientRequest` instance
     ///
-    /// - Parameter options: a list of options describing the request
-    /// - Parameter callback:
-    ///
-    /// - Returns: a ClientRequest instance
+    /// - Parameter options: An array of `Options' describing the request
+    /// - Parameter callback: The closure of type `Callback` to be used for the callback.
     init(options: [Options], callback: @escaping Callback) {
 
         self.callback = callback
@@ -149,7 +180,7 @@ public class ClientRequest {
 
     /// Set a single option in the request.  URL parameters must be set in init()
     ///
-    /// - Parameter option: an option describing the request
+    /// - Parameter option: an `Options` instance describing the change to be made to the request
     public func set(_ option: Options) {
 
         switch(option) {
@@ -172,7 +203,7 @@ public class ClientRequest {
     ///
     /// - Parameter urlString: URL of a String type
     ///
-    /// - Returns: a ClientRequest.Options array
+    /// - Returns: A `ClientRequest.Options` array
     public class func parse(_ urlString: String) -> [ClientRequest.Options] {
 
         if let url = URL(string: urlString) {
@@ -185,7 +216,7 @@ public class ClientRequest {
     ///
     /// - Parameter url: Foundation URL class
     ///
-    /// - Returns: a ClientRequest.Options array
+    /// - Returns: A `ClientRequest.Options` array
     public class func parse(_ url: URL) -> [ClientRequest.Options] {
 
         var options: [ClientRequest.Options] = []
@@ -228,30 +259,32 @@ public class ClientRequest {
 
     }
 
-    /// Writes a string to the response
+    /// Add a string to the body of the request to be sent
     ///
-    /// - Parameter from: String to be written
+    /// - Parameter from: The String to be added
     public func write(from string: String) {
         
-        if  let data = StringUtils.toUtf8String(string)  {
+        if  let data = string.data(using: .utf8)  {
             write(from: data)
         }
         
     }
 
-    /// Writes data to the response
+    /// Add the bytes in a Data struct to the body of the request to be sent
     ///
-    /// - Parameter from: NSData to be written
+    /// - Parameter from: The Data Struct containing the bytes to be added
     public func write(from data: Data) {
         
         writeBuffers.append(data: data)
         
     }
 
-    /// End servicing the request, send response back
+    /// Add a string to the body of the request to be sent and send the request
+    /// to the remote server
     ///
-    /// - Parameter data: string to send before ending
-    /// - Parameter close: add the "Connection: close" header
+    /// - Parameter from: The String to be added
+    /// - Parameter close: If true, add the "Connection: close" header to the set
+    ///                   of headers sent with the request
     public func end(_ data: String, close: Bool = false) {
         
         write(from: data)
@@ -259,10 +292,12 @@ public class ClientRequest {
         
     }
 
-    /// End servicing the request, send response back
+    /// Add the bytes in a Data struct to the body of the request to be sent
+    /// and send the request to the remote server
     ///
-    /// - Parameter data: data to send before ending
-    /// - Parameter close: add the "Connection: close" header
+    /// - Parameter from: The Data Struct containing the bytes to be added
+    /// - Parameter close: If true, add the "Connection: close" header to the set
+    ///                   of headers sent with the request
     public func end(_ data: Data, close: Bool = false) {
         
         write(from: data)
@@ -270,14 +305,15 @@ public class ClientRequest {
         
     }
 
-    /// End servicing the request, send response back
+    /// Send the request to the remote server
     ///
-    /// - Parameter close: add the "Connection: close" header
+    /// - Parameter close: If true, add the "Connection: close" header to the set
+    ///                   of headers sent with the request
     public func end(close: Bool = false) {
 
         closeConnection = close
 
-        guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
+        guard  let urlBuffer = url.cString(using: .utf8) else {
             callback(nil)
             return
         }
@@ -286,42 +322,51 @@ public class ClientRequest {
 
         let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
         invoker.delegate = self
-
+        response = ClientResponse()
+        
         var code = invoker.invoke()
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error, Failed to invoke HTTP request. CURL Return code=\(code)")
+            response!.release()
             callback(nil)
             return
         }
         
-        code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response.status)
+        code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response!.status)
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
+            response!.release()
             callback(nil)
             return
         }
         
-        let parseStatus = response.parse()
-        guard  parseStatus.error == nil else {
-            Log.error("ClientRequest error. Failed to parse response. status=\(parseStatus.error!)")
+        let parseStatus = response!.parse()
+        guard parseStatus.error == nil else {
+            Log.error("ClientRequest error. Failed to parse response. Error=\(parseStatus.error!)")
+            response!.release()
             callback(nil)
             return
         }
-
+        
+        guard parseStatus.state == .headersComplete || parseStatus.state == .messageComplete else {
+            Log.error("ClientRequest error. Failed to parse response. Status=\(parseStatus.state)")
+            response!.release()
+            callback(nil)
+            return
+        }
+        
         self.callback(self.response)
     }
 
     /// Prepare the handle 
     ///
     /// Parameter using: The URL to use when preparing the handle
-    private func prepareHandle(using urlBuffer: Data) {
+    private func prepareHandle(using urlBuffer: [CChar]) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        _ = urlBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
-            curlHelperSetOptString(self.handle!, CURLOPT_URL, bytes)
-        }
+        curlHelperSetOptString(self.handle!, CURLOPT_URL, UnsafePointer(urlBuffer))
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
@@ -363,11 +408,8 @@ public class ClientRequest {
         }
         
         for (headerKey, headerValue) in headers {
-            let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
-            if  let headerString = headerString  {
-                headerString.withUnsafeBytes() { (headerUTF8: UnsafePointer<Int8>) in
-                    headersList = curl_slist_append(headersList, headerUTF8)
-                }
+            if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
+                headersList = curl_slist_append(headersList, UnsafePointer(headerString))
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
@@ -381,7 +423,7 @@ extension ClientRequest: CurlInvokerDelegate {
     /// libCurl callback to recieve data sent by the server
     fileprivate func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
-        response.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+        response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         return size
         
     }
@@ -397,7 +439,7 @@ extension ClientRequest: CurlInvokerDelegate {
     /// libCurl callback invoked when a redirect is about to be done
     fileprivate func prepareForRedirect() {
         
-        response.responseBuffers.reset()
+        response?.responseBuffers.reset()
         writeBuffers.rewind()
         
     }
