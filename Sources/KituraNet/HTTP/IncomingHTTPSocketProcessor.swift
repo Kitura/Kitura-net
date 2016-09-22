@@ -78,7 +78,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         switch(state) {
         case .reset:
             request.prepareToReset()
-            response.reset()
             fallthrough
             
         case .initial:
@@ -142,6 +141,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private func parsingComplete() {
         state = .messageCompletelyRead
         handler?.stopReadPolling()
+        response.reset()
         DispatchQueue.global().async() { [unowned self] in
             self.delegate?.handle(request: self.request, response: self.response)
         }
