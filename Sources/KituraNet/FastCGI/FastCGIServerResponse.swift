@@ -129,9 +129,9 @@ public class FastCGIServerResponse : ServerResponse {
         headerData.append("Status: \(status) \(HTTP.statusCodes[status]!)\r\n")
 
         // add the rest of our response headers
-        for (key, valueSet) in headers.headers {
-            for value in valueSet {
-                headerData.append(key)
+        for (_, entry) in headers.headers {
+            for value in entry.value {
+                headerData.append(entry.key)
                 headerData.append(": ")
                 headerData.append(value)
                 headerData.append("\r\n")

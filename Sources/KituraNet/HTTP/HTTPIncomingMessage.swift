@@ -216,10 +216,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Set the header key-value pair
     private func addHeader() {
 
-        let nsHeaderKey = NSString(bytes: lastHeaderField.bytes, length: lastHeaderField.length, encoding: String.Encoding.utf8.rawValue)!
-        let headerKey = String(describing: nsHeaderKey)
-        let nsHeaderValue = NSString(bytes: lastHeaderValue.bytes, length: lastHeaderValue.length, encoding: String.Encoding.utf8.rawValue)!
-        let headerValue = String(describing: nsHeaderValue)
+        var zero: CChar = 0
+        lastHeaderField.append(&zero, length: 1)
+        let headerKey = String(cString: lastHeaderField.bytes.assumingMemoryBound(to: CChar.self))
+        lastHeaderValue.append(&zero, length: 1)
+        let headerValue = String(cString: lastHeaderValue.bytes.assumingMemoryBound(to: CChar.self))
         
         headers.append(headerKey, value: headerValue)
 
