@@ -111,6 +111,8 @@ class IncomingSocketManager  {
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
         private func process(epollDescriptor:Int32) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
+            var deferredHandlers = [Int32: IncomingSocketHandler]()
+            var deferredHandlingNeeded = false
         
             while  true  {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
@@ -121,6 +123,9 @@ class IncomingSocketManager  {
                 }
                 
                 if  count == 0  {
+                    if deferredHandlingNeeded {
+                        deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
+                    }
                     continue
                 }
             
@@ -140,7 +145,11 @@ class IncomingSocketManager  {
                                 handler.handleWrite()
                             }
                             if  (event.events & EPOLLIN.rawValue) != 0 {
-                                handler.handleRead()
+                                let processed = handler.handleRead()
+                                if !processed {
+                                    deferredHandlingNeeded = true
+                                    deferredHandlers[event.data.fd] = handler
+                                }
                             }
                         }
                         else {
@@ -148,22 +157,28 @@ class IncomingSocketManager  {
                         }
                     }
                 }
+    
+                // Handle any deferred processing of read data
+                if deferredHandlingNeeded {
+                    deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
+                }
             }
         }
 
-        func manageReaderEpoll(start: Bool, for fileDescriptor: Int32) {
-            var event = epoll_event()
-            event.events = EPOLLOUT.rawValue | EPOLLET.rawValue
-            if start {
-                event.events |= EPOLLIN.rawValue
-            }
-            event.data.fd = fileDescriptor
-            let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_MOD, fileDescriptor, &event)
-            if  result == -1  {
-                Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-            }
-        }
+        private func process(deferredHandlers: inout [Int32: IncomingSocketHandler]) -> Bool {
+            var result = false
 
+            for (fileDescriptor, handler) in deferredHandlers {
+                let processed = handler.handleBufferedReadDataHelper()
+                if processed {
+                    deferredHandlers.removeValue(forKey: fileDescriptor)
+                }
+                else {
+                    result = true
+                }
+            }
+            return result
+        }
     #endif
     
     /// Clean up idle sockets by:

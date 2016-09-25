@@ -74,7 +74,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// it is saved in the Pseudo synchronous reader to be read later on.
     ///
     /// - Parameter buffer: An NSData object that contains the data read from the socket.
-    public func process(_ buffer: NSData) {
+    ///
+    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    public func process(_ buffer: NSData) -> Bool {
+        let result: Bool
         switch(state) {
         case .reset:
             request.prepareToReset()
@@ -83,10 +86,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         case .initial:
             inProgress = true
             parse(buffer)
+            result = true
             
         case .messageCompletelyRead:
-            print("Received data after message was completely read")
+            result = false
         }
+        return result
     }
     
     /// Write data to the socket
@@ -140,7 +145,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Parsing has completed. Invoke the ServerDelegate to handle the request
     private func parsingComplete() {
         state = .messageCompletelyRead
-        handler?.stopReadPolling()
         response.reset()
         DispatchQueue.global().async() { [unowned self] in
             self.delegate?.handle(request: self.request, response: self.response)
@@ -153,7 +157,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         numberOfRequests -= 1
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
-        handler?.startReadPolling()
+        handler?.handleBufferedReadData()
     }
     
     /// Private method to return a string representation on a value of errno.
