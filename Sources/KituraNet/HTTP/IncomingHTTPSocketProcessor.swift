@@ -81,6 +81,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         switch(state) {
         case .reset:
             request.prepareToReset()
+            state = .initial
             fallthrough
             
         case .initial:
