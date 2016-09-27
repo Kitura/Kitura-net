@@ -25,26 +25,21 @@ import Foundation
 
 // MARK: SPIUtils
 
+/// A set of utility functions.
 public class SPIUtils {
     
-    ///
     /// Abbreviations for month names
-    ///
     private static let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     
-    ///
     /// Abbreviations for days of the week
-    ///
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
-    ///
     /// Format the given time for use in HTTP, default value is current time.
     ///
     /// - Parameter timestamp: the time ( default value is current timestamp )
     ///
     /// - Returns: string representation of timestamp
-    ///
     public static func httpDate(from timestamp: time_t = time(nil)) -> String {
         
         var theTime = timestamp
@@ -78,20 +73,16 @@ public class SPIUtils {
         
     }
     
-    ///
     /// Format the given date for use in HTTP
     ///
     /// - Parameter date: the date
     ///
     /// - Returns: string representation of Date
-    ///
     public static func httpDate(_ date: Date) -> String {
         return httpDate(from: time_t(date.timeIntervalSince1970))
     }
 
-    ///
     /// Fast Int to String conversion
-    ///
     private static let twoDigit = ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
                                    "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
                                    "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
@@ -106,11 +97,9 @@ public class SPIUtils {
 
 
 extension Date {
-    ///
     /// Format the date for use in HTTP
     ///
     /// - Returns: string representation of Date
-    ///
     var httpDate: String {
         return SPIUtils.httpDate(self)
     }
