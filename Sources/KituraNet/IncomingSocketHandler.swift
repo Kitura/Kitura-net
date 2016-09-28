@@ -37,11 +37,17 @@ public class IncomingSocketHandler {
     static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
     
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-        static let socketReaderQueue = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
+        static let socketReaderQueues = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
     
         // Note: This var is optional to enable it to be constructed in the init function
         var readerSource: DispatchSourceRead!
         var writerSource: DispatchSourceWrite?
+    
+        private let numberOfSocketReaderQueues = IncomingSocketHandler.socketReaderQueues.count
+    
+        private func socketReaderQueue(fd: Int32) -> DispatchQueue {
+            return IncomingSocketHandler.socketReaderQueues[Int(fd) % numberOfSocketReaderQueues];
+        }
     #endif
 
     let socket: Socket
@@ -49,23 +55,27 @@ public class IncomingSocketHandler {
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
-    private var writeBuffer = NSMutableData()
+    private weak var manager: IncomingSocketManager?
+    
+    private let readBuffer = NSMutableData()
+    private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
     private var preparingToClose = false
     
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor) {
+    init(socket: Socket, using: IncomingSocketProcessor, managedBy: IncomingSocketManager) {
         self.socket = socket
         processor = using
+        manager = managedBy
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
-                                                         queue: IncomingSocketHandler.socketReaderQueue[Int(socket.socketfd%2)])
+                                                         queue: socketReaderQueue(fd: socket.socketfd))
         
             readerSource.setEventHandler() {
-                self.handleRead()
+                _ = self.handleRead()
             }
             readerSource.setCancelHandler() {
                 self.handleCancel()
@@ -77,16 +87,18 @@ public class IncomingSocketHandler {
     }
     
     /// Read in the available data and hand off to common processing code
-    func handleRead() {
-        let buffer = NSMutableData()
+    ///
+    /// - Returns: true if the data read in was processed
+    func handleRead() -> Bool {
+        var result = true
         
         do {
             var length = 1
             while  length > 0  {
-                length = try socket.read(into: buffer)
+                length = try socket.read(into: readBuffer)
             }
-            if  buffer.length > 0  {
-                processor?.process(buffer)
+            if  readBuffer.length > 0  {
+                result = handleReadHelper()
             }
             else {
                 if  socket.remoteConnectionClosed  {
@@ -101,6 +113,43 @@ public class IncomingSocketHandler {
             Log.error("Unexpected error...")
             prepareToClose()
         }
+        return result
+    }
+    
+    private func handleReadHelper() -> Bool {
+        guard let processor = processor else { return true }
+        
+        let processed = processor.process(readBuffer)
+        if  processed {
+            readBuffer.length = 0
+        }
+        return processed
+    }
+    
+    /// Helper function for handling data read in while the processor couldn't
+    /// process it, if there is any
+    func handleBufferedReadDataHelper() -> Bool {
+        let result : Bool
+        
+        if  readBuffer.length > 0  {
+            result = handleReadHelper()
+        }
+        else {
+            result = true
+        }
+        return result
+    }
+    
+    /// Handle data read in while the processor couldn't process it, if there is any
+    ///
+    /// - Note: On Linux, the `IncomingSocketManager` should call `handleBufferedReadDataHelper`
+    ///        directly.
+    public func handleBufferedReadData() {
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+            socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
+                _ = self.handleBufferedReadDataHelper()
+            }
+        #endif
     }
     
     /// Write out any buffered data now that the socket can accept more data
@@ -190,8 +239,8 @@ public class IncomingSocketHandler {
         do {
             let written: Int
             
-            if  self.writeBuffer.length == 0 {
-                written = try self.socket.write(from: bytes, bufSize: length)
+            if  writeBuffer.length == 0 {
+                written = try socket.write(from: bytes, bufSize: length)
             }
             else {
                 written = 0
@@ -203,8 +252,8 @@ public class IncomingSocketHandler {
                 }
                 
                 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                    if self.writerSource == nil {
-                        self.createWriterSource()
+                    if writerSource == nil {
+                        createWriterSource()
                     }
                 #endif
             }
@@ -218,7 +267,7 @@ public class IncomingSocketHandler {
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if  writeBuffer.length == 0  {
+        if  writeBuffer.length == writeBufferPosition  {
             close()
         }
         else {

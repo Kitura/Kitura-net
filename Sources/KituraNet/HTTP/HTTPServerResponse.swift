@@ -103,11 +103,10 @@ public class HTTPServerResponse : ServerResponse {
     /// - Throws: Socket.error if an error occurred while writing to a socket.
     public func end() throws {
         if let processor = processor {
-            processor.drain()
-        
             try flushStart()
             
             let keepAlive = processor.isKeepAlive
+            
             if  keepAlive {
                 processor.keepAlive()
             }
@@ -116,7 +115,7 @@ public class HTTPServerResponse : ServerResponse {
                 processor.write(from: buffer)
             }
             
-            if !keepAlive  {
+            if !keepAlive {
                 processor.close()
             }
         }
