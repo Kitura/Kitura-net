@@ -46,6 +46,9 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// The socket if idle will be kep alive until...
     public var keepAliveUntil: TimeInterval = 0.0
     
+    /// A flag indicating that the client has requested that the prtocol be upgraded
+    private(set) var isUpgrade = false
+    
     /// A flag that indicates that there is a request in progress
     public var inProgress = true
     
@@ -137,6 +140,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             break
         case .messageComplete:
             clientRequestedKeepAlive = parsingStatus.keepAlive
+            isUpgrade = parsingStatus.upgrade
             parsingComplete()
         case .reset, .headersComplete:
             break
@@ -147,8 +151,15 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private func parsingComplete() {
         state = .messageCompletelyRead
         response.reset()
-        DispatchQueue.global().async() { [unowned self] in
-            self.delegate?.handle(request: self.request, response: self.response)
+        
+        if isUpgrade {
+            ConnectionUpgrader.instance.upgradeConnection(handler: handler!, request: request, response: response)
+            inProgress = false
+        }
+        else {
+            DispatchQueue.global().async() { [unowned self] in
+                self.delegate?.handle(request: self.request, response: self.response)
+            }
         }
     }
     
