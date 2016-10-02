@@ -146,8 +146,10 @@ public class IncomingSocketHandler {
     ///        directly.
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-            socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
-                _ = self.handleBufferedReadDataHelper()
+            if socket.socketfd != -1 {
+                socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
+                    _ = self.handleBufferedReadDataHelper()
+                }
             }
         #endif
     }
