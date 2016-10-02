@@ -115,7 +115,7 @@ public class HTTPServerResponse : ServerResponse {
                 processor.write(from: buffer)
             }
             
-            if !keepAlive {
+            if !keepAlive && !processor.isUpgrade {
                 processor.close()
             }
         }
@@ -152,13 +152,17 @@ public class HTTPServerResponse : ServerResponse {
                 headerData.append("\r\n")
             }
         }
+        
+        let upgrade = processor?.isUpgrade ?? false
         let keepAlive = processor?.isKeepAlive ?? false
-        if  keepAlive {
-            headerData.append("Connection: Keep-Alive\r\n")
-            headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout)), max=\((processor?.numberOfRequests ?? 1) - 1)\r\n")
-        }
-        else {
-            headerData.append("Connection: Close\r\n")
+        if !upgrade {
+            if  keepAlive {
+                headerData.append("Connection: Keep-Alive\r\n")
+                headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout)), max=\((processor?.numberOfRequests ?? 1) - 1)\r\n")
+            }
+            else {
+                headerData.append("Connection: Close\r\n")
+            }
         }
         
         headerData.append("\r\n")
