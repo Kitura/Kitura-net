@@ -28,7 +28,6 @@ public class ClientResponse: HTTPIncomingMessage {
     init() {
         
         super.init(isRequest: false)
-        setup(self)
         
     }
     
@@ -53,24 +52,4 @@ public class ClientResponse: HTTPIncomingMessage {
         _ = responseBuffers.fill(data: buffer)
         return super.parse(buffer)
     }
-}
-
-
-// MARK: protocol extension for IncomingMessageHelper
-
-extension ClientResponse: IncomingMessageHelper {
-    
-    ///
-    ///  Calls the response buffer to fill the buffer with data
-    ///
-    /// - Parameter data: data to be stored in the buffer
-    ///
-    /// - Returns: ???
-    ///
-    func readHelper(into data: inout Data) -> Int {
-
-        let length = responseBuffers.fill(data: &data)
-        return  length > 0 ? length : -1
-    }
-    
 }

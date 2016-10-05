@@ -31,8 +31,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         
     private weak var delegate: ServerDelegate?
     
-    private let reader: PseudoSynchronousReader
-    
     private let request: HTTPServerRequest
     
     /// The `ServerResponse` object used to enable the `ServerDelegate` to respond to the incoming request
@@ -59,7 +57,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// An enum for internal state
     enum State {
-        case reset, initial, parsedHeaders
+        case reset, initial, messageCompletelyRead
     }
     
     /// The state of this handler
@@ -67,8 +65,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     init(socket: Socket, using: ServerDelegate) {
         delegate = using
-        reader = PseudoSynchronousReader(clientSocket: socket)
-        request = HTTPServerRequest(reader: reader)
+        request = HTTPServerRequest(socket: socket)
         
         response = HTTPServerResponse(processor: self)
     }
@@ -77,29 +74,40 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// it is saved in the Pseudo synchronous reader to be read later on.
     ///
     /// - Parameter buffer: An NSData object that contains the data read from the socket.
-    public func process(_ buffer: NSData) {
+    ///
+    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    public func process(_ buffer: NSData) -> Bool {
+        let result: Bool
         switch(state) {
         case .reset:
             request.prepareToReset()
-            response.reset()
+            state = .initial
             fallthrough
             
         case .initial:
             inProgress = true
-            DispatchQueue.global().async() { [unowned self] in
-                self.parse(buffer)
-            }
+            parse(buffer)
+            result = true
             
-        case .parsedHeaders:
-            reader.addDataToRead(from: buffer)
+        case .messageCompletelyRead:
+            result = false
         }
+        return result
     }
     
     /// Write data to the socket
     ///
-    /// - Parameter data: A Data struct containing the bytes to be written to the socket.
-    public func write(from data: Data) {
+    /// - Parameter data: An NSData object containing the bytes to be written to the socket.
+    public func write(from data: NSData) {
         handler?.write(from: data)
+    }
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    public func write(from bytes: UnsafeRawPointer, length: Int) {
+        handler?.write(from: bytes, length: length)
     }
     
     /// Close the socket and mark this handler as no longer in progress.
@@ -127,18 +135,21 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         switch(parsingStatus.state) {
         case .initial:
             break
-        case .headersComplete, .messageComplete:
+        case .messageComplete:
             clientRequestedKeepAlive = parsingStatus.keepAlive
             parsingComplete()
-        case .reset:
+        case .reset, .headersComplete:
             break
         }
     }
     
-    /// Parsing has completed enough to invoke the ServerDelegate to handle the request
+    /// Parsing has completed. Invoke the ServerDelegate to handle the request
     private func parsingComplete() {
-        state = .parsedHeaders
-        delegate?.handle(request: request, response: response)
+        state = .messageCompletelyRead
+        response.reset()
+        DispatchQueue.global().async() { [unowned self] in
+            self.delegate?.handle(request: self.request, response: self.response)
+        }
     }
     
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
@@ -147,11 +158,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         numberOfRequests -= 1
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
-    }
-    
-    /// Drain the socket of the data of the current request.
-    func drain() {
-        request.drain()
+        handler?.handleBufferedReadData()
     }
     
     /// Private method to return a string representation on a value of errno.

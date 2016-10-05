@@ -23,10 +23,7 @@ import LoggerAPI
 public class HeadersContainer {
     
     /// The header storage
-    internal var headers: [String: [String]] = [:]
-    
-    /// The map of case insensitive header fields to their actual names
-    private var caseInsensitiveMap: [String: String] = [:]
+    internal var headers: [String: (key: String, value: [String])] = [:]
     
     /// Access the value of a HTTP header using subscript syntax.
     ///
@@ -56,14 +53,15 @@ public class HeadersContainer {
     public func append(_ key: String, value: [String]) {
         
         let lowerCaseKey = key.lowercased()
+        let entry = headers[lowerCaseKey]
         
         // Determine how to handle the header (append or merge)
         switch(lowerCaseKey) {
             
         // Headers with an array value (can appear multiple times, but can't be merged)
         case "set-cookie":
-            if let headerKey = caseInsensitiveMap[lowerCaseKey] {
-                headers[headerKey]? += value
+            if let _ = entry {
+                headers[lowerCaseKey]?.value += value
             } else {
                 set(key, lowerCaseKey: lowerCaseKey, value: value)
             }
@@ -75,7 +73,7 @@ public class HeadersContainer {
              "authorization", "proxy-authorization", "if-modified-since",
              "if-unmodified-since", "from", "location", "max-forwards",
              "retry-after", "etag", "last-modified", "server", "age", "expires":
-            if let _ = caseInsensitiveMap[lowerCaseKey] {
+            if let _ = entry {
                 Log.warning("Duplicate header \(key) discarded")
                 break
             }
@@ -83,12 +81,12 @@ public class HeadersContainer {
             
         // Headers with a simple value that can be merged
         default:
-            guard let headerKey = caseInsensitiveMap[lowerCaseKey], let oldValue = headers[headerKey]?.first else {
+            guard let oldValue = entry?.value.first else {
                 set(key, lowerCaseKey: lowerCaseKey, value: value)
                 return
             }
             let newValue = oldValue + ", " + value.joined(separator: ", ")
-            headers[headerKey]?[0] = newValue
+            headers[lowerCaseKey]?.value[0] = newValue
         }
     }
     
@@ -107,17 +105,12 @@ public class HeadersContainer {
     ///
     /// - Returns: the value for the key
     private func get(_ key: String) -> [String]? {
-        if let headerKey = caseInsensitiveMap[key.lowercased()] {
-            return headers[headerKey]
-        }
-        
-        return nil
+        return headers[key.lowercased()]?.value
     }
     
     /// Remove all of the headers
     func removeAll() {
         headers.removeAll(keepingCapacity: true)
-        caseInsensitiveMap.removeAll(keepingCapacity: true)
     }
     
     /// Set the header value
@@ -133,30 +126,27 @@ public class HeadersContainer {
     /// - Parameter key: the key
     /// - Parameter value: the value
     private func set(_ key: String, lowerCaseKey: String, value: [String]) {
-        headers[key] = value
-        caseInsensitiveMap[key.lowercased()] = key
+        headers[lowerCaseKey] = (key: key, value: value)
     }
     
     /// Remove the header by key (case insensitive)
     ///
     /// - Parameter key: the key
     private func remove(_ key: String) {
-        
-        if let headerKey = caseInsensitiveMap[key.lowercased()] {
-            headers[headerKey] = nil
-        }
-        caseInsensitiveMap[key.lowercased()] = nil
+        headers.removeValue(forKey: key.lowercased())
     }
 }
 
 /// Conformance to the `Collection` protocol
 extension HeadersContainer: Collection {
 
+    public typealias Index = DictionaryIndex<String, (key: String, value: [String])>
+
     /// The starting index of the `HeadersContainer` collection
-    public var startIndex:DictionaryIndex<String, [String]> { return headers.startIndex }
+    public var startIndex:Index { return headers.startIndex }
 
     /// The ending index of the `HeadersContainer` collection
-    public var endIndex:DictionaryIndex<String, [String]> { return headers.endIndex }
+    public var endIndex:Index { return headers.endIndex }
 
     /// Get a (key value) tuple from the `HeadersContainer` collection at the specified position.
     ///
@@ -164,9 +154,9 @@ extension HeadersContainer: Collection {
     ///                      (key, value) tuple to return.
     ///
     /// - Returns: A (key, value) tuple.
-    public subscript(position: DictionaryIndex<String, [String]>) -> (key: String, value: [String]) {
+    public subscript(position: Index) -> (key: String, value: [String]) {
         get {
-            return headers[position]
+            return headers[position].value
         }
     }
 
@@ -175,19 +165,8 @@ extension HeadersContainer: Collection {
     /// - Parameter after: The Index whose successor is to be returned.
     ///
     /// - Returns: The Index in the `HeadersContainer` collection after the one specified.
-    public func index(after i: DictionaryIndex<String, [String]>) -> DictionaryIndex<String, [String]> {
+    public func index(after i: Index) -> Index {
         return headers.index(after: i)
     }
 }
 
-/// Implement the Sequence protocol
-extension HeadersContainer: Sequence {
-    public typealias Iterator = DictionaryIterator<String, Array<String>>
-
-    /// Creates an iterator of the underlying dictionary
-    ///
-    /// - Returns: The iterator for the `HeadersContainer`
-    public func makeIterator() -> HeadersContainer.Iterator {
-        return headers.makeIterator()
-    }
-}

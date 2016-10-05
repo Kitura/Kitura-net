@@ -35,12 +35,20 @@ public protocol IncomingSocketProcessor: class {
     ///
     /// - Parameter buffer: An NSData object containing the data that was read in
     ///                    and needs to be processed.
-    func process(_ buffer: NSData)
+    ///
+    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    func process(_ buffer: NSData) -> Bool
     
     /// Write data to the socket
     ///
-    /// - Parameter data: A Data struct containing the bytes to be written to the socket.
-    func write(from data: Data)
+    /// - Parameter from: An NSData object containing the bytes to be written to the socket.
+    func write(from data: NSData)
+    
+    /// Write a sequence of bytes in an array to the socket
+    ///
+    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    /// - Parameter length: The number of bytes to write to the socket.
+    func write(from bytes: UnsafeRawPointer, length: Int)
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()
