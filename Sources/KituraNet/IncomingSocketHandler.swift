@@ -77,9 +77,7 @@ public class IncomingSocketHandler {
             readerSource.setEventHandler() {
                 _ = self.handleRead()
             }
-            readerSource.setCancelHandler() {
-                self.handleCancel()
-            }
+            readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
         
@@ -212,9 +210,7 @@ public class IncomingSocketHandler {
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
                                                           queue: IncomingSocketHandler.socketWriterQueue)
             
-            writerSource!.setEventHandler() {
-                self.handleWriteHelper()
-            }
+            writerSource!.setEventHandler(handler: self.handleWriteHelper)
             writerSource!.setCancelHandler() {
                 self.writerSource = nil
             }
