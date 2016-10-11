@@ -153,7 +153,7 @@ public class HTTPServer {
             return
         }
         
-        socketManager.handle(socket: clientSocket, using: delegate)
+        socketManager.handle(socket: clientSocket, processor: IncomingHTTPSocketProcessor(socket: clientSocket, using: delegate))
     }
     
     /// Wait for all of the listeners to stop.

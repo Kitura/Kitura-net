@@ -35,7 +35,7 @@ import Socket
 ///   2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
 ///      (one pair per incomng socket)
 ///   3. Cleaning up idle sockets, when new incoming sockets arrive.
-class IncomingSocketManager  {
+public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
     private var socketHandlers = [Int32: IncomingSocketHandler]()
@@ -60,7 +60,7 @@ class IncomingSocketManager  {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
         }
 
-        init() {
+        public init() {
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -77,16 +77,16 @@ class IncomingSocketManager  {
         }
     #endif
 
+    public init() { } 
+
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
     /// - Parameter using: The ServerDelegate to actually handle the socket
-    func handle(socket: Socket, using delegate: ServerDelegate) {
-        
+    public func handle(socket: Socket, processor: IncomingSocketProcessor) {
         do {
             try socket.setBlocking(mode: false)
             
-            let processor = IncomingHTTPSocketProcessor(socket: socket, using: delegate)
             let handler = IncomingSocketHandler(socket: socket, using: processor, managedBy: self)
             socketHandlers[socket.socketfd] = handler
             
@@ -136,9 +136,7 @@ class IncomingSocketManager  {
                                 (event.events & (EPOLLIN.rawValue | EPOLLOUT.rawValue)) == 0 {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
-                    
-                    }
-                    else {
+                    } else {
                         if  let handler = socketHandlers[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
