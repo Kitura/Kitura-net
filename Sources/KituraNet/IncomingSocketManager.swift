@@ -75,9 +75,11 @@ public class IncomingSocketManager  {
                 queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
             }
         }
+    #elseif
+        public init() {
+            
+        }
     #endif
-
-    public init() { } 
 
     /// Handle a new incoming socket
     ///
