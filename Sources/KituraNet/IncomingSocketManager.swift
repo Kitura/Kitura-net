@@ -75,7 +75,7 @@ public class IncomingSocketManager  {
                 queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
             }
         }
-    #elseif
+    #else
         public init() {
             
         }
