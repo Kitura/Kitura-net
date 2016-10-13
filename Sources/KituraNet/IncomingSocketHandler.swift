@@ -77,9 +77,7 @@ public class IncomingSocketHandler {
             readerSource.setEventHandler() {
                 _ = self.handleRead()
             }
-            readerSource.setCancelHandler() {
-                self.handleCancel()
-            }
+            readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
         
@@ -146,8 +144,10 @@ public class IncomingSocketHandler {
     ///        directly.
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-            socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
-                _ = self.handleBufferedReadDataHelper()
+            if socket.socketfd != Socket.SOCKET_INVALID_DESCRIPTOR {
+                socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
+                    _ = self.handleBufferedReadDataHelper()
+                }
             }
         #endif
     }
@@ -212,9 +212,7 @@ public class IncomingSocketHandler {
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
                                                           queue: IncomingSocketHandler.socketWriterQueue)
             
-            writerSource!.setEventHandler() {
-                self.handleWriteHelper()
-            }
+            writerSource!.setEventHandler(handler: self.handleWriteHelper)
             writerSource!.setCancelHandler() {
                 self.writerSource = nil
             }
