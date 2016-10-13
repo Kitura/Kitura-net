@@ -25,7 +25,8 @@ class UpgradeTests: XCTestCase {
     
     static var allTests : [(String, (UpgradeTests) -> () throws -> Void)] {
         return [
-            ("testNoRegistrations", testNoRegistrations)
+            ("testNoRegistrations", testNoRegistrations),
+            ("testWrongRegistration", testWrongRegistration)
         ]
     }
     
@@ -38,12 +39,39 @@ class UpgradeTests: XCTestCase {
     }
     
     func testNoRegistrations() {
-        //performServerTest(TestServerDelegate()) { expectation in
-        //    guard let socket = self.sendUpgradeRequest() else { return }
-        //
-        //    guard let response = self.processUpgradeResponse(socket: socket) else { return }
-        //
-        //}
+        ConnectionUpgrader.clear()
+        
+        performServerTest(TestServerDelegate()) { expectation in
+            
+            guard let socket = self.sendUpgradeRequest() else { return }
+
+            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+
+            guard let response = rawResponse else { return }
+            
+            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+            
+            expectation.fulfill()
+        }
+    }
+    
+    
+    
+    func testWrongRegistration() {
+        ConnectionUpgrader.clear()
+        
+        performServerTest(TestServerDelegate()) { expectation in
+            
+            guard let socket = self.sendUpgradeRequest() else { return }
+            
+            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+            
+            guard let response = rawResponse else { return }
+            
+            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+            
+            expectation.fulfill()
+        }
     }
     
     private func sendUpgradeRequest() -> Socket? {
@@ -69,8 +97,12 @@ class UpgradeTests: XCTestCase {
         return socket
     }
     
-    private func processUpgradeResponse(socket: Socket) -> HTTPIncomingMessage? {
-        var response: HTTPIncomingMessage? = HTTPIncomingMessage(isRequest: false)
+    
+    
+    private func processUpgradeResponse(socket: Socket) -> (HTTPIncomingMessage?, NSData?) {
+        let response: HTTPIncomingMessage = HTTPIncomingMessage(isRequest: false)
+        var unparsedData: NSData?
+        var errorFlag = false
         
         var keepProcessing = true
         let buffer = NSMutableData()
@@ -79,19 +111,29 @@ class UpgradeTests: XCTestCase {
             while keepProcessing {
                 buffer.length = 0
                 let count = try socket.read(into: buffer)
+
                 if count != 0 {
-                    
+                    let parserStatus = response.parse(buffer)
+
+                    if parserStatus.state == .messageComplete {
+                        keepProcessing = false
+                        if parserStatus.bytesLeft != 0 {
+                            unparsedData = NSData(bytes: buffer.bytes+buffer.length-parserStatus.bytesLeft, length: parserStatus.bytesLeft)
+                        }
+                    }
                 }
                 else {
-                    
+                    keepProcessing = false
+                    errorFlag = true
+                    XCTFail("Server closed socket prematurely")
                 }
             }
         }
         catch let error {
-            response = nil
+            errorFlag = true
             XCTFail("Failed to send upgrade request. Error=\(error)")
         }
-        return response
+        return (errorFlag ? nil : response, unparsedData)
     }
     
     class TestServerDelegate : ServerDelegate {
