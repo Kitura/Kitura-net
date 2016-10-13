@@ -47,7 +47,7 @@ public struct ConnectionUpgrader {
         var notFound = true
         let protocolList = protocols.split(separator: ",")
         for eachProtocol in protocolList {
-            let theProtocol = String(describing: eachProtocol).trimmingCharacters(in: CharacterSet.whitespaces)
+            let theProtocol = eachProtocol.first?.trimmingCharacters(in: CharacterSet.whitespaces) ?? ""
             if theProtocol.characters.count != 0, let factory = registry[theProtocol.lowercased()] {
                 notFound = !factory.upgrade(handler: handler, request: request, response: response)
             }
@@ -56,7 +56,10 @@ public struct ConnectionUpgrader {
         if notFound {
             do {
                 response.statusCode = HTTPStatusCode.notFound
-                try response.write(from: "None of the protocols specified in the Upgrade header are registered")
+                let message = "None of the protocols specified in the Upgrade header are registered"
+                response.headers["Content-Type"] = ["text/plain"]
+                response.headers["Content-Length"] = [String(message.characters.count)]
+                try response.write(from: message)
                 try response.end()
             }
             catch {

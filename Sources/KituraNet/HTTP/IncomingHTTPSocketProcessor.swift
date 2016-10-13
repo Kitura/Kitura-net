@@ -139,8 +139,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         case .initial:
             break
         case .messageComplete:
-            clientRequestedKeepAlive = parsingStatus.keepAlive
             isUpgrade = parsingStatus.upgrade
+            clientRequestedKeepAlive = parsingStatus.keepAlive && !isUpgrade
             parsingComplete()
         case .reset, .headersComplete:
             break

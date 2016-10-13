@@ -29,6 +29,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// Minor version for HTTP of the incoming message.
     public private(set) var httpVersionMinor: UInt16?
+    
+    /// HTTP Status code if this message is a response
+    public private(set) var httpStatusCode: HTTPStatusCode = .unknown
 
     /// Set of HTTP headers of the incoming message.
     public var headers = HeadersContainer()
@@ -129,6 +132,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             }
             length -= numberParsed
         }
+        status.bytesLeft = length
         
         return status
     }
@@ -257,6 +261,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         status.keepAlive = httpParser?.isKeepAlive() ?? false
         status.state = .headersComplete
         
+        httpStatusCode = httpParser?.statusCode ?? .unknown
     }
 
     /// Instructions for when beginning to read a message

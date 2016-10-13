@@ -21,24 +21,16 @@ import Foundation
 
 class HTTPParser {
 
-    ///
     /// A Handle to the HTTPParser C-library
-    ///
     var parser: http_parser
 
-    ///
     /// Settings used for HTTPParser
-    ///
     var settings: http_parser_settings
 
-    ///
     /// Parsing a request? (or a response)
-    ///
     var isRequest = true
 
-    ///
     /// Delegate used for the parsing
-    ///
     var delegate: HTTPParserDelegate? {
 
         didSet {
@@ -52,18 +44,14 @@ class HTTPParser {
         
     }
     
-    ///
     /// Whether to upgrade the HTTP connection to HTTP 1.1
-    ///
     var upgrade = 1
 
-    ///
     /// Initializes a HTTPParser instance
     ///
     /// - Parameter isRequest: whether or not this HTTP message is a request
     ///
     /// - Returns: an HTTPParser instance
-    ///
     init(isRequest: Bool) {
 
         self.isRequest = isRequest
@@ -135,34 +123,32 @@ class HTTPParser {
         reset()	
     }
     
-    ///
     /// Executes the parsing on the byte array
     ///
     /// - Parameter data: pointer to a byte array
     /// - Parameter length: length of the byte array
     ///
     /// - Returns: ???
-    ///
     func execute (_ data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
         let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
     }    
 
-    ///
     /// Reset the http_parser context structure.
-    ///
     func reset() {
         http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
     }
 
-    ///
     /// Did the request include a Connection: keep-alive header?
-    ///
     func isKeepAlive() -> Bool {
         return isRequest && http_should_keep_alive(&parser) == 1
     }
 
+    /// Get the HTTP status code on responses
+    var statusCode: HTTPStatusCode {
+        return isRequest ? .unknown : HTTPStatusCode(rawValue: Int(parser.status_code)) ?? .unknown
+    }
 }
 
 fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDelegate? {
@@ -170,9 +156,7 @@ fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDe
     return p?.pointee.data.assumingMemoryBound(to: HTTPParserDelegate.self).pointee
 }
 
-///
 /// Delegate protocol for HTTP parsing stages
-///
 protocol HTTPParserDelegate: class {
     var saveBody : Bool { get }
     func onURL(_ url: UnsafePointer<UInt8>, count: Int)
