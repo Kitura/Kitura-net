@@ -18,19 +18,32 @@ import Foundation
 
 import LoggerAPI
 
+/// The struct that manages the process of upgrading connections from HTTP 1.1 to other protocols.
+///
+///  - Note: There a single instance of this struct in a server.
 public struct ConnectionUpgrader {
     static var instance = ConnectionUpgrader()
     
     private var registry = [String: ConnectionUpgradeFactory]()
     
+    /// Register a `ConnectionUpgradeFactory` class instances used to create appropriate `IncomingSocketProcessor`s
+    /// for upgraded conections
+    ///
+    /// - Parameter factory: The `ConnectionUpgradeFactory` class instance being registered.
     public static func register(factory: ConnectionUpgradeFactory) {
         ConnectionUpgrader.instance.registry[factory.name.lowercased()] = factory
     }
     
+    /// Clear the `ConnectionUpgradeFactory` registry. Used in testing.
     static func clear() {
         ConnectionUpgrader.instance.registry.removeAll()
     }
     
+    /// The function that performs the upgrade.
+    ///
+    /// - Parameter handler: The `IncomingSocketHandler` that is handling the connection being upgraded.
+    /// - Parameter request: The `ServerRequest` object of the incoming "upgrade" request.
+    /// - Parameter response: The `ServerResponse` object that will be used to send the response of the "upgrade" request.
     func upgradeConnection(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) {
         guard let protocols = request.headers["Upgrade"] else {
             do {
