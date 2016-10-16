@@ -19,5 +19,5 @@ import Foundation
 public protocol ConnectionUpgradeFactory {
     var name: String { get }
     
-    func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> Bool
+    func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?)
 }
