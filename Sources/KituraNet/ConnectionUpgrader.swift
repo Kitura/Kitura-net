@@ -44,27 +44,47 @@ public struct ConnectionUpgrader {
             return
         }
         
+        var oldProcessor: IncomingSocketProcessor?
+        var processor: IncomingSocketProcessor?
+        var responseBody: String?
         var notFound = true
         let protocolList = protocols.split(separator: ",")
         for eachProtocol in protocolList {
             let theProtocol = eachProtocol.first?.trimmingCharacters(in: CharacterSet.whitespaces) ?? ""
             if theProtocol.characters.count != 0, let factory = registry[theProtocol.lowercased()] {
-                notFound = !factory.upgrade(handler: handler, request: request, response: response)
+                (processor, responseBody) = factory.upgrade(handler: handler, request: request, response: response)
+                notFound = false
+                break
             }
         }
         
-        if notFound {
-            do {
+        do {
+            if notFound {
                 response.statusCode = HTTPStatusCode.notFound
                 let message = "None of the protocols specified in the Upgrade header are registered"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = [String(message.characters.count)]
                 try response.write(from: message)
-                try response.end()
             }
-            catch {
-                Log.error("Failed to send error response to Upgrade request")
+            else {
+                if let theProcessor = processor {
+                    response.statusCode = .switchingProtocols
+                    oldProcessor = handler.processor
+                    theProcessor.handler = handler
+                    handler.processor = theProcessor
+                    oldProcessor?.inProgress = false
+                }
+                else {
+                    response.statusCode = .badRequest
+                }
+                if let theBody = responseBody {
+                    try response.write(from: theBody)
+                }
             }
+            try response.end()
+        }
+        catch {
+            Log.error("Failed to send response to Upgrade request")
         }
     }
 }
