@@ -21,14 +21,20 @@ import XCTest
 @testable import KituraNet
 import Socket
 
+let messageToProtocol = [0x04, 0xa0, 0xb0, 0xc0, 0xd0]
+let messageFromProtocol = [0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f]
+
 class UpgradeTests: XCTestCase {
     
     static var allTests : [(String, (UpgradeTests) -> () throws -> Void)] {
         return [
             ("testNoRegistrations", testNoRegistrations),
+            ("testSuccessfullUpgrade", testSuccessfullUpgrade),
             ("testWrongRegistration", testWrongRegistration)
         ]
     }
+    
+    
     
     override func setUp() {
         doSetUp()
@@ -43,7 +49,7 @@ class UpgradeTests: XCTestCase {
         
         performServerTest(TestServerDelegate()) { expectation in
             
-            guard let socket = self.sendUpgradeRequest() else { return }
+            guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
 
             let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
 
@@ -55,14 +61,48 @@ class UpgradeTests: XCTestCase {
         }
     }
     
-    
-    
-    func testWrongRegistration() {
+    func testSuccessfullUpgrade() {
         ConnectionUpgrader.clear()
+        ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory())
         
         performServerTest(TestServerDelegate()) { expectation in
             
-            guard let socket = self.sendUpgradeRequest() else { return }
+            guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
+            
+            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+            
+            guard let response = rawResponse else { return }
+            
+            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.switchingProtocols, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.switchingProtocols)")
+            
+            do {
+                try socket.write(from: NSData(bytes: messageToProtocol, length: messageToProtocol.count))
+            }
+            catch {
+                XCTFail("Failed to send message to TestingProtocol. Error=\(error)")
+            }
+            
+            do {
+                let buffer = NSMutableData()
+                let bytesRead = try socket.read(into: buffer)
+                
+                XCTAssertEqual(bytesRead, messageFromProtocol.count, "Message sent by testing protocol wasn't the correct length")
+                
+                expectation.fulfill()
+            }
+            catch {
+                XCTFail("Failed to send message to TestingProtocol. Error=\(error)")
+            }
+        }
+    }
+    
+    func testWrongRegistration() {
+        ConnectionUpgrader.clear()
+        ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory())
+        
+        performServerTest(TestServerDelegate()) { expectation in
+            
+            guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             
             let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
             
@@ -74,7 +114,7 @@ class UpgradeTests: XCTestCase {
         }
     }
     
-    private func sendUpgradeRequest() -> Socket? {
+    private func sendUpgradeRequest(forProtocol: String) -> Socket? {
         var socket: Socket?
         do {
             socket = try Socket.create()
@@ -82,7 +122,7 @@ class UpgradeTests: XCTestCase {
             
             let request = "GET /test/upgrade HTTP/1.1\r\n" +
                           "Host: localhost:8090\r\n" +
-                          "Upgrade: testing\r\n" +
+                          "Upgrade: " + forProtocol + "\r\n" +
                           "Connection: Upgrade\r\n" +
                           "\r\n"
             
@@ -140,6 +180,40 @@ class UpgradeTests: XCTestCase {
         
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTFail("Server deelgate invoked in an Upgrade scenario")
+        }
+    }
+    
+    // A very simple `ConnectionUpgradeFactory` class for testing
+    class TestingProtocolSocketProcessorFactory: ConnectionUpgradeFactory {
+        public var name: String { return "Testing" }
+        
+        public func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?) {
+            return (TestingSocketProcessor(), nil)
+        }
+    }
+    
+    // A very simple `IncomingSocketProcessor` for testing.
+    class TestingSocketProcessor: IncomingSocketProcessor {
+        public weak var handler: IncomingSocketHandler?
+        public var keepAliveUntil: TimeInterval = 0.0
+        public var inProgress = true
+        
+        public func process(_ buffer: NSData) -> Bool {
+            XCTAssertEqual(buffer.length, messageToProtocol.count, "Message received by testing protocol wasn't the correct length")
+            write(from: NSData(bytes: messageFromProtocol, length: messageFromProtocol.count))
+            return true
+        }
+        
+        public func write(from data: NSData) {
+            handler?.write(from: data)
+        }
+        
+        public func write(from bytes: UnsafeRawPointer, length: Int) {
+            handler?.write(from: bytes, length: length)
+        }
+    
+        public func close() {
+            handler?.prepareToClose()
         }
     }
 }
