@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright IBM Corporation 2016
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- **/
+ */
 
-import XCTest
+import Socket
 
-@testable import KituraNetTests
+public protocol Server {
 
-XCTMain([
-       testCase(ClientE2ETests.allTests),
-       testCase(ClientRequestTests.allTests),
-       testCase(HTTPResponseTests.allTests),
-       testCase(LargePayloadTests.allTests),
-       testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests),
-       testCase(LifecycleDelegateTests.allTests)
-])
+    weak var delegate: ServerDelegate? { get set }
+
+    weak var lifecycleDelegate: ServerLifecycleDelegate? { get set }
+
+    var port: Int? { get }
+
+    func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)
+
+    static func listen(port: Int, delegate: ServerDelegate, lifecycleDelegate: ServerLifecycleDelegate?, errorHandler: ((Swift.Error) -> Void)?) -> Server
+
+    func stop()
+}

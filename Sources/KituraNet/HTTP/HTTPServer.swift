@@ -23,30 +23,34 @@ import SSLService
 // MARK: HTTPServer
 
 /// An HTTP server that listens for connections on a socket.
-public class HTTPServer {
+public class HTTPServer: Server {
 
     /// HTTP `ServerDelegate`.
     public weak var delegate: ServerDelegate?
 
-    /// SSL cert configs for handling client requests
-    public var sslConfig: SSLService.Configuration?
-    
+    public weak var lifecycleDelegate: ServerLifecycleDelegate?
+
     /// Port number for listening for new connections.
     public private(set) var port: Int?
-    
+
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
-    
+
     /// Whether the HTTP server has stopped listening
-    var stopped = false
-    
-    /// Incoming socket handler
-    private let socketManager = IncomingSocketManager()
-    
+    private var stopped = false
+
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
-    
+
+    /// Incoming socket handler
+    private let socketManager = IncomingSocketManager()
+
+    /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
+
+
+
     /// Listen for connections on a socket.
     ///
     /// Listens for connections on a socket
@@ -74,6 +78,8 @@ public class HTTPServer {
             } else {
                 Log.error("Error creating socket: \(error)")
             }
+
+            self.lifecycleDelegate?.serverFailed(self, on: port, with: error)
         }
 
         guard let socket = self.listenSocket else {
@@ -90,19 +96,15 @@ public class HTTPServer {
                 } else {
                     Log.error("Error listening on socket: \(error)")
                 }
+
+                self.lifecycleDelegate?.serverFailed(self, on: port, with: error)
             }
         })
 
         ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
     }
 
-    /// Stop listening for new connections.
-    public func stop() {
-        if let listenSocket = listenSocket {
-            stopped = true
-            listenSocket.close()
-        }
-    }
+
 
     /// Static method to create a new HTTPServer and have it listen for connections.
     ///
@@ -111,20 +113,24 @@ public class HTTPServer {
     /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new `HTTPServer` instance
-    public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> HTTPServer {
+    public static func listen(port: Int, delegate: ServerDelegate, lifecycleDelegate: ServerLifecycleDelegate? = nil, errorHandler: ((Swift.Error) -> Void)? = nil) -> Server {
         let server = HTTP.createServer()
         server.delegate = delegate
+        server.lifecycleDelegate = lifecycleDelegate
         server.listen(port: port, errorHandler: errorHandler)
         return server
     }
-    
+
     /// Handle instructions for listening on a socket
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    func listen(socket: Socket, port: Int) throws {
+    private func listen(socket: Socket, port: Int) throws {
         do {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+
+            self.lifecycleDelegate?.serverStarted(self, on: port)
+            
             Log.info("Listening on port \(port)")
 
             // TODO: Change server exit to not rely on error being thrown
@@ -136,6 +142,8 @@ public class HTTPServer {
             } while true
         } catch let error as Socket.Error {
             if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                self.lifecycleDelegate?.serverStopped(self, on: port)
+
                 Log.info("Server has stopped listening")
             }
             else {
@@ -143,23 +151,31 @@ public class HTTPServer {
             }
         }
     }
-    
+
     /// Handle a new client HTTP request
     ///
     /// - Parameter clientSocket: the socket used for connecting
-    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
+    private func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
 
         guard let delegate = delegate else {
             return
         }
-        
+
         socketManager.handle(socket: clientSocket, using: delegate)
     }
-    
+
+    /// Stop listening for new connections.
+    public func stop() {
+        if let listenSocket = listenSocket {
+            stopped = true
+            listenSocket.close()
+        }
+    }
+
     /// Wait for all of the listeners to stop.
     ///
     /// - todo: Note that this calls the ListenerGroup object, and is left in for
-    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
+    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift
     /// is patched to directly talk to ListenerGroup.
     public static func waitForListeners() {
         ListenerGroup.waitForListeners()
