@@ -18,15 +18,24 @@ import Socket
 
 public protocol Server {
 
-    weak var delegate: ServerDelegate? { get set }
+    associatedtype ServerType
 
-    weak var lifecycleDelegate: ServerLifecycleDelegate? { get set }
+    weak var delegate: ServerDelegate? { get set }
 
     var port: Int? { get }
 
     func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)
 
-    static func listen(port: Int, delegate: ServerDelegate, lifecycleDelegate: ServerLifecycleDelegate?, errorHandler: ((Swift.Error) -> Void)?) -> Server
+    static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)?) -> ServerType
 
     func stop()
+
+    @discardableResult
+    func started(callback: @escaping () -> Void) -> Self
+
+    @discardableResult
+    func stopped(callback: @escaping () -> Void) -> Self
+
+    @discardableResult
+    func failed(callback: @escaping (Swift.Error) -> Void) -> Self
 }

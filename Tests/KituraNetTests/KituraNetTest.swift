@@ -37,8 +37,8 @@ extension KituraNetTest {
         //       sleep(10)
     }
 
-    func performServerTest(_ delegate: ServerDelegate, lifecycleDelegate: ServerLifecycleDelegate? = nil, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        let server = setupServer(port: 8090, delegate: delegate, lifecycleDelegate: lifecycleDelegate)
+    func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+        let server = setupServer(port: 8090, delegate: delegate)
 
         let requestQueue = DispatchQueue(label: "Request queue")
 
@@ -72,10 +72,9 @@ extension KituraNetTest {
         req.end()
     }
 
-    private func setupServer(port: Int, delegate: ServerDelegate, lifecycleDelegate: ServerLifecycleDelegate?) -> Server {
+    private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
         let server = HTTPServer.listen(port: port,
             delegate: delegate,
-            lifecycleDelegate: lifecycleDelegate,
             errorHandler: { (error: Swift.Error) -> Void in
                 print("Handling error in KituraNetTest.setupServer \(error)")
         })

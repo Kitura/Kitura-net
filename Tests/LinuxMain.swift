@@ -25,5 +25,5 @@ XCTMain([
        testCase(LargePayloadTests.allTests),
        testCase(ParserTests.allTests),
        testCase(FastCGIProtocolTests.allTests),
-       testCase(LifecycleDelegateTests.allTests)
+       testCase(LifecycleListenerTests.allTests)
 ])
