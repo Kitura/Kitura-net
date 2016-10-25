@@ -70,10 +70,12 @@ class LargePayloadTests: XCTestCase {
 
     func testLargeGets() {
         performServerTest(delegate, asyncTasks: { expectation in
-            self.performRequest("get", path: "/largepost", callback: {response in
+            // This test is NOT using self.performRequest, in order to test an extra signature of HTTP.request
+            let request = HTTP.request("http://localhost:8090/largepost") {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 expectation.fulfill()
-            })
+            }
+            request.end()
         })
     }
 
@@ -89,7 +91,11 @@ class LargePayloadTests: XCTestCase {
         }
 
         func handleGet(request: ServerRequest, response: ServerResponse) {
-            let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
+            var payload = "[" + contentTypesString
+            for _ in 0 ... 160 {
+                payload += "," + contentTypesString
+            }
+            payload += "]"
             let payloadData = payload.data(using: .utf8)!
             do {
                 response.headers["Content-Length"] = ["\(payloadData.count)"]

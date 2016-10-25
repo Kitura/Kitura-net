@@ -24,7 +24,9 @@ XCTMain([
        testCase(FastCGIProtocolTests.allTests),
        testCase(HTTPResponseTests.allTests),
        testCase(LargePayloadTests.allTests),
-       testCase(ParserTests.allTests),
        testCase(LifecycleListenerTests.allTests),
+       testCase(MiscellaneousTests.allTests),
+       testCase(ParserTests.allTests),
+       testCase(SocketManagerTests.allTests),
        testCase(UpgradeTests.allTests)
 ])
