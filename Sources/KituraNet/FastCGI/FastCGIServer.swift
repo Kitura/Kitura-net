@@ -31,8 +31,8 @@ public class FastCGIServer: Server {
     /// Port number for listening for new connections
     public private(set) var port: Int?
 
-    /// Whether the FastCGI server has stopped listening
-    private var stopped = false
+    /// Server state
+    public private(set) var state: ServerState = .unknown
 
     /// Retrieve an appropriate connection backlog value for our listen socket.
     /// This log is taken from Nginx, and tests out with good results.
@@ -66,6 +66,7 @@ public class FastCGIServer: Server {
                 Log.error("Error creating socket: \(error)")
             }
 
+            self.state = .failed
             self.lifecycleListener.performFailCallbacks(with: error)
         }
 
@@ -84,6 +85,7 @@ public class FastCGIServer: Server {
                     Log.error("Error listening on socket: \(error)")
                 }
 
+                self.state = .failed
                 self.lifecycleListener.performFailCallbacks(with: error)
             }
         })
@@ -116,6 +118,7 @@ public class FastCGIServer: Server {
         do {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
 
+            self.state = .started
             self.lifecycleListener.performStartCallbacks()
 
             Log.info("Listening on port \(port) (FastCGI)")
@@ -128,13 +131,12 @@ public class FastCGIServer: Server {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+            if if self.state == .stopped
+                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                    self.lifecycleListener.performStopCallbacks()
 
-                self.lifecycleListener.performStopCallbacks()
-
-                Log.info("FastCGI Server has stopped listening")
-            }
-            else {
+                    Log.info("FastCGI Server has stopped listening")
+            } else {
                 throw error
             }
         }
@@ -194,7 +196,7 @@ public class FastCGIServer: Server {
     public func stop() {
 
         if let listenSocket = listenSocket {
-            stopped = true
+            self.state = .stopped
             listenSocket.close()
         }
 
