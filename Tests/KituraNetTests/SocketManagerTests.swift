@@ -37,7 +37,10 @@ class SocketManagerTests: XCTestCase {
             manager.handle(socket: socket1, processor: processor1)
             XCTAssertEqual(manager.socketHandlers.count, 1, "There should be 1 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
             
-            // Enable cleanup the next time there is a "new incoming socket"
+            // The check for idle sockets to clean up happens when new sockets arrive.
+            // However the check is done at most once a minute. To avoid waiting a minute
+            // and only then simulating a new incoming socket, this test first sets the
+            // last time the check for idle sockets to two minutes in the past.
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
             
             let socket2 = try Socket.create()
@@ -45,9 +48,9 @@ class SocketManagerTests: XCTestCase {
             manager.handle(socket: socket2, processor: processor2)
             XCTAssertEqual(manager.socketHandlers.count, 2, "There should be 2 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
 
-            // Enable cleanup the next time there is a "new incoming socket"
+            // Enable cleanup the next time there is a "new incoming socket" (see description above)
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
-            // Mark a processor as NOT in progress, with a keepa live of four minutes from now
+            // Mark a processor as NOT in progress, with a keep alive of four minutes from now
             processor1.inProgress = false
             processor1.keepAliveUntil = Date().timeIntervalSinceReferenceDate + 240.0
             
@@ -56,7 +59,7 @@ class SocketManagerTests: XCTestCase {
             manager.handle(socket: socket3, processor: processor3)
             XCTAssertEqual(manager.socketHandlers.count, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
             
-            // Enable cleanup the next time there is a "new incoming socket"
+            // Enable cleanup the next time there is a "new incoming socket" (see description above)
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
             // Mark a processor as NOT in progress, with no keep alive
             processor2.inProgress = false
