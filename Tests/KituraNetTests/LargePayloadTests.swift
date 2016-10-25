@@ -89,7 +89,11 @@ class LargePayloadTests: XCTestCase {
         }
 
         func handleGet(request: ServerRequest, response: ServerResponse) {
-            let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
+            var payload = "[" + contentTypesString
+            for _ in 0 ... 160 {
+                payload += "," + contentTypesString
+            }
+            payload += "]"
             let payloadData = payload.data(using: .utf8)!
             do {
                 response.headers["Content-Length"] = ["\(payloadData.count)"]
