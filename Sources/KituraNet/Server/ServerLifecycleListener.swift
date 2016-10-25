@@ -42,11 +42,17 @@ class ServerLifecycleListener {
         }
     }
 
-    func addStartCallback(_ callback: @escaping () -> Void) {
+    func addStartCallback(perform: Bool = false, _ callback: @escaping () -> Void) {
+        if perform {
+            callback()
+        }
         self.startCallbacks.append(callback)
     }
 
-    func addStopCallback(_ callback: @escaping () -> Void) {
+    func addStopCallback(perform: Bool = false, _ callback: @escaping () -> Void) {
+        if perform {
+            callback()
+        }
         self.stopCallbacks.append(callback)
     }
 

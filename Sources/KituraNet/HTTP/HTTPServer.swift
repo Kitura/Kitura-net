@@ -175,13 +175,13 @@ public class HTTPServer: Server {
 
     @discardableResult
     public func started(callback: @escaping () -> Void) -> Self {
-        self.lifecycleListener.addStartCallback(callback)
+        self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
         return self
     }
 
     @discardableResult
     public func stopped(callback: @escaping () -> Void) -> Self {
-        self.lifecycleListener.addStopCallback(callback)
+        self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
         return self
     }
 
