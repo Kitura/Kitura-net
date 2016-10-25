@@ -131,7 +131,7 @@ public class FastCGIServer: Server {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            if if self.state == .stopped
+            if self.state == .stopped
                 && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
                     self.lifecycleListener.performStopCallbacks()
 
@@ -210,7 +210,7 @@ public class FastCGIServer: Server {
 
     @discardableResult
     public func stopped(callback: @escaping () -> Void) -> Self {
-        self.lifecycleListener.addStopCallback(perform: self.state == .stapped, callback)
+        self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
         return self
     }
 
