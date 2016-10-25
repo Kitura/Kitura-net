@@ -38,7 +38,7 @@ import Socket
 public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
-    private var socketHandlers = [Int32: IncomingSocketHandler]()
+    var socketHandlers = [Int32: IncomingSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 60.0
