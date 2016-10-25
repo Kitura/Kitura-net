@@ -22,7 +22,7 @@ import XCTest
 import Socket
 
 class LargePayloadTests: XCTestCase {
-    
+
     static var allTests : [(String, (LargePayloadTests) -> () throws -> Void)] {
         return [
             ("testLargePosts", testLargePosts),
@@ -37,9 +37,9 @@ class LargePayloadTests: XCTestCase {
     override func tearDown() {
         doTearDown()
     }
-    
-    let delegate = TestServerDelegate()
-    
+
+    private let delegate = TestServerDelegate()
+
     func testLargePosts() {
         performServerTest(delegate, asyncTasks: { expectation in
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
@@ -67,7 +67,7 @@ class LargePayloadTests: XCTestCase {
             }
         })
     }
-    
+
     func testLargeGets() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("get", path: "/largepost", callback: {response in
@@ -76,9 +76,9 @@ class LargePayloadTests: XCTestCase {
             })
         })
     }
-    
-    class TestServerDelegate : ServerDelegate {
-        
+
+    private class TestServerDelegate : ServerDelegate {
+
         func handle(request: ServerRequest, response: ServerResponse) {
             if  request.method.uppercased() == "GET" {
                 handleGet(request: request, response: response)
@@ -87,7 +87,7 @@ class LargePayloadTests: XCTestCase {
                 handlePost(request: request, response: response)
             }
         }
-        
+
         func handleGet(request: ServerRequest, response: ServerResponse) {
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
             let payloadData = payload.data(using: .utf8)!
@@ -100,7 +100,7 @@ class LargePayloadTests: XCTestCase {
                 print("Error writing response.")
             }
         }
-        
+
         func handlePost(request: ServerRequest, response: ServerResponse) {
             var body = Data()
             do {
@@ -108,7 +108,7 @@ class LargePayloadTests: XCTestCase {
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]
-                
+
                 try response.end(text: result)
             }
             catch {
