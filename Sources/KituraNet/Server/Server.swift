@@ -20,7 +20,7 @@ public protocol Server {
 
     associatedtype ServerType
 
-    weak var delegate: ServerDelegate? { get set }
+    var delegate: ServerDelegate? { get set }
 
     var port: Int? { get }
 

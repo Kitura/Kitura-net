@@ -51,7 +51,9 @@ extension KituraNetTest {
 
         waitExpectation(timeout: 10) { error in
             // blocks test until request completes
+            XCTAssertNotNil(server.delegate);
             server.stop()
+            XCTAssertNil(server.delegate);
             XCTAssertNil(error);
         }
     }
