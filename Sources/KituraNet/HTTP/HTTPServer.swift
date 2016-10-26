@@ -33,7 +33,7 @@ public class HTTPServer: Server {
     /// Port number for listening for new connections.
     public private(set) var port: Int?
 
-    /// Server state
+    /// A server state.
     public private(set) var state: ServerState = .unknown
 
     /// TCP socket used for listening for new connections
@@ -173,18 +173,33 @@ public class HTTPServer: Server {
         }
     }
 
+    /// Add a new listener for server beeing started
+    ///
+    /// - Parameter callback: The listener callback that will run on server successfull start-up
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func started(callback: @escaping () -> Void) -> Self {
         self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
         return self
     }
 
+    /// Add a new listener for server beeing stopped
+    ///
+    /// - Parameter callback: The listener callback that will run when server stops
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func stopped(callback: @escaping () -> Void) -> Self {
         self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
         return self
     }
 
+    /// Add a new listener for server throwing an error
+    ///
+    /// - Parameter callback: The listener callback that will run when server throws an error
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addFailCallback(callback)

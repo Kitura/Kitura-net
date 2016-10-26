@@ -14,34 +14,53 @@
  * limitations under the License.
  */
 
-import Socket
-import LoggerAPI
-
+/// A class that is used for storing callbacks and performing them.
 class ServerLifecycleListener {
 
     typealias ErrorClosure = (Swift.Error) -> Void
+
+    /// Callbacks that should be performed when server starts.
     private var startCallbacks = [() -> Void]()
+
+    /// Callbacks that should be performed when server stops.
     private var stopCallbacks = [() -> Void]()
+
+    /// Callbacks that should be performed when server throws an error.
     private var failCallbacks = [ErrorClosure]()
 
+    /// Perform all `start` callbacks.
+    ///
+    /// Performs all `start` callbacks.
     func performStartCallbacks() {
         for callback in self.startCallbacks {
             callback()
         }
     }
 
+    /// Perform all `stop` callbacks.
+    ///
+    /// Performs all `stop` callbacks.
     func performStopCallbacks() {
         for callback in self.stopCallbacks {
             callback()
         }
     }
 
+    /// Perform all `fail` callbacks.
+    ///
+    /// Performs all `fail` callbacks.
+    ///
+    /// - Parameter error: An error that should be processed by callbacks.
     func performFailCallbacks(with error: Swift.Error) {
         for callback in self.failCallbacks {
             callback(error)
         }
     }
 
+    /// Add `start` callback. And perform it immediately if needed.
+    ///
+    /// - Parameter perform: The value indicating should callback be performed immediately or not.
+    /// - Parameter callback: A callback that will be stored for `start` listener.
     func addStartCallback(perform: Bool = false, _ callback: @escaping () -> Void) {
         if perform {
             callback()
@@ -49,6 +68,10 @@ class ServerLifecycleListener {
         self.startCallbacks.append(callback)
     }
 
+    /// Add `stop` callback. And perform it immediately if needed.
+    ///
+    /// - Parameter perform: The value indicating should callback be performed immediately or not.
+    /// - Parameter callback: A callback that will be stored for `stop` listener.
     func addStopCallback(perform: Bool = false, _ callback: @escaping () -> Void) {
         if perform {
             callback()
@@ -56,6 +79,9 @@ class ServerLifecycleListener {
         self.stopCallbacks.append(callback)
     }
 
+    /// Add `fail` callback. And perform it immediately if needed.
+    ///
+    /// - Parameter callback: A callback that will be stored for `fail` listener.
     func addFailCallback(_ callback: @escaping (Swift.Error) -> Void) {
         self.failCallbacks.append(callback)
     }
