@@ -54,7 +54,8 @@ public class IncomingSocketManager  {
         private let epollDescriptors:[Int32]
         private let queues:[DispatchQueue]
 
-        private let epollTimeout: Int32 = 50
+        let epollTimeout: Int32 = 50
+        var runEpoll = true
 
         private func epollDescriptor(fd:Int32) -> Int32 {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
@@ -116,7 +117,7 @@ public class IncomingSocketManager  {
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
         
-            while  true  {
+            while  runEpoll  {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
             
                 if  count == -1  {
