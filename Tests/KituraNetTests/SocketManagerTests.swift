@@ -28,14 +28,25 @@ class SocketManagerTests: XCTestCase {
             ("testHandlerCleanup", testHandlerCleanup)        ]
     }
     
-    let manager = IncomingSocketManager()
+    var manager: IncomingSocketManager?
     
-    func testHandlerCleanup() {
-        defer {
-            #if !GCD_ASYNCH && os(Linux)
+    override func setUp() {
+        manager = IncomingSocketManager()
+    }
+    
+    override func tearDown() {
+        #if !GCD_ASYNCH && os(Linux)
+            if let manager = manager {
                 manager.runEpoll = false
                 usleep(UInt32(manager.epollTimeout) * UInt32(1000))  /* epollTimeout is in milliseconds */
-            #endif
+            }
+        #endif
+    }
+    
+    func testHandlerCleanup() {
+        guard let manager = manager else {
+            XCTFail("Failed to create an IncomingSocketManager.")
+            return
         }
         
         do {
