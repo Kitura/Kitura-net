@@ -28,10 +28,17 @@ class SocketManagerTests: XCTestCase {
             ("testHandlerCleanup", testHandlerCleanup)        ]
     }
     
+    let manager = IncomingSocketManager()
+    
     func testHandlerCleanup() {
+        defer {
+            #if !GCD_ASYNCH && os(Linux)
+                manager.runEpoll = false
+                usleep(UInt32(manager.epollTimeout) * UInt32(1000))  /* epollTimeout is in milliseconds */
+            #endif
+        }
+        
         do {
-            let manager = IncomingSocketManager()
-            
             let socket1 = try Socket.create()
             let processor1 = TestIncomingSocketProcessor()
             manager.handle(socket: socket1, processor: processor1)
