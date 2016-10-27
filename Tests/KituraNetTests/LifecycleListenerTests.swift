@@ -24,7 +24,8 @@ class LifecycleListenerTests: XCTestCase {
 
     static var allTests : [(String, (LifecycleListenerTests) -> () throws -> Void)] {
         return [
-            ("testLifecycle", testLifecycle)
+            ("testLifecycle", testLifecycle),
+            ("testLifecycleWithState", testLifecycleWithState)
         ]
     }
 
@@ -63,7 +64,28 @@ class LifecycleListenerTests: XCTestCase {
                 XCTAssertNil(error)
             }
         }
+    }
 
+    func testLifecycleWithState() {
+        var started = false
+        let startExpectation = self.expectation(description: "start")
 
+        let server = HTTP.createServer()
+        server.started {
+            startExpectation.fulfill()
+        }
+        server.listen(port: 8090)
+
+        self.waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+
+            server.started {
+                started = true
+            }
+
+            XCTAssertTrue(started)
+
+            server.stop()
+        }
     }
 }

@@ -14,28 +14,60 @@
  * limitations under the License.
  */
 
-import Socket
-
+/// A common protocol for Kitura-net Servers
 public protocol Server {
 
+    /// A type that will be returned by static `listen` method
     associatedtype ServerType
 
+    /// A `ServerDelegate` used for request handling
     var delegate: ServerDelegate? { get set }
 
+    /// Port number for listening for new connections.
     var port: Int? { get }
 
+    /// A server state.
+    var state: ServerState { get }
+
+    /// Listen for connections on a socket.
+    ///
+    /// - Parameter port: port number for new connections (eg. 8090)
+    /// - Parameter errorHandler: optional callback for error handling
     func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)
 
+    /// Static method to create a new Server and have it listen for connections.
+    ///
+    /// - Parameter port: port number for accepting new connections
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    /// - Parameter errorHandler: optional callback for error handling
+    ///
+    /// - Returns: a new Server instance
     static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)?) -> ServerType
 
+    /// Stop listening for new connections.
     func stop()
 
+    /// Add a new listener for server beeing started
+    ///
+    /// - Parameter callback: The listener callback that will run on server successfull start-up
+    ///
+    /// - Returns: a Server instance
     @discardableResult
     func started(callback: @escaping () -> Void) -> Self
 
+    /// Add a new listener for server beeing stopped
+    ///
+    /// - Parameter callback: The listener callback that will run when server stops
+    ///
+    /// - Returns: a Server instance
     @discardableResult
     func stopped(callback: @escaping () -> Void) -> Self
 
+    /// Add a new listener for server throwing an error
+    ///
+    /// - Parameter callback: The listener callback that will run when server throws an error
+    ///
+    /// - Returns: a Server instance
     @discardableResult
     func failed(callback: @escaping (Swift.Error) -> Void) -> Self
 }

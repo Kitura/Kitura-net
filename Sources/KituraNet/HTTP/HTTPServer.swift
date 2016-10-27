@@ -33,11 +33,11 @@ public class HTTPServer: Server {
     /// Port number for listening for new connections.
     public private(set) var port: Int?
 
+    /// A server state.
+    public private(set) var state: ServerState = .unknown
+
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
-
-    /// Whether the HTTP server has stopped listening
-    private var stopped = false
 
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
@@ -79,6 +79,7 @@ public class HTTPServer: Server {
                 Log.error("Error creating socket: \(error)")
             }
 
+            self.state = .failed
             self.lifecycleListener.performFailCallbacks(with: error)
         }
 
@@ -97,6 +98,7 @@ public class HTTPServer: Server {
                     Log.error("Error listening on socket: \(error)")
                 }
 
+                self.state = .failed
                 self.lifecycleListener.performFailCallbacks(with: error)
             }
         })
@@ -128,6 +130,7 @@ public class HTTPServer: Server {
         do {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
 
+            self.state = .started
             self.lifecycleListener.performStartCallbacks()
 
             Log.info("Listening on port \(port)")
@@ -140,13 +143,11 @@ public class HTTPServer: Server {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-
-                self.lifecycleListener.performStopCallbacks()
-
-                Log.info("Server has stopped listening")
-            }
-            else {
+            if self.state == .stopped
+                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                    self.lifecycleListener.performStopCallbacks()
+                    Log.info("Server has stopped listening")
+            } else {
                 throw error
             }
         }
@@ -170,23 +171,38 @@ public class HTTPServer: Server {
             delegate = nil
         }
         if let listenSocket = listenSocket {
-            stopped = true
+            self.state = .stopped
             listenSocket.close()
         }
     }
 
+    /// Add a new listener for server beeing started
+    ///
+    /// - Parameter callback: The listener callback that will run on server successfull start-up
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func started(callback: @escaping () -> Void) -> Self {
-        self.lifecycleListener.addStartCallback(callback)
+        self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
         return self
     }
 
+    /// Add a new listener for server beeing stopped
+    ///
+    /// - Parameter callback: The listener callback that will run when server stops
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func stopped(callback: @escaping () -> Void) -> Self {
-        self.lifecycleListener.addStopCallback(callback)
+        self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
         return self
     }
 
+    /// Add a new listener for server throwing an error
+    ///
+    /// - Parameter callback: The listener callback that will run when server throws an error
+    ///
+    /// - Returns: a `HTTPServer` instance
     @discardableResult
     public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addFailCallback(callback)
