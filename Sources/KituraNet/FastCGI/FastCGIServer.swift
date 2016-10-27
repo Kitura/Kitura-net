@@ -26,7 +26,7 @@ public class FastCGIServer: Server {
     public typealias ServerType = FastCGIServer
 
     /// The `ServerDelegate` to handle incoming requests.
-    public weak var delegate: ServerDelegate?
+    public var delegate: ServerDelegate?
 
     /// Port number for listening for new connections
     public private(set) var port: Int?
@@ -194,7 +194,9 @@ public class FastCGIServer: Server {
 
     /// Stop listening for new connections
     public func stop() {
-
+        defer {
+            delegate = nil
+        }
         if let listenSocket = listenSocket {
             self.state = .stopped
             listenSocket.close()

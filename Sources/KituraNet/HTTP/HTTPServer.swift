@@ -28,7 +28,7 @@ public class HTTPServer: Server {
     public typealias ServerType = HTTPServer
 
     /// HTTP `ServerDelegate`.
-    public weak var delegate: ServerDelegate?
+    public var delegate: ServerDelegate?
 
     /// Port number for listening for new connections.
     public private(set) var port: Int?
@@ -167,6 +167,9 @@ public class HTTPServer: Server {
 
     /// Stop listening for new connections.
     public func stop() {
+        defer {
+            delegate = nil
+        }
         if let listenSocket = listenSocket {
             self.state = .stopped
             listenSocket.close()

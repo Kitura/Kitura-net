@@ -21,7 +21,7 @@ public protocol Server {
     associatedtype ServerType
 
     /// A `ServerDelegate` used for request handling
-    weak var delegate: ServerDelegate? { get set }
+    var delegate: ServerDelegate? { get set }
 
     /// Port number for listening for new connections.
     var port: Int? { get }
