@@ -62,10 +62,12 @@ public struct ConnectionUpgrader {
         var responseBody: String?
         var notFound = true
         let protocolList = protocols.split(separator: ",")
+        var protocolName: String?
         for eachProtocol in protocolList {
             let theProtocol = eachProtocol.first?.trimmingCharacters(in: CharacterSet.whitespaces) ?? ""
             if theProtocol.characters.count != 0, let factory = registry[theProtocol.lowercased()] {
                 (processor, responseBody) = factory.upgrade(handler: handler, request: request, response: response)
+                protocolName = theProtocol
                 notFound = false
                 break
             }
@@ -80,8 +82,10 @@ public struct ConnectionUpgrader {
                 try response.write(from: message)
             }
             else {
-                if let theProcessor = processor {
+                if let theProcessor = processor, let theProtocolName = protocolName {
                     response.statusCode = .switchingProtocols
+                    response.headers["Upgrade"] = [theProtocolName]
+                    response.headers["Connection"] = ["Upgrade"]
                     oldProcessor = handler.processor
                     theProcessor.handler = handler
                     handler.processor = theProcessor
