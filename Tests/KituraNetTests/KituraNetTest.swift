@@ -40,12 +40,23 @@ extension KituraNetTest {
     func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         let server = setupServer(port: 8090, delegate: delegate)
 
-        let requestQueue = DispatchQueue(label: "Request queue")
+        var expectations: [XCTestExpectation] = []
 
-        for (index, asyncTask) in asyncTasks.enumerated() {
-            let expectation = self.expectation(index)
-            requestQueue.async {
-                asyncTask(expectation)
+        for index in 0..<asyncTasks.count {
+            expectations.append(expectation(index))
+        }
+
+        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+        let exps = expectations
+
+        server.started {
+            let requestQueue = DispatchQueue(label: "Request queue")
+
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
+                }
             }
         }
 
