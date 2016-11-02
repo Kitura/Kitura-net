@@ -171,12 +171,4 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
         handler?.handleBufferedReadData()
     }
-    
-    /// Private method to return a string representation on a value of errno.
-    ///
-    /// - Returns: String containing relevant text about the error.
-    func errorString(error: Int32) -> String {
-        
-        return String(validatingUTF8: strerror(error)) ?? "Error: \(error)"
-    }
 }
