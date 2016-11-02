@@ -105,7 +105,7 @@ public class IncomingSocketHandler {
             }
         }
         catch let error as Socket.Error {
-            Log.error(error.description)
+            Log.error("Read from socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             prepareToClose()
         } catch {
             Log.error("Unexpected error...")
@@ -190,8 +190,8 @@ public class IncomingSocketHandler {
                     writeBufferPosition = 0
                 }
             }
-            catch {
-                Log.error("Write to socket (file descriptor \(socket.socketfd) failed. Error number=\(errno). Message=\(errorString(error: errno)).")
+            catch let error {
+                Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             }
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -256,8 +256,8 @@ public class IncomingSocketHandler {
                 #endif
             }
         }
-        catch {
-            Log.error("Write to socket (file descriptor \(self.socket.socketfd) failed. Error number=\(errno). Message=\(self.errorString(error: errno)).")
+        catch let error {
+            Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
         }
     }
     
@@ -292,13 +292,5 @@ public class IncomingSocketHandler {
         }
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
-    }
-    
-    /// Private method to return a string representation on a value of errno.
-    ///
-    /// - Returns: String containing relevant text about the error.
-    func errorString(error: Int32) -> String {
-        
-        return String(validatingUTF8: strerror(error)) ?? "Error: \(error)"
     }
 }

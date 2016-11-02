@@ -103,8 +103,8 @@ public class IncomingSocketManager  {
                 }
             #endif
         }
-        catch {
-            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+        catch let error {
+            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error = \(error)")
         }
         
         removeIdleSockets()
