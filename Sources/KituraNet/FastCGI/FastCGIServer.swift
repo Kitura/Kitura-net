@@ -115,31 +115,33 @@ public class FastCGIServer: Server {
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
     private func listen(socket: Socket, port: Int) throws {
-        do {
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+        try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+        self.state = .started
+        Log.info("Listening on port \(port) (FastCGI)")
 
-            self.state = .started
-            self.lifecycleListener.performStartCallbacks()
+        self.lifecycleListener.performStartCallbacks()
+        defer {
+            self.lifecycleListener.performStopCallbacks()
+        }
 
-            Log.info("Listening on port \(port) (FastCGI)")
-
-            // TODO: Change server exit to not rely on error being thrown
-            repeat {
+        repeat {
+            do {
                 let clientSocket = try socket.acceptClientConnection()
-                Log.info("Accepted FastCGI connection from: " +
+                Log.verbose("Accepted FastCGI connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
                 handleClientRequest(socket: clientSocket)
-            } while true
-        } catch let error as Socket.Error {
-            if self.state == .stopped
-                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                    self.lifecycleListener.performStopCallbacks()
-
-                    Log.info("FastCGI Server has stopped listening")
-            } else {
-                throw error
+            } catch let error as Socket.Error {
+                if self.state == .stopped {
+                    if error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                        Log.info("FastCGI Server has stopped listening")
+                    } else {
+                        Log.warning("Error in FastCGI socket.acceptClientConnection after server stopped: \(error)")
+                    }
+                } else {
+                    Log.error("Error in FastCGI socket.acceptClientConnection: \(error)")
+                }
             }
-        }
+        } while self.state == .started
     }
 
 

@@ -69,14 +69,18 @@ public class HTTPServer: Server {
             }
         }
         catch let error {
-            if let socketError = error as? Socket.Error {
-                Log.error("Error creating socket reported:\n \(socketError.description)")
-            } else if let sslError = error as? SSLError {
-                // we have to catch SSLErrors separately since we are
-                // calling SSLService.Configuration
-                Log.error("Error creating socket reported:\n \(sslError.description)")
+            if let callback = errorHandler {
+                callback(error)
             } else {
-                Log.error("Error creating socket: \(error)")
+                if let socketError = error as? Socket.Error {
+                    Log.error("Error creating socket reported:\n \(socketError.description)")
+                } else if let sslError = error as? SSLError {
+                    // we have to catch SSLErrors separately since we are
+                    // calling SSLService.Configuration
+                    Log.error("Error creating socket reported:\n \(sslError.description)")
+                } else {
+                    Log.error("Error creating socket: \(error)")
+                }
             }
 
             self.state = .failed
@@ -127,30 +131,33 @@ public class HTTPServer: Server {
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
     private func listen(socket: Socket, port: Int) throws {
-        do {
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+        try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+        self.state = .started
+        Log.info("Listening on port \(port)")
 
-            self.state = .started
-            self.lifecycleListener.performStartCallbacks()
+        self.lifecycleListener.performStartCallbacks()
+        defer {
+            self.lifecycleListener.performStopCallbacks()
+        }
 
-            Log.info("Listening on port \(port)")
-
-            // TODO: Change server exit to not rely on error being thrown
-            repeat {
+        repeat {
+            do {
                 let clientSocket = try socket.acceptClientConnection()
-                Log.info("Accepted connection from: " +
+                Log.verbose("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
                 handleClientRequest(socket: clientSocket)
-            } while true
-        } catch let error as Socket.Error {
-            if self.state == .stopped
-                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                    self.lifecycleListener.performStopCallbacks()
-                    Log.info("Server has stopped listening")
-            } else {
-                throw error
+            } catch let error as Socket.Error {
+                if self.state == .stopped {
+                    if error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                        Log.info("Server has stopped listening")
+                    } else {
+                        Log.warning("Error in socket.acceptClientConnection after server stopped: \(error)")
+                    }
+                } else {
+                    Log.error("Error in socket.acceptClientConnection: \(error)")
+                }
             }
-        }
+        } while self.state == .started
     }
 
     /// Handle a new client HTTP request
