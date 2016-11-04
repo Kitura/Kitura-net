@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HTTPServerResponse Class Reference</title>
+    <title>ConnectionUpgradeFactory Protocol Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset="utf-8">
@@ -11,9 +11,9 @@
   </head>
   <body>
 
-    <a name="//apple_ref/swift/Class/HTTPServerResponse" class="dashAnchor"></a>
+    <a name="//apple_ref/swift/Protocol/ConnectionUpgradeFactory" class="dashAnchor"></a>
 
-    <a title="HTTPServerResponse Class Reference"></a>
+    <a title="ConnectionUpgradeFactory Protocol Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
@@ -35,7 +35,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../index.html">KituraNet Reference</a>
       <img class="carat" src="../img/carat.png" />
-      HTTPServerResponse Class Reference
+      ConnectionUpgradeFactory Protocol Reference
     </p>
 
     <div class="content-wrapper">
@@ -168,15 +168,15 @@
 
         <section class="section">
           <div class="section-content">
-            <h1>HTTPServerResponse</h1>
+            <h1>ConnectionUpgradeFactory</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerResponse</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ConnectionUpgradeFactory</span></code></pre>
 
                 </div>
               </div>
-            <p>This class implements the <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
-responses via the HTTP protocol.</p>
+            <p>A class to create new <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code>s for upgraded connections. These factory classes are invoked
+when an <q>upgrade</q> HTTP request comes to the server for a particular protocol.</p>
 
           </div>
         </section>
@@ -188,9 +188,9 @@ responses via the HTTP protocol.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet18HTTPServerResponse7headersCS_16HeadersContainer"></a>
-                    <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet18HTTPServerResponse7headersCS_16HeadersContainer">headers</a>
+                    <a name="/s:vP9KituraNet24ConnectionUpgradeFactory4nameSS"></a>
+                    <a name="//apple_ref/swift/Property/name" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vP9KituraNet24ConnectionUpgradeFactory4nameSS">name</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -198,14 +198,14 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The HTTP headers to be sent to the client as part of the response.</p>
+                        <p>The name of the protocol supported by this <code>ConnectionUpgradeFactory</code>. A case insensitive compare is made with this name.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span><span class="p">()</span></code></pre>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -215,9 +215,9 @@ responses via the HTTP protocol.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet18HTTPServerResponse10statusCodeGSqOS_14HTTPStatusCode_"></a>
-                    <a name="//apple_ref/swift/Property/statusCode" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet18HTTPServerResponse10statusCodeGSqOS_14HTTPStatusCode_">statusCode</a>
+                    <a name="/s:FP9KituraNet24ConnectionUpgradeFactory7upgradeFT7handlerCS_21IncomingSocketHandler7requestPS_13ServerRequest_8responsePS_14ServerResponse__TGSqPS_23IncomingSocketProcessor__GSqSS__"></a>
+                    <a name="//apple_ref/swift/Method/upgrade(handler:request:response:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FP9KituraNet24ConnectionUpgradeFactory7upgradeFT7handlerCS_21IncomingSocketHandler7requestPS_13ServerRequest_8responsePS_14ServerResponse__TGSqPS_23IncomingSocketProcessor__GSqSS__">upgrade(handler:request:response:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -225,44 +225,38 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>HTTP status code of the response.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">statusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet18HTTPServerResponse5writeFzT4fromSS_T_"></a>
-                    <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet18HTTPServerResponse5writeFzT4fromSS_T_">write(from:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Write a string as a response.</p>
+                        <p><q>Upgrade</q> a connection to the protocol supported by this <code>ConnectionUpgradeFactory</code>.</p>
 
 <div class="aside aside-parameter">
     <p class="aside-title">Parameter</p>
-    Parameter from: String data to be written.
+    Parameter handler: The <code><a href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a></code> that is handling the connection being upgraded.
 
 </div>
 
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while writing to a socket.
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    Parameter request: The <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> object of the incoming <q>upgrade</q> request.
+
+</div>
+
+<div class="aside aside-parameter">
+    <p class="aside-title">Parameter</p>
+    <p>Parameter response: The <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> object that will be used to send the response of the <q>upgrade</q> request.</p>
+
+</div>
+
+<div class="aside aside-returns">
+    <p class="aside-title">Returns</p>
+    <p>A tuple of the created <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> and a message to send as the body of the response to
+      the upgrade request. The <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> should be nil if the upgrade request wasn&rsquo;t successful.
+      If the message is nil, the response will not contain a body.</p>
+
+</div>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>The <code>ConnectionUpgradeFactory</code> instance doesn&rsquo;t need to work with the <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> unless it
+   needs to add special headers to the response.</p>
 
 </div>
 
@@ -271,7 +265,7 @@ responses via the HTTP protocol.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">string</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt"><a href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a></span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span></code></pre>
 
                         </div>
                       </div>
@@ -282,130 +276,38 @@ responses via the HTTP protocol.</p>
                             <tr>
                               <td>
                                 <code>
-                                <em>from</em>
+                                <em>handler</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>String data to be written.</p>
+                                  <p>The <code>IncomingSocketHandler</code> that is handling the connection being upgraded.</p>
 
                                 </div>
                               </td>
                             </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet18HTTPServerResponse5writeFzT4fromV10Foundation4Data_T_"></a>
-                    <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet18HTTPServerResponse5writeFzT4fromV10Foundation4Data_T_">write(from:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Write data as a response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter from: Data object that contains the data to be written.
-
-</div>
-
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while writing to a socket.
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
                             <tr>
                               <td>
                                 <code>
-                                <em>from</em>
+                                <em>request</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>Data object that contains the data to be written.</p>
+                                  <p>The <code>ServerRequest</code> object of the incoming “upgrade” request.</p>
 
                                 </div>
                               </td>
                             </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet18HTTPServerResponse3endFzT4textSS_T_"></a>
-                    <a name="//apple_ref/swift/Method/end(text:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet18HTTPServerResponse3endFzT4textSS_T_">end(text:)</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Write a string and end sending the response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter text: String to write to a socket.
-
-</div>
-
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while writing to a socket.
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
                             <tr>
                               <td>
                                 <code>
-                                <em>text</em>
+                                <em>response</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>String to write to a socket.</p>
+                                  <p>The <code>ServerResponse</code> object that will be used to send the response of the “upgrade” request.</p>
 
                                 </div>
                               </td>
@@ -413,65 +315,10 @@ responses via the HTTP protocol.</p>
                           </tbody>
                         </table>
                       </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet18HTTPServerResponse3endFzT_T_"></a>
-                    <a name="//apple_ref/swift/Method/end()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet18HTTPServerResponse3endFzT_T_">end()</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>End sending the response.</p>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A tuple of the created <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> and a message to send as the body of the response to the upgrade request. The <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> should be nil if the upgrade request wasn’t successful. If the message is nil, the response will not contain a body.</p>
 
-<div class="aside aside-throws">
-    <p class="aside-title">Throws</p>
-    Socket.error if an error occurred while writing to a socket.
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">()</span> <span class="k">throws</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet18HTTPServerResponse5resetFT_T_"></a>
-                    <a name="//apple_ref/swift/Method/reset()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet18HTTPServerResponse5resetFT_T_">reset()</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Reset this response object back to its initial state</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">reset</span><span class="p">()</span></code></pre>
-
-                        </div>
                       </div>
                     </section>
                   </div>

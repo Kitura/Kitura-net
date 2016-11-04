@@ -19,7 +19,7 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (76% documented)
+         (78% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -95,6 +95,9 @@
                 <a class="nav-group-task-link" href="Classes/IncomingSocketHandler.html">IncomingSocketHandler</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/IncomingSocketManager.html">IncomingSocketManager</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Classes/ListenerGroup.html">ListenerGroup</a>
               </li>
               <li class="nav-group-task">
@@ -114,6 +117,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/HTTPStatusCode.html">HTTPStatusCode</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/ServerState.html">ServerState</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -128,7 +134,13 @@
             <a class="nav-group-name-link" href="Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/ConnectionUpgradeFactory.html">ConnectionUpgradeFactory</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Protocols/ServerDelegate.html">ServerDelegate</a>
@@ -138,6 +150,14 @@
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Protocols/ServerResponse.html">ServerResponse</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
               </li>
             </ul>
           </li>
@@ -155,6 +175,39 @@
 
         <section class="section">
           <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:P9KituraNet24ConnectionUpgradeFactory"></a>
+                    <a name="//apple_ref/swift/Protocol/ConnectionUpgradeFactory" class="dashAnchor"></a>
+                    <a class="token" href="#/s:P9KituraNet24ConnectionUpgradeFactory">ConnectionUpgradeFactory</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A class to create new <code><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code>s for upgraded connections. These factory classes are invoked
+when an <q>upgrade</q> HTTP request comes to the server for a particular protocol.</p>
+
+                        <a href="Protocols/ConnectionUpgradeFactory.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ConnectionUpgradeFactory</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
             <div class="task-group">
               <ul class="item-container">
                 <li class="item">
@@ -181,39 +234,6 @@ instance per incoming request.</p>
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">IncomingSocketProcessor</span><span class="p">:</span> <span class="kd">class</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:P9KituraNet14ServerDelegate"></a>
-                    <a name="//apple_ref/swift/Protocol/ServerDelegate" class="dashAnchor"></a>
-                    <a class="token" href="#/s:P9KituraNet14ServerDelegate">ServerDelegate</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
-The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
-
-                        <a href="Protocols/ServerDelegate.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
 
                         </div>
                       </div>
@@ -290,14 +310,79 @@ Kitura project Router.</p>
                 </li>
               </ul>
             </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:P9KituraNet6Server"></a>
+                    <a name="//apple_ref/swift/Protocol/Server" class="dashAnchor"></a>
+                    <a class="token" href="#/s:P9KituraNet6Server">Server</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A common protocol for Kitura-net Servers</p>
+
+                        <a href="Protocols/Server.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">Server</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:P9KituraNet14ServerDelegate"></a>
+                    <a name="//apple_ref/swift/Protocol/ServerDelegate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:P9KituraNet14ServerDelegate">ServerDelegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
+The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
+
+                        <a href="Protocols/ServerDelegate.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-22)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-11-04)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

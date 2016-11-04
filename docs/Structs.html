@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Extensions  Reference</title>
+    <title>Structs  Reference</title>
     <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="css/highlight.css" />
     <meta charset="utf-8">
@@ -12,7 +12,7 @@
   <body>
 
 
-    <a title="Extensions  Reference"></a>
+    <a title="Structs  Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
@@ -34,7 +34,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="index.html">KituraNet Reference</a>
       <img class="carat" src="img/carat.png" />
-      Extensions  Reference
+      Structs  Reference
     </p>
 
     <div class="content-wrapper">
@@ -167,8 +167,8 @@
 
         <section class="section">
           <div class="section-content">
-            <h1>Extensions</h1>
-            <p>The following extensions are available globally.</p>
+            <h1>Structs</h1>
+            <p>The following structs are available globally.</p>
 
           </div>
         </section>
@@ -180,9 +180,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:O9KituraNet19HTTPParserErrorType"></a>
-                    <a name="//apple_ref/swift/Extension/HTTPParserErrorType" class="dashAnchor"></a>
-                    <a class="token" href="#/s:O9KituraNet19HTTPParserErrorType">HTTPParserErrorType</a>
+                    <a name="/s:V9KituraNet18ConnectionUpgrader"></a>
+                    <a name="//apple_ref/swift/Struct/ConnectionUpgrader" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V9KituraNet18ConnectionUpgrader">ConnectionUpgrader</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -190,14 +190,21 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
-                        <a href="Extensions/HTTPParserErrorType.html" class="slightly-smaller">See more</a>
+                        <p>The struct that manages the process of upgrading connections from HTTP 1.1 to other protocols.</p>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    There a single instance of this struct in a server.
+
+</div>
+
+                        <a href="Structs/ConnectionUpgrader.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">enum</span> <span class="kt">HTTPParserErrorType</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ConnectionUpgrader</span></code></pre>
 
                         </div>
                       </div>
