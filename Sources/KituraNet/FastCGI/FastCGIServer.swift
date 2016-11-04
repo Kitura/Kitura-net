@@ -68,16 +68,13 @@ public class FastCGIServer: Server {
 
             self.state = .failed
             self.lifecycleListener.performFailCallbacks(with: error)
-        }
 
-        guard let socket = self.listenSocket else {
-            // already did a callback on the error handler or logged error
-            return
+            return // TODO - should add throws to listen signature so we can propagate this error up
         }
 
         let queuedBlock = DispatchWorkItem(block: {
             do {
-                try self.listen(socket: socket, port: port)
+                try self.listen(socket: self.listenSocket!, port: port)
             } catch {
                 if let callback = errorHandler {
                     callback(error)
