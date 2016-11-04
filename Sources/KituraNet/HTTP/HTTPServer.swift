@@ -157,7 +157,7 @@ public class HTTPServer: Server {
                     Log.error("Error in socket.acceptClientConnection: \(error)")
                 }
             }
-        } while self.state == .started
+        } while self.state == .started && socket.isListening
     }
 
     /// Handle a new client HTTP request

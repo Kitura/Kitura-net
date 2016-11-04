@@ -141,7 +141,7 @@ public class FastCGIServer: Server {
                     Log.error("Error in FastCGI socket.acceptClientConnection: \(error)")
                 }
             }
-        } while self.state == .started
+        } while self.state == .started && socket.isListening
     }
 
 
