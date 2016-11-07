@@ -38,34 +38,36 @@ extension KituraNetTest {
     }
 
     func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        let server = setupServer(port: 8090, delegate: delegate)
+        do {
+            let server = try setupServer(port: 8090, delegate: delegate)
 
-        var expectations: [XCTestExpectation] = []
+            var expectations: [XCTestExpectation] = []
 
-        for index in 0..<asyncTasks.count {
-            expectations.append(expectation(index))
-        }
+            for index in 0..<asyncTasks.count {
+                expectations.append(expectation(index))
+            }
 
-        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
-        let exps = expectations
+            // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+            let exps = expectations
 
-        server.started {
-            let requestQueue = DispatchQueue(label: "Request queue")
+            server.started {
+                let requestQueue = DispatchQueue(label: "Request queue")
 
-            for (index, asyncTask) in asyncTasks.enumerated() {
-                let expectation = exps[index]
-                requestQueue.async {
-                    asyncTask(expectation)
+                for (index, asyncTask) in asyncTasks.enumerated() {
+                    let expectation = exps[index]
+                    requestQueue.async {
+                        asyncTask(expectation)
+                    }
                 }
             }
-        }
 
-        waitExpectation(timeout: 10) { error in
-            // blocks test until request completes
-            XCTAssertNotNil(server.delegate);
-            server.stop()
-            XCTAssertNil(server.delegate);
-            XCTAssertNil(error);
+            waitExpectation(timeout: 10) { error in
+                // blocks test until request completes
+                server.stop()
+                XCTAssertNil(error);
+            }
+        } catch {
+            XCTFail("Error: \(error)")
         }
     }
 
@@ -85,14 +87,8 @@ extension KituraNetTest {
         req.end()
     }
 
-    private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        let server = HTTPServer.listen(port: port,
-            delegate: delegate,
-            errorHandler: { (error: Swift.Error) -> Void in
-                print("Handling error in KituraNetTest.setupServer \(error)")
-        })
-
-        return server
+    private func setupServer(port: Int, delegate: ServerDelegate) throws -> HTTPServer {
+        return try HTTPServer.listen(on: port, delegate: delegate)
     }
 }
 

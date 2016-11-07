@@ -18,6 +18,8 @@ import Foundation
 
 import XCTest
 
+import Socket
+
 @testable import KituraNet
 
 class LifecycleListenerTests: XCTestCase {
@@ -25,7 +27,8 @@ class LifecycleListenerTests: XCTestCase {
     static var allTests : [(String, (LifecycleListenerTests) -> () throws -> Void)] {
         return [
             ("testLifecycle", testLifecycle),
-            ("testLifecycleWithState", testLifecycleWithState)
+            ("testLifecycleWithState", testLifecycleWithState),
+            ("testServerFailLifecycle", testServerFailLifecycle)
         ]
     }
 
@@ -47,22 +50,27 @@ class LifecycleListenerTests: XCTestCase {
         }.started {
             started = true
         }
-        server.listen(port: 8090)
 
-        self.waitForExpectations(timeout: 5) { error in
-            XCTAssertNil(error)
-            XCTAssertTrue(started)
-            let stopExpectation = self.expectation(description: "stop")
-
-            server.stopped {
-                stopExpectation.fulfill()
-            }
-
-            server.stop()
+        do {
+            try server.listen(on: 8090)
 
             self.waitForExpectations(timeout: 5) { error in
                 XCTAssertNil(error)
+                XCTAssertTrue(started)
+                let stopExpectation = self.expectation(description: "stop")
+
+                server.stopped {
+                    stopExpectation.fulfill()
+                }
+
+                server.stop()
+
+                self.waitForExpectations(timeout: 5) { error in
+                    XCTAssertNil(error)
+                }
             }
+        } catch {
+            XCTFail("Error: \(error)")
         }
     }
 
@@ -74,18 +82,44 @@ class LifecycleListenerTests: XCTestCase {
         server.started {
             startExpectation.fulfill()
         }
-        server.listen(port: 8090)
 
-        self.waitForExpectations(timeout: 5) { error in
-            XCTAssertNil(error)
+        do {
+            try server.listen(on: 8090)
 
-            server.started {
-                started = true
+            self.waitForExpectations(timeout: 5) { error in
+                XCTAssertNil(error)
+
+                server.started {
+                    started = true
+                }
+
+                XCTAssertTrue(started)
+
+                server.stop()
             }
-
-            XCTAssertTrue(started)
-
-            server.stop()
+        } catch {
+            XCTFail("Error: \(error)")
         }
+    }
+
+    func testServerFailLifecycle() {
+        var failedCallback = false
+        var socketErrorThrown = false
+
+        let server = HTTP.createServer()
+        server.failed(callback: { error in
+            failedCallback = true
+        })
+
+        do {
+            try server.listen(on: -1)
+        } catch _ as Socket.Error {
+            socketErrorThrown = true
+        } catch {
+            socketErrorThrown = false
+        }
+
+        XCTAssertTrue(failedCallback)
+        XCTAssertTrue(socketErrorThrown)
     }
 }
