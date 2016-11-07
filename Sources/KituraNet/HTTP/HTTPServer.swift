@@ -65,7 +65,6 @@ public class HTTPServer: Server {
             }
 
             try listenSocket!.listen(on: port, maxBacklogSize: maxPendingConnections)
-            self.state = .started
 
             if let delegate = listenSocket!.delegate {
                 Log.info("Listening on port \(port) (delegate: \(delegate))")
@@ -74,6 +73,7 @@ public class HTTPServer: Server {
             }
 
             let queuedBlock = DispatchWorkItem(block: {
+                self.state = .started
                 self.lifecycleListener.performStartCallbacks()
                 self.listen()
                 self.lifecycleListener.performStopCallbacks()

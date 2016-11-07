@@ -58,10 +58,10 @@ public class FastCGIServer: Server {
             self.listenSocket = try Socket.create()
 
             try listenSocket!.listen(on: port, maxBacklogSize: maxPendingConnections)
-            self.state = .started
             Log.info("Listening on port \(port)")
 
             let queuedBlock = DispatchWorkItem(block: {
+                self.state = .started
                 self.lifecycleListener.performStartCallbacks()
                 self.listen()
                 self.lifecycleListener.performStopCallbacks()
