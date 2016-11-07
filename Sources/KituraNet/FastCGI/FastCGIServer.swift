@@ -149,6 +149,11 @@ public class FastCGIServer: Server {
                 }
             }
         } while self.state == .started && self.listenSocket!.isListening
+
+        if self.state == .started {
+            Log.error("listenSocket closed without stop() being called")
+            stop()
+        }
     }
 
     /// Handle a new client FastCGI request

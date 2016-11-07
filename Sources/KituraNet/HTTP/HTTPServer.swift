@@ -163,6 +163,11 @@ public class HTTPServer: Server {
                 }
             }
         } while self.state == .started && self.listenSocket!.isListening
+
+        if self.state == .started {
+            Log.error("listenSocket closed without stop() being called")
+            stop()
+        }
     }
 
     /// Stop listening for new connections.
