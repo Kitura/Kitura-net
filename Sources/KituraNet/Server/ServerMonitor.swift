@@ -24,7 +24,7 @@ public protocol ServerMonitor {
     /// - Parameter response: The `ServerResponse` class instance for the request starting.
     func started(request: ServerRequest, response: ServerResponse)
     
-    /// An event fired when th processing of a HTTP request has finished.
+    /// An event fired when the processing of a HTTP request has finished.
     ///
     /// - Parameter request: The `ServerRequest` class instance for the request that finished.
     /// - Parameter response: The `ServerResponse` class instance for the request  that finished.
