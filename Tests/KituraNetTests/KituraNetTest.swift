@@ -39,7 +39,8 @@ extension KituraNetTest {
 
     func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         do {
-            let server = try setupServer(port: 8090, delegate: delegate)
+            let server = HTTP.createServer()
+            server.delegate = delegate
 
             var expectations: [XCTestExpectation] = []
 
@@ -60,6 +61,9 @@ extension KituraNetTest {
                     }
                 }
             }
+
+            // server.started callback above needs to be set before server.listen
+            try server.listen(on: 8090)
 
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
@@ -85,10 +89,6 @@ extension KituraNetTest {
             requestModifier(req)
         }
         req.end()
-    }
-
-    private func setupServer(port: Int, delegate: ServerDelegate) throws -> HTTPServer {
-        return try HTTPServer.listen(on: port, delegate: delegate)
     }
 }
 
