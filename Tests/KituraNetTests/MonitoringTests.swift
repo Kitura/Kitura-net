@@ -107,7 +107,7 @@ class MonitoringTests: XCTestCase {
                 try response.end()
             }
             catch {
-                print("Error writing response.")
+                XCTFail("Error writing response.")
             }
         }
     }
