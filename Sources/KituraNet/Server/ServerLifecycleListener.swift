@@ -28,6 +28,9 @@ class ServerLifecycleListener {
     /// Callbacks that should be performed when server throws an error.
     private var failCallbacks = [ErrorClosure]()
 
+    /// Callbacks that should be performed when listenSocket.acceptClientConnection throws an error.
+    private var clientConnectionFailCallbacks = [ErrorClosure]()
+
     /// Perform all `start` callbacks.
     ///
     /// Performs all `start` callbacks.
@@ -53,6 +56,15 @@ class ServerLifecycleListener {
     /// - Parameter error: An error that should be processed by callbacks.
     func performFailCallbacks(with error: Swift.Error) {
         for callback in self.failCallbacks {
+            callback(error)
+        }
+    }
+
+    /// Performs all `clientConnectionFail` callbacks.
+    ///
+    /// - Parameter error: An error that should be processed by callbacks.
+    func performClientConnectionFailCallbacks(with error: Swift.Error) {
+        for callback in self.clientConnectionFailCallbacks {
             callback(error)
         }
     }
@@ -84,5 +96,12 @@ class ServerLifecycleListener {
     /// - Parameter callback: A callback that will be stored for `fail` listener.
     func addFailCallback(_ callback: @escaping (Swift.Error) -> Void) {
         self.failCallbacks.append(callback)
+    }
+
+    /// Add `clientConnectionFail` callback. And perform it immediately if needed.
+    ///
+    /// - Parameter callback: A callback that will be stored for `clientConnectionFail` listener.
+    func addClientConnectionFailCallback(_ callback: @escaping (Swift.Error) -> Void) {
+        self.clientConnectionFailCallbacks.append(callback)
     }
 }

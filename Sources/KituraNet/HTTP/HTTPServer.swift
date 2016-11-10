@@ -50,14 +50,10 @@ public class HTTPServer: Server {
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
 
-
-    /// Listen for connections on a socket.
-    ///
     /// Listens for connections on a socket
     ///
-    /// - Parameter port: port number for new connections (eg. 8090)
-    /// - Parameter errorHandler: optional callback for error handling
-    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
+    /// - Parameter on: port number for new connections (eg. 8090)
+    public func listen(on port: Int) throws {
         self.port = port
         do {
             self.listenSocket = try Socket.create()
@@ -65,48 +61,64 @@ public class HTTPServer: Server {
             // If SSL config has been created,
             // create and attach the SSLService delegate to the socket
             if let sslConfig = sslConfig {
-                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+                self.listenSocket!.delegate = try SSLService(usingConfiguration: sslConfig);
             }
+
+            try listenSocket!.listen(on: port, maxBacklogSize: maxPendingConnections)
+
+            if let delegate = listenSocket!.delegate {
+                Log.info("Listening on port \(port) (delegate: \(delegate))")
+            } else {
+                Log.info("Listening on port \(port)")
+            }
+
+            let queuedBlock = DispatchWorkItem(block: {
+                self.state = .started
+                self.lifecycleListener.performStartCallbacks()
+                self.listen()
+                self.lifecycleListener.performStopCallbacks()
+                self.listenSocket = nil
+            })
+
+            ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
         }
         catch let error {
-            if let socketError = error as? Socket.Error {
-                Log.error("Error creating socket reported:\n \(socketError.description)")
-            } else if let sslError = error as? SSLError {
-                // we have to catch SSLErrors separately since we are
-                // calling SSLService.Configuration
-                Log.error("Error creating socket reported:\n \(sslError.description)")
-            } else {
-                Log.error("Error creating socket: \(error)")
-            }
-
             self.state = .failed
             self.lifecycleListener.performFailCallbacks(with: error)
+            throw error
         }
-
-        guard let socket = self.listenSocket else {
-            // already did a callback on the error handler or logged error
-            return
-        }
-
-        let queuedBlock = DispatchWorkItem(block: {
-            do {
-                try self.listen(socket: socket, port: port)
-            } catch {
-                if let callback = errorHandler {
-                    callback(error)
-                } else {
-                    Log.error("Error listening on socket: \(error)")
-                }
-
-                self.state = .failed
-                self.lifecycleListener.performFailCallbacks(with: error)
-            }
-        })
-
-        ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
     }
 
+    /// Static method to create a new HTTPServer and have it listen for connections.
+    ///
+    /// - Parameter on: port number for accepting new connections
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    ///
+    /// - Returns: a new `HTTPServer` instance
+    public static func listen(on port: Int, delegate: ServerDelegate) throws -> HTTPServer {
+        let server = HTTP.createServer()
+        server.delegate = delegate
+        try server.listen(on: port)
+        return server
+    }
 
+    /// Listens for connections on a socket
+    ///
+    /// - Parameter port: port number for new connections (eg. 8090)
+    /// - Parameter errorHandler: optional callback for error handling
+    @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
+    public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
+        do {
+            try listen(on: port)
+        }
+        catch let error {
+            if let callback = errorHandler {
+                callback(error)
+            } else {
+                Log.error("Error listening on port \(port): \(error)")
+            }
+        }
+    }
 
     /// Static method to create a new HTTPServer and have it listen for connections.
     ///
@@ -115,6 +127,7 @@ public class HTTPServer: Server {
     /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new `HTTPServer` instance
+    @available(*, deprecated, message: "use 'listen(on:delegate:) throws' with 'server.failed(callback:)' instead")
     public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
@@ -122,58 +135,45 @@ public class HTTPServer: Server {
         return server
     }
 
-    /// Handle instructions for listening on a socket
-    ///
-    /// - Parameter socket: socket to use for connecting
-    /// - Parameter port: number to listen on
-    private func listen(socket: Socket, port: Int) throws {
-        do {
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
-
-            self.state = .started
-            self.lifecycleListener.performStartCallbacks()
-
-            Log.info("Listening on port \(port)")
-
-            // TODO: Change server exit to not rely on error being thrown
-            repeat {
-                let clientSocket = try socket.acceptClientConnection()
-                Log.info("Accepted connection from: " +
+    /// Listen on socket while server is started
+    private func listen() {
+        repeat {
+            do {
+                let clientSocket = try self.listenSocket!.acceptClientConnection()
+                Log.verbose("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
-                handleClientRequest(socket: clientSocket)
-            } while true
-        } catch let error as Socket.Error {
-            if self.state == .stopped
-                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                    self.lifecycleListener.performStopCallbacks()
-                    Log.info("Server has stopped listening")
-            } else {
-                throw error
+
+                if let delegate = delegate {
+                    socketManager.handle(socket: clientSocket, processor: IncomingHTTPSocketProcessor(socket: clientSocket, using: delegate))
+                }
+            } catch let error {
+                if self.state == .stopped {
+                    if let socketError = error as? Socket.Error {
+                        if socketError.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                            Log.info("Server has stopped listening")
+                        } else {
+                            Log.warning("Socket.Error accepting client connection after server stopped: \(error)")
+                        }
+                    } else {
+                        Log.warning("Error accepting client connection after server stopped: \(error)")
+                    }
+                } else {
+                    Log.error("Error accepting client connection: \(error)")
+                    self.lifecycleListener.performClientConnectionFailCallbacks(with: error)
+                }
             }
+        } while self.state == .started && self.listenSocket!.isListening
+
+        if self.state == .started {
+            Log.error("listenSocket closed without stop() being called")
+            stop()
         }
-    }
-
-    /// Handle a new client HTTP request
-    ///
-    /// - Parameter clientSocket: the socket used for connecting
-    private func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
-
-        guard let delegate = delegate else {
-            return
-        }
-
-        socketManager.handle(socket: clientSocket, processor: IncomingHTTPSocketProcessor(socket: clientSocket, using: delegate))
     }
 
     /// Stop listening for new connections.
     public func stop() {
-        defer {
-            delegate = nil
-        }
-        if let listenSocket = listenSocket {
-            self.state = .stopped
-            listenSocket.close()
-        }
+        self.state = .stopped
+        listenSocket?.close()
     }
 
     /// Add a new listener for server beeing started
@@ -206,6 +206,17 @@ public class HTTPServer: Server {
     @discardableResult
     public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addFailCallback(callback)
+        return self
+    }
+
+    /// Add a new listener for when listenSocket.acceptClientConnection throws an error
+    ///
+    /// - Parameter callback: The listener callback that will run
+    ///
+    /// - Returns: a Server instance
+    @discardableResult
+    public func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self {
+        self.lifecycleListener.addClientConnectionFailCallback(callback)
         return self
     }
 

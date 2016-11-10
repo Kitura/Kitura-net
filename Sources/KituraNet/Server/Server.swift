@@ -31,8 +31,22 @@ public protocol Server {
 
     /// Listen for connections on a socket.
     ///
+    /// - Parameter on: port number for new connections (eg. 8090)
+    func listen(on port: Int) throws
+
+    /// Static method to create a new Server and have it listen for connections.
+    ///
+    /// - Parameter on: port number for accepting new connections
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    ///
+    /// - Returns: a new Server instance
+    static func listen(on port: Int, delegate: ServerDelegate) throws -> ServerType
+
+    /// Listen for connections on a socket.
+    ///
     /// - Parameter port: port number for new connections (eg. 8090)
     /// - Parameter errorHandler: optional callback for error handling
+    @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
     func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)
 
     /// Static method to create a new Server and have it listen for connections.
@@ -42,6 +56,7 @@ public protocol Server {
     /// - Parameter errorHandler: optional callback for error handling
     ///
     /// - Returns: a new Server instance
+    @available(*, deprecated, message: "use 'listen(on:delegate:) throws' with 'server.failed(callback:)' instead")
     static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)?) -> ServerType
 
     /// Stop listening for new connections.
@@ -70,4 +85,12 @@ public protocol Server {
     /// - Returns: a Server instance
     @discardableResult
     func failed(callback: @escaping (Swift.Error) -> Void) -> Self
+
+    /// Add a new listener for when listenSocket.acceptClientConnection throws an error
+    ///
+    /// - Parameter callback: The listener callback that will run
+    ///
+    /// - Returns: a Server instance
+    @discardableResult
+    func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self
 }
