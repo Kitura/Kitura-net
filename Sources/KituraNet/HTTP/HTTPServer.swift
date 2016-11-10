@@ -18,31 +18,39 @@ import Dispatch
 
 import LoggerAPI
 import Socket
+import SSLService
 
 // MARK: HTTPServer
 
 /// An HTTP server that listens for connections on a socket.
-public class HTTPServer {
+public class HTTPServer: Server {
+
+    public typealias ServerType = HTTPServer
 
     /// HTTP `ServerDelegate`.
-    public weak var delegate: ServerDelegate?
-    
+    public var delegate: ServerDelegate?
+
     /// Port number for listening for new connections.
     public private(set) var port: Int?
-    
+
+    /// A server state.
+    public private(set) var state: ServerState = .unknown
+
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
-    
-    /// Whether the HTTP server has stopped listening
-    var stopped = false
-    
-    /// Incoming socket handler
-    private let socketManager = IncomingSocketManager()
-    
+
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
-    
+    /// Incoming socket handler
+    private let socketManager = IncomingSocketManager()
+
+    /// SSL cert configs for handling client requests
+    public var sslConfig: SSLService.Configuration?
+
+    fileprivate let lifecycleListener = ServerLifecycleListener()
+
+
     /// Listen for connections on a socket.
     ///
     /// Listens for connections on a socket
@@ -53,12 +61,26 @@ public class HTTPServer {
         self.port = port
         do {
             self.listenSocket = try Socket.create()
-        } catch {
-            if let callback = errorHandler {
-                callback(error)
+
+            // If SSL config has been created,
+            // create and attach the SSLService delegate to the socket
+            if let sslConfig = sslConfig {
+                self.listenSocket?.delegate = try SSLService(usingConfiguration: sslConfig);
+            }
+        }
+        catch let error {
+            if let socketError = error as? Socket.Error {
+                Log.error("Error creating socket reported:\n \(socketError.description)")
+            } else if let sslError = error as? SSLError {
+                // we have to catch SSLErrors separately since we are
+                // calling SSLService.Configuration
+                Log.error("Error creating socket reported:\n \(sslError.description)")
             } else {
                 Log.error("Error creating socket: \(error)")
             }
+
+            self.state = .failed
+            self.lifecycleListener.performFailCallbacks(with: error)
         }
 
         guard let socket = self.listenSocket else {
@@ -75,19 +97,16 @@ public class HTTPServer {
                 } else {
                     Log.error("Error listening on socket: \(error)")
                 }
+
+                self.state = .failed
+                self.lifecycleListener.performFailCallbacks(with: error)
             }
         })
 
         ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
     }
 
-    /// Stop listening for new connections.
-    public func stop() {
-        if let listenSocket = listenSocket {
-            stopped = true
-            listenSocket.close()
-        }
-    }
+
 
     /// Static method to create a new HTTPServer and have it listen for connections.
     ///
@@ -102,14 +121,18 @@ public class HTTPServer {
         server.listen(port: port, errorHandler: errorHandler)
         return server
     }
-    
+
     /// Handle instructions for listening on a socket
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    func listen(socket: Socket, port: Int) throws {
+    private func listen(socket: Socket, port: Int) throws {
         do {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+
+            self.state = .started
+            self.lifecycleListener.performStartCallbacks()
+
             Log.info("Listening on port \(port)")
 
             // TODO: Change server exit to not rely on error being thrown
@@ -120,32 +143,78 @@ public class HTTPServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                Log.info("Server has stopped listening")
-            }
-            else {
+            if self.state == .stopped
+                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                    self.lifecycleListener.performStopCallbacks()
+                    Log.info("Server has stopped listening")
+            } else {
                 throw error
             }
         }
     }
-    
+
     /// Handle a new client HTTP request
     ///
     /// - Parameter clientSocket: the socket used for connecting
-    func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
+    private func handleClientRequest(socket clientSocket: Socket, fromKeepAlive: Bool=false) {
 
         guard let delegate = delegate else {
             return
         }
-        
-        socketManager.handle(socket: clientSocket, using: delegate)
+
+        socketManager.handle(socket: clientSocket, processor: IncomingHTTPSocketProcessor(socket: clientSocket, using: delegate))
     }
-    
+
+    /// Stop listening for new connections.
+    public func stop() {
+        defer {
+            delegate = nil
+        }
+        if let listenSocket = listenSocket {
+            self.state = .stopped
+            listenSocket.close()
+        }
+    }
+
+    /// Add a new listener for server beeing started
+    ///
+    /// - Parameter callback: The listener callback that will run on server successfull start-up
+    ///
+    /// - Returns: a `HTTPServer` instance
+    @discardableResult
+    public func started(callback: @escaping () -> Void) -> Self {
+        self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
+        return self
+    }
+
+    /// Add a new listener for server beeing stopped
+    ///
+    /// - Parameter callback: The listener callback that will run when server stops
+    ///
+    /// - Returns: a `HTTPServer` instance
+    @discardableResult
+    public func stopped(callback: @escaping () -> Void) -> Self {
+        self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
+        return self
+    }
+
+    /// Add a new listener for server throwing an error
+    ///
+    /// - Parameter callback: The listener callback that will run when server throws an error
+    ///
+    /// - Returns: a `HTTPServer` instance
+    @discardableResult
+    public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
+        self.lifecycleListener.addFailCallback(callback)
+        return self
+    }
+
     /// Wait for all of the listeners to stop.
     ///
     /// - todo: Note that this calls the ListenerGroup object, and is left in for
-    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift 
+    /// backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift
     /// is patched to directly talk to ListenerGroup.
+    @available(*, deprecated, message:"Will be removed in future versions. Use ListenerGroup.waitForListeners() directly.")
     public static func waitForListeners() {
         ListenerGroup.waitForListeners()
     }

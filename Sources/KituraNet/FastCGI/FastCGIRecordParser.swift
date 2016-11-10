@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import KituraSys
 
 #if os(Linux)
     import Glibc
@@ -305,7 +304,7 @@ class FastCGIRecordParser {
             try skip(nameLength)
             let nameData = buffer.subdata(in: currentPointer..<currentPointer+nameLength)
             
-            guard let nameString = StringUtils.fromUtf8String(nameData) else {
+            guard let nameString = String(data: nameData, encoding: .utf8) else {
                 // the data received from the web server couldn't be transcoded
                 // to a UTF8 string. This is an error.
                 //
@@ -328,7 +327,7 @@ class FastCGIRecordParser {
                 try skip(valueLength)
                 let valueData = buffer.subdata(in: currentPointer..<currentPointer+valueLength)
                 
-                guard let valueString = StringUtils.fromUtf8String(valueData) else {
+                guard let valueString = String(data: valueData, encoding: .utf8) else {
                     // a value was supposed to have been provided but decoding it
                     // from the data failed.
                     //

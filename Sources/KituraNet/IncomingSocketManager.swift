@@ -23,7 +23,6 @@
 import Dispatch
 import Foundation
 
-import KituraSys
 import LoggerAPI
 import Socket
 
@@ -36,10 +35,10 @@ import Socket
 ///   2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
 ///      (one pair per incomng socket)
 ///   3. Cleaning up idle sockets, when new incoming sockets arrive.
-class IncomingSocketManager  {
+public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
-    private var socketHandlers = [Int32: IncomingSocketHandler]()
+    var socketHandlers = [Int32: IncomingSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 60.0
@@ -55,13 +54,14 @@ class IncomingSocketManager  {
         private let epollDescriptors:[Int32]
         private let queues:[DispatchQueue]
 
-        private let epollTimeout: Int32 = 50
+        let epollTimeout: Int32 = 50
+        var runEpoll = true
 
         private func epollDescriptor(fd:Int32) -> Int32 {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
         }
 
-        init() {
+        public init() {
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -76,33 +76,35 @@ class IncomingSocketManager  {
                 queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
             }
         }
+    #else
+        public init() {
+            
+        }
     #endif
 
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
     /// - Parameter using: The ServerDelegate to actually handle the socket
-    func handle(socket: Socket, using delegate: ServerDelegate) {
-        
+    public func handle(socket: Socket, processor: IncomingSocketProcessor) {
         do {
             try socket.setBlocking(mode: false)
             
-            let processor = IncomingHTTPSocketProcessor(socket: socket, using: delegate)
-            let handler = IncomingSocketHandler(socket: socket, using: processor)
+            let handler = IncomingSocketHandler(socket: socket, using: processor, managedBy: self)
             socketHandlers[socket.socketfd] = handler
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
                 event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
                 event.data.fd = socket.socketfd
-                let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, handler.fileDescriptor, &event)
+                let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, socket.socketfd, &event)
                 if  result == -1  {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                 }
             #endif
         }
-        catch {
-            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error code=\(errno). Reason=\(lastError())")
+        catch let error {
+            Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error = \(error)")
         }
         
         removeIdleSockets()
@@ -112,8 +114,10 @@ class IncomingSocketManager  {
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
         private func process(epollDescriptor:Int32) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
+            var deferredHandlers = [Int32: IncomingSocketHandler]()
+            var deferredHandlingNeeded = false
         
-            while  true  {
+            while  runEpoll  {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
             
                 if  count == -1  {
@@ -122,6 +126,9 @@ class IncomingSocketManager  {
                 }
                 
                 if  count == 0  {
+                    if deferredHandlingNeeded {
+                        deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
+                    }
                     continue
                 }
             
@@ -132,16 +139,18 @@ class IncomingSocketManager  {
                                 (event.events & (EPOLLIN.rawValue | EPOLLOUT.rawValue)) == 0 {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
-                    
-                    }
-                    else {
+                    } else {
                         if  let handler = socketHandlers[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
                                 handler.handleWrite()
                             }
                             if  (event.events & EPOLLIN.rawValue) != 0 {
-                                handler.handleRead()
+                                let processed = handler.handleRead()
+                                if !processed {
+                                    deferredHandlingNeeded = true
+                                    deferredHandlers[event.data.fd] = handler
+                                }
                             }
                         }
                         else {
@@ -149,7 +158,27 @@ class IncomingSocketManager  {
                         }
                     }
                 }
+    
+                // Handle any deferred processing of read data
+                if deferredHandlingNeeded {
+                    deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
+                }
             }
+        }
+
+        private func process(deferredHandlers: inout [Int32: IncomingSocketHandler]) -> Bool {
+            var result = false
+
+            for (fileDescriptor, handler) in deferredHandlers {
+                let processed = handler.handleBufferedReadDataHelper()
+                if processed {
+                    deferredHandlers.removeValue(forKey: fileDescriptor)
+                }
+                else {
+                    result = true
+                }
+            }
+            return result
         }
     #endif
     
@@ -177,8 +206,10 @@ class IncomingSocketManager  {
 
             #if !GCD_ASYNCH && os(Linux)
                 let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-                if  result == -1  {
-                    Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                if result == -1 {
+                    if errno != EBADF {  // Ignore EBADF error (bad file descriptor), probably got closed.
+                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                    }
                 }
             #endif
             

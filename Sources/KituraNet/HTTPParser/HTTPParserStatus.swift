@@ -53,10 +53,13 @@ struct HTTPParserStatus {
     var state = HTTPParserState.initial
     var error: HTTPParserErrorType? = nil
     var keepAlive = false
+    var upgrade = false
+    var bytesLeft = 0
     
     mutating func reset() {
         state = HTTPParserState.initial
         error = nil
         keepAlive = false
+        upgrade = false
     }
 }

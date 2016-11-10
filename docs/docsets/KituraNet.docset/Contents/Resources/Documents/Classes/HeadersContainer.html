@@ -20,7 +20,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (76% documented)
+         (78% documented)
       </p>
     
         <p class="header-col header-col--secondary">
@@ -96,6 +96,9 @@
                 <a class="nav-group-task-link" href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/IncomingSocketManager.html">IncomingSocketManager</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Classes/ListenerGroup.html">ListenerGroup</a>
               </li>
               <li class="nav-group-task">
@@ -115,6 +118,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -129,7 +135,13 @@
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ConnectionUpgradeFactory.html">ConnectionUpgradeFactory</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/ServerDelegate.html">ServerDelegate</a>
@@ -139,6 +151,14 @@
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/ServerResponse.html">ServerResponse</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
               </li>
             </ul>
           </li>
@@ -381,9 +401,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet16HeadersContainer10startIndexGVs15DictionaryIndexSSGSaSS__"></a>
+                    <a name="/s:vC9KituraNet16HeadersContainer10startIndexGVs15DictionaryIndexSST3keySS5valueGSaSS___"></a>
                     <a name="//apple_ref/swift/Property/startIndex" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet16HeadersContainer10startIndexGVs15DictionaryIndexSSGSaSS__">startIndex</a>
+                    <a class="token" href="#/s:vC9KituraNet16HeadersContainer10startIndexGVs15DictionaryIndexSST3keySS5valueGSaSS___">startIndex</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -398,7 +418,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">startIndex</span><span class="p">:</span><span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">startIndex</span><span class="p">:</span><span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps13IndexableBase5Index">Index</a></span></code></pre>
 
                         </div>
                       </div>
@@ -408,9 +428,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:iC9KituraNet16HeadersContainer9subscriptFGVs15DictionaryIndexSSGSaSS__T3keySS5valueGSaSS__"></a>
+                    <a name="/s:iC9KituraNet16HeadersContainer9subscriptFGVs15DictionaryIndexSST3keySS5valueGSaSS___T3keySS5valueGSaSS__"></a>
                     <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:iC9KituraNet16HeadersContainer9subscriptFGVs15DictionaryIndexSSGSaSS__T3keySS5valueGSaSS__">subscript(_:)</a>
+                    <a class="token" href="#/s:iC9KituraNet16HeadersContainer9subscriptFGVs15DictionaryIndexSST3keySS5valueGSaSS___T3keySS5valueGSaSS__">subscript(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -438,7 +458,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">position</span><span class="p">:</span> <span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">position</span><span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps13IndexableBase5Index">Index</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span></code></pre>
 
                         </div>
                       </div>
@@ -473,9 +493,36 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet16HeadersContainer8endIndexGVs15DictionaryIndexSSGSaSS__"></a>
+                    <a name="/s:Ps13IndexableBase5Index"></a>
+                    <a name="//apple_ref/swift/Alias/Index" class="dashAnchor"></a>
+                    <a class="token" href="#/s:Ps13IndexableBase5Index">Index</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Conformance to the <code>Collection</code> protocol</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Index</span> <span class="o">=</span> <span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9KituraNet16HeadersContainer8endIndexGVs15DictionaryIndexSST3keySS5valueGSaSS___"></a>
                     <a name="//apple_ref/swift/Property/endIndex" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet16HeadersContainer8endIndexGVs15DictionaryIndexSSGSaSS__">endIndex</a>
+                    <a class="token" href="#/s:vC9KituraNet16HeadersContainer8endIndexGVs15DictionaryIndexSST3keySS5valueGSaSS___">endIndex</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -490,7 +537,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">endIndex</span><span class="p">:</span><span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">endIndex</span><span class="p">:</span><span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps13IndexableBase5Index">Index</a></span></code></pre>
 
                         </div>
                       </div>
@@ -500,9 +547,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet16HeadersContainer5indexFT5afterGVs15DictionaryIndexSSGSaSS___GS1_SSGSaSS__"></a>
+                    <a name="/s:FC9KituraNet16HeadersContainer5indexFT5afterGVs15DictionaryIndexSST3keySS5valueGSaSS____GS1_SST3keySS5valueGSaSS___"></a>
                     <a name="//apple_ref/swift/Method/index(after:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet16HeadersContainer5indexFT5afterGVs15DictionaryIndexSSGSaSS___GS1_SSGSaSS__">index(after:)</a>
+                    <a class="token" href="#/s:FC9KituraNet16HeadersContainer5indexFT5afterGVs15DictionaryIndexSST3keySS5valueGSaSS____GS1_SST3keySS5valueGSaSS___">index(after:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -529,7 +576,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">after</span> <span class="nv">i</span><span class="p">:</span> <span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">DictionaryIndex</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">after</span> <span class="nv">i</span><span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps13IndexableBase5Index">Index</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps13IndexableBase5Index">Index</a></span></code></pre>
 
                         </div>
                       </div>
@@ -563,83 +610,14 @@
                 </li>
               </ul>
             </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:FC9KituraNet16HeadersContainer12makeIteratorFT_GVs18DictionaryIteratorSSGSaSS__"></a>
-                    <a name="//apple_ref/swift/Method/makeIterator()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet16HeadersContainer12makeIteratorFT_GVs18DictionaryIteratorSSGSaSS__">makeIterator()</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Creates an iterator of the underlying dictionary</p>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    The iterator for the <code>HeadersContainer</code>
-
-</div>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">makeIterator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">HeadersContainer</span><span class="o">.</span><span class="kt"><a href="../Classes/HeadersContainer.html#/s:Ps10Collection8Iterator">Iterator</a></span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Return Value</h4>
-                        <p>The iterator for the <code>HeadersContainer</code></p>
-
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:Ps10Collection8Iterator"></a>
-                    <a name="//apple_ref/swift/Alias/Iterator" class="dashAnchor"></a>
-                    <a class="token" href="#/s:Ps10Collection8Iterator">Iterator</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Implement the Sequence protocol</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Iterator</span> <span class="o">=</span> <span class="kt">DictionaryIterator</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Array</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
           </div>
         </section>
 
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-09-07)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-11-04)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

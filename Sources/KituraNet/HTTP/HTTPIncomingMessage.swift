@@ -15,7 +15,6 @@
  */
 
 
-import KituraSys
 import Socket
 
 import Foundation
@@ -30,6 +29,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// Minor version for HTTP of the incoming message.
     public private(set) var httpVersionMinor: UInt16?
+    
+    /// HTTP Status code if this message is a response
+    public private(set) var httpStatusCode: HTTPStatusCode = .unknown
 
     /// Set of HTTP headers of the incoming message.
     public var headers = HeadersContainer()
@@ -69,9 +71,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
 
-    /// Reader helper, reads from underlying data source
-    private weak var helper: IncomingMessageHelper?
-
     private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
     
     private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
@@ -88,13 +87,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpParser!.delegate = self
     }
 
-    /// Sets a helper delegate
-    ///
-    /// - Parameter helper: the IncomingMessageHelper
-    func setup(_ helper: IncomingMessageHelper) {
-        self.helper = helper
-    }
-    
     /// Parse the message
     ///
     /// - Parameter buffer: An NSData object contaning the data to be parsed
@@ -119,11 +111,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         }
         
         var start = 0
-        while status.state == .initial  &&  status.error == nil  &&  length > 0  {
+        while status.state != .messageComplete  &&  status.error == nil  &&  length > 0  {
             let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + start
             let (numberParsed, upgrade) = parser.execute(bytes, length: length)
             if upgrade == 1 {
-                // TODO handle new protocol
+                status.upgrade = true
             }
             else if  numberParsed != length  {
                 
@@ -140,6 +132,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             }
             length -= numberParsed
         }
+        status.bytesLeft = length
         
         return status
     }
@@ -150,42 +143,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Throws: if an error occurs while reading the body.
     /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
-        var count = bodyChunk.fill(data: &data)
-        if count == 0 {
-            if let parser = httpParser, status.state == .headersComplete {
-                do {
-                    ioBuffer.count = 0
-                    count = try helper!.readHelper(into: &ioBuffer)
-                    if count > 0 {
-                        let (numberParsed, upgrade) =
-                                ioBuffer.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> (Int, UInt32) in
-                            return parser.execute(bytes, length: count)
-                        }
-                        if upgrade == 1 {
-                            // TODO: handle new protocol
-                        }
-                        else if (numberParsed != count) {
-                            /* Handle error. Usually just close the connection. */
-                            self.release()
-                            self.status.error = .parsedLessThanRead
-                        }
-                        else {
-                            count = self.bodyChunk.fill(data: &data)
-                        }
-                    }
-                    else {
-                        onMessageComplete()
-                    }
-                }
-                catch let error {
-                    /* Handle error. Usually just close the connection. */
-                    release()
-                    status.error = .internalError
-                    throw error
-                }
-            }
-        }
-
+        let count = bodyChunk.fill(data: &data)
         return count
     }
 
@@ -205,35 +163,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         return bytesRead
     }
 
-    /// Read message body without storing it anywhere
-    func drain() {
-        if let parser = httpParser {
-            saveBody = false
-            while status.state == .headersComplete {
-                do {
-                    ioBuffer.count = 0
-                    let count = try helper!.readHelper(into: &ioBuffer)
-                    if count > 0 {
-                        ioBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
-                            let (numberParsed, _) = parser.execute(bytes, length: count)
-                            if (numberParsed != count) {
-                                self.release()
-                                self.status.error = .parsedLessThanRead
-                            }
-                        }
-                    }
-                    else {
-                        onMessageComplete()
-                    }
-                }
-                catch {
-                    release()
-                    status.error = .internalError
-                }
-            }
-        }
-    }
-
     /// Read a chunk of the body and return it as a String.
     ///
     /// - Throws: if an error occurs while reading the data.
@@ -242,7 +171,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         buffer.count = 0
         let length = try read(into: &buffer)
         if length > 0 {
-            return StringUtils.fromUtf8String(buffer)
+            return String(data: buffer, encoding: .utf8)
         }
         else {
             return nil
@@ -291,10 +220,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// Set the header key-value pair
     private func addHeader() {
 
-        let nsHeaderKey = NSString(bytes: lastHeaderField.bytes, length: lastHeaderField.length, encoding: String.Encoding.utf8.rawValue)!
-        let headerKey = String(describing: nsHeaderKey)
-        let nsHeaderValue = NSString(bytes: lastHeaderValue.bytes, length: lastHeaderValue.length, encoding: String.Encoding.utf8.rawValue)!
-        let headerValue = String(describing: nsHeaderValue)
+        var zero: CChar = 0
+        lastHeaderField.append(&zero, length: 1)
+        let headerKey = String(cString: lastHeaderField.bytes.assumingMemoryBound(to: CChar.self))
+        lastHeaderValue.append(&zero, length: 1)
+        let headerValue = String(cString: lastHeaderValue.bytes.assumingMemoryBound(to: CChar.self))
         
         headers.append(headerKey, value: headerValue)
 
@@ -322,7 +252,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
-        urlString = StringUtils.fromUtf8String(url) ?? ""
+        urlString = String(data: url, encoding: .utf8) ?? ""
 
         if  lastHeaderWasAValue  {
             addHeader()
@@ -331,6 +261,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         status.keepAlive = httpParser?.isKeepAlive() ?? false
         status.state = .headersComplete
         
+        httpStatusCode = httpParser?.statusCode ?? .unknown
     }
 
     /// Instructions for when beginning to read a message
@@ -367,16 +298,4 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         status.reset()
         httpParser?.reset()
     }
-}
-
-
-/// Protocol for IncomingMessageHelper
-protocol IncomingMessageHelper: class {
-
-    /// "Read" data from the actual underlying transport
-    ///
-    /// - Parameter into: The NSMutableData that will be receiving the data read in.
-    /// - Throws: if an error occurs while reading the data
-    func readHelper(into data: inout Data) throws -> Int
-
 }

@@ -15,7 +15,6 @@
  */
 
 import LoggerAPI
-import KituraSys
 import CCurl
 import Socket
 
@@ -265,7 +264,7 @@ public class ClientRequest {
     /// - Parameter from: The String to be added
     public func write(from string: String) {
         
-        if  let data = StringUtils.toUtf8String(string)  {
+        if  let data = string.data(using: .utf8)  {
             write(from: data)
         }
         
@@ -314,7 +313,7 @@ public class ClientRequest {
 
         closeConnection = close
 
-        guard  let urlBuffer = StringUtils.toNullTerminatedUtf8String(url) else {
+        guard  let urlBuffer = url.cString(using: .utf8) else {
             callback(nil)
             return
         }
@@ -362,14 +361,12 @@ public class ClientRequest {
     /// Prepare the handle 
     ///
     /// Parameter using: The URL to use when preparing the handle
-    private func prepareHandle(using urlBuffer: Data) {
+    private func prepareHandle(using urlBuffer: [CChar]) {
         
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        _ = urlBuffer.withUnsafeBytes() { [unowned self] (bytes: UnsafePointer<Int8>) in
-            curlHelperSetOptString(self.handle!, CURLOPT_URL, bytes)
-        }
+        curlHelperSetOptString(self.handle!, CURLOPT_URL, UnsafePointer(urlBuffer))
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
@@ -411,11 +408,8 @@ public class ClientRequest {
         }
         
         for (headerKey, headerValue) in headers {
-            let headerString = StringUtils.toNullTerminatedUtf8String("\(headerKey): \(headerValue)")
-            if  let headerString = headerString  {
-                headerString.withUnsafeBytes() { (headerUTF8: UnsafePointer<Int8>) in
-                    headersList = curl_slist_append(headersList, headerUTF8)
-                }
+            if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
+                headersList = curl_slist_append(headersList, UnsafePointer(headerString))
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)

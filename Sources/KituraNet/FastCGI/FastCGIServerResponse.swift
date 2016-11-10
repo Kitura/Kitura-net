@@ -16,7 +16,6 @@
 
 import Foundation
 import Socket
-import KituraSys
 
 /// The FastCGIServerRequest class implements the `ServerResponse` protocol
 /// for incoming HTTP requests that come in over a FastCGI connection.
@@ -83,7 +82,7 @@ public class FastCGIServerResponse : ServerResponse {
     ///
     /// - Throws: Socket.error if an error occurred while writing to the socket
     public func write(from string: String) throws {
-        try write(from: StringUtils.toUtf8String(string)!)
+        try write(from: string.data(using: .utf8)!)
     }
     
     /// Add bytes to the body of the HTTP response.
@@ -130,9 +129,9 @@ public class FastCGIServerResponse : ServerResponse {
         headerData.append("Status: \(status) \(HTTP.statusCodes[status]!)\r\n")
 
         // add the rest of our response headers
-        for (key, valueSet) in headers.headers {
-            for value in valueSet {
-                headerData.append(key)
+        for (_, entry) in headers.headers {
+            for value in entry.value {
+                headerData.append(entry.key)
                 headerData.append(": ")
                 headerData.append(value)
                 headerData.append("\r\n")
@@ -141,7 +140,7 @@ public class FastCGIServerResponse : ServerResponse {
 
         headerData.append("\r\n")
         
-        try writeToSocket(StringUtils.toUtf8String(headerData)!)
+        try writeToSocket(headerData.data(using: .utf8)!)
         try flush()
         
         startFlushed = true

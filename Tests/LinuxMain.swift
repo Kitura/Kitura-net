@@ -21,8 +21,12 @@ import XCTest
 XCTMain([
        testCase(ClientE2ETests.allTests),
        testCase(ClientRequestTests.allTests),
+       testCase(FastCGIProtocolTests.allTests),
        testCase(HTTPResponseTests.allTests),
        testCase(LargePayloadTests.allTests),
+       testCase(LifecycleListenerTests.allTests),
+       testCase(MiscellaneousTests.allTests),
        testCase(ParserTests.allTests),
-       testCase(FastCGIProtocolTests.allTests)
+       testCase(SocketManagerTests.allTests),
+       testCase(UpgradeTests.allTests)
 ])

@@ -22,6 +22,7 @@ import Foundation
 import Dispatch
 
 protocol KituraNetTest {
+
     func expectation(_ index: Int) -> XCTestExpectation
     func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?)
 }
@@ -35,25 +36,39 @@ extension KituraNetTest {
     func doTearDown() {
         //       sleep(10)
     }
-    
+
     func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         let server = setupServer(port: 8090, delegate: delegate)
-        let requestQueue = DispatchQueue(label: "Request queue")
-        
-        for (index, asyncTask) in asyncTasks.enumerated() {
-            let expectation = self.expectation(index)
-            requestQueue.async {
-                asyncTask(expectation)
+
+        var expectations: [XCTestExpectation] = []
+
+        for index in 0..<asyncTasks.count {
+            expectations.append(expectation(index))
+        }
+
+        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+        let exps = expectations
+
+        server.started {
+            let requestQueue = DispatchQueue(label: "Request queue")
+
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
+                }
             }
         }
-        
+
         waitExpectation(timeout: 10) { error in
             // blocks test until request completes
+            XCTAssertNotNil(server.delegate);
             server.stop()
+            XCTAssertNil(server.delegate);
             XCTAssertNil(error);
         }
     }
-    
+
     func performRequest(_ method: String, path: String, callback: @escaping ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
         var allHeaders = [String: String]()
         if  let headers = headers  {
@@ -69,15 +84,20 @@ extension KituraNetTest {
         }
         req.end()
     }
-    
+
     private func setupServer(port: Int, delegate: ServerDelegate) -> HTTPServer {
-        return HTTPServer.listen(port: port, delegate: delegate, errorHandler: {(error: Swift.Error) -> Void in
-            print("Handling error in KituraNetTest.setupServer \(error)")
+        let server = HTTPServer.listen(port: port,
+            delegate: delegate,
+            errorHandler: { (error: Swift.Error) -> Void in
+                print("Handling error in KituraNetTest.setupServer \(error)")
         })
+
+        return server
     }
 }
 
 extension XCTestCase: KituraNetTest {
+
     func expectation(_ index: Int) -> XCTestExpectation {
         let expectationDescription = "\(type(of: self))-\(index)"
         return self.expectation(description: expectationDescription)

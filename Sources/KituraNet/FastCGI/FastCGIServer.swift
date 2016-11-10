@@ -21,19 +21,33 @@ import LoggerAPI
 
 /// A server that listens for incoming HTTP requests that are sent using the FastCGI
 /// protocol.
-public class FastCGIServer {
+public class FastCGIServer: Server {
+
+    public typealias ServerType = FastCGIServer
 
     /// The `ServerDelegate` to handle incoming requests.
-    public weak var delegate: ServerDelegate?
+    public var delegate: ServerDelegate?
 
     /// Port number for listening for new connections
     public private(set) var port: Int?
-    
+
+    /// A server state.
+    public private(set) var state: ServerState = .unknown
+
+    /// Retrieve an appropriate connection backlog value for our listen socket.
+    /// This log is taken from Nginx, and tests out with good results.
+    private lazy var maxPendingConnections: Int = {
+        #if os(Linux)
+            return 511
+        #else
+            return -1
+        #endif
+    }()
+
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
 
-    /// Whether the FastCGI server has stopped listening
-    var stopped = false
+    fileprivate let lifecycleListener = ServerLifecycleListener()
 
     /// Listens for connections on a socket
     ///
@@ -51,6 +65,9 @@ public class FastCGIServer {
             } else {
                 Log.error("Error creating socket: \(error)")
             }
+
+            self.state = .failed
+            self.lifecycleListener.performFailCallbacks(with: error)
         }
 
         guard let socket = self.listenSocket else {
@@ -67,13 +84,16 @@ public class FastCGIServer {
                 } else {
                     Log.error("Error listening on socket: \(error)")
                 }
+
+                self.state = .failed
+                self.lifecycleListener.performFailCallbacks(with: error)
             }
         })
 
         ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
-        
+
     }
-    
+
     /// Static method to create a new `FastCGIServer` and have it listen for conenctions
     ///
     /// - Parameter port: port number for accepting new connections
@@ -82,33 +102,27 @@ public class FastCGIServer {
     ///
     /// - Returns: a new `FastCGIServer` instance
     public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> FastCGIServer {
-        
+
         let server = FastCGI.createServer()
         server.delegate = delegate
         server.listen(port: port, errorHandler: errorHandler)
         return server
-        
+
     }
-    
-    /// Retrieve an appropriate connection backlog value for our listen socket.
-    /// This log is taken from Nginx, and tests out with good results.
-    private static func getConnectionBacklog() -> Int {
-        #if os(Linux)
-            return 511
-        #else
-            return -1
-        #endif
-    }
-    
+
     /// Handles instructions for listening on a socket
     ///
     /// - Parameter socket: socket to use for connecting
     /// - Parameter port: number to listen on
-    func listen(socket: Socket, port: Int) throws {
+    private func listen(socket: Socket, port: Int) throws {
         do {
-            try socket.listen(on: port, maxBacklogSize:FastCGIServer.getConnectionBacklog())
+            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+
+            self.state = .started
+            self.lifecycleListener.performStartCallbacks()
+
             Log.info("Listening on port \(port) (FastCGI)")
-            
+
             // TODO: Change server exit to not rely on error being thrown
             repeat {
                 let clientSocket = try socket.acceptClientConnection()
@@ -117,40 +131,32 @@ public class FastCGIServer {
                 handleClientRequest(socket: clientSocket)
             } while true
         } catch let error as Socket.Error {
-            if stopped && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                Log.info("FastCGI Server has stopped listening")
-            }
-            else {
+            if self.state == .stopped
+                && error.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
+                    self.lifecycleListener.performStopCallbacks()
+
+                    Log.info("FastCGI Server has stopped listening")
+            } else {
                 throw error
             }
         }
     }
-    
-    /// Send multiplex request rejections
-    func sendMultiplexRequestRejections(request: FastCGIServerRequest, response: FastCGIServerResponse) {
-        if request.extraRequestIds.count > 0 {
-            for requestId in request.extraRequestIds {
-                do {
-                    try response.rejectMultiplexConnecton(requestId: requestId)
-                } catch {}
-            }
-        }
-    }
-    
+
+
+
     /// Handle a new client FastCGI request
     ///
     /// - Parameter clientSocket: the socket used for connecting
-    func handleClientRequest(socket clientSocket: Socket) {
-        
+    private func handleClientRequest(socket clientSocket: Socket) {
+
         guard let delegate = delegate else {
             return
         }
-        
+
         DispatchQueue.global().async() {
-            
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)
-            
+
             request.parse() { status in
                 switch status {
                 case .success:
@@ -171,18 +177,63 @@ public class FastCGIServer {
                     break
                 }
             }
-            
+
         }
     }
-    
+
+    /// Send multiplex request rejections
+    private func sendMultiplexRequestRejections(request: FastCGIServerRequest, response: FastCGIServerResponse) {
+        if request.extraRequestIds.count > 0 {
+            for requestId in request.extraRequestIds {
+                do {
+                    try response.rejectMultiplexConnecton(requestId: requestId)
+                } catch {}
+            }
+        }
+    }
+
     /// Stop listening for new connections
     public func stop() {
-        
+        defer {
+            delegate = nil
+        }
         if let listenSocket = listenSocket {
-            stopped = true
+            self.state = .stopped
             listenSocket.close()
         }
-        
+
     }
-    
+
+    /// Add a new listener for server beeing started
+    ///
+    /// - Parameter callback: The listener callback that will run on server successfull start-up
+    ///
+    /// - Returns: a `FastCGIServer` instance
+    @discardableResult
+    public func started(callback: @escaping () -> Void) -> Self {
+        self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
+        return self
+    }
+
+    /// Add a new listener for server beeing stopped
+    ///
+    /// - Parameter callback: The listener callback that will run when server stops
+    ///
+    /// - Returns: a `FastCGIServer` instance
+    @discardableResult
+    public func stopped(callback: @escaping () -> Void) -> Self {
+        self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
+        return self
+    }
+
+    /// Add a new listener for server throwing an error
+    ///
+    /// - Parameter callback: The listener callback that will run when server throws an error
+    ///
+    /// - Returns: a `FastCGIServer` instance
+    @discardableResult
+    public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
+        self.lifecycleListener.addFailCallback(callback)
+        return self
+    }
 }
