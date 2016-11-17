@@ -41,4 +41,6 @@ class TestIncomingSocketProcessor: IncomingSocketProcessor {
     public func close() {
         handler?.prepareToClose()
     }
+    
+    public func socketClosed() {}
 }
