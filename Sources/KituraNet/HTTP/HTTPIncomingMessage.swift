@@ -39,15 +39,20 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// HTTP Method of the incoming message.
     public private(set) var method: String = "" 
-    
+
     /// socket signature of the request.
     public private(set) var signature: Socket.Signature?
-    
-    /// The URL from the request if properly received.
-    public private(set) var url : URL?
 
-    /// The parsed URL as URLComponents.
+    /// The URL from the request as URLComponents.
     public private(set) var urlComponents = URLComponents()
+
+    /// The URL from the request in string form
+    @available(*, deprecated, message: "use 'urlComponents' instead")
+    public var urlString : String { return urlComponents.string ?? "" }
+
+    /// The URL from the request in UTF-8 form
+    @available(*, deprecated, message: "use 'urlComponents' instead")
+    public var url : Data { return urlComponents.string?.data(using: .utf8) ?? Data() }
 
     /// Parsed path and optional query parameters of the request.
     private var pathAndQueryParams = Data()
@@ -287,12 +292,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 Log.error("Invalid utf8 encoded path received in onURL: \(self.pathAndQueryParams)")
             }
 
-            if let url = URL(string: url) {
-                self.url = url
-            } else {
-                Log.error("URL init failed from parsed value: \(url)")
-            }
-
             if let urlComponents = URLComponents(string: url) {
                 self.urlComponents = urlComponents
             } else {
@@ -335,7 +334,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         lastHeaderWasAValue = false
         saveBody = true
         pathAndQueryParams.count = 0
-        url = nil
         urlComponents = URLComponents()
         headers.removeAll()
         bodyChunk.reset()

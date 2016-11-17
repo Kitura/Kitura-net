@@ -40,14 +40,19 @@ public class FastCGIServerRequest : ServerRequest {
     
     /// The HTTP Method specified in the request
     public private(set) var method: String = ""
-    
+
     /// URI Component received from FastCGI
     private var requestUri : String? = nil
 
-    /// The URL from the request if properly received
-    public private(set) var url : URL?
+    /// The URL from the request in string form
+    @available(*, deprecated, message: "use 'urlComponents' instead")
+    public var urlString : String { return urlComponents.string ?? "" }
 
-    /// The parsed URL as URLComponents
+    /// The URL from the request in UTF-8 form
+    @available(*, deprecated, message: "use 'urlComponents' instead")
+    public var url : Data { return urlComponents.string?.data(using: .utf8) ?? Data() }
+
+    /// The URL from the request as URLComponents
     public private(set) var urlComponents = URLComponents()
 
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
@@ -130,12 +135,6 @@ public class FastCGIServerRequest : ServerRequest {
     /// Proces the original request URI
     func postProcessUrlParameter() -> Void {
         if let requestUri = requestUri, requestUri.characters.count > 0 {
-            if let url = URL(string: requestUri) {
-                self.url = url
-            } else {
-                Log.error("URL init failed from REQUEST_URI header value: \(requestUri)")
-            }
-
             if let urlComponents = URLComponents(string: requestUri) {
                 self.urlComponents = urlComponents
             } else {
