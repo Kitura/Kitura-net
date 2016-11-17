@@ -52,4 +52,8 @@ public protocol IncomingSocketProcessor: class {
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()
+    
+    /// Called by the `IncomingSocketHandler` to tell the `IncomingSocketProcessor` that the
+    /// socket has been closed by the remote side.
+    func socketClosed()
 }
