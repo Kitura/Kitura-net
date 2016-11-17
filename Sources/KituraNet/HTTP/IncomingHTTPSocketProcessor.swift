@@ -119,6 +119,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         request.release()
     }
     
+    /// Called by the `IncomingSocketHandler` to tell us that the socket has been closed
+    /// by the remote side. This is ignored at this time.
+    public func socketClosed() {}
+    
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {

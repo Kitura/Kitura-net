@@ -100,6 +100,7 @@ public class IncomingSocketHandler {
             }
             else {
                 if  socket.remoteConnectionClosed  {
+                    processor?.socketClosed()
                     prepareToClose()
                 }
             }
