@@ -15,6 +15,7 @@
  */
 
 
+import LoggerAPI
 import Socket
 
 import Foundation
@@ -38,12 +39,18 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// HTTP Method of the incoming message.
     public private(set) var method: String = "" 
+    
+    /// socket signature of the request.
+    public private(set) var signature: Socket.Signature?
+    
+    /// The URL from the request if properly received.
+    public private(set) var url : URL?
 
-    /// URL of the incoming message.
-    public private(set) var urlString = ""
+    /// The parsed URL as URLComponents.
+    public private(set) var urlComponents = URLComponents()
 
-    /// Raw URL of the incoming message.
-    public private(set) var url = Data()
+    /// Parsed path and optional query parameters of the request.
+    private var pathAndQueryParams = Data()
 
     /// Indicates if the parser should save the message body and call onBody()
     var saveBody = true
@@ -81,7 +88,8 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter isRequest: whether this message is a request
     ///
     /// - Returns: an IncomingMessage instance
-    init (isRequest: Bool) {
+    init (isRequest: Bool, signature: Socket.Signature? = nil) {
+        self.signature = signature
         httpParser = HTTPParser(isRequest: isRequest)
 
         httpParser!.delegate = self
@@ -189,7 +197,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter bytes: The bytes of the parsed URL
     /// - Parameter count: The number of bytes parsed
     func onURL(_ bytes: UnsafePointer<UInt8>, count: Int) {
-        url.append(bytes, count: count)
+        pathAndQueryParams.append(bytes, count: count)
     }
 
     /// Instructions for when reading header key
@@ -252,10 +260,44 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
-        urlString = String(data: url, encoding: .utf8) ?? ""
-
         if  lastHeaderWasAValue  {
             addHeader()
+        }
+
+        if self is ServerRequest { // skip if ClientResponse
+            var url = ""
+            if let isSecure = signature?.isSecure {
+                url.append(isSecure ? "https://" : "http://")
+            } else {
+                url.append("http://")
+                Log.error("Socket signature not initialized, using http")
+            }
+
+            if let host = headers["Host"]?[0] {
+                url.append(host)
+            } else {
+                url.append("Host_Not_Available")
+                Log.error("Host header not received")
+            }
+
+            if let pathAndQueryParams = String(data: self.pathAndQueryParams, encoding: .utf8) {
+                url.append(pathAndQueryParams)
+            } else {
+                url.append("/")
+                Log.error("Invalid utf8 encoded path received in onURL: \(self.pathAndQueryParams)")
+            }
+
+            if let url = URL(string: url) {
+                self.url = url
+            } else {
+                Log.error("URL init failed from parsed value: \(url)")
+            }
+
+            if let urlComponents = URLComponents(string: url) {
+                self.urlComponents = urlComponents
+            } else {
+                Log.error("URLComponents init failed from parsed value: \(url)")
+            }
         }
 
         status.keepAlive = httpParser?.isKeepAlive() ?? false
@@ -292,7 +334,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     private func reset() {
         lastHeaderWasAValue = false
         saveBody = true
-        url.count = 0
+        pathAndQueryParams.count = 0
+        url = nil
+        urlComponents = URLComponents()
         headers.removeAll()
         bodyChunk.reset()
         status.reset()

@@ -15,6 +15,8 @@
  */
 
 import Foundation
+
+import LoggerAPI
 import Socket
 
 /// The FastCGIServerRequest class implements the `ServerRequest` protocol
@@ -39,19 +41,14 @@ public class FastCGIServerRequest : ServerRequest {
     /// The HTTP Method specified in the request
     public private(set) var method: String = ""
     
-    /// The URL from the request in string form
-    public var urlString : String {
-        guard url.count > 0 else {
-            return ""
-        }
-        return String(data: url, encoding: .utf8)!
-    }
-    
     /// URI Component received from FastCGI
     private var requestUri : String? = nil
-    
-    /// The URL from the request in UTF-8 form
-    public private(set) var url = Data()
+
+    /// The URL from the request if properly received
+    public private(set) var url : URL?
+
+    /// The parsed URL as URLComponents
+    public private(set) var urlComponents = URLComponents()
 
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
@@ -132,22 +129,21 @@ public class FastCGIServerRequest : ServerRequest {
     
     /// Proces the original request URI
     func postProcessUrlParameter() -> Void {
-        
-        // reset the current url
-        //
-        url.count = 0
-        
-        // set the uri
-        //
         if let requestUri = requestUri, requestUri.characters.count > 0 {
-            
-            // use the URI as received
-            url.append(requestUri.data(using: .utf8)!)
+            if let url = URL(string: requestUri) {
+                self.url = url
+            } else {
+                Log.error("URL init failed from REQUEST_URI header value: \(requestUri)")
+            }
+
+            if let urlComponents = URLComponents(string: requestUri) {
+                self.urlComponents = urlComponents
+            } else {
+                Log.error("URLComponents init failed from REQUEST_URI header value: \(requestUri)")
+            }
+        } else {
+            Log.error("REQUEST_URI header value not received")
         }
-        else {
-            url.append("/".data(using: .utf8)!)
-        }
-                
     }
     
     /// We've received all the parameters the server is going to send us,

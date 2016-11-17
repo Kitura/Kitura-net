@@ -23,13 +23,13 @@ public protocol ServerRequest: class {
     
     /// The set of headers received with the incoming request
     var headers : HeadersContainer { get set }
-    
-    /// The URL from the request in string form
-    var urlString : String { get }
-    
-    /// The URL from the request in UTF-8 form
-    var url : Data { get }
 
+    /// The URL from the request if properly received
+    var url : URL? { get }
+
+    /// The parsed URL as URLComponents
+    var urlComponents : URLComponents { get }
+    
     /// The IP address of the client
     var remoteAddress: String { get }
     
