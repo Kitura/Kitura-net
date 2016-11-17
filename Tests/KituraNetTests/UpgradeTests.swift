@@ -63,7 +63,12 @@ class UpgradeTests: XCTestCase {
     
     func testSuccessfullUpgrade() {
         ConnectionUpgrader.clear()
-        ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory())
+        
+        let closedSocketExpectation = expectation(description: "ClosedSocket callback")
+        
+        ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory() {
+            closedSocketExpectation.fulfill()
+        })
         
         performServerTest(TestServerDelegate()) { expectation in
             
@@ -87,6 +92,8 @@ class UpgradeTests: XCTestCase {
                 let bytesRead = try socket.read(into: buffer)
                 
                 XCTAssertEqual(bytesRead, messageFromProtocol.count, "Message sent by testing protocol wasn't the correct length")
+                
+                socket.close()
                 
                 expectation.fulfill()
             }
@@ -187,8 +194,14 @@ class UpgradeTests: XCTestCase {
     class TestingProtocolSocketProcessorFactory: ConnectionUpgradeFactory {
         public var name: String { return "Testing" }
         
+        private let closeCallback: (() -> Void)?
+        
+        init(closeCallback: (() -> Void)? = nil) {
+            self.closeCallback = closeCallback
+        }
+        
         public func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?) {
-            return (TestingSocketProcessor(), nil)
+            return (TestingSocketProcessor(closeCallback: closeCallback), nil)
         }
     }
     
@@ -197,6 +210,12 @@ class UpgradeTests: XCTestCase {
         public weak var handler: IncomingSocketHandler?
         public var keepAliveUntil: TimeInterval = 0.0
         public var inProgress = true
+        
+        private let closeCallback: (() -> Void)?
+        
+        init(closeCallback: (() -> Void)? = nil) {
+            self.closeCallback = closeCallback
+        }
         
         public func process(_ buffer: NSData) -> Bool {
             XCTAssertEqual(buffer.length, messageToProtocol.count, "Message received by testing protocol wasn't the correct length")
@@ -214,6 +233,10 @@ class UpgradeTests: XCTestCase {
     
         public func close() {
             handler?.prepareToClose()
+        }
+        
+        public func socketClosed() {
+            closeCallback?()
         }
     }
 }
