@@ -35,8 +35,11 @@ public class FastCGIServerRequest : ServerRequest {
     /// Minor version of HTTP of the request
     public private(set) var httpVersionMinor: UInt16? = 9
     
-    /// The set of headers received with the incoming request
+    /// The set of HTTP headers received with the incoming request
     public var headers = HeadersContainer()
+
+    /// The set of non-HTTP headers received with the incoming request
+    public var fastCGIHeaders = HeadersContainer()
     
     /// The HTTP Method specified in the request
     public private(set) var method: String = ""
@@ -131,20 +134,37 @@ public class FastCGIServerRequest : ServerRequest {
             return ""
         }
     }
-    
+
     /// Proces the original request URI
     func postProcessUrlParameter() -> Void {
+        var url = ""
+        if let scheme = fastCGIHeaders["REQUEST_SCHEME"]?[0] {
+            url.append(scheme + "://")
+        } else {
+            url.append("http://")
+            Log.error("REQUEST_SCHEME header not received, using http")
+        }
+
+        if let host = headers["Host"]?[0] {
+            url.append(host)
+        } else {
+            url.append("Host_Not_Available")
+            Log.error("Host header not received")
+        }
+
         if let requestUri = requestUri, requestUri.characters.count > 0 {
-            if let urlComponents = URLComponents(string: requestUri) {
-                self.urlComponents = urlComponents
-            } else {
-                Log.error("URLComponents init failed from REQUEST_URI header value: \(requestUri)")
-            }
+            url.append(requestUri)
         } else {
             Log.error("REQUEST_URI header value not received")
         }
+
+        if let urlComponents = URLComponents(string: url) {
+            self.urlComponents = urlComponents
+        } else {
+            Log.error("URLComponents init failed from: \(url)")
+        }
     }
-    
+
     /// We've received all the parameters the server is going to send us,
     /// so lets massage these into place and make sure, at worst, sane
     /// defaults are in place.
@@ -273,13 +293,9 @@ public class FastCGIServerRequest : ServerRequest {
             
         }
 
-        // send all headers with FASTCGI_ prefixed.
-        // this way we can see what's going on with them.
-        //
-        // Commented out for now pending community discussion as to best approach here
-        
-        /* headers.append("FASTCGI_".appending(name), value: value) */
-        
+        if !name.hasPrefix("HTTP_") {
+            fastCGIHeaders.append(name, value: value)
+        }
     }
     
     /// process a record parsed from the connection.
