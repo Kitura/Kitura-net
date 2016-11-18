@@ -119,6 +119,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         request.release()
     }
     
+    /// Called by the `IncomingSocketHandler` to tell us that the socket has been closed
+    /// by the remote side. This is ignored at this time.
+    public func socketClosed() {}
+    
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
@@ -152,8 +156,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         state = .messageCompletelyRead
         response.reset()
         
+        // If the IncomingSocketHandler was freed, we can't handle the request
+        guard let handler = handler else { return }
+        
         if isUpgrade {
-            ConnectionUpgrader.instance.upgradeConnection(handler: handler!, request: request, response: response)
+            ConnectionUpgrader.instance.upgradeConnection(handler: handler, request: request, response: response)
             inProgress = false
         }
         else {

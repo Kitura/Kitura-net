@@ -17,7 +17,7 @@
 import Foundation
 
 /// This protocol defines the API of the classes used to process the data that
-/// comes in from a client's request. There should be one `IncomingDataProcessor`
+/// comes in from a client's request. There should be one `IncomingSocketProcessor`
 /// instance per incoming request.
 public protocol IncomingSocketProcessor: class {
     
@@ -52,4 +52,8 @@ public protocol IncomingSocketProcessor: class {
     
     /// Close the socket and mark this handler as no longer in progress.
     func close()
+    
+    /// Called by the `IncomingSocketHandler` to tell the `IncomingSocketProcessor` that the
+    /// socket has been closed by the remote side.
+    func socketClosed()
 }
