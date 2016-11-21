@@ -25,11 +25,17 @@ public protocol ServerRequest: class {
     var headers : HeadersContainer { get set }
 
     /// The URL from the request in string form
-    @available(*, deprecated, message: "use 'urlComponents' instead")
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
     var urlString : String { get }
 
     /// The URL from the request in UTF-8 form
-    @available(*, deprecated, message: "use 'urlComponents' instead")
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
     var url : Data { get }
 
     /// The URL from the request as URLComponents

@@ -48,12 +48,18 @@ public class FastCGIServerRequest : ServerRequest {
     private var requestUri : String? = nil
 
     /// The URL from the request in string form
-    @available(*, deprecated, message: "use 'urlComponents' instead")
-    public var urlString : String { return urlComponents.string ?? "" }
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+    public var urlString : String { return requestUri ?? "" }
 
     /// The URL from the request in UTF-8 form
-    @available(*, deprecated, message: "use 'urlComponents' instead")
-    public var url : Data { return urlComponents.string?.data(using: .utf8) ?? Data() }
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+    public var url : Data { return requestUri?.data(using: .utf8) ?? Data() }
 
     /// The URL from the request as URLComponents
     public private(set) var urlComponents = URLComponents()
