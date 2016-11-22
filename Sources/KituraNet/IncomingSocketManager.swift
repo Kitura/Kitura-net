@@ -207,7 +207,8 @@ public class IncomingSocketManager  {
             #if !GCD_ASYNCH && os(Linux)
                 let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
                 if result == -1 {
-                    if errno != EBADF {  // Ignore EBADF error (bad file descriptor), probably got closed.
+                    if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
+                           errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
                         Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                     }
                 }
