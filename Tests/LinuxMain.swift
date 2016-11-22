@@ -26,6 +26,7 @@ XCTMain([
        testCase(LargePayloadTests.allTests),
        testCase(LifecycleListenerTests.allTests),
        testCase(MiscellaneousTests.allTests),
+       testCase(MonitoringTests.allTests),
        testCase(ParserTests.allTests),
        testCase(SocketManagerTests.allTests),
        testCase(UpgradeTests.allTests)

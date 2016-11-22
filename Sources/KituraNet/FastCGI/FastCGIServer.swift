@@ -173,6 +173,7 @@ public class FastCGIServer: Server {
                 switch status {
                 case .success:
                     self.sendMultiplexRequestRejections(request: request, response: response)
+                    Monitor.delegate?.started(request: request, response: response)
                     delegate.handle(request: request, response: response)
                     break
                 case .unsupportedRole:

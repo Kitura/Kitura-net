@@ -31,7 +31,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         
     private weak var delegate: ServerDelegate?
     
-    private let request: HTTPServerRequest
+    let request: HTTPServerRequest
     
     /// The `ServerResponse` object used to enable the `ServerDelegate` to respond to the incoming request
     /// - Note: This var is optional to enable it to be constructed in the init function
@@ -165,6 +165,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         }
         else {
             DispatchQueue.global().async() { [unowned self] in
+                Monitor.delegate?.started(request: self.request, response: self.response)
                 self.delegate?.handle(request: self.request, response: self.response)
             }
         }
