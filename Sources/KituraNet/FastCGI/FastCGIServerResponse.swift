@@ -107,6 +107,7 @@ public class FastCGIServerResponse : ServerResponse {
     public func end() throws {
         try startResponse()
         try concludeResponse()
+        Monitor.delegate?.finished(request: self.serverRequest, response: self)
     }
     
     /// Begin the buffer flush.

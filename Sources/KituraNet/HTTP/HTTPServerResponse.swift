@@ -119,6 +119,7 @@ public class HTTPServerResponse : ServerResponse {
                 processor.close()
             }
         }
+        Monitor.delegate?.finished(request: processor?.request, response: self)
     }
 
     /// Begin flushing the buffer
