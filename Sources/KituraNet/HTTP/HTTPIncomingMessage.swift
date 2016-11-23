@@ -40,6 +40,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// HTTP Method of the incoming message.
     public private(set) var method: String = "" 
 
+    /// is a request? (or a response)
+    public let isRequest: Bool
+
     /// socket signature of the request.
     public private(set) var signature: Socket.Signature?
 
@@ -100,6 +103,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     ///
     /// - Returns: an IncomingMessage instance
     init (isRequest: Bool, signature: Socket.Signature? = nil) {
+        self.isRequest = isRequest
         self.signature = signature
         httpParser = HTTPParser(isRequest: isRequest)
 
@@ -275,7 +279,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             addHeader()
         }
 
-        if self is ServerRequest { // skip if ClientResponse
+        if isRequest {
             var url = ""
             if let isSecure = signature?.isSecure {
                 url.append(isSecure ? "https://" : "http://")
