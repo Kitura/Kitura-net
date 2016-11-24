@@ -40,6 +40,6 @@ public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
     init (socket: Socket) {
         clientSocket = socket
         
-        super.init(isRequest: true, signature: clientSocket.signature)
+        super.init(isRequest: true)
     }
 }

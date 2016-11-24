@@ -56,18 +56,17 @@ public class HTTPServer: Server {
     public func listen(on port: Int) throws {
         self.port = port
         do {
-            let socket = try Socket.create()
-            self.listenSocket = socket
+            self.listenSocket = try Socket.create()
 
             // If SSL config has been created,
             // create and attach the SSLService delegate to the socket
             if let sslConfig = sslConfig {
-                socket.delegate = try SSLService(usingConfiguration: sslConfig);
+                self.listenSocket!.delegate = try SSLService(usingConfiguration: sslConfig);
             }
 
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+            try listenSocket!.listen(on: port, maxBacklogSize: maxPendingConnections)
 
-            if let delegate = socket.delegate {
+            if let delegate = listenSocket!.delegate {
                 Log.info("Listening on port \(port) (delegate: \(delegate))")
             } else {
                 Log.info("Listening on port \(port)")
@@ -76,7 +75,7 @@ public class HTTPServer: Server {
             let queuedBlock = DispatchWorkItem(block: {
                 self.state = .started
                 self.lifecycleListener.performStartCallbacks()
-                self.listen(listenSocket: socket)
+                self.listen()
                 self.lifecycleListener.performStopCallbacks()
                 self.listenSocket = nil
             })
@@ -137,10 +136,10 @@ public class HTTPServer: Server {
     }
 
     /// Listen on socket while server is started
-    private func listen(listenSocket: Socket) {
+    private func listen() {
         repeat {
             do {
-                let clientSocket = try listenSocket.acceptClientConnection()
+                let clientSocket = try self.listenSocket!.acceptClientConnection()
                 Log.verbose("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 
@@ -163,7 +162,7 @@ public class HTTPServer: Server {
                     self.lifecycleListener.performClientConnectionFailCallbacks(with: error)
                 }
             }
-        } while self.state == .started && listenSocket.isListening
+        } while self.state == .started && self.listenSocket!.isListening
 
         if self.state == .started {
             Log.error("listenSocket closed without stop() being called")
