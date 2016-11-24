@@ -15,8 +15,6 @@
  */
 
 import Foundation
-
-import LoggerAPI
 import Socket
 
 /// The FastCGIServerRequest class implements the `ServerRequest` protocol
@@ -35,34 +33,25 @@ public class FastCGIServerRequest : ServerRequest {
     /// Minor version of HTTP of the request
     public private(set) var httpVersionMinor: UInt16? = 9
     
-    /// The set of HTTP headers received with the incoming request
+    /// The set of headers received with the incoming request
     public var headers = HeadersContainer()
-
-    /// The set of non-HTTP headers received with the incoming request
-    public var fastCGIHeaders = HeadersContainer()
     
     /// The HTTP Method specified in the request
     public private(set) var method: String = ""
-
+    
+    /// The URL from the request in string form
+    public var urlString : String {
+        guard url.count > 0 else {
+            return ""
+        }
+        return String(data: url, encoding: .utf8)!
+    }
+    
     /// URI Component received from FastCGI
     private var requestUri : String? = nil
-
-    /// The URL from the request in string form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
-    @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
-    public var urlString : String { return requestUri ?? "" }
-
+    
     /// The URL from the request in UTF-8 form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
-    @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
-    public var url : Data { return requestUri?.data(using: .utf8) ?? Data() }
-
-    /// The URL from the request as URLComponents
-    public private(set) var urlComponents = URLComponents()
+    public private(set) var url = Data()
 
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
@@ -140,37 +129,27 @@ public class FastCGIServerRequest : ServerRequest {
             return ""
         }
     }
-
+    
     /// Proces the original request URI
     func postProcessUrlParameter() -> Void {
-        var url = ""
-        if let scheme = fastCGIHeaders["REQUEST_SCHEME"]?[0] {
-            url.append(scheme + "://")
-        } else {
-            url.append("http://")
-            Log.error("REQUEST_SCHEME header not received, using http")
-        }
-
-        if let host = headers["Host"]?[0] {
-            url.append(host)
-        } else {
-            url.append("Host_Not_Available")
-            Log.error("Host header not received")
-        }
-
+        
+        // reset the current url
+        //
+        url.count = 0
+        
+        // set the uri
+        //
         if let requestUri = requestUri, requestUri.characters.count > 0 {
-            url.append(requestUri)
-        } else {
-            Log.error("REQUEST_URI header value not received")
+            
+            // use the URI as received
+            url.append(requestUri.data(using: .utf8)!)
         }
-
-        if let urlComponents = URLComponents(string: url) {
-            self.urlComponents = urlComponents
-        } else {
-            Log.error("URLComponents init failed from: \(url)")
+        else {
+            url.append("/".data(using: .utf8)!)
         }
+                
     }
-
+    
     /// We've received all the parameters the server is going to send us,
     /// so lets massage these into place and make sure, at worst, sane
     /// defaults are in place.
@@ -299,9 +278,13 @@ public class FastCGIServerRequest : ServerRequest {
             
         }
 
-        if !name.hasPrefix("HTTP_") {
-            fastCGIHeaders.append(name, value: value)
-        }
+        // send all headers with FASTCGI_ prefixed.
+        // this way we can see what's going on with them.
+        //
+        // Commented out for now pending community discussion as to best approach here
+        
+        /* headers.append("FASTCGI_".appending(name), value: value) */
+        
     }
     
     /// process a record parsed from the connection.
