@@ -15,6 +15,7 @@
  */
 
 
+import LoggerAPI
 import Socket
 
 import Foundation
@@ -39,11 +40,31 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// HTTP Method of the incoming message.
     public private(set) var method: String = "" 
 
-    /// URL of the incoming message.
-    public private(set) var urlString = ""
+    /// is a request? (or a response)
+    public let isRequest: Bool
 
-    /// Raw URL of the incoming message.
-    public private(set) var url = Data()
+    /// socket signature of the request.
+    public private(set) var signature: Socket.Signature?
+
+    /// The URL from the request as URLComponents.
+    public private(set) var urlComponents = URLComponents()
+
+    /// The URL from the request in string form
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+    public var urlString : String { return String(data: pathAndQueryParams, encoding: .utf8) ?? "" }
+
+    /// The URL from the request in UTF-8 form
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+    public var url : Data { return pathAndQueryParams }
+
+    /// Parsed path and optional query parameters of the request.
+    private var pathAndQueryParams = Data()
 
     /// Indicates if the parser should save the message body and call onBody()
     var saveBody = true
@@ -81,7 +102,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter isRequest: whether this message is a request
     ///
     /// - Returns: an IncomingMessage instance
-    init (isRequest: Bool) {
+    init (isRequest: Bool, signature: Socket.Signature? = nil) {
+        self.isRequest = isRequest
+        self.signature = signature
         httpParser = HTTPParser(isRequest: isRequest)
 
         httpParser!.delegate = self
@@ -189,7 +212,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter bytes: The bytes of the parsed URL
     /// - Parameter count: The number of bytes parsed
     func onURL(_ bytes: UnsafePointer<UInt8>, count: Int) {
-        url.append(bytes, count: count)
+        pathAndQueryParams.append(bytes, count: count)
     }
 
     /// Instructions for when reading header key
@@ -252,10 +275,38 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
         self.method = method
-        urlString = String(data: url, encoding: .utf8) ?? ""
-
         if  lastHeaderWasAValue  {
             addHeader()
+        }
+
+        if isRequest {
+            var url = ""
+            if let isSecure = signature?.isSecure {
+                url.append(isSecure ? "https://" : "http://")
+            } else {
+                url.append("http://")
+                Log.error("Socket signature not initialized, using http")
+            }
+
+            if let host = headers["Host"]?[0] {
+                url.append(host)
+            } else {
+                url.append("Host_Not_Available")
+                Log.error("Host header not received")
+            }
+
+            if let pathAndQueryParams = String(data: self.pathAndQueryParams, encoding: .utf8) {
+                url.append(pathAndQueryParams)
+            } else {
+                url.append("/")
+                Log.error("Invalid utf8 encoded path received in onURL: \(self.pathAndQueryParams)")
+            }
+
+            if let urlComponents = URLComponents(string: url) {
+                self.urlComponents = urlComponents
+            } else {
+                Log.error("URLComponents init failed from parsed value: \(url)")
+            }
         }
 
         status.keepAlive = httpParser?.isKeepAlive() ?? false
@@ -292,7 +343,8 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     private func reset() {
         lastHeaderWasAValue = false
         saveBody = true
-        url.count = 0
+        pathAndQueryParams.count = 0
+        urlComponents = URLComponents()
         headers.removeAll()
         bodyChunk.reset()
         status.reset()

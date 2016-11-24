@@ -55,15 +55,16 @@ public class FastCGIServer: Server {
     public func listen(on port: Int) throws {
         self.port = port
         do {
-            self.listenSocket = try Socket.create()
+            let socket = try Socket.create()
+            self.listenSocket = socket
 
-            try listenSocket!.listen(on: port, maxBacklogSize: maxPendingConnections)
+            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
 
             let queuedBlock = DispatchWorkItem(block: {
                 self.state = .started
                 self.lifecycleListener.performStartCallbacks()
-                self.listen()
+                self.listen(listenSocket: socket)
                 self.lifecycleListener.performStopCallbacks()
                 self.listenSocket = nil
             })
@@ -125,10 +126,10 @@ public class FastCGIServer: Server {
     }
 
     /// Listen on socket while server is started
-    private func listen() {
+    private func listen(listenSocket: Socket) {
         repeat {
             do {
-                let clientSocket = try self.listenSocket!.acceptClientConnection()
+                let clientSocket = try listenSocket.acceptClientConnection()
                 Log.verbose("Accepted connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
                 handleClientRequest(socket: clientSocket)
@@ -148,7 +149,7 @@ public class FastCGIServer: Server {
                     self.lifecycleListener.performClientConnectionFailCallbacks(with: error)
                 }
             }
-        } while self.state == .started && self.listenSocket!.isListening
+        } while self.state == .started && listenSocket.isListening
 
         if self.state == .started {
             Log.error("listenSocket closed without stop() being called")
