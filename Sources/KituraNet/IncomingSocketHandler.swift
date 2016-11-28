@@ -106,7 +106,11 @@ public class IncomingSocketHandler {
             }
         }
         catch let error as Socket.Error {
-            Log.error("Read from socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+            if error.errorCode == Int32(Socket.SOCKET_ERR_RECV_FAILED) {
+                Log.debug("Read from socket (file descriptor \(socket.socketfd)) reset. Error = \(error).")
+            } else {
+                Log.error("Read from socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+            }
             prepareToClose()
         } catch {
             Log.error("Unexpected error...")
