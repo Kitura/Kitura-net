@@ -23,12 +23,23 @@ public protocol ServerRequest: class {
     
     /// The set of headers received with the incoming request
     var headers : HeadersContainer { get set }
-    
+
     /// The URL from the request in string form
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
     var urlString : String { get }
-    
+
     /// The URL from the request in UTF-8 form
+    /// This contains just the path and query parameters starting with '/'
+    /// Use "urlComponents" for the full URL
+    @available(*, deprecated, message:
+        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
     var url : Data { get }
+
+    /// The URL from the request as URLComponents
+    var urlComponents : URLComponents { get }
 
     /// The IP address of the client
     var remoteAddress: String { get }
