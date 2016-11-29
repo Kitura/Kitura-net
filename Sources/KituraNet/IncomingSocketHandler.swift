@@ -106,7 +106,7 @@ public class IncomingSocketHandler {
             }
         }
         catch let error as Socket.Error {
-            if error.errorCode == Int32(Socket.SOCKET_ERR_RECV_FAILED) {
+            if error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Read from socket (file descriptor \(socket.socketfd)) reset. Error = \(error).")
             } else {
                 Log.error("Read from socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
@@ -196,7 +196,11 @@ public class IncomingSocketHandler {
                 }
             }
             catch let error {
-                Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+                if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
+                    Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+                } else {
+                    Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+                }
             }
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -262,7 +266,11 @@ public class IncomingSocketHandler {
             }
         }
         catch let error {
-            Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+            if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
+                Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+            } else {
+                Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+            }
         }
     }
     
