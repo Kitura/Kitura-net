@@ -377,6 +377,7 @@ public class FastCGIServerRequest : ServerRequest {
                 //
                 postProcessParameters()
                 status = Status.headersComplete
+                Log.verbose("FastCGI request forwarded for=\(fastCGIHeaders["REMOTE_ADDR"]?[0] ?? "N.A."); proto=\(fastCGIHeaders["REQUEST_SCHEME"]?[0] ?? "N.A."); by=\(socket.remoteHostname);")
             }
             
         }

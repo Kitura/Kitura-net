@@ -43,6 +43,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// is a request? (or a response)
     public let isRequest: Bool
 
+    /// Client connection socket
+    private var socket: Socket?
+
     /// socket signature of the request.
     public private(set) var signature: Socket.Signature?
 
@@ -102,8 +105,11 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter isRequest: whether this message is a request
     ///
     /// - Returns: an IncomingMessage instance
-    init (isRequest: Bool, signature: Socket.Signature? = nil) {
+    init (isRequest: Bool, socket: Socket? = nil, signature: Socket.Signature? = nil) {
         self.isRequest = isRequest
+        if let socket = socket {
+            self.socket = socket
+        }
         self.signature = signature
         httpParser = HTTPParser(isRequest: isRequest)
 
@@ -281,8 +287,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
         if isRequest {
             var url = ""
+            var proto: String?
             if let isSecure = signature?.isSecure {
-                url.append(isSecure ? "https://" : "http://")
+                proto = (isSecure ? "https" : "http")
+                url.append(proto! + "://")
             } else {
                 url.append("http://")
                 Log.error("Socket signature not initialized, using http")
@@ -306,6 +314,12 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 self.urlComponents = urlComponents
             } else {
                 Log.error("URLComponents init failed from parsed value: \(url)")
+            }
+
+            if let forwardedFor = headers["X-Forwarded-For"]?[0] {
+                Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket?.remoteHostname ?? "N.A.");")
+            } else {
+                Log.verbose("HTTP request from=\(socket?.remoteHostname ?? "N.A."); proto=\(proto ?? "N.A.");")
             }
         }
 
