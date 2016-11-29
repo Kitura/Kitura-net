@@ -167,9 +167,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             inProgress = false
         }
         else {
-            DispatchQueue.global().async() { [unowned self] in
-                Monitor.delegate?.started(request: self.request, response: self.response)
-                self.delegate?.handle(request: self.request, response: self.response)
+            DispatchQueue.global().async() { [weak self] in
+                if let strongSelf = self {
+                    Monitor.delegate?.started(request: strongSelf.request, response: strongSelf.response)
+                    strongSelf.delegate?.handle(request: strongSelf.request, response: strongSelf.response)
+                }
             }
         }
     }
