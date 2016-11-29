@@ -61,11 +61,17 @@ class MonitoringTests: XCTestCase {
             XCTFail("Server failed to start: \(error)")
         }
         
-        server.listen(port: 8090)
+        do {
+            try server.listen(on: 8090)
         
-        self.waitForExpectations(timeout: 10) { error in
+            self.waitForExpectations(timeout: 10) { error in
+                server.stop()
+                XCTAssertNil(error);
+                Monitor.delegate = nil
+            }
+        } catch let error {
+            XCTFail("Error: \(error)")
             server.stop()
-            XCTAssertNil(error);
             Monitor.delegate = nil
         }
     }

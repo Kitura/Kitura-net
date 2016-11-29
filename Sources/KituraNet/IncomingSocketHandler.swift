@@ -69,6 +69,7 @@ public class IncomingSocketHandler {
         self.socket = socket
         processor = using
         manager = managedBy
+        processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
@@ -80,8 +81,6 @@ public class IncomingSocketHandler {
             readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
-        
-        processor?.handler = self
     }
     
     /// Read in the available data and hand off to common processing code
