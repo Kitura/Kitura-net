@@ -46,9 +46,8 @@ class LifecycleListenerTests: XCTestCase {
 
         let server = HTTP.createServer()
         server.started {
-            startExpectation.fulfill()
-        }.started {
             started = true
+            startExpectation.fulfill()
         }
 
         do {

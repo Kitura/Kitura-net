@@ -23,7 +23,7 @@ import Dispatch
 
 protocol KituraNetTest {
 
-    func expectation(_ index: Int) -> XCTestExpectation
+    func expectation(line: Int, index: Int) -> XCTestExpectation
     func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?)
 }
 
@@ -37,32 +37,31 @@ extension KituraNetTest {
         //       sleep(10)
     }
 
-    func performServerTest(_ delegate: ServerDelegate, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        do {
-            let server = HTTP.createServer()
-            server.delegate = delegate
+    func performServerTest(_ delegate: ServerDelegate, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+        let server = HTTP.createServer()
+        server.delegate = delegate
 
-            var expectations: [XCTestExpectation] = []
+        var expectations: [XCTestExpectation] = []
 
-            for index in 0..<asyncTasks.count {
-                expectations.append(expectation(index))
-            }
+        for index in 0..<asyncTasks.count {
+            expectations.append(expectation(line: line, index: index))
+        }
 
-            // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
-            let exps = expectations
+        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+        let exps = expectations
 
-            server.started {
-                let requestQueue = DispatchQueue(label: "Request queue")
+        server.started {
+            let requestQueue = DispatchQueue(label: "Request queue")
 
-                for (index, asyncTask) in asyncTasks.enumerated() {
-                    let expectation = exps[index]
-                    requestQueue.async {
-                        asyncTask(expectation)
-                    }
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
                 }
             }
+        }
 
-            // server.started callback above needs to be set before server.listen
+        do {
             try server.listen(on: 8090)
 
             waitExpectation(timeout: 10) { error in
@@ -70,8 +69,9 @@ extension KituraNetTest {
                 server.stop()
                 XCTAssertNil(error);
             }
-        } catch {
+        } catch let error {
             XCTFail("Error: \(error)")
+            server.stop()
         }
     }
 
@@ -94,9 +94,8 @@ extension KituraNetTest {
 
 extension XCTestCase: KituraNetTest {
 
-    func expectation(_ index: Int) -> XCTestExpectation {
-        let expectationDescription = "\(type(of: self))-\(index)"
-        return self.expectation(description: expectationDescription)
+    func expectation(line: Int, index: Int) -> XCTestExpectation {
+        return self.expectation(description: "\(type(of: self)):\(line)[\(index)]")
     }
 
     func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?) {

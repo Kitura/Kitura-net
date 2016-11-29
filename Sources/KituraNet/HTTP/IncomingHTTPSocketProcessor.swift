@@ -157,7 +157,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         response.reset()
         
         // If the IncomingSocketHandler was freed, we can't handle the request
-        guard let handler = handler else { return }
+        guard let handler = handler else {
+            Log.error("IncomingSocketHandler not set or freed before parsing complete")
+            return
+        }
         
         if isUpgrade {
             ConnectionUpgrader.instance.upgradeConnection(handler: handler, request: request, response: response)
