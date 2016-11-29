@@ -267,7 +267,7 @@ public class IncomingSocketHandler {
         }
         catch let error {
             if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
-                Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
+                Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             } else {
                 Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             }
