@@ -44,10 +44,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     public let isRequest: Bool
 
     /// Client connection socket
-    private var socket: Socket?
+    private let socket: Socket?
 
     /// socket signature of the request.
-    public private(set) var signature: Socket.Signature?
+    public var signature: Socket.Signature? { return socket?.signature }
 
     /// The URL from the request as URLComponents.
     public private(set) var urlComponents = URLComponents()
@@ -105,12 +105,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Parameter isRequest: whether this message is a request
     ///
     /// - Returns: an IncomingMessage instance
-    init (isRequest: Bool, socket: Socket? = nil, signature: Socket.Signature? = nil) {
+    init (isRequest: Bool, socket: Socket? = nil) {
         self.isRequest = isRequest
-        if let socket = socket {
-            self.socket = socket
-        }
-        self.signature = signature
+        self.socket = socket
         httpParser = HTTPParser(isRequest: isRequest)
 
         httpParser!.delegate = self
