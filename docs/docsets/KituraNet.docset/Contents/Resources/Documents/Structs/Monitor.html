@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HTTPServerRequest Class Reference</title>
+    <title>Monitor Struct Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset="utf-8">
@@ -11,9 +11,9 @@
   </head>
   <body>
 
-    <a name="//apple_ref/swift/Class/HTTPServerRequest" class="dashAnchor"></a>
+    <a name="//apple_ref/swift/Struct/Monitor" class="dashAnchor"></a>
 
-    <a title="HTTPServerRequest Class Reference"></a>
+    <a title="Monitor Struct Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
@@ -35,7 +35,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../index.html">KituraNet Reference</a>
       <img class="carat" src="../img/carat.png" />
-      HTTPServerRequest Class Reference
+      Monitor Struct Reference
     </p>
 
     <div class="content-wrapper">
@@ -174,17 +174,14 @@
 
         <section class="section">
           <div class="section-content">
-            <h1>HTTPServerRequest</h1>
+            <h1>Monitor</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerRequest</span><span class="p">:</span> <span class="kt"><a href="../Classes/HTTPIncomingMessage.html">HTTPIncomingMessage</a></span><span class="p">,</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Monitor</span></code></pre>
 
                 </div>
               </div>
-            <p>This class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
-are communicating via the HTTP protocol. Most of the implementation is in
-the <code><a href="../Classes/HTTPIncomingMessage.html">HTTPIncomingMessage</a></code> class which implements logic common to this class
-and the <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code> class.</p>
+            <p>A struct that holds the reference to the server wide monitoring delegate.</p>
 
           </div>
         </section>
@@ -196,9 +193,9 @@ and the <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet17HTTPServerRequest13remoteAddressSS"></a>
-                    <a name="//apple_ref/swift/Property/remoteAddress" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet17HTTPServerRequest13remoteAddressSS">remoteAddress</a>
+                    <a name="/s:ZvV9KituraNet7Monitor8delegateGSqPS_13ServerMonitor__"></a>
+                    <a name="//apple_ref/swift/Variable/delegate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:ZvV9KituraNet7Monitor8delegateGSqPS_13ServerMonitor__">delegate</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -206,14 +203,14 @@ and the <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Server IP address pulled from socket.</p>
+                        <p>The reference to the server wide monitoring delegate.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">remoteAddress</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerMonitor.html">ServerMonitor</a></span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
