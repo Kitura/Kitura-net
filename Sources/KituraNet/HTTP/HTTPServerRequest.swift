@@ -39,7 +39,6 @@ public class HTTPServerRequest: HTTPIncomingMessage, ServerRequest {
     /// - Parameter socket: the socket.
     init (socket: Socket) {
         clientSocket = socket
-        
-        super.init(isRequest: true, signature: clientSocket.signature)
+        super.init(isRequest: true, socket: socket)
     }
 }

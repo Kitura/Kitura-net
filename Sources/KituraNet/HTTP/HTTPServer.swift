@@ -141,7 +141,7 @@ public class HTTPServer: Server {
         repeat {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection()
-                Log.verbose("Accepted connection from: " +
+                Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 
                 if let delegate = delegate {

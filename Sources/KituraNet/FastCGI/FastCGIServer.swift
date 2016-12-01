@@ -130,7 +130,7 @@ public class FastCGIServer: Server {
         repeat {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection()
-                Log.verbose("Accepted connection from: " +
+                Log.debug("Accepted FastCGI connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
                 handleClientRequest(socket: clientSocket)
             } catch let error {
