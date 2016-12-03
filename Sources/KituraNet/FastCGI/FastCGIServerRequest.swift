@@ -47,22 +47,28 @@ public class FastCGIServerRequest : ServerRequest {
     /// URI Component received from FastCGI
     private var requestUri : String? = nil
 
+    public private(set) var urlURL = URL(string: "http://not_available/")!
+
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
+    /// Use "urlURL" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var urlString : String { return requestUri ?? "" }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
+    /// Use "urlURL" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var url : Data { return requestUri?.data(using: .utf8) ?? Data() }
 
     /// The URL from the request as URLComponents
-    public private(set) var urlComponents = URLComponents()
+    @available(*, deprecated, message:
+    "URLComponents has a memory leak as of swift 3.0.1. use 'urlURL' instead")
+    public lazy var urlComponents: URLComponents = { [unowned self] () in
+        return URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+    }()
 
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
@@ -164,10 +170,10 @@ public class FastCGIServerRequest : ServerRequest {
             Log.error("REQUEST_URI header value not received")
         }
 
-        if let urlComponents = URLComponents(string: url) {
-            self.urlComponents = urlComponents
+        if let urlURL = URL(string: url) {
+            self.urlURL = urlURL
         } else {
-            Log.error("URLComponents init failed from: \(url)")
+            Log.error("URL init failed from: \(url)")
         }
     }
 

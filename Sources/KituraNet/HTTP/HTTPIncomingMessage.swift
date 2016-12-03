@@ -49,21 +49,27 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// socket signature of the request.
     public var signature: Socket.Signature? { return socket?.signature }
 
-    /// The URL from the request as URLComponents.
-    public private(set) var urlComponents = URLComponents()
+    public private(set) var urlURL = URL(string: "http://not_available/")!
+
+    /// The URL from the request as URLComponents
+    @available(*, deprecated, message:
+    "URLComponents has a memory leak as of swift 3.0.1. use 'urlURL' instead")
+    public lazy var urlComponents: URLComponents = { [unowned self] () in
+        return URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+    }()
 
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
+    /// Use "urlURL" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var urlString : String { return String(data: pathAndQueryParams, encoding: .utf8) ?? "" }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlComponents" for the full URL
+    /// Use "urlURL" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var url : Data { return pathAndQueryParams }
 
     /// Parsed path and optional query parameters of the request.
@@ -307,10 +313,10 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 Log.error("Invalid utf8 encoded path received in onURL: \(self.pathAndQueryParams)")
             }
 
-            if let urlComponents = URLComponents(string: url) {
-                self.urlComponents = urlComponents
+            if let urlURL = URL(string: url) {
+                self.urlURL = urlURL
             } else {
-                Log.error("URLComponents init failed from parsed value: \(url)")
+                Log.error("URL init failed from: \(url)")
             }
 
             if let forwardedFor = headers["X-Forwarded-For"]?[0] {
@@ -355,7 +361,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         lastHeaderWasAValue = false
         saveBody = true
         pathAndQueryParams.count = 0
-        urlComponents = URLComponents()
+        urlURL = URL(string: "http://not_available/")!
         headers.removeAll()
         bodyChunk.reset()
         status.reset()
