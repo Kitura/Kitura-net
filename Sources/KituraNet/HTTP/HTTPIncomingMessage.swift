@@ -51,23 +51,31 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     public private(set) var urlURL = URL(string: "http://not_available/")!
 
+    private var urlc: URLComponents?
+
     /// The URL from the request as URLComponents
-    public lazy var urlComponents: URLComponents = { [unowned self] () in
-        return URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
-    }()
+    /// URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
+    @available(*, deprecated, message:
+        "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
+    public var urlComponents: URLComponents {
+        if urlc == nil {
+            urlc = URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+        }
+        return urlc!
+    }
 
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlURL" or "urlComponents" for the full URL
+    /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' or 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var urlString : String { return String(data: pathAndQueryParams, encoding: .utf8) ?? "" }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlURL" or "urlComponents" for the full URL
+    /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' or 'urlComponents' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var url : Data { return pathAndQueryParams }
 
     /// Parsed path and optional query parameters of the request.
@@ -317,6 +325,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 Log.error("URL init failed from: \(url)")
                 self.urlURL = URL(string: "http://not_available/")!
             }
+            self.urlc = nil // reset it so it is recomputed on next access
 
             if let forwardedFor = headers["X-Forwarded-For"]?[0] {
                 Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket?.remoteHostname ?? "N.A.");")
