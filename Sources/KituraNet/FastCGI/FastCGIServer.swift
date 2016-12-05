@@ -186,7 +186,7 @@ public class FastCGIServer: Server {
                     break
                 default:
                     // we just want to ignore every other status for now
-                    // as they all result in simply closing the conncetion anyways.
+                    // as they all result in simply closing the connection anyways.
                     clientSocket.close()
                     break
                 }
@@ -212,7 +212,7 @@ public class FastCGIServer: Server {
         listenSocket?.close()
     }
 
-    /// Add a new listener for server beeing started
+    /// Add a new listener for server being started
     ///
     /// - Parameter callback: The listener callback that will run on server successfull start-up
     ///
@@ -223,7 +223,7 @@ public class FastCGIServer: Server {
         return self
     }
 
-    /// Add a new listener for server beeing stopped
+    /// Add a new listener for server being stopped
     ///
     /// - Parameter callback: The listener callback that will run when server stops
     ///
