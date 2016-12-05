@@ -26,21 +26,19 @@ public protocol ServerRequest: class {
 
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlURL" for the full URL
+    /// Use "urlURL" or "urlComponents" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' or 'urlComponents' instead")
     var urlString : String { get }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
-    /// Use "urlURL" for the full URL
+    /// Use "urlURL" or "urlComponents" for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
+        "This contains just the path and query parameters starting with '/'. use 'urlURL' or 'urlComponents' instead")
     var url : Data { get }
 
     /// The URL from the request as URLComponents
-    @available(*, deprecated, message:
-        "URLComponents has a memory leak as of swift 3.0.1. use 'urlURL' instead")
     var urlComponents : URLComponents { get }
 
     /// The URL from the request
