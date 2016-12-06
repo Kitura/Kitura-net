@@ -27,8 +27,7 @@ class ClientE2ETests: XCTestCase {
         return [
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testPostRequests", testPostRequests),
-            ("testErrorRequests", testErrorRequests),
-            ("testFastCGIStates", testFastCGIStates)
+            ("testErrorRequests", testErrorRequests)
         ]
     }
 
@@ -123,38 +122,6 @@ class ClientE2ETests: XCTestCase {
             }
             catch {
                 print("Error reading body or writing response")
-            }
-        }
-    }
-    
-    func testFastCGIStates() {
-        let server = FastCGI.createServer()
-        XCTAssertEqual(server.state, ServerState.unknown)
-        do {
-            try server.listen(on: 9000)
-        } catch let error {
-            XCTFail("Error: \(error)")
-            server.stop()
-        }
-        
-        let startedExpectation = self.expectation(description: "Start server")
-        server.started(callback: {
-            XCTAssertEqual(server.state, ServerState.started)
-            let stoppedExpectation = self.expectation(description: "Stop server")
-            server.stopped(callback: {
-                XCTAssertEqual(server.state, ServerState.stopped)
-                stoppedExpectation.fulfill()
-            })
-            server.stop()
-            startedExpectation.fulfill()
-        })
-        
-        waitForExpectations(timeout: 5) { error in
-            if let error = error {
-                if (server.state == ServerState.started) {
-                    server.stop()
-                }
-                XCTFail("Timeout error: \(error)")
             }
         }
     }
