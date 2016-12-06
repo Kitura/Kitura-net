@@ -28,7 +28,8 @@ class LifecycleListenerTests: XCTestCase {
         return [
             ("testLifecycle", testLifecycle),
             ("testLifecycleWithState", testLifecycleWithState),
-            ("testServerFailLifecycle", testServerFailLifecycle)
+            ("testServerFailLifecycle", testServerFailLifecycle),
+            ("testFastCGILifecycle", testFastCGILifecycle)
         ]
     }
 
@@ -72,7 +73,47 @@ class LifecycleListenerTests: XCTestCase {
             XCTFail("Error: \(error)")
         }
     }
+    
+    func testFastCGILifecycle() {
+        
+        //Create server
+        let server = FastCGI.createServer()
 
+        //Check initial server state is unknown
+        XCTAssertEqual(server.state, ServerState.unknown)
+
+        //Confirm started state is set upon server start
+        let startExpectation = self.expectation(description: "start")
+        server.started {
+            XCTAssertEqual(server.state, ServerState.started)
+            startExpectation.fulfill()
+        }
+        
+        do {
+            try server.listen(on: 9000)
+            
+            self.waitForExpectations(timeout: 5) { error in
+                XCTAssertNil(error)
+                
+                //Confirm stopped state is set upon server stop
+                let stopExpectation = self.expectation(description: "stop")
+                
+                server.stopped {
+                    XCTAssertEqual(server.state, ServerState.stopped)
+                    stopExpectation.fulfill()
+                }
+                
+                server.stop()
+                
+                self.waitForExpectations(timeout: 5) { error in
+                    XCTAssertNil(error)
+                }
+            }
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+    
     func testLifecycleWithState() {
         var started = false
         let startExpectation = self.expectation(description: "start")
