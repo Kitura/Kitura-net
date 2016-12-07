@@ -49,6 +49,8 @@ public class HTTPServer: Server {
     public var sslConfig: SSLService.Configuration?
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
+    
+    private static let dummyServerDelegate = HTTPDummyServerDelegate()
 
     /// Listens for connections on a socket
     ///
@@ -144,9 +146,9 @@ public class HTTPServer: Server {
                 Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 
-                if let delegate = delegate {
-                    socketManager.handle(socket: clientSocket, processor: IncomingHTTPSocketProcessor(socket: clientSocket, using: delegate))
-                }
+                socketManager.handle(socket: clientSocket,
+                                     processor: IncomingHTTPSocketProcessor(socket: clientSocket,
+                                                        using: delegate ?? HTTPServer.dummyServerDelegate))
             } catch let error {
                 if self.state == .stopped {
                     if let socketError = error as? Socket.Error {
@@ -229,5 +231,28 @@ public class HTTPServer: Server {
     @available(*, deprecated, message:"Will be removed in future versions. Use ListenerGroup.waitForListeners() directly.")
     public static func waitForListeners() {
         ListenerGroup.waitForListeners()
+    }
+    
+    /// A Dummy `ServerDelegate` used when the user didn't supply a delegate, but has registerd
+    /// at least one ConnectionUpgradeFactory. This `ServerDelegate` will simply return 404 for
+    /// any requests it is asked to process.
+    private class HTTPDummyServerDelegate: ServerDelegate {
+        /// Handle new incoming requests to the server
+        ///
+        /// - Parameter request: The ServerRequest class instance for working with this request.
+        ///                     The ServerRequest object enables you to get the query parameters, headers, and body amongst other
+        ///                     information about the incoming request.
+        /// - Parameter response: The ServerResponse class instance for working with this request.
+        ///                     The ServerResponse object enables you to build and send your response to the client who sent
+        ///                     the request. This includes headers, the body, and the response code.
+        func handle(request: ServerRequest, response: ServerResponse){
+            do {
+                response.statusCode = .notFound
+                try response.end()
+            }
+            catch {
+                Log.error("Failed to send the response. Error = \(error)")
+            }
+        }
     }
 }
