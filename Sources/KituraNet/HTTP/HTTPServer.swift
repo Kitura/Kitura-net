@@ -67,10 +67,20 @@ public class HTTPServer: Server {
 
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
 
+            // If a random (ephemeral) port number was requested, get the listening port
+            let listeningPort = Int(socket.listeningPort)
+            if listeningPort != port {
+                self.port = listeningPort
+                // We should only expect a different port if the requested port was zero.
+                if port != 0 {
+                    Log.error("Listening port \(listeningPort) does not match requested port \(port)")
+                }
+            }
+
             if let delegate = socket.delegate {
-                Log.info("Listening on port \(port) (delegate: \(delegate))")
+                Log.info("Listening on port \(self.port!) (delegate: \(delegate))")
             } else {
-                Log.info("Listening on port \(port)")
+                Log.info("Listening on port \(self.port!)")
             }
 
             let queuedBlock = DispatchWorkItem(block: {
