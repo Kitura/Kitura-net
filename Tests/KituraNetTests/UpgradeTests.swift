@@ -47,7 +47,7 @@ class UpgradeTests: XCTestCase {
     func testNoRegistrations() {
         ConnectionUpgrader.clear()
         
-        performServerTest(TestServerDelegate()) { expectation in
+        performServerTest(nil) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
 
@@ -70,7 +70,7 @@ class UpgradeTests: XCTestCase {
             closedSocketExpectation.fulfill()
         })
         
-        performServerTest(TestServerDelegate()) { expectation in
+        performServerTest(nil) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
             
@@ -107,7 +107,7 @@ class UpgradeTests: XCTestCase {
         ConnectionUpgrader.clear()
         ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory())
         
-        performServerTest(TestServerDelegate()) { expectation in
+        performServerTest(nil) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             
@@ -181,13 +181,6 @@ class UpgradeTests: XCTestCase {
             XCTFail("Failed to send upgrade request. Error=\(error)")
         }
         return (errorFlag ? nil : response, unparsedData)
-    }
-    
-    class TestServerDelegate : ServerDelegate {
-        
-        func handle(request: ServerRequest, response: ServerResponse) {
-            XCTFail("Server deelgate invoked in an Upgrade scenario")
-        }
     }
     
     // A very simple `ConnectionUpgradeFactory` class for testing
