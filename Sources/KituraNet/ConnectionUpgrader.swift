@@ -24,6 +24,11 @@ import LoggerAPI
 public struct ConnectionUpgrader {
     static var instance = ConnectionUpgrader()
     
+    /// Determine if any upgraders have been registered
+    static var upgradersExist: Bool {
+        return ConnectionUpgrader.instance.registry.count != 0
+    }
+    
     private var registry = [String: ConnectionUpgradeFactory]()
     
     /// Register a `ConnectionUpgradeFactory` class instances used to create appropriate `IncomingSocketProcessor`s
@@ -76,10 +81,7 @@ public struct ConnectionUpgrader {
         do {
             if notFound {
                 response.statusCode = HTTPStatusCode.notFound
-                let message = "None of the protocols specified in the Upgrade header are registered"
-                response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = [String(message.characters.count)]
-                try response.write(from: message)
+                responseBody = "None of the protocols specified in the Upgrade header are registered"
             }
             else {
                 if let theProcessor = processor, let theProtocolName = protocolName {
@@ -94,9 +96,11 @@ public struct ConnectionUpgrader {
                 else {
                     response.statusCode = .badRequest
                 }
-                if let theBody = responseBody {
-                    try response.write(from: theBody)
-                }
+            }
+            if let theBody = responseBody {
+                response.headers["Content-Type"] = ["text/plain"]
+                response.headers["Content-Length"] = [String(theBody.lengthOfBytes(using: .utf8))]
+                try response.write(from: theBody)
             }
             try response.end()
         }
