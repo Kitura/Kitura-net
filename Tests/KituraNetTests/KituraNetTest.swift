@@ -37,7 +37,7 @@ extension KituraNetTest {
         //       sleep(10)
     }
 
-    func performServerTest(_ delegate: ServerDelegate, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+    func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         let server = HTTP.createServer()
         server.delegate = delegate
 
