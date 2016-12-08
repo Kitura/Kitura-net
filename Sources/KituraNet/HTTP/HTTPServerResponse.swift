@@ -118,8 +118,8 @@ public class HTTPServerResponse : ServerResponse {
             if !keepAlive && !processor.isUpgrade {
                 processor.close()
             }
+            Monitor.delegate?.finished(request: processor.request, response: self)
         }
-        Monitor.delegate?.finished(request: processor?.request, response: self)
     }
 
     /// Begin flushing the buffer

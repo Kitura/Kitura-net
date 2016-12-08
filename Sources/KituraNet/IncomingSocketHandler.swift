@@ -200,6 +200,11 @@ public class IncomingSocketHandler {
                 } else {
                     Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
                 }
+                
+                // There was an error writing to the socket, close the socket
+                writeBuffer.length = 0
+                writeBufferPosition = 0
+                prepareToClose()
             }
             
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -209,7 +214,7 @@ public class IncomingSocketHandler {
             #endif
         }
         
-        if preparingToClose {
+        if preparingToClose && writeBuffer.length == writeBufferPosition {
             close()
         }
     }
@@ -277,11 +282,12 @@ public class IncomingSocketHandler {
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if  writeBuffer.length == writeBufferPosition  {
-            close()
-        }
-        else {
+        if !preparingToClose {
             preparingToClose = true
+            
+            if  writeBuffer.length == writeBufferPosition  {
+                close()
+            }
         }
     }
     
@@ -304,5 +310,6 @@ public class IncomingSocketHandler {
         }
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
+        processor?.close()
     }
 }
