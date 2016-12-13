@@ -58,10 +58,12 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     @available(*, deprecated, message:
         "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
     public var urlComponents: URLComponents {
-        if urlc == nil {
-            urlc = URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+        if let urlc = self.urlc {
+            return urlc
         }
-        return urlc!
+        let urlc = URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+        self.urlc = urlc
+        return urlc
     }
 
     /// The URL from the request in string form
