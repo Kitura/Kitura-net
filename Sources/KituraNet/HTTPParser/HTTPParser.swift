@@ -31,21 +31,13 @@ class HTTPParser {
     var isRequest = true
 
     /// Delegate used for the parsing
-    var delegate: HTTPParserDelegate? {
-
-        didSet {
-            if let _ = delegate {
-                withUnsafeMutablePointer(to: &delegate) {
-                    ptr in
-                    self.parser.data = UnsafeMutableRawPointer(ptr)
-                }
-            }
-        }
-        
-    }
+    var delegate: HTTPParserDelegate?
     
     /// Whether to upgrade the HTTP connection to HTTP 1.1
     var upgrade = 1
+    
+    ///Raw pointer to hand to the C Parser. Make this an instance variable so we can reclaim it in deinit().
+    let ptrToSelf: UnsafeMutablePointer<HTTPParser>
 
     /// Initializes a HTTPParser instance
     ///
@@ -58,6 +50,17 @@ class HTTPParser {
 
         parser = http_parser()
         settings = http_parser_settings()
+        
+        //Encapsulate a reference to the self object for later retrieval
+        // see https://github.com/apple/swift-evolution/blob/master/proposals/0107-unsaferawpointer.md
+        // search for "Now we can allocate raw memory and obtain a typed pointer through initialization"
+        let rawPtr = UnsafeMutableRawPointer.allocate(bytes: MemoryLayout<HTTPParser>.stride,
+                                                      alignedTo: MemoryLayout<HTTPParser>.alignment)
+        ptrToSelf = rawPtr.bindMemory(to: HTTPParser.self, capacity: 1)
+        ptrToSelf.initialize(to: self)
+        
+        //Stuff that pointer reference into our C parser so we can get at it during callbacks
+        self.parser.data = rawPtr
         
         settings.on_url = { (parser, chunk, length) -> Int32 in
             let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
@@ -149,11 +152,26 @@ class HTTPParser {
     var statusCode: HTTPStatusCode {
         return isRequest ? .unknown : HTTPStatusCode(rawValue: Int(parser.status_code)) ?? .unknown
     }
+    
+    deinit {
+        // Remove the raw pointer memory we allocated in init()
+        // see https://github.com/apple/swift-evolution/blob/master/proposals/0107-unsaferawpointer.md
+        // search for "Now we can allocate raw memory and obtain a typed pointer through initialization"
+
+        let uninitPtr = ptrToSelf.deinitialize(count: 1)
+        uninitPtr.deallocate(bytes: MemoryLayout<HTTPParser>.stride,
+                             alignedTo: MemoryLayout<HTTPParser>.alignment)
+    }
 }
 
 fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDelegate? {
-    let p = parser?.assumingMemoryBound(to: http_parser.self)
-    return p?.pointee.data.assumingMemoryBound(to: HTTPParserDelegate.self).pointee
+    //Note that making these local varables doesn't require any more memory or slow anything down
+    //   But (IMNSHO) they make what's going on a lot easier to follow
+    let ourParserPointer = parser?.assumingMemoryBound(to: http_parser.self)
+    let ourData = ourParserPointer?.pointee.data
+    let ourSelf = ourData?.assumingMemoryBound(to: HTTPParser.self).pointee
+    let ourDelegate = ourSelf?.delegate
+    return ourDelegate
 }
 
 /// Delegate protocol for HTTP parsing stages
