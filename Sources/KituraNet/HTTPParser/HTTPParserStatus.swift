@@ -20,7 +20,6 @@ import Foundation
 enum HTTPParserState {
     
     case initial
-    case headersComplete
     case messageComplete
     case reset
 }

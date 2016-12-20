@@ -46,10 +46,18 @@ public class ClientResponse: HTTPIncomingMessage {
     /// BufferList instance for storing the response 
     var responseBuffers = BufferList()
     
+    /// Location in buffer to start parsing
+    private var startParsingFrom = 0
+    
     /// Parse the contents of the responseBuffers
     func parse() -> HTTPParserStatus {
         let buffer = NSMutableData()
+        responseBuffers.rewind()
         _ = responseBuffers.fill(data: buffer)
-        return super.parse(buffer)
+        let parseStatus = super.parse(buffer, from: startParsingFrom)
+        
+        startParsingFrom = buffer.length - parseStatus.bytesLeft
+        
+        return parseStatus
     }
 }

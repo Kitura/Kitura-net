@@ -22,7 +22,7 @@ import Foundation
 public protocol ServerRequest: class {
     
     /// The set of headers received with the incoming request
-    var headers : HeadersContainer { get set }
+    var headers : HeadersContainer { get }
 
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'

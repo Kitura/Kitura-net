@@ -48,9 +48,6 @@ class MiscellaneousTests: XCTestCase {
     func testHTTPIncomingMessage() {
         let message = HTTPIncomingMessage(isRequest: true)
         
-        XCTAssertEqual(message.parse(NSData()).error, HTTPParserErrorType.unexpectedEOF, "Parse should have errored with error=\(HTTPParserErrorType.unexpectedEOF)")
-        
-        message.release()
-        XCTAssertEqual(message.parse(NSData()).error, HTTPParserErrorType.internalError, "Parse should have errored with error=\(HTTPParserErrorType.internalError)")
+        XCTAssertEqual(message.parse(NSData(), from: 0).error, HTTPParserErrorType.unexpectedEOF, "Parse should have errored with error=\(HTTPParserErrorType.unexpectedEOF)")
     }
 }
