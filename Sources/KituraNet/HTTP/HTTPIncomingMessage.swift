@@ -66,15 +66,12 @@ public class HTTPIncomingMessage {
         return urlc
     }
     
-    // Delete when urlString is removed
-    private var _urlString = ""
-
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
         "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
-    public var urlString : String { return _urlString }
+    public var urlString : String { return httpParser.urlString }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
