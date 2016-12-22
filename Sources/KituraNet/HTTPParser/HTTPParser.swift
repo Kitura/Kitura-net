@@ -21,6 +21,30 @@ import Foundation
 
 class HTTPParser {
 
+    /// HTTP Method of the incoming message.
+    var method: String { return parseResults.method }
+    
+    /// The path specified in an incoming message
+    var url: NSData { return parseResults.url }
+    
+    /// The path specified in an incoming message as a String
+    var urlString: String { return parseResults.urlString }
+    
+    /// Major version of HTTP of the request
+    var httpVersionMajor: UInt16 { return parseResults.httpVersionMajor }
+    
+    /// Minor version of HTTP of the request
+    var httpVersionMinor: UInt16 { return parseResults.httpVersionMinor }
+    
+    /// Set of HTTP headers of the incoming message.
+    var headers: HeadersContainer { return parseResults.headers }
+    
+    /// Chunk of body read in by the http_parser
+    var bodyChunk: BufferList { return parseResults.bodyChunk }
+    
+    /// Parsing of message completed
+    var completed: Bool { return parseResults.completed }
+    
     /// A Handle to the HTTPParser C-library
     var parser: http_parser
 
@@ -29,20 +53,9 @@ class HTTPParser {
 
     /// Parsing a request? (or a response)
     var isRequest = true
-
-    /// Delegate used for the parsing
-    var delegate: HTTPParserDelegate? {
-
-        didSet {
-            if let _ = delegate {
-                withUnsafeMutablePointer(to: &delegate) {
-                    ptr in
-                    self.parser.data = UnsafeMutableRawPointer(ptr)
-                }
-            }
-        }
-        
-    }
+    
+    /// Results of the parsing of an HTTP incoming message
+    private var parseResults = ParseResults()
     
     /// Whether to upgrade the HTTP connection to HTTP 1.1
     var upgrade = 1
@@ -59,30 +72,30 @@ class HTTPParser {
         parser = http_parser()
         settings = http_parser_settings()
         
+        parser.data = UnsafeMutableRawPointer(&parseResults)
+        
         settings.on_url = { (parser, chunk, length) -> Int32 in
             let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getDelegate(parser)?.onURL(ptr, count: length)
+            getResults(parser)?.onURL(ptr, count: length)
             return 0
         }
         
         settings.on_header_field = { (parser, chunk, length) -> Int32 in
             let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getDelegate(parser)?.onHeaderField(ptr, count: length)
+            getResults(parser)?.onHeaderField(ptr, count: length)
             return 0
         }
         
         settings.on_header_value = { (parser, chunk, length) -> Int32 in
             let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getDelegate(parser)?.onHeaderValue(ptr, count: length)
+            getResults(parser)?.onHeaderValue(ptr, count: length)
             return 0
         }
         
         settings.on_body = { (parser, chunk, length) -> Int32 in
-            let delegate = getDelegate(parser)
-            if delegate?.saveBody == true {
-                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-                delegate?.onBody(ptr, count: length)
-            }
+            let delegate = getResults(parser)
+            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+            delegate?.onBody(ptr, count: length)
             return 0
         }
         
@@ -96,27 +109,17 @@ class HTTPParser {
                 message += String(UnicodeScalar(UInt8((po!+i).pointee)))
                 i += 1
             }
-            getDelegate(parser)?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
+
+            let results = getResults(parser)
+            
+            results?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
                 versionMinor: (parser?.pointee.http_minor)!)
             
-            return 0
-        }
-        
-        settings.on_message_begin = { (parser) -> Int32 in
-            getDelegate(parser)?.onMessageBegin()
-            
-            return 0
+            return results?.headers["Content-Length"] != nil ? 0 : 1 
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
-            let delegate = getDelegate(parser)
-            if get_status_code(parser) == 100 {
-                delegate?.prepareToReset()
-            }
-            else {
-                delegate?.onMessageComplete()
-            }
-            
+            getResults(parser)?.onMessageComplete()
             return 0
         }
         
@@ -138,6 +141,7 @@ class HTTPParser {
     /// Reset the http_parser context structure.
     func reset() {
         http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
+        parseResults.reset()
     }
 
     /// Did the request include a Connection: keep-alive header?
@@ -151,20 +155,8 @@ class HTTPParser {
     }
 }
 
-fileprivate func getDelegate(_ parser: UnsafeMutableRawPointer?) -> HTTPParserDelegate? {
-    let p = parser?.assumingMemoryBound(to: http_parser.self)
-    return p?.pointee.data.assumingMemoryBound(to: HTTPParserDelegate.self).pointee
-}
-
-/// Delegate protocol for HTTP parsing stages
-protocol HTTPParserDelegate: class {
-    var saveBody : Bool { get }
-    func onURL(_ url: UnsafePointer<UInt8>, count: Int)
-    func onHeaderField(_ bytes: UnsafePointer<UInt8>, count: Int)
-    func onHeaderValue(_ bytes: UnsafePointer<UInt8>, count: Int)
-    func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16)
-    func onMessageBegin()
-    func onMessageComplete()
-    func onBody(_ bytes: UnsafePointer<UInt8>, count: Int)
-    func prepareToReset()    
+fileprivate func getResults(_ parser: UnsafeMutableRawPointer?) -> ParseResults? {
+    let httpParser = parser?.assumingMemoryBound(to: http_parser.self)
+    let httpParserData = httpParser?.pointee.data
+    return httpParserData?.assumingMemoryBound(to: ParseResults.self).pointee
 }

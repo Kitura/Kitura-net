@@ -23,28 +23,28 @@ import Foundation
 // MARK: IncomingMessage
 
 /// A representation of HTTP incoming message.
-public class HTTPIncomingMessage : HTTPParserDelegate {
+public class HTTPIncomingMessage {
 
-    /// Major version for HTTP of the incoming message.
-    public private(set) var httpVersionMajor: UInt16?
-
-    /// Minor version for HTTP of the incoming message.
-    public private(set) var httpVersionMinor: UInt16?
-    
     /// HTTP Status code if this message is a response
     public private(set) var httpStatusCode: HTTPStatusCode = .unknown
-
-    /// Set of HTTP headers of the incoming message.
-    public var headers = HeadersContainer()
-
-    /// HTTP Method of the incoming message.
-    public private(set) var method: String = "" 
 
     /// is a request? (or a response)
     public let isRequest: Bool
 
     /// Client connection socket
     private let socket: Socket?
+    
+    /// HTTP Method of the incoming message.
+    public var method: String { return httpParser.method }
+    
+    /// Major version of HTTP of the request
+    public var httpVersionMajor: UInt16? { return httpParser.httpVersionMajor }
+    
+    /// Minor version of HTTP of the request
+    public var httpVersionMinor: UInt16? { return httpParser.httpVersionMinor }
+    
+    /// Set of HTTP headers of the incoming message.
+    public var headers: HeadersContainer { return httpParser.headers }
 
     /// socket signature of the request.
     public var signature: Socket.Signature? { return socket?.signature }
@@ -65,54 +65,33 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         self.urlc = urlc
         return urlc
     }
-
+    
     /// The URL from the request in string form
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
         "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
-    public var urlString : String { return String(data: pathAndQueryParams, encoding: .utf8) ?? "" }
+    public var urlString : String { return httpParser.urlString }
 
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
         "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
-    public var url : Data { return pathAndQueryParams }
-
-    /// Parsed path and optional query parameters of the request.
-    private var pathAndQueryParams = Data()
-
-    /// Indicates if the parser should save the message body and call onBody()
-    var saveBody = true
+    public var url : Data { return Data(bytes: httpParser.url.bytes, count: httpParser.url.length) }
 
     // Private
     
     /// Default buffer size used for creating a BufferList
     private static let bufferSize = 2000
 
-    /// State of callbacks from parser WRT headers
-    private var lastHeaderWasAValue = false
-
-    /// Bytes of a header key that was just parsed and returned in chunks by the pars
-    private let lastHeaderField = NSMutableData()
-
-    /// Bytes of a header value that was just parsed and returned in chunks by the parser
-    private let lastHeaderValue = NSMutableData()
-
     /// The http_parser Swift wrapper
-    private var httpParser: HTTPParser?
+    private var httpParser: HTTPParser!
 
     /// State of incoming message handling
     private var status = HTTPParserStatus()
 
-    /// Chunk of body read in by the http_parser, filled by callbacks to onBody
-    private var bodyChunk = BufferList()
-
-    private var ioBuffer = Data(capacity: HTTPIncomingMessage.bufferSize)
-    
     private var buffer = Data(capacity: HTTPIncomingMessage.bufferSize)
-    
     
     /// Initializes a new IncomingMessage
     ///
@@ -123,24 +102,17 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         self.isRequest = isRequest
         self.socket = socket
         httpParser = HTTPParser(isRequest: isRequest)
-
-        httpParser!.delegate = self
     }
 
     /// Parse the message
     ///
     /// - Parameter buffer: An NSData object contaning the data to be parsed
-    func parse (_ buffer: NSData) -> HTTPParserStatus {
-        guard let parser = httpParser else {
-            status.error = .internalError
-            return status
-        }
-        
-        var length = buffer.length
+    /// - Parameter from: From where in the buffer to start parsing
+    func parse (_ buffer: NSData, from: Int) -> HTTPParserStatus {
+        let length = buffer.length - from
         
         guard length > 0  else {
             /* Handle unexpected EOF. Usually just close the connection. */
-            release()
             status.error = .unexpectedEOF
             return status
         }
@@ -150,29 +122,22 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             reset()
         }
         
-        var start = 0
-        while status.state != .messageComplete  &&  status.error == nil  &&  length > 0  {
-            let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + start
-            let (numberParsed, upgrade) = parser.execute(bytes, length: length)
-            if upgrade == 1 {
-                status.upgrade = true
-            }
-            else if  numberParsed != length  {
-                
-                if  self.status.state == .reset  {
-                    // Apparently the short message was a Continue. Let's just keep on parsing
-                    start = numberParsed
-                    self.reset()
-                }
-                else {
-                    /* Handle error. Usually just close the connection. */
-                    self.release()
-                    self.status.error = .parsedLessThanRead
-                }
-            }
-            length -= numberParsed
+        let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
+        let (numberParsed, upgrade) = httpParser.execute(bytes, length: length)
+        
+        if httpParser.completed {
+            parsingCompleted()
         }
-        status.bytesLeft = length
+        else if numberParsed != length  {
+            /* Handle error. Usually just close the connection. */
+            status.error = .parsedLessThanRead
+        }
+        
+        if upgrade == 1 {
+            status.upgrade = true
+        }
+        
+        status.bytesLeft = length - numberParsed
         
         return status
     }
@@ -183,7 +148,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
     /// - Throws: if an error occurs while reading the body.
     /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
-        let count = bodyChunk.fill(data: &data)
+        let count = httpParser.bodyChunk.fill(data: &data)
         return count
     }
 
@@ -218,84 +183,9 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
         }
     }
 
-    /// Free the httpParser from the IncomingMessage
-    private func freeHTTPParser () {
-        httpParser?.delegate = nil
-        httpParser = nil
-    }
-
-    /// Instructions for when reading URL portion
-    ///
-    /// - Parameter bytes: The bytes of the parsed URL
-    /// - Parameter count: The number of bytes parsed
-    func onURL(_ bytes: UnsafePointer<UInt8>, count: Int) {
-        pathAndQueryParams.append(bytes, count: count)
-    }
-
-    /// Instructions for when reading header key
-    ///
-    /// - Parameter bytes: The bytes of the parsed header key
-    /// - Parameter count: The number of bytes parsed
-    func onHeaderField (_ bytes: UnsafePointer<UInt8>, count: Int) {
+    /// Extra handling performed when a message is completely parsed
+    func parsingCompleted() {
         
-        if lastHeaderWasAValue {
-            addHeader()
-        }
-        lastHeaderField.append(bytes, length: count)
-
-        lastHeaderWasAValue = false
-        
-    }
-
-    /// Instructions for when reading a header value
-    ///
-    /// - Parameter bytes: The bytes of the parsed header value
-    /// - Parameter count: The number of bytes parsed
-    func onHeaderValue (_ bytes: UnsafePointer<UInt8>, count: Int) {
-        lastHeaderValue.append(bytes, length: count)
-
-        lastHeaderWasAValue = true
-    }
-
-    /// Set the header key-value pair
-    private func addHeader() {
-
-        var zero: CChar = 0
-        lastHeaderField.append(&zero, length: 1)
-        let headerKey = String(cString: lastHeaderField.bytes.assumingMemoryBound(to: CChar.self))
-        lastHeaderValue.append(&zero, length: 1)
-        let headerValue = String(cString: lastHeaderValue.bytes.assumingMemoryBound(to: CChar.self))
-        
-        headers.append(headerKey, value: headerValue)
-
-        lastHeaderField.length = 0
-        lastHeaderValue.length = 0
-
-    }
-
-    /// Instructions for when reading the body of the message
-    ///
-    /// - Parameter bytes: The bytes of the parsed body
-    /// - Parameter count: The number of bytes parsed
-    func onBody (_ bytes: UnsafePointer<UInt8>, count: Int) {
-        self.bodyChunk.append(bytes: bytes, length: count)
-
-    }
-
-    /// Instructions for when the headers have been finished being parsed.
-    ///
-    /// - Parameter method: the HTTP method
-    /// - Parameter versionMajor: major version of HTTP
-    /// - Parameter versionMinor: minor version of HTTP
-    func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16) {
-        
-        httpVersionMajor = versionMajor
-        httpVersionMinor = versionMinor
-        self.method = method
-        if  lastHeaderWasAValue  {
-            addHeader()
-        }
-
         if isRequest {
             var url = ""
             var proto: String?
@@ -314,12 +204,7 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
                 Log.error("Host header not received")
             }
 
-            if let pathAndQueryParams = String(data: self.pathAndQueryParams, encoding: .utf8) {
-                url.append(pathAndQueryParams)
-            } else {
-                url.append("/")
-                Log.error("Invalid utf8 encoded path received in onURL: \(self.pathAndQueryParams)")
-            }
+            url.append(httpParser.urlString)
 
             if let urlURL = URL(string: url) {
                 self.urlURL = urlURL
@@ -329,36 +214,19 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
             }
             self.urlc = nil // reset it so it is recomputed on next access
 
-            if let forwardedFor = headers["X-Forwarded-For"]?[0] {
-                Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket?.remoteHostname ?? "N.A.");")
-            } else {
-                Log.verbose("HTTP request from=\(socket?.remoteHostname ?? "N.A."); proto=\(proto ?? "N.A.");")
+            if Log.isLogging(.verbose) {
+                if let forwardedFor = headers["X-Forwarded-For"]?[0] {
+                    Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket?.remoteHostname ?? "N.A.");")
+                } else {
+                    Log.verbose("HTTP request from=\(socket?.remoteHostname ?? "N.A."); proto=\(proto ?? "N.A.");")
+                }
             }
         }
 
-        status.keepAlive = httpParser?.isKeepAlive() ?? false
-        status.state = .headersComplete
-        
-        httpStatusCode = httpParser?.statusCode ?? .unknown
-    }
-
-    /// Instructions for when beginning to read a message
-    func onMessageBegin() {
-    }
-
-    /// Instructions for when done reading the message
-    func onMessageComplete() {
-        
-        status.keepAlive = httpParser?.isKeepAlive() ?? false
+        status.keepAlive = httpParser.isKeepAlive() 
         status.state = .messageComplete
-        if  !status.keepAlive  {
-            release()
-        }
-    }
-    
-    /// Signal that the connection is being closed, and resources should be freed
-    func release() {
-        freeHTTPParser()
+        
+        httpStatusCode = httpParser.statusCode
     }
 
     /// Signal that reading is being reset
@@ -368,11 +236,6 @@ public class HTTPIncomingMessage : HTTPParserDelegate {
 
     /// When we're ready, really reset everything
     private func reset() {
-        lastHeaderWasAValue = false
-        saveBody = true
-        pathAndQueryParams.count = 0
-        headers.removeAll()
-        bodyChunk.reset()
         status.reset()
         httpParser?.reset()
     }

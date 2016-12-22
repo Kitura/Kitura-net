@@ -327,7 +327,6 @@ public class ClientRequest {
         var code = invoker.invoke()
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error, Failed to invoke HTTP request. CURL Return code=\(code)")
-            response!.release()
             callback(nil)
             return
         }
@@ -335,25 +334,28 @@ public class ClientRequest {
         code = curlHelperGetInfoLong(handle!, CURLINFO_RESPONSE_CODE, &response!.status)
         guard code == CURLE_OK else {
             Log.error("ClientRequest Error. Failed to get response code. CURL Return code=\(code)")
-            response!.release()
             callback(nil)
             return
         }
         
-        let parseStatus = response!.parse()
-        guard parseStatus.error == nil else {
-            Log.error("ClientRequest error. Failed to parse response. Error=\(parseStatus.error!)")
-            response!.release()
-            callback(nil)
-            return
-        }
+        var httpStatusCode = response!.httpStatusCode
         
-        guard parseStatus.state == .headersComplete || parseStatus.state == .messageComplete else {
-            Log.error("ClientRequest error. Failed to parse response. Status=\(parseStatus.state)")
-            response!.release()
-            callback(nil)
-            return
-        }
+        repeat {
+            let parseStatus = response!.parse()
+            guard parseStatus.error == nil else {
+                Log.error("ClientRequest error. Failed to parse response. Error=\(parseStatus.error!)")
+                callback(nil)
+                return
+            }
+        
+            guard parseStatus.state == .messageComplete else {
+                Log.error("ClientRequest error. Failed to parse response. Status=\(parseStatus.state)")
+                callback(nil)
+                return
+            }
+            
+            httpStatusCode = response!.httpStatusCode
+        } while httpStatusCode == .continue
         
         self.callback(self.response)
     }
