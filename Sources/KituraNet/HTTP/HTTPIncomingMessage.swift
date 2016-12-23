@@ -49,7 +49,41 @@ public class HTTPIncomingMessage {
     /// socket signature of the request.
     public var signature: Socket.Signature? { return socket?.signature }
 
-    public private(set) var urlURL = URL(string: "http://not_available/")!
+    private var _url: URL?
+    
+    public var urlURL: URL {
+        if let _url = _url {
+            return _url
+        }
+        
+        var url = ""
+        var proto: String?
+        if let isSecure = signature?.isSecure {
+            proto = (isSecure ? "https" : "http")
+            url.append(proto! + "://")
+        } else {
+            url.append("http://")
+            Log.error("Socket signature not initialized, using http")
+        }
+        
+        if let host = headers["Host"]?[0] {
+            url.append(host)
+        } else {
+            url.append("Host_Not_Available")
+            Log.error("Host header not received")
+        }
+        
+        url.append(httpParser.urlString)
+        
+        if let urlURL = URL(string: url) {
+            self._url = urlURL
+        } else {
+            Log.error("URL init failed from: \(url)")
+            self._url = URL(string: "http://not_available/")!
+        }
+        
+        return self._url!
+    }
 
     private var urlc: URLComponents?
 
@@ -187,34 +221,18 @@ public class HTTPIncomingMessage {
     func parsingCompleted() {
         
         if isRequest {
-            var url = ""
-            var proto: String?
-            if let isSecure = signature?.isSecure {
-                proto = (isSecure ? "https" : "http")
-                url.append(proto! + "://")
-            } else {
-                url.append("http://")
-                Log.error("Socket signature not initialized, using http")
-            }
 
-            if let host = headers["Host"]?[0] {
-                url.append(host)
-            } else {
-                url.append("Host_Not_Available")
-                Log.error("Host header not received")
-            }
-
-            url.append(httpParser.urlString)
-
-            if let urlURL = URL(string: url) {
-                self.urlURL = urlURL
-            } else {
-                Log.error("URL init failed from: \(url)")
-                self.urlURL = URL(string: "http://not_available/")!
-            }
-            self.urlc = nil // reset it so it is recomputed on next access
+            _url = nil // reset it so it is recomputed on next access
+            urlc = nil // reset it so it is recomputed on next access
 
             if Log.isLogging(.verbose) {
+                var proto: String?
+                if let isSecure = signature?.isSecure {
+                    proto = (isSecure ? "https" : "http")
+                } else {
+                    Log.error("Socket signature not initialized, using http")
+                }
+                
                 if let forwardedFor = headers["X-Forwarded-For"]?[0] {
                     Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket?.remoteHostname ?? "N.A.");")
                 } else {
