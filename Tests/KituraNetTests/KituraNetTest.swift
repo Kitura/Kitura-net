@@ -36,23 +36,23 @@ extension KituraNetTest {
     func doTearDown() {
         //       sleep(10)
     }
-
+    
     func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         let server = HTTP.createServer()
         server.delegate = delegate
-
+        
         var expectations: [XCTestExpectation] = []
-
+        
         for index in 0..<asyncTasks.count {
             expectations.append(expectation(line: line, index: index))
         }
-
+        
         // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
         let exps = expectations
-
+        
         server.started {
             let requestQueue = DispatchQueue(label: "Request queue")
-
+            
             for (index, asyncTask) in asyncTasks.enumerated() {
                 let expectation = exps[index]
                 requestQueue.async {
@@ -60,10 +60,48 @@ extension KituraNetTest {
                 }
             }
         }
-
+        
         do {
             try server.listen(on: 8090)
-
+            
+            waitExpectation(timeout: 10) { error in
+                // blocks test until request completes
+                server.stop()
+                XCTAssertNil(error);
+            }
+        } catch let error {
+            XCTFail("Error: \(error)")
+            server.stop()
+        }
+    }
+    
+    func performFastCGIServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+        let server = FastCGI.createServer()
+        server.delegate = delegate
+        
+        var expectations: [XCTestExpectation] = []
+        
+        for index in 0..<asyncTasks.count {
+            expectations.append(expectation(line: line, index: index))
+        }
+        
+        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+        let exps = expectations
+        
+        server.started {
+            let requestQueue = DispatchQueue(label: "Request queue")
+            
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
+                }
+            }
+        }
+        
+        do {
+            try server.listen(on: 9000)
+            
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
                 server.stop()
