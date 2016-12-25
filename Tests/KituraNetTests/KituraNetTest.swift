@@ -126,7 +126,7 @@ extension KituraNetTest {
         if let requestModifier = requestModifier {
             requestModifier(req)
         }
-        req.end()
+        req.end(close: true)
     }
 }
 
