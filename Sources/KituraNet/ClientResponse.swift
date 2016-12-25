@@ -54,7 +54,7 @@ public class ClientResponse: HTTPIncomingMessage {
         let buffer = NSMutableData()
         responseBuffers.rewind()
         _ = responseBuffers.fill(data: buffer)
-        let parseStatus = super.parse(buffer, from: startParsingFrom)
+        let parseStatus = super.parse(buffer, from: startParsingFrom, completeBuffer: true)
         
         startParsingFrom = buffer.length - parseStatus.bytesLeft
         

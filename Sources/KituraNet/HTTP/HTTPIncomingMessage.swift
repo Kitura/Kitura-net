@@ -142,7 +142,10 @@ public class HTTPIncomingMessage {
     ///
     /// - Parameter buffer: An NSData object contaning the data to be parsed
     /// - Parameter from: From where in the buffer to start parsing
-    func parse (_ buffer: NSData, from: Int) -> HTTPParserStatus {
+    /// - Parameter completeBuffer: An indication that the complete buffer is being passed in.
+    ///                            If true and the entire buffer is parsed, and EOF indication
+    ///                            will be passed to the http_parser.
+    func parse (_ buffer: NSData, from: Int, completeBuffer: Bool=false) -> HTTPParserStatus {
         let length = buffer.length - from
         
         guard length > 0  else {
@@ -158,6 +161,11 @@ public class HTTPIncomingMessage {
         
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
         let (numberParsed, upgrade) = httpParser.execute(bytes, length: length)
+        
+        if completeBuffer && numberParsed == length {
+            // Tell parser we reached the end
+            _ = httpParser.execute(bytes, length: 0)
+        }
         
         if httpParser.completed {
             parsingCompleted()

@@ -100,22 +100,13 @@ class HTTPParser {
         }
         
         settings.on_headers_complete = { (parser) -> Int32 in
-            // TODO: Clean and refactor
-            //let method = String( get_method(parser))
-            let po =  get_method(parser)
-            var message = ""
-            var i = 0
-            while((po!+i).pointee != Int8(0)) {
-                message += String(UnicodeScalar(UInt8((po!+i).pointee)))
-                i += 1
-            }
+            let method = String(cString: get_method(parser))
 
             let results = getResults(parser)
             
-            results?.onHeadersComplete(method: message, versionMajor: (parser?.pointee.http_major)!,
+            results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
                 versionMinor: (parser?.pointee.http_minor)!)
-            
-            return results?.headers["Content-Length"] != nil ? 0 : 1 
+            return 0
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
