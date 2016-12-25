@@ -26,7 +26,9 @@ class ClientE2ETests: XCTestCase {
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
             ("testErrorRequests", testErrorRequests),
-            ("testPostRequests", testPostRequests),
+            ("testHeadRequests", testHeadRequests),
+            ("testPostRequests", testPutRequests),
+            ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testUrlURL", testUrlURL)
         ]
@@ -43,6 +45,23 @@ class ClientE2ETests: XCTestCase {
     static let urlPath = "/urltest"
     
     let delegate = TestServerDelegate()
+    
+    func testHeadRequests() {
+        performServerTest(delegate) { expectation in
+            self.performRequest("head", path: "/headtest", callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                do {
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
+                    XCTAssertEqual(count, 0, "Result should have been zero bytes, was \(count) bytes")
+                }
+                catch {
+                    XCTFail("Failed reading the body of the response")
+                }
+                expectation.fulfill()
+            })
+        }
+    }
     
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
@@ -96,6 +115,54 @@ class ClientE2ETests: XCTestCase {
                 }
                 expectation.fulfill()
             }) {request in
+                request.set(.disableSSLVerification)
+                request.write(from: "A few characters")
+            }
+        })
+    }
+    
+    func testPutRequests() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("put", path: "/puttest", callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                do {
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
+                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
+                    let putValue = String(data: data as Data, encoding: .utf8)
+                    if  let putValue = putValue {
+                        XCTAssertEqual(putValue, "Read 0 bytes")
+                    }
+                    else {
+                        XCTFail("putValue's value wasn't an UTF8 string")
+                    }
+                }
+                catch {
+                    XCTFail("Failed reading the body of the response")
+                }
+                expectation.fulfill()
+            })
+        },
+        { expectation in
+            self.performRequest("put", path: "/puttest", callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                do {
+                    var data = Data()
+                    let count = try response!.readAllData(into: &data)
+                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(count) bytes")
+                    let postValue = String(data: data as Data, encoding: .utf8)
+                    if  let postValue = postValue {
+                        XCTAssertEqual(postValue, "Read 16 bytes")
+                    }
+                    else {
+                        XCTFail("postValue's value wasn't an UTF8 string")
+                    }
+                }
+                catch {
+                    XCTFail("Failed reading the body of the response")
+                }
+                expectation.fulfill()
+            }) {request in
                 request.write(from: "A few characters")
             }
         })
@@ -119,25 +186,40 @@ class ClientE2ETests: XCTestCase {
         }
     }
     
-    class TestServerDelegate : ServerDelegate {
+    class TestServerDelegate: ServerDelegate {
     
         func handle(request: ServerRequest, response: ServerResponse) {
-            var body = Data()
-            do {
-                let length = try request.readAllData(into: &body)
-                let result = "Read \(length) bytes"
-                response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = ["\(result.characters.count)"]
+            let result: String
+            if request.method.lowercased() == "head" {
+                result = "This a really simple head request result"
+            }
+            else {
+                var body = Data()
+                do {
+                    let length = try request.readAllData(into: &body)
+                    result = "Read \(length) bytes"
+                }
+                catch {
+                    print("Error reading body")
+                    result = "Read -1 bytes"
+                }
+            }
             
+            do {
+                response.headers["Content-Type"] = ["text/plain"]
+                if request.method.lowercased() != "head" {
+                    response.headers["Content-Length"] = ["\(result.characters.count)"]
+                }
+                
                 try response.end(text: result)
             }
             catch {
-                print("Error reading body or writing response")
+                print("Error writing response")
             }
         }
     }
     
-    class TestURLDelegate : ServerDelegate {
+    class TestURLDelegate: ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
