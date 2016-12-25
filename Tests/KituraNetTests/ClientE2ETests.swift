@@ -25,9 +25,10 @@ class ClientE2ETests: XCTestCase {
 
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
-            ("testSimpleHTTPClient", testSimpleHTTPClient),
+            ("testErrorRequests", testErrorRequests),
             ("testPostRequests", testPostRequests),
-            ("testErrorRequests", testErrorRequests)
+            ("testSimpleHTTPClient", testSimpleHTTPClient),
+            ("testUrlURL", testUrlURL)
         ]
     }
 
@@ -38,6 +39,8 @@ class ClientE2ETests: XCTestCase {
     override func tearDown() {
         doTearDown()
     }
+    
+    static let urlPath = "/urltest"
     
     let delegate = TestServerDelegate()
     
@@ -107,6 +110,14 @@ class ClientE2ETests: XCTestCase {
         })
     }
     
+    func testUrlURL() {
+        performServerTest(TestURLDelegate()) { expectation in
+            self.performRequest("post", path: ClientE2ETests.urlPath, callback: {response in
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                expectation.fulfill()
+            })
+        }
+    }
     
     class TestServerDelegate : ServerDelegate {
     
@@ -118,6 +129,25 @@ class ClientE2ETests: XCTestCase {
                 response.headers["Content-Type"] = ["text/plain"]
                 response.headers["Content-Length"] = ["\(result.characters.count)"]
             
+                try response.end(text: result)
+            }
+            catch {
+                print("Error reading body or writing response")
+            }
+        }
+    }
+    
+    class TestURLDelegate : ServerDelegate {
+        
+        func handle(request: ServerRequest, response: ServerResponse) {
+            XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
+            XCTAssertEqual(request.urlURL.port, 8090, "The port in request.urlURL wasn't 8090, it was \(request.urlURL.port)")
+            do {
+                response.statusCode = .OK
+                let result = "OK"
+                response.headers["Content-Type"] = ["text/plain"]
+                response.headers["Content-Length"] = ["\(result.characters.count)"]
+                
                 try response.end(text: result)
             }
             catch {
