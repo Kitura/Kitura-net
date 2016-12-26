@@ -38,9 +38,6 @@ extension KituraNetTest {
     }
     
     func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        let server = HTTP.createServer()
-        server.delegate = delegate
-        
         var expectations: [XCTestExpectation] = []
         
         for index in 0..<asyncTasks.count {
@@ -50,35 +47,32 @@ extension KituraNetTest {
         // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
         let exps = expectations
         
-        server.started {
-            let requestQueue = DispatchQueue(label: "Request queue")
-            
-            for (index, asyncTask) in asyncTasks.enumerated() {
-                let expectation = exps[index]
-                requestQueue.async {
-                    asyncTask(expectation)
-                }
+        let requestQueue = DispatchQueue(label: "Request queue")
+        
+        var server: HTTPServer?
+        
+        for (index, asyncTask) in asyncTasks.enumerated() {
+            let expectation = exps[index]
+            requestQueue.async {
+                asyncTask(expectation)
             }
         }
         
         do {
-            try server.listen(on: 8090)
+            server = try HTTPServer.listen(on: 8090, delegate: delegate)
             
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
-                server.stop()
+                server?.stop()
                 XCTAssertNil(error);
             }
         } catch let error {
             XCTFail("Error: \(error)")
-            server.stop()
+            server?.stop()
         }
     }
     
     func performFastCGIServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        let server = FastCGI.createServer()
-        server.delegate = delegate
-        
         var expectations: [XCTestExpectation] = []
         
         for index in 0..<asyncTasks.count {
@@ -88,28 +82,28 @@ extension KituraNetTest {
         // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
         let exps = expectations
         
-        server.started {
-            let requestQueue = DispatchQueue(label: "Request queue")
-            
+        let requestQueue = DispatchQueue(label: "Request queue")
+        
+        var server: FastCGIServer?
+        do {
+            server = try FastCGIServer.listen(on: 9000, delegate: delegate)
+
             for (index, asyncTask) in asyncTasks.enumerated() {
                 let expectation = exps[index]
                 requestQueue.async {
                     asyncTask(expectation)
                 }
             }
-        }
-        
-        do {
-            try server.listen(on: 9000)
             
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
-                server.stop()
+                server?.stop()
                 XCTAssertNil(error);
             }
-        } catch let error {
-            XCTFail("Error: \(error)")
-            server.stop()
+        }
+        catch {
+            XCTFail("Failed to create a FastCGI server. Error=\(error)")
+            server?.stop()
         }
     }
 
