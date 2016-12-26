@@ -84,7 +84,7 @@ public class FastCGIServer: Server {
     /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
     ///
     /// - Returns: a new `FastCGIServer` instance
-    public static func listen(on port: Int, delegate: ServerDelegate) throws -> FastCGIServer {
+    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> FastCGIServer {
         let server = FastCGI.createServer()
         server.delegate = delegate
         try server.listen(on: port)
@@ -162,10 +162,6 @@ public class FastCGIServer: Server {
     /// - Parameter clientSocket: the socket used for connecting
     private func handleClientRequest(socket clientSocket: Socket) {
 
-        guard let delegate = delegate else {
-            return
-        }
-
         DispatchQueue.global().async() {
             let request = FastCGIServerRequest(socket: clientSocket)
             let response = FastCGIServerResponse(socket: clientSocket, request: request)
@@ -175,7 +171,7 @@ public class FastCGIServer: Server {
                 case .success:
                     self.sendMultiplexRequestRejections(request: request, response: response)
                     Monitor.delegate?.started(request: request, response: response)
-                    delegate.handle(request: request, response: response)
+                    (self.delegate ?? FastCGIDummyServerDelegate()).handle(request: request, response: response)
                     break
                 case .unsupportedRole:
                     // response.unsupportedRole() - not thrown
@@ -254,5 +250,28 @@ public class FastCGIServer: Server {
     public func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addClientConnectionFailCallback(callback)
         return self
+    }
+    
+    /// A Dummy `ServerDelegate` used when the user didn't supply a delegate, but has registerd
+    /// at least one ConnectionUpgradeFactory. This `ServerDelegate` will simply return 404 for
+    /// any requests it is asked to process.
+    private class FastCGIDummyServerDelegate: ServerDelegate {
+        /// Handle new incoming requests to the server
+        ///
+        /// - Parameter request: The ServerRequest class instance for working with this request.
+        ///                     The ServerRequest object enables you to get the query parameters, headers, and body amongst other
+        ///                     information about the incoming request.
+        /// - Parameter response: The ServerResponse class instance for working with this request.
+        ///                     The ServerResponse object enables you to build and send your response to the client who sent
+        ///                     the request. This includes headers, the body, and the response code.
+        func handle(request: ServerRequest, response: ServerResponse){
+            do {
+                response.statusCode = .notFound
+                try response.end()
+            }
+            catch {
+                Log.error("Failed to send the response. Error = \(error)")
+            }
+        }
     }
 }

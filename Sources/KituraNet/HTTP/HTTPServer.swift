@@ -108,7 +108,7 @@ public class HTTPServer: Server {
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new `HTTPServer` instance
-    public static func listen(on port: Int, delegate: ServerDelegate) throws -> HTTPServer {
+    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
         try server.listen(on: port)
