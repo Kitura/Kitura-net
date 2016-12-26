@@ -51,15 +51,15 @@ extension KituraNetTest {
         
         var server: HTTPServer?
         
-        for (index, asyncTask) in asyncTasks.enumerated() {
-            let expectation = exps[index]
-            requestQueue.async {
-                asyncTask(expectation)
-            }
-        }
-        
         do {
             server = try HTTPServer.listen(on: 8090, delegate: delegate)
+            
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
+                }
+            }
             
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
