@@ -189,11 +189,24 @@ class ClientE2ETests: XCTestCase {
     class TestServerDelegate: ServerDelegate {
     
         func handle(request: ServerRequest, response: ServerResponse) {
+            XCTAssertEqual(request.remoteAddress, "127.0.0.1", "Remote address wasn't 127.0.0.1, it was \(request.remoteAddress)")
+            
             let result: String
-            if request.method.lowercased() == "head" {
+            switch request.method.lowercased() {
+            case "head":
                 result = "This a really simple head request result"
-            }
-            else {
+            
+            case "put":
+                do {
+                    var body = try request.readString()
+                    result = "Read \(body?.characters.count ?? 0) bytes"
+                }
+                catch {
+                    print("Error reading body")
+                    result = "Read -1 bytes"
+                }
+                
+            default:
                 var body = Data()
                 do {
                     let length = try request.readAllData(into: &body)
@@ -228,9 +241,11 @@ class ClientE2ETests: XCTestCase {
                 response.statusCode = .OK
                 let result = "OK"
                 response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = ["\(result.characters.count)"]
+                let resultData = result.data(using: .utf8)!
+                response.headers["Content-Length"] = ["\(resultData.count)"]
                 
-                try response.end(text: result)
+                try response.write(from: resultData)
+                try response.end()
             }
             catch {
                 print("Error reading body or writing response")
