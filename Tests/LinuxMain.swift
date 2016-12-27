@@ -22,6 +22,7 @@ XCTMain([
        testCase(ClientE2ETests.allTests),
        testCase(ClientRequestTests.allTests),
        testCase(FastCGIProtocolTests.allTests),
+       testCase(FastCGIRequestTests.allTests),
        testCase(HTTPResponseTests.allTests),
        testCase(LargePayloadTests.allTests),
        testCase(LifecycleListenerTests.allTests),

@@ -107,7 +107,9 @@ class UpgradeTests: XCTestCase {
         ConnectionUpgrader.clear()
         ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory())
         
-        performServerTest(nil) { expectation in
+        XCTAssert(ConnectionUpgrader.upgradersExist, "Upgrader factory failed to register")
+        
+        performServerTest(nil, asyncTasks: { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             
@@ -118,7 +120,33 @@ class UpgradeTests: XCTestCase {
             XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
             
             expectation.fulfill()
-        }
+        },
+        { expectation in
+            do {
+                let socket = try Socket.create()
+                try socket.connect(to: "localhost", port: 8090)
+                
+                let request = "GET /test/upgrade HTTP/1.1\r\n" +
+                    "Host: localhost:8090\r\n" +
+                    "Connection: Upgrade\r\n" +
+                "\r\n"
+                
+                guard let data = request.data(using: .utf8) else { return }
+                
+                try socket.write(from: data)
+                
+                let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+                
+                guard let response = rawResponse else { return }
+                
+                XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+                
+                expectation.fulfill()
+            }
+            catch let error {
+                XCTFail("Failed to send upgrade request. Error=\(error)")
+            }
+        })
     }
     
     private func sendUpgradeRequest(forProtocol: String) -> Socket? {
@@ -160,7 +188,7 @@ class UpgradeTests: XCTestCase {
                 let count = try socket.read(into: buffer)
 
                 if count != 0 {
-                    let parserStatus = response.parse(buffer, from: 0)
+                    let parserStatus = response.parse(buffer, from: 0, completeBuffer: true)
 
                     if parserStatus.state == .messageComplete {
                         keepProcessing = false

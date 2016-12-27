@@ -36,22 +36,57 @@ extension KituraNetTest {
     func doTearDown() {
         //       sleep(10)
     }
-
+    
     func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        let server = HTTP.createServer()
-        server.delegate = delegate
-
         var expectations: [XCTestExpectation] = []
-
+        
         for index in 0..<asyncTasks.count {
             expectations.append(expectation(line: line, index: index))
         }
-
+        
         // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
         let exps = expectations
-
-        server.started {
-            let requestQueue = DispatchQueue(label: "Request queue")
+        
+        let requestQueue = DispatchQueue(label: "Request queue")
+        
+        var server: HTTPServer?
+        
+        do {
+            server = try HTTPServer.listen(on: 8090, delegate: delegate)
+            
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = exps[index]
+                requestQueue.async {
+                    asyncTask(expectation)
+                }
+            }
+            
+            waitExpectation(timeout: 10) { error in
+                // blocks test until request completes
+                server?.stop()
+                XCTAssertNil(error);
+            }
+        } catch let error {
+            XCTFail("Error: \(error)")
+            server?.stop()
+        }
+    }
+    
+    func performFastCGIServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+        var expectations: [XCTestExpectation] = []
+        
+        for index in 0..<asyncTasks.count {
+            expectations.append(expectation(line: line, index: index))
+        }
+        
+        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
+        let exps = expectations
+        
+        let requestQueue = DispatchQueue(label: "Request queue")
+        
+        var server: FastCGIServer?
+        do {
+            server = try FastCGIServer.listen(on: 9000, delegate: delegate)
 
             for (index, asyncTask) in asyncTasks.enumerated() {
                 let expectation = exps[index]
@@ -59,19 +94,16 @@ extension KituraNetTest {
                     asyncTask(expectation)
                 }
             }
-        }
-
-        do {
-            try server.listen(on: 8090)
-
+            
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
-                server.stop()
+                server?.stop()
                 XCTAssertNil(error);
             }
-        } catch let error {
-            XCTFail("Error: \(error)")
-            server.stop()
+        }
+        catch {
+            XCTFail("Failed to create a FastCGI server. Error=\(error)")
+            server?.stop()
         }
     }
 
@@ -88,7 +120,7 @@ extension KituraNetTest {
         if let requestModifier = requestModifier {
             requestModifier(req)
         }
-        req.end()
+        req.end(close: true)
     }
 }
 

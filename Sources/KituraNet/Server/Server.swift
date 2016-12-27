@@ -40,7 +40,7 @@ public protocol Server {
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new Server instance
-    static func listen(on port: Int, delegate: ServerDelegate) throws -> ServerType
+    static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
 
     /// Listen for connections on a socket.
     ///

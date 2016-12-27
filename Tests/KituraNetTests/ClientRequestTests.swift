@@ -106,9 +106,9 @@ class ClientRequestTests: XCTestCase {
 
   func testClientRequestParse() {
       
-    let options = ClientRequest.parse("https://username:password@66o.tech:8080/path")
+    let options = ClientRequest.parse("https://username:password@66o.tech:8080/path?key=value")
     let testRequest = ClientRequest(options: options, callback: testCallback)
-    XCTAssertEqual(testRequest.url, "https://username:password@66o.tech:8080/path")
+    XCTAssertEqual(testRequest.url, "https://username:password@66o.tech:8080/path?key=value")
   }
 
   func testClientRequestBasicAuthentcation() {

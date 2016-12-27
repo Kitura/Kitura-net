@@ -50,6 +50,10 @@ class LifecycleListenerTests: XCTestCase {
             started = true
             startExpectation.fulfill()
         }
+        
+        server.clientConnectionFailed() { error in
+            XCTFail("A client connection had an error [\(error)]")
+        }
 
         do {
             try server.listen(on: 8090)

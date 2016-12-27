@@ -22,8 +22,9 @@ import XCTest
 class ParserTests: XCTestCase {
     static var allTests : [(String, (ParserTests) -> () throws -> Void)] {
         return [
-            ("testParseSimpleUrl", testParseSimpleUrl),
-            ("testParseComplexUrl", testParseComplexUrl)
+            ("testParseComplexUrl", testParseComplexUrl),
+            ("testParserDescription", testParserDescription),
+            ("testParseSimpleUrl", testParseSimpleUrl)
         ]
     }
     
@@ -46,5 +47,16 @@ class ParserTests: XCTestCase {
         XCTAssertEqual(urlParser.userinfo!, "username:password", "Incorrect userinfo")
         XCTAssertEqual(urlParser.queryParameters["key"], "value", "Incorrect query")
         XCTAssertEqual(urlParser.queryParameters["key1"], "value1", "Incorrect query")
+    }
+    
+    func testParserDescription() {
+        let url = "abc://username:password@example.com:123/path/data?key=value#fragid1".data(using: .utf8)!
+        let urlParser = URLParser(url: url, isConnect: false)
+        
+        let expectedString = "schema: abc host: example.com port: 123 path: /path/data " +
+                                  "query: key=value parsed query: [\"key\": \"value\"] " +
+                                  "fragment: fragid1 userinfo: username:password "
+        
+        XCTAssertEqual(urlParser.description, expectedString, "URLParser.description equaled [\(urlParser.description)]. It should have equaled [\(expectedString)]")
     }
 }
