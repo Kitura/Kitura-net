@@ -237,6 +237,7 @@ class ClientE2ETests: XCTestCase {
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
             XCTAssertEqual(request.urlURL.port, 8090, "The port in request.urlURL wasn't 8090, it was \(request.urlURL.port)")
+            XCTAssertEqual(request.url, urlPath.data(using: .utf8))
             do {
                 response.statusCode = .OK
                 let result = "OK"

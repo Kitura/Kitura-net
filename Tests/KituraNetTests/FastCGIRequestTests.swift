@@ -314,6 +314,7 @@ class FastCGIRequestTests: XCTestCase {
             XCTAssertEqual(request.urlURL.scheme, "HTTP", "Expected a scheme of HTTP, it was \(request.urlURL.scheme)")
             XCTAssertEqual(request.urlURL.port, 8090, "Expected a port of 8090, it was \(request.urlURL.port)")
             XCTAssertEqual(request.urlURL.path, "/hello", "Expected a path of /hello, it was \(request.urlURL.path)")
+            XCTAssertEqual(request.url, "/hello".data(using: .utf8))
             do {
                 response.statusCode = .OK
                 let result = "OK"
