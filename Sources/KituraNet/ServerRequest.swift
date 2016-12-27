@@ -34,8 +34,6 @@ public protocol ServerRequest: class {
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
-    @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     var url : Data { get }
 
     /// The URL from the request as URLComponents
