@@ -59,8 +59,6 @@ public class FastCGIServerRequest : ServerRequest {
     /// The URL from the request in UTF-8 form
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
-    @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var url : Data { return requestUri?.data(using: .utf8) ?? Data() }
 
     /// The URL from the request as URLComponents
