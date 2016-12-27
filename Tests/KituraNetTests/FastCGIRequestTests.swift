@@ -31,7 +31,11 @@ class FastCGIRequestTests: XCTestCase {
     //
     static var allTests : [(String, (FastCGIRequestTests) -> () throws -> Void)] {
         return [
-            ("testSimpleRequest", testSimpleRequest)
+            ("testInvalidParameter", testInvalidParameter),
+            ("testInvalidProtocolVersion", testInvalidProtocolVersion),
+            ("testInvalidRole", testInvalidRole),
+            ("testSimpleRequest", testSimpleRequest),
+            ("testTwoBeginRequests", testTwoBeginRequests)
         ]
     }
     
@@ -41,6 +45,87 @@ class FastCGIRequestTests: XCTestCase {
     
     override func tearDown() {
         doTearDown()
+    }
+    
+    func testInvalidParameter() {
+        performFastCGIServerTest(TestDelegate()) { expectation in
+            do {
+                let socket = try Socket.create()
+                try socket.connect(to: "localhost", port: 9000)
+                
+                let message = NSMutableData()
+                let requestId = self.addBeginRequest(to: message)
+                
+                // Add a Parameters record with a zero byte name
+                var bytes = [UInt8](repeating: 0, count: 8)
+                bytes[0] = 1       // FastCGI protocol version
+                bytes[1] = 4       // PARAMS
+                self.copyUInt16IntoBuffer(&bytes, offset: 2, value: UInt16(requestId))
+                let parameterBuffer = NSMutableData()
+                self.addNameValuePair(to: parameterBuffer, name: "", value: "HTTP")
+                self.copyUInt16IntoBuffer(&bytes, offset: 4, value: UInt16(parameterBuffer.length))
+                message.append(&bytes, length: bytes.count)
+                message.append(parameterBuffer.bytes, length: parameterBuffer.length)
+                
+                
+                try socket.write(from: message)
+                
+                self.validateResultRecord(from: socket, canBeClosedPrematurely: true, expectation: expectation)
+                
+                expectation.fulfill()
+                
+                socket.close()
+            }
+            catch {
+                XCTFail("Failed to send the FastCGI Request. Error=\(error)")
+            }
+        }
+    }
+    
+    func testInvalidProtocolVersion() {
+        performFastCGIServerTest(TestDelegate()) { expectation in
+            do {
+                let socket = try Socket.create()
+                try socket.connect(to: "localhost", port: 9000)
+                
+                let message = NSMutableData()
+                _ = self.addBeginRequest(to: message, protocolVersion: 100)
+                
+                try socket.write(from: message)
+                
+                self.validateResultRecord(from: socket, canBeClosedPrematurely: true, expectation: expectation)
+                
+                expectation.fulfill()
+                
+                socket.close()
+            }
+            catch {
+                XCTFail("Failed to send the FastCGI Request. Error=\(error)")
+            }
+        }
+    }
+    
+    func testInvalidRole() {
+        performFastCGIServerTest(TestDelegate()) { expectation in
+            do {
+                let socket = try Socket.create()
+                try socket.connect(to: "localhost", port: 9000)
+                
+                let message = NSMutableData()
+                _ = self.addBeginRequest(to: message, role: 100)
+                
+                try socket.write(from: message)
+                
+                self.validateResultRecord(from: socket, canBeClosedPrematurely: true, expectation: expectation)
+                
+                expectation.fulfill()
+                
+                socket.close()
+            }
+            catch {
+                XCTFail("Failed to send the FastCGI Request. Error=\(error)")
+            }
+        }
     }
     
     func testSimpleRequest() {
@@ -68,16 +153,42 @@ class FastCGIRequestTests: XCTestCase {
         }
     }
     
-    private func addBeginRequest(to: NSMutableData, requestId: Int=#line) -> Int{
+    func testTwoBeginRequests() {
+        performFastCGIServerTest(TestDelegate()) { expectation in
+            do {
+                let socket = try Socket.create()
+                try socket.connect(to: "localhost", port: 9000)
+                
+                let message = NSMutableData()
+                let requestId = self.addBeginRequest(to: message)
+                _ = self.addBeginRequest(to: message, requestId: requestId)
+                
+                try socket.write(from: message)
+                
+                self.validateResultRecord(from: socket, canBeClosedPrematurely: true, expectation: expectation)
+                
+                usleep(10000)
+                
+                expectation.fulfill()
+                
+                socket.close()
+            }
+            catch {
+                XCTFail("Failed to send the FastCGI Request. Error=\(error)")
+            }
+        }
+    }
+    
+    private func addBeginRequest(to: NSMutableData, requestId: Int=#line, protocolVersion: Int=1, role: Int=1) -> Int{
         var bytes = [UInt8](repeating: 0, count: 16)
-        bytes[0] = 1       // FastCGI protocol version
-        bytes[1] = 1       // BEGIN_REQUEST
+        bytes[0] = UInt8(protocolVersion)  // FastCGI protocol version
+        bytes[1] = 1                       // BEGIN_REQUEST
         
         copyUInt16IntoBuffer(&bytes, offset: 2, value: UInt16(requestId))
         
         copyUInt16IntoBuffer(&bytes, offset: 4, value: UInt16(8))
         
-        copyUInt16IntoBuffer(&bytes, offset: 8, value: UInt16(1))
+        copyUInt16IntoBuffer(&bytes, offset: 8, value: UInt16(role))
         
         to.append(&bytes, length: bytes.count)
         
@@ -120,6 +231,31 @@ class FastCGIRequestTests: XCTestCase {
         copyUInt16IntoBuffer(&bytes, offset: 4, value: 0)
         
         to.append(&bytes, length: bytes.count)
+    }
+    
+    private func validateResultRecord(from: Socket, canBeClosedPrematurely: Bool, expectation: XCTestExpectation) {
+        let buffer = NSMutableData()
+        var notFinished = true
+        
+        do {
+            // Read in a record header
+            while notFinished && buffer.length < 8 {
+                let count = try from.read(into: buffer)
+                
+                if count != 0 {
+                    print("---> Buffer: \(buffer)")
+                }
+                else {
+                    notFinished = false
+                    if !canBeClosedPrematurely {
+                        XCTFail("Server closed socket prematurely")
+                    }
+                }
+            }
+        }
+        catch let error {
+            XCTFail("Failed to send upgrade request. Error=\(error)")
+        }
     }
     
     private func addNameValuePair(to: NSMutableData, name: String, value: String) {
