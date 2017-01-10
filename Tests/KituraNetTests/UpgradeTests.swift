@@ -47,7 +47,7 @@ class UpgradeTests: XCTestCase {
     func testNoRegistrations() {
         ConnectionUpgrader.clear()
         
-        performServerTest(nil) { expectation in
+        performServerTest(nil, useSSL: false) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
 
@@ -70,7 +70,7 @@ class UpgradeTests: XCTestCase {
             closedSocketExpectation.fulfill()
         })
         
-        performServerTest(nil) { expectation in
+        performServerTest(nil, useSSL: false) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
             
@@ -109,7 +109,7 @@ class UpgradeTests: XCTestCase {
         
         XCTAssert(ConnectionUpgrader.upgradersExist, "Upgrader factory failed to register")
         
-        performServerTest(nil, asyncTasks: { expectation in
+        performServerTest(nil, useSSL: false, asyncTasks: { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             

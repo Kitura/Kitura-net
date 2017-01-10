@@ -20,6 +20,7 @@ import XCTest
 
 import Foundation
 import Dispatch
+import SSLService
 
 protocol KituraNetTest {
 
@@ -37,7 +38,8 @@ extension KituraNetTest {
         //       sleep(10)
     }
     
-    func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+    func performServerTest(_ delegate: ServerDelegate?, useSSL: Bool = true, line: Int = #line,
+                           asyncTasks: @escaping (XCTestExpectation) -> Void...) {
         var expectations: [XCTestExpectation] = []
         
         for index in 0..<asyncTasks.count {
@@ -49,11 +51,13 @@ extension KituraNetTest {
         
         let requestQueue = DispatchQueue(label: "Request queue")
         
-        var server: HTTPServer?
-        
+        let server = HTTP.createServer()
+        server.delegate = delegate
+        server.sslConfig = (useSSL ? TestSSLConfig.sslConfig : nil)
+
         do {
-            server = try HTTPServer.listen(on: 8090, delegate: delegate)
-            
+            try server.listen(on: 8090)
+
             for (index, asyncTask) in asyncTasks.enumerated() {
                 let expectation = exps[index]
                 requestQueue.async {
@@ -63,12 +67,12 @@ extension KituraNetTest {
             
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
-                server?.stop()
+                server.stop()
                 XCTAssertNil(error);
             }
         } catch let error {
             XCTFail("Error: \(error)")
-            server?.stop()
+            server.stop()
         }
     }
     
@@ -107,7 +111,8 @@ extension KituraNetTest {
         }
     }
 
-    func performRequest(_ method: String, path: String, callback: @escaping ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
+    func performRequest(_ method: String, path: String, useSSL: Bool = true, callback: @escaping ClientRequest.Callback,
+                        headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
         var allHeaders = [String: String]()
         if  let headers = headers  {
             for  (headerName, headerValue) in headers  {
@@ -115,7 +120,12 @@ extension KituraNetTest {
             }
         }
         allHeaders["Content-Type"] = "text/plain"
-        let options: [ClientRequest.Options] = [.method(method), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)]
+        let schema = useSSL ? "https" : "http"
+        var options: [ClientRequest.Options] =
+            [.method(method), .schema(schema), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)]
+        if useSSL {
+            options.append(.disableSSLVerification)
+        }
         let req = HTTP.request(options, callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
@@ -133,4 +143,26 @@ extension XCTestCase: KituraNetTest {
     func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?) {
         self.waitForExpectations(timeout: t, handler: handler)
     }
+}
+
+class TestSSLConfig {
+    static let sslConfig: SSLService.Configuration = {
+        let path = #file
+        let sslConfigDir: String
+        if let range = path.range(of: "/", options: .backwards) {
+            sslConfigDir = path.substring(to: range.lowerBound) + "/SSLConfig/"
+        } else {
+            sslConfigDir = "./SSLConfig/"
+        }
+        #if os(Linux)
+            let certificatePath = sslConfigDir + "certificate.pem"
+            let keyPath = sslConfigDir + "key.pem"
+            return SSLService.Configuration(withCACertificateDirectory: nil, usingCertificateFile: certificatePath,
+                                            withKeyFile: keyPath, usingSelfSignedCerts: true, cipherSuite: nil)
+        #else
+            let chainFilePath = sslConfigDir + "certificateChain.pfx"
+            return SSLService.Configuration(withChainFilePath: chainFilePath, withPassword: "kitura",
+                                            usingSelfSignedCerts: true, cipherSuite: nil)
+        #endif
+    }()
 }

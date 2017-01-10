@@ -47,6 +47,7 @@ class MonitoringTests: XCTestCase {
         
         let server = HTTP.createServer()
         server.delegate = TestServerDelegate()
+        server.sslConfig = TestSSLConfig.sslConfig
         
         server.started {
             DispatchQueue.global().async {
