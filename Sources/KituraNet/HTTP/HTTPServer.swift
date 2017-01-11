@@ -109,8 +109,20 @@ public class HTTPServer: Server {
     ///
     /// - Returns: a new `HTTPServer` instance
     public static func listen(on port: Int, delegate: ServerDelegate?) throws -> HTTPServer {
+        return try listen(on: port, delegate: delegate, sslConfig: nil)
+    }
+
+    /// Static method to create a new HTTPServer and have it listen for connections.
+    ///
+    /// - Parameter on: port number for accepting new connections
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    /// - Parameter sslConfig: SSLService.Configuration for HTTP connections
+    ///
+    /// - Returns: a new `HTTPServer` instance
+    public static func listen(on port: Int, delegate: ServerDelegate?, sslConfig: SSLService.Configuration?) throws -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
+        server.sslConfig = sslConfig
         try server.listen(on: port)
         return server
     }

@@ -27,6 +27,7 @@ class ClientE2ETests: XCTestCase {
         return [
             ("testErrorRequests", testErrorRequests),
             ("testHeadRequests", testHeadRequests),
+            ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testPostRequests", testPutRequests),
             ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
@@ -62,7 +63,20 @@ class ClientE2ETests: XCTestCase {
             })
         }
     }
-    
+
+    func testEphemeralListeningPort() {
+        do {
+            let server = try HTTPServer.listen(on: 0, delegate: delegate)
+            _ = HTTP.get("http://localhost:\(server.port!)") { response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+            }
+            server.stop()
+        } catch let error {
+            XCTFail("Error: \(error)")
+        }
+    }
+
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")

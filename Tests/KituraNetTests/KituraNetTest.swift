@@ -50,13 +50,15 @@ extension KituraNetTest {
         let exps = expectations
         
         let requestQueue = DispatchQueue(label: "Request queue")
-        
-        let server = HTTP.createServer()
-        server.delegate = delegate
-        server.sslConfig = (useSSL ? TestSSLConfig.sslConfig : nil)
+
+        var server: HTTPServer?
 
         do {
-            try server.listen(on: 8090)
+            if useSSL {
+                server = try HTTPServer.listen(on: 8090, delegate: delegate, sslConfig: TestSSLConfig.sslConfig)
+            } else {
+                server = try HTTPServer.listen(on: 8090, delegate: delegate)
+            }
 
             for (index, asyncTask) in asyncTasks.enumerated() {
                 let expectation = exps[index]
@@ -64,15 +66,15 @@ extension KituraNetTest {
                     asyncTask(expectation)
                 }
             }
-            
+
             waitExpectation(timeout: 10) { error in
                 // blocks test until request completes
-                server.stop()
+                server?.stop()
                 XCTAssertNil(error);
             }
         } catch let error {
             XCTFail("Error: \(error)")
-            server.stop()
+            server?.stop()
         }
     }
     
