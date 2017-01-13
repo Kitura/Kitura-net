@@ -46,7 +46,9 @@ class MonitoringTests: KituraNetTest {
 
         let server = HTTP.createServer()
         server.delegate = TestServerDelegate()
-        server.sslConfig = KituraNetTest.sslConfig
+        if KituraNetTest.useSSLDefault {
+            server.sslConfig = KituraNetTest.sslConfig
+        }
 
         server.started {
             DispatchQueue.global().async {
