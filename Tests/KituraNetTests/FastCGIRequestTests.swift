@@ -25,7 +25,7 @@ import Socket
     import Darwin
 #endif
 
-class FastCGIRequestTests: XCTestCase {
+class FastCGIRequestTests: KituraNetTest {
     
     // All tests
     //
@@ -51,7 +51,7 @@ class FastCGIRequestTests: XCTestCase {
         performFastCGIServerTest(TestDelegate()) { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 9000)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let message = NSMutableData()
                 let requestId = self.addBeginRequest(to: message)
@@ -86,7 +86,7 @@ class FastCGIRequestTests: XCTestCase {
         performFastCGIServerTest(TestDelegate()) { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 9000)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let message = NSMutableData()
                 _ = self.addBeginRequest(to: message, protocolVersion: 100)
@@ -109,7 +109,7 @@ class FastCGIRequestTests: XCTestCase {
         performFastCGIServerTest(TestDelegate()) { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 9000)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let message = NSMutableData()
                 _ = self.addBeginRequest(to: message, role: 100)
@@ -132,7 +132,7 @@ class FastCGIRequestTests: XCTestCase {
         performFastCGIServerTest(TestDelegate()) { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 9000)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let message = NSMutableData()
                 let requestId = self.addBeginRequest(to: message)
@@ -157,7 +157,7 @@ class FastCGIRequestTests: XCTestCase {
         performFastCGIServerTest(TestDelegate()) { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 9000)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let message = NSMutableData()
                 let requestId = self.addBeginRequest(to: message)
@@ -204,7 +204,7 @@ class FastCGIRequestTests: XCTestCase {
         
         let parameterBuffer = NSMutableData()
         addNameValuePair(to: parameterBuffer, name: "REQUEST_SCHEME", value: "HTTP")
-        addNameValuePair(to: parameterBuffer, name: "HTTP_HOST", value: "localhost:8090")
+        addNameValuePair(to: parameterBuffer, name: "HTTP_HOST", value: "localhost:\(self.port)")
         addNameValuePair(to: parameterBuffer, name: "REQUEST_METHOD", value: "GET")
         addNameValuePair(to: parameterBuffer, name: "REQUEST_URI", value: "/hello")
         addNameValuePair(to: parameterBuffer, name: "SERVER_PROTOCOL", value: "HTTP/1.1")
@@ -312,7 +312,7 @@ class FastCGIRequestTests: XCTestCase {
         
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.urlURL.scheme, "HTTP", "Expected a scheme of HTTP, it was \(request.urlURL.scheme)")
-            XCTAssertEqual(request.urlURL.port, 8090, "Expected a port of 8090, it was \(request.urlURL.port)")
+            XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.urlURL.path, "/hello", "Expected a path of /hello, it was \(request.urlURL.path)")
             XCTAssertEqual(request.url, "/hello".data(using: .utf8))
             do {

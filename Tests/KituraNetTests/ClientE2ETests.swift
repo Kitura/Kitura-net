@@ -21,7 +21,7 @@ import XCTest
 @testable import KituraNet
 import Socket
 
-class ClientE2ETests: XCTestCase {
+class ClientE2ETests: KituraNetTest {
 
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
@@ -250,7 +250,7 @@ class ClientE2ETests: XCTestCase {
         
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
-            XCTAssertEqual(request.urlURL.port, 8090, "The port in request.urlURL wasn't 8090, it was \(request.urlURL.port)")
+            XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.url, urlPath.data(using: .utf8))
             do {
                 response.statusCode = .OK
