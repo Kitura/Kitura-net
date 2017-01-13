@@ -51,7 +51,7 @@ class KituraNetTest: XCTestCase {
     }()
 
     func doSetUp() {
-        PrintLogger.use()
+        PrintLogger.use(colored: true)
     }
 
     func doTearDown() {

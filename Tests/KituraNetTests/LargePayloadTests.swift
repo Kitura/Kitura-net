@@ -41,8 +41,7 @@ class LargePayloadTests: KituraNetTest {
     private let delegate = TestServerDelegate()
 
     func testLargePosts() {
-        let useSSL = false
-        performServerTest(delegate, useSSL: useSSL, asyncTasks: { expectation in
+        performServerTest(delegate, useSSL: false, asyncTasks: { expectation in
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
             self.performRequest("post", path: "/largepost", callback: {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
