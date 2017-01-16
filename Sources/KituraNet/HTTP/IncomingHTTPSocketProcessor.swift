@@ -97,7 +97,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             result = parseStartingFrom == 0
             
         case .messageCompletelyRead:
-            result = parseStartingFrom == 0 && parseStartingFrom == buffer.length
+            result = parseStartingFrom == 0 && 0 == buffer.length
             break
         }
         
