@@ -83,6 +83,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     ///
     /// - Returns: true if the data was processed, false if it needs to be processed later.
     public func process(_ buffer: NSData) -> Bool {
+        let result: Bool
+        
         switch(state) {
         case .reset:
             request.prepareToReset()
@@ -92,12 +94,14 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         case .initial:
             inProgress = true
             parse(buffer)
+            result = parseStartingFrom == 0
             
         case .messageCompletelyRead:
+            result = parseStartingFrom == 0 && buffer.length == 0
             break
         }
         
-        return parseStartingFrom == 0
+        return result
     }
     
     /// Write data to the socket
