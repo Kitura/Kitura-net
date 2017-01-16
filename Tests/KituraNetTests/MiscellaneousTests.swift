@@ -21,7 +21,7 @@ import XCTest
 @testable import KituraNet
 import Socket
 
-class MiscellaneousTests: XCTestCase {
+class MiscellaneousTests: KituraNetTest {
     
     static var allTests : [(String, (MiscellaneousTests) -> () throws -> Void)] {
         return [

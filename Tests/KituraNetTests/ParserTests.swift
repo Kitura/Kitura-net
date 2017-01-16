@@ -19,7 +19,7 @@ import XCTest
 
 @testable import KituraNet
 
-class ParserTests: XCTestCase {
+class ParserTests: KituraNetTest {
     static var allTests : [(String, (ParserTests) -> () throws -> Void)] {
         return [
             ("testParseComplexUrl", testParseComplexUrl),

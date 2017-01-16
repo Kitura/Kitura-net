@@ -51,7 +51,7 @@ public class IncomingSocketHandler {
     #endif
 
     let socket: Socket
-    
+
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
@@ -61,12 +61,15 @@ public class IncomingSocketHandler {
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
     private var preparingToClose = false
-    
+    private var isOpen: Bool
+    private var writeInProgress = false
+
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
     init(socket: Socket, using: IncomingSocketProcessor, managedBy: IncomingSocketManager) {
         self.socket = socket
+        isOpen = true
         processor = using
         manager = managedBy
         processor?.handler = self
@@ -87,6 +90,8 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
+        guard socket.socketfd > -1 && isOpen else { return false }
+
         var result = true
         
         do {
@@ -168,6 +173,8 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
+        guard socket.socketfd > -1 && isOpen else { return }
+
         if  writeBuffer.length != 0 {
             do {
                 let amountToWrite = writeBuffer.length - writeBufferPosition
@@ -214,7 +221,7 @@ public class IncomingSocketHandler {
             #endif
         }
         
-        if preparingToClose && writeBuffer.length == writeBufferPosition {
+        if preparingToClose && writeBuffer.length == writeBufferPosition && !writeInProgress {
             close()
         }
     }
@@ -246,12 +253,18 @@ public class IncomingSocketHandler {
     /// - Parameter length: The number of bytes to write to the socket.
     public func write(from bytes: UnsafeRawPointer, length: Int) {
         guard socket.socketfd > -1  else { return }
-        
+        guard isOpen else {
+            Log.warning("IncomingSocketHandler write() called after socket \(socket.socketfd) closed")
+            return
+        }
+
         do {
             let written: Int
             
             if  writeBuffer.length == 0 {
+                writeInProgress = true
                 written = try socket.write(from: bytes, bufSize: length)
+                writeInProgress = false
             }
             else {
                 written = 0
@@ -270,6 +283,7 @@ public class IncomingSocketHandler {
             }
         }
         catch let error {
+            writeInProgress = false
             if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             } else {
@@ -285,7 +299,7 @@ public class IncomingSocketHandler {
         if !preparingToClose {
             preparingToClose = true
             
-            if  writeBuffer.length == writeBufferPosition  {
+            if writeBuffer.length == writeBufferPosition && !writeInProgress {
                 close()
             }
         }
@@ -306,7 +320,12 @@ public class IncomingSocketHandler {
     /// DispatchSource cancel handler
     private func handleCancel() {
         if  socket.socketfd > -1 {
-            socket.close()
+            if isOpen {
+                isOpen = false
+                socket.close()
+            } else {
+                Log.warning("IncomingSocketHandler handleCancel() called more than once for socket \(socket.socketfd)")
+            }
         }
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
