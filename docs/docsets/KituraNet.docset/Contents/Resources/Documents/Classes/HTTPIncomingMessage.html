@@ -177,7 +177,7 @@
             <h1>HTTPIncomingMessage</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span> <span class="p">:</span> <span class="kt">HTTPParserDelegate</span></code></pre>
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span></code></pre>
 
                 </div>
               </div>
@@ -190,60 +190,6 @@
           <div class="section-content">
             <div class="task-group">
               <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMajorGSqVs6UInt16_"></a>
-                    <a name="//apple_ref/swift/Property/httpVersionMajor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMajorGSqVs6UInt16_">httpVersionMajor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Major version for HTTP of the incoming message.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMinorGSqVs6UInt16_"></a>
-                    <a name="//apple_ref/swift/Property/httpVersionMinor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMinorGSqVs6UInt16_">httpVersionMinor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Minor version for HTTP of the incoming message.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -274,9 +220,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet19HTTPIncomingMessage7headersCS_16HeadersContainer"></a>
-                    <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage7headersCS_16HeadersContainer">headers</a>
+                    <a name="/s:vC9KituraNet19HTTPIncomingMessage9isRequestSb"></a>
+                    <a name="//apple_ref/swift/Property/isRequest" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage9isRequestSb">isRequest</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -284,14 +230,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set of HTTP headers of the incoming message.</p>
+                        <p>is a request? (or a response)</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span><span class="p">()</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">isRequest</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
 
                         </div>
                       </div>
@@ -318,7 +264,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">""</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -328,9 +274,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet19HTTPIncomingMessage9isRequestSb"></a>
-                    <a name="//apple_ref/swift/Property/isRequest" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage9isRequestSb">isRequest</a>
+                    <a name="/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMajorGSqVs6UInt16_"></a>
+                    <a name="//apple_ref/swift/Property/httpVersionMajor" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMajorGSqVs6UInt16_">httpVersionMajor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -338,14 +284,68 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>is a request? (or a response)</p>
+                        <p>Major version of HTTP of the request</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">isRequest</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMinorGSqVs6UInt16_"></a>
+                    <a name="//apple_ref/swift/Property/httpVersionMinor" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage16httpVersionMinorGSqVs6UInt16_">httpVersionMinor</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Minor version of HTTP of the request</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC9KituraNet19HTTPIncomingMessage7headersCS_16HeadersContainer"></a>
+                    <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC9KituraNet19HTTPIncomingMessage7headersCS_16HeadersContainer">headers</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Set of HTTP headers of the incoming message.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span></code></pre>
 
                         </div>
                       </div>
@@ -399,7 +399,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span> <span class="p">:</span> <span class="kt">HTTPParserDelegate</span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPIncomingMessage</span></code></pre>
 
                         </div>
                       </div>
@@ -684,7 +684,7 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2016-12-16)</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-01-16)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
