@@ -32,7 +32,7 @@ import Foundation
 //
 // It would be embarrasingly broken if they did not...
 //
-class FastCGIProtocolTests: XCTestCase {
+class FastCGIProtocolTests: KituraNetTest {
 
     // All tests
     //

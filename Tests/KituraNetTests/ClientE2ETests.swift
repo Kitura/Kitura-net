@@ -21,12 +21,13 @@ import XCTest
 @testable import KituraNet
 import Socket
 
-class ClientE2ETests: XCTestCase {
+class ClientE2ETests: KituraNetTest {
 
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
             ("testErrorRequests", testErrorRequests),
             ("testHeadRequests", testHeadRequests),
+            ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testPostRequests", testPutRequests),
             ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
@@ -62,7 +63,20 @@ class ClientE2ETests: XCTestCase {
             })
         }
     }
-    
+
+    func testEphemeralListeningPort() {
+        do {
+            let server = try HTTPServer.listen(on: 0, delegate: delegate)
+            _ = HTTP.get("http://localhost:\(server.port!)") { response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+            }
+            server.stop()
+        } catch let error {
+            XCTFail("Error: \(error)")
+        }
+    }
+
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
@@ -236,7 +250,7 @@ class ClientE2ETests: XCTestCase {
         
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
-            XCTAssertEqual(request.urlURL.port, 8090, "The port in request.urlURL wasn't 8090, it was \(request.urlURL.port)")
+            XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.url, urlPath.data(using: .utf8))
             do {
                 response.statusCode = .OK

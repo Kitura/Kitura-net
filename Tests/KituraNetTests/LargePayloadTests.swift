@@ -21,7 +21,7 @@ import XCTest
 @testable import KituraNet
 import Socket
 
-class LargePayloadTests: XCTestCase {
+class LargePayloadTests: KituraNetTest {
 
     static var allTests : [(String, (LargePayloadTests) -> () throws -> Void)] {
         return [
@@ -41,7 +41,7 @@ class LargePayloadTests: XCTestCase {
     private let delegate = TestServerDelegate()
 
     func testLargePosts() {
-        performServerTest(delegate, asyncTasks: { expectation in
+        performServerTest(delegate, useSSL: false, asyncTasks: { expectation in
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
             self.performRequest("post", path: "/largepost", callback: {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
@@ -69,9 +69,9 @@ class LargePayloadTests: XCTestCase {
     }
 
     func testLargeGets() {
-        performServerTest(delegate, asyncTasks: { expectation in
+        performServerTest(delegate, useSSL: false, asyncTasks: { expectation in
             // This test is NOT using self.performRequest, in order to test an extra signature of HTTP.request
-            let request = HTTP.request("http://localhost:8090/largepost") {response in
+            let request = HTTP.request("http://localhost:\(self.port)/largepost") {response in
                 XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
                 expectation.fulfill()
             }

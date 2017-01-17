@@ -21,7 +21,7 @@ import XCTest
 
 @testable import KituraNet
 
-class MonitoringTests: XCTestCase {
+class MonitoringTests: KituraNetTest {
     
     static var allTests : [(String, (MonitoringTests) -> () throws -> Void)] {
         return [
@@ -43,11 +43,13 @@ class MonitoringTests: XCTestCase {
 
         Monitor.delegate = TestMonitor(startedExpectation: startedExpectation,
                                        finishedExpectation: finishedExpectation)
-        
-        
+
         let server = HTTP.createServer()
         server.delegate = TestServerDelegate()
-        
+        if KituraNetTest.useSSLDefault {
+            server.sslConfig = KituraNetTest.sslConfig
+        }
+
         server.started {
             DispatchQueue.global().async {
                 self.performRequest("get", path: "/plover", callback: { response in
@@ -62,7 +64,7 @@ class MonitoringTests: XCTestCase {
         }
         
         do {
-            try server.listen(on: 8090)
+            try server.listen(on: self.port)
         
             self.waitForExpectations(timeout: 10) { error in
                 server.stop()
