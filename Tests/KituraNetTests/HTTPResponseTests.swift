@@ -19,7 +19,7 @@ import XCTest
 
 @testable import KituraNet
 
-class HTTPResponseTests: XCTestCase {
+class HTTPResponseTests: KituraNetTest {
     static var allTests : [(String, (HTTPResponseTests) -> () throws -> Void)] {
         return [
             ("testContentTypeHeaders", testContentTypeHeaders)

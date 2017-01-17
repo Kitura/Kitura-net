@@ -24,7 +24,7 @@ import Socket
 let messageToProtocol = [0x04, 0xa0, 0xb0, 0xc0, 0xd0]
 let messageFromProtocol = [0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f]
 
-class UpgradeTests: XCTestCase {
+class UpgradeTests: KituraNetTest {
     
     static var allTests : [(String, (UpgradeTests) -> () throws -> Void)] {
         return [
@@ -47,7 +47,7 @@ class UpgradeTests: XCTestCase {
     func testNoRegistrations() {
         ConnectionUpgrader.clear()
         
-        performServerTest(nil) { expectation in
+        performServerTest(nil, useSSL: false) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
 
@@ -70,7 +70,7 @@ class UpgradeTests: XCTestCase {
             closedSocketExpectation.fulfill()
         })
         
-        performServerTest(nil) { expectation in
+        performServerTest(nil, useSSL: false) { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
             
@@ -109,7 +109,7 @@ class UpgradeTests: XCTestCase {
         
         XCTAssert(ConnectionUpgrader.upgradersExist, "Upgrader factory failed to register")
         
-        performServerTest(nil, asyncTasks: { expectation in
+        performServerTest(nil, useSSL: false, asyncTasks: { expectation in
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             
@@ -124,10 +124,10 @@ class UpgradeTests: XCTestCase {
         { expectation in
             do {
                 let socket = try Socket.create()
-                try socket.connect(to: "localhost", port: 8090)
+                try socket.connect(to: "localhost", port: Int32(self.port))
                 
                 let request = "GET /test/upgrade HTTP/1.1\r\n" +
-                    "Host: localhost:8090\r\n" +
+                    "Host: localhost:\(self.port)\r\n" +
                     "Connection: Upgrade\r\n" +
                 "\r\n"
                 
@@ -153,10 +153,10 @@ class UpgradeTests: XCTestCase {
         var socket: Socket?
         do {
             socket = try Socket.create()
-            try socket?.connect(to: "localhost", port: 8090)
+            try socket?.connect(to: "localhost", port: Int32(self.port))
             
             let request = "GET /test/upgrade HTTP/1.1\r\n" +
-                          "Host: localhost:8090\r\n" +
+                          "Host: localhost:\(self.port)\r\n" +
                           "Upgrade: " + forProtocol + "\r\n" +
                           "Connection: Upgrade\r\n" +
                           "\r\n"

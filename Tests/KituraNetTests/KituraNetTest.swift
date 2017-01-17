@@ -20,94 +20,112 @@ import XCTest
 
 import Foundation
 import Dispatch
+import SSLService
 
-protocol KituraNetTest {
+class KituraNetTest: XCTestCase {
 
-    func expectation(line: Int, index: Int) -> XCTestExpectation
-    func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?)
-}
+    static let useSSLDefault = false
+    static let portDefault = 8090
 
-extension KituraNetTest {
+    var useSSL = useSSLDefault
+    var port = portDefault
+
+    static let sslConfig: SSLService.Configuration = {
+        let path = #file
+        let sslConfigDir: String
+        if let range = path.range(of: "/", options: .backwards) {
+            sslConfigDir = path.substring(to: range.lowerBound) + "/SSLConfig/"
+        } else {
+            sslConfigDir = "./SSLConfig/"
+        }
+        #if os(Linux)
+            let certificatePath = sslConfigDir + "certificate.pem"
+            let keyPath = sslConfigDir + "key.pem"
+            return SSLService.Configuration(withCACertificateDirectory: nil, usingCertificateFile: certificatePath,
+                                            withKeyFile: keyPath, usingSelfSignedCerts: true, cipherSuite: nil)
+        #else
+            let chainFilePath = sslConfigDir + "certificateChain.pfx"
+            return SSLService.Configuration(withChainFilePath: chainFilePath, withPassword: "kitura",
+                                            usingSelfSignedCerts: true, cipherSuite: nil)
+        #endif
+    }()
 
     func doSetUp() {
-        PrintLogger.use()
+        PrintLogger.use(colored: true)
     }
 
     func doTearDown() {
-        //       sleep(10)
     }
-    
-    func performServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        var expectations: [XCTestExpectation] = []
-        
-        for index in 0..<asyncTasks.count {
-            expectations.append(expectation(line: line, index: index))
-        }
-        
-        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
-        let exps = expectations
-        
-        let requestQueue = DispatchQueue(label: "Request queue")
-        
-        var server: HTTPServer?
-        
+
+    func performServerTest(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault,
+                           line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+
         do {
-            server = try HTTPServer.listen(on: 8090, delegate: delegate)
-            
+            self.useSSL = useSSL
+            self.port = port
+
+            let server: HTTPServer
+            if useSSL {
+                server = HTTP.createServer()
+                server.delegate = delegate
+                server.sslConfig = KituraNetTest.sslConfig
+                try server.listen(on: port)
+            } else {
+                server = try HTTPServer.listen(on: port, delegate: delegate)
+            }
+            defer {
+                server.stop()
+            }
+
+            let requestQueue = DispatchQueue(label: "Request queue")
             for (index, asyncTask) in asyncTasks.enumerated() {
-                let expectation = exps[index]
-                requestQueue.async {
+                let expectation = self.expectation(line: line, index: index)
+                requestQueue.async() {
                     asyncTask(expectation)
                 }
             }
-            
+
+            // wait for timeout or for all created expectations to be fulfilled
             waitExpectation(timeout: 10) { error in
-                // blocks test until request completes
-                server?.stop()
                 XCTAssertNil(error);
             }
-        } catch let error {
+        } catch {
             XCTFail("Error: \(error)")
-            server?.stop()
         }
     }
-    
-    func performFastCGIServerTest(_ delegate: ServerDelegate?, line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
-        var expectations: [XCTestExpectation] = []
-        
-        for index in 0..<asyncTasks.count {
-            expectations.append(expectation(line: line, index: index))
-        }
-        
-        // convert var to let to get around compile error on 3.0 Release in Xcode 8.1
-        let exps = expectations
-        
-        let requestQueue = DispatchQueue(label: "Request queue")
-        
-        var server: FastCGIServer?
-        do {
-            server = try FastCGIServer.listen(on: 9000, delegate: delegate)
 
+    func performFastCGIServerTest(_ delegate: ServerDelegate?, port: Int = portDefault,
+                                  line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+
+        do {
+            self.port = port
+
+            let server = try FastCGIServer.listen(on: port, delegate: delegate)
+            defer {
+                server.stop()
+            }
+
+            let requestQueue = DispatchQueue(label: "Request queue")
             for (index, asyncTask) in asyncTasks.enumerated() {
-                let expectation = exps[index]
-                requestQueue.async {
+                let expectation = self.expectation(line: line, index: index)
+                requestQueue.async() {
                     asyncTask(expectation)
                 }
             }
-            
+
+            // wait for timeout or for all created expectations to be fulfilled
             waitExpectation(timeout: 10) { error in
-                // blocks test until request completes
-                server?.stop()
                 XCTAssertNil(error);
             }
         }
         catch {
-            XCTFail("Failed to create a FastCGI server. Error=\(error)")
-            server?.stop()
+            XCTFail("Error: \(error)")
         }
     }
 
-    func performRequest(_ method: String, path: String, callback: @escaping ClientRequest.Callback, headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
+    func performRequest(_ method: String, path: String, callback: @escaping ClientRequest.Callback,
+                        headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
+
         var allHeaders = [String: String]()
         if  let headers = headers  {
             for  (headerName, headerValue) in headers  {
@@ -115,22 +133,26 @@ extension KituraNetTest {
             }
         }
         allHeaders["Content-Type"] = "text/plain"
-        let options: [ClientRequest.Options] = [.method(method), .hostname("localhost"), .port(8090), .path(path), .headers(allHeaders)]
+
+        let schema = self.useSSL ? "https" : "http"
+        var options: [ClientRequest.Options] =
+            [.method(method), .schema(schema), .hostname("localhost"), .port(Int16(self.port)), .path(path), .headers(allHeaders)]
+        if self.useSSL {
+            options.append(.disableSSLVerification)
+        }
+
         let req = HTTP.request(options, callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
         }
         req.end(close: true)
     }
-}
-
-extension XCTestCase: KituraNetTest {
 
     func expectation(line: Int, index: Int) -> XCTestExpectation {
         return self.expectation(description: "\(type(of: self)):\(line)[\(index)]")
     }
 
-    func waitExpectation(timeout t: TimeInterval, handler: XCWaitCompletionHandler?) {
-        self.waitForExpectations(timeout: t, handler: handler)
+    func waitExpectation(timeout: TimeInterval, handler: XCWaitCompletionHandler?) {
+        self.waitForExpectations(timeout: timeout, handler: handler)
     }
 }

@@ -22,7 +22,7 @@ import Socket
 
 @testable import KituraNet
 
-class LifecycleListenerTests: XCTestCase {
+class LifecycleListenerTests: KituraNetTest {
 
     static var allTests : [(String, (LifecycleListenerTests) -> () throws -> Void)] {
         return [
@@ -56,7 +56,7 @@ class LifecycleListenerTests: XCTestCase {
         }
 
         do {
-            try server.listen(on: 8090)
+            try server.listen(on: self.port)
 
             self.waitForExpectations(timeout: 5) { error in
                 XCTAssertNil(error)
@@ -94,7 +94,7 @@ class LifecycleListenerTests: XCTestCase {
         }
         
         do {
-            try server.listen(on: 9000)
+            try server.listen(on: self.port)
             
             self.waitForExpectations(timeout: 5) { error in
                 XCTAssertNil(error)
@@ -128,7 +128,7 @@ class LifecycleListenerTests: XCTestCase {
         }
 
         do {
-            try server.listen(on: 8090)
+            try server.listen(on: self.port)
 
             self.waitForExpectations(timeout: 5) { error in
                 XCTAssertNil(error)
