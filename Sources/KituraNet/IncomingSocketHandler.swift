@@ -51,7 +51,7 @@ public class IncomingSocketHandler {
     #endif
 
     let socket: Socket
-    
+
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
@@ -61,7 +61,10 @@ public class IncomingSocketHandler {
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
     private var preparingToClose = false
-    
+    private var isOpen = true
+    private var writeInProgress = false
+    private var readInProgress = false
+
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
@@ -87,24 +90,30 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
+        guard isOpen && socket.socketfd > -1 else { return true }
+
         var result = true
         
         do {
             var length = 1
+            readInProgress = true
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
             }
+            readInProgress = false
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
             }
             else {
-                if  socket.remoteConnectionClosed  {
+                if socket.remoteConnectionClosed  {
+                    Log.debug("socket remoteConnectionClosed in handleRead()")
                     processor?.socketClosed()
                     prepareToClose()
                 }
             }
         }
         catch let error as Socket.Error {
+            readInProgress = false
             if error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Read from socket (file descriptor \(socket.socketfd)) reset. Error = \(error).")
             } else {
@@ -112,6 +121,7 @@ public class IncomingSocketHandler {
             }
             prepareToClose()
         } catch {
+            readInProgress = false
             Log.error("Unexpected error...")
             prepareToClose()
         }
@@ -168,6 +178,8 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
+        guard isOpen && socket.socketfd > -1 else { return }
+
         if  writeBuffer.length != 0 {
             do {
                 let amountToWrite = writeBuffer.length - writeBufferPosition
@@ -175,8 +187,10 @@ public class IncomingSocketHandler {
                 let written: Int
                     
                 if amountToWrite > 0 {
+                    writeInProgress = true
                     written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
                                                bufSize: amountToWrite)
+                    writeInProgress = false
                 }
                 else {
                     if amountToWrite < 0 {
@@ -195,6 +209,7 @@ public class IncomingSocketHandler {
                 }
             }
             catch let error {
+                writeInProgress = false
                 if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                     Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
                 } else {
@@ -245,13 +260,18 @@ public class IncomingSocketHandler {
     /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
     /// - Parameter length: The number of bytes to write to the socket.
     public func write(from bytes: UnsafeRawPointer, length: Int) {
-        guard socket.socketfd > -1  else { return }
-        
+        guard isOpen && socket.socketfd > -1 else {
+            Log.warning("IncomingSocketHandler write() called after socket \(socket.socketfd) closed")
+            return
+        }
+
         do {
             let written: Int
             
             if  writeBuffer.length == 0 {
+                writeInProgress = true
                 written = try socket.write(from: bytes, bufSize: length)
+                writeInProgress = false
             }
             else {
                 written = 0
@@ -270,6 +290,7 @@ public class IncomingSocketHandler {
             }
         }
         catch let error {
+            writeInProgress = false
             if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             } else {
@@ -285,17 +306,25 @@ public class IncomingSocketHandler {
         if !preparingToClose {
             preparingToClose = true
             
-            if  writeBuffer.length == writeBufferPosition  {
+            if writeBuffer.length == writeBufferPosition {
                 close()
             }
         }
     }
-    
+
     /// Close the socket and mark this handler as no longer in progress.
     ///
     /// - Note: On Linux closing the socket causes it to be dropped by epoll.
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
+        guard !writeInProgress && !readInProgress else {
+            Log.warning("Deferring handler close. writeInProgress:\(writeInProgress) readInProgress:\(readInProgress)")
+            IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
+                self.close()
+            }
+            return
+        }
+
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()
         #else
@@ -305,8 +334,11 @@ public class IncomingSocketHandler {
     
     /// DispatchSource cancel handler
     private func handleCancel() {
-        if  socket.socketfd > -1 {
-            socket.close()
+        if socket.socketfd > -1 {
+            if isOpen {
+                isOpen = false
+                socket.close()
+            }
         }
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
