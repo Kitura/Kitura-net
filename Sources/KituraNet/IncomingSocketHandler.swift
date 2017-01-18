@@ -229,7 +229,7 @@ public class IncomingSocketHandler {
             #endif
         }
         
-        if preparingToClose && writeBuffer.length == writeBufferPosition {
+        if preparingToClose && writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
             close()
         }
     }
@@ -306,7 +306,7 @@ public class IncomingSocketHandler {
         if !preparingToClose {
             preparingToClose = true
             
-            if writeBuffer.length == writeBufferPosition {
+            if writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
                 close()
             }
         }
@@ -317,11 +317,6 @@ public class IncomingSocketHandler {
     /// - Note: On Linux closing the socket causes it to be dropped by epoll.
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
-        guard !writeInProgress && !readInProgress else {
-            Log.warning("Skipping socket close. writeInProgress:\(writeInProgress) readInProgress:\(readInProgress)")
-            return
-        }
-
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()
         #else
