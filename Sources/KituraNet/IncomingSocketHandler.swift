@@ -318,10 +318,7 @@ public class IncomingSocketHandler {
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
         guard !writeInProgress && !readInProgress else {
-            Log.warning("Deferring handler close. writeInProgress:\(writeInProgress) readInProgress:\(readInProgress)")
-            IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
-                self.close()
-            }
+            Log.warning("Skipping socket close. writeInProgress:\(writeInProgress) readInProgress:\(readInProgress)")
             return
         }
 
