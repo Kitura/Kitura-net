@@ -90,22 +90,29 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
-        guard isOpen && socket.socketfd > -1 else { return true }
+        guard isOpen && socket.socketfd > -1 else {
+            close()
+            return true
+        }
 
         var result = true
         
         do {
-            var length = 1
             readInProgress = true
+            defer {
+                readInProgress = false
+            }
+
+            var length = 1
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
             }
-            readInProgress = false
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
             }
             else {
                 if socket.remoteConnectionClosed  {
+                    readInProgress = false
                     Log.debug("socket remoteConnectionClosed in handleRead()")
                     processor?.socketClosed()
                     prepareToClose()
@@ -113,7 +120,6 @@ public class IncomingSocketHandler {
             }
         }
         catch let error as Socket.Error {
-            readInProgress = false
             if error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Read from socket (file descriptor \(socket.socketfd)) reset. Error = \(error).")
             } else {
@@ -121,10 +127,14 @@ public class IncomingSocketHandler {
             }
             prepareToClose()
         } catch {
-            readInProgress = false
             Log.error("Unexpected error...")
             prepareToClose()
         }
+
+        if preparingToClose {
+            close()
+        }
+
         return result
     }
     
@@ -178,19 +188,25 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
-        guard isOpen && socket.socketfd > -1 else { return }
+        guard isOpen && socket.socketfd > -1 else {
+            close()
+            return
+        }
 
         if  writeBuffer.length != 0 {
             do {
+                writeInProgress = true
+                defer {
+                    writeInProgress = false
+                }
+
                 let amountToWrite = writeBuffer.length - writeBufferPosition
                 
                 let written: Int
                     
                 if amountToWrite > 0 {
-                    writeInProgress = true
                     written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
                                                bufSize: amountToWrite)
-                    writeInProgress = false
                 }
                 else {
                     if amountToWrite < 0 {
@@ -209,7 +225,6 @@ public class IncomingSocketHandler {
                 }
             }
             catch let error {
-                writeInProgress = false
                 if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                     Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
                 } else {
@@ -228,8 +243,8 @@ public class IncomingSocketHandler {
                 }
             #endif
         }
-        
-        if preparingToClose && writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
+
+        if preparingToClose {
             close()
         }
     }
@@ -262,16 +277,20 @@ public class IncomingSocketHandler {
     public func write(from bytes: UnsafeRawPointer, length: Int) {
         guard isOpen && socket.socketfd > -1 else {
             Log.warning("IncomingSocketHandler write() called after socket \(socket.socketfd) closed")
+            close()
             return
         }
 
         do {
+            writeInProgress = true
+            defer {
+                writeInProgress = false
+            }
+
             let written: Int
             
             if  writeBuffer.length == 0 {
-                writeInProgress = true
                 written = try socket.write(from: bytes, bufSize: length)
-                writeInProgress = false
             }
             else {
                 written = 0
@@ -290,7 +309,6 @@ public class IncomingSocketHandler {
             }
         }
         catch let error {
-            writeInProgress = false
             if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             } else {
@@ -298,25 +316,24 @@ public class IncomingSocketHandler {
             }
         }
     }
-    
+
     /// If there is data waiting to be written, set a flag and the socket will
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if !preparingToClose {
-            preparingToClose = true
-            
-            if writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
-                close()
-            }
-        }
+        preparingToClose = true
+        close()
     }
 
-    /// Close the socket and mark this handler as no longer in progress.
+    /// If safe to do so, close the socket and mark this handler as no longer in progress.
     ///
     /// - Note: On Linux closing the socket causes it to be dropped by epoll.
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
+        guard !writeInProgress && !readInProgress && writeBuffer.length == writeBufferPosition else {
+            return
+        }
+
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.cancel()
         #else
@@ -326,14 +343,18 @@ public class IncomingSocketHandler {
     
     /// DispatchSource cancel handler
     private func handleCancel() {
-        if socket.socketfd > -1 {
-            if isOpen {
-                isOpen = false
+        if isOpen {
+            isOpen = false
+
+            if socket.socketfd > -1 {
                 socket.close()
             }
+
+            processor?.inProgress = false
+            processor?.keepAliveUntil = 0.0
+            processor?.handler = nil
+            processor?.close()
+            processor = nil
         }
-        processor?.inProgress = false
-        processor?.keepAliveUntil = 0.0
-        processor?.close()
     }
 }
