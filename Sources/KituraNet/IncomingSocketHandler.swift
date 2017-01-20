@@ -315,6 +315,10 @@ public class IncomingSocketHandler {
                 Log.error("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             }
         }
+
+        if preparingToClose {
+            close()
+        }
     }
 
     /// If there is data waiting to be written, set a flag and the socket will
