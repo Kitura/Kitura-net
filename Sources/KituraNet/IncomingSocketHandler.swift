@@ -63,7 +63,8 @@ public class IncomingSocketHandler {
     private var preparingToClose = false
     private var isOpen = true
     private var writeInProgress = false
-    private var readInProgress = false
+    private var handleWriteInProgress = false
+    private var handleReadInProgress = false
 
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
@@ -90,9 +91,9 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
-        readInProgress = true
+        handleReadInProgress = true
         defer {
-            readInProgress = false
+            handleReadInProgress = false
             if preparingToClose {
                 close()
             }
@@ -186,9 +187,9 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
-        writeInProgress = true
+        handleWriteInProgress = true
         defer {
-            writeInProgress = false
+            handleWriteInProgress = false
             if preparingToClose {
                 close()
             }
@@ -341,7 +342,8 @@ public class IncomingSocketHandler {
     private func handleCancel() {
         if isOpen {
             isOpen = false
-            guard !writeInProgress && !readInProgress && writeBuffer.length == writeBufferPosition else {
+            guard !writeInProgress && !handleWriteInProgress && !handleReadInProgress
+                && writeBuffer.length == writeBufferPosition else {
                 isOpen = true
                 return
             }
