@@ -54,6 +54,13 @@ public class ClientResponse: HTTPIncomingMessage {
         let buffer = NSMutableData()
         responseBuffers.rewind()
         _ = responseBuffers.fill(data: buffer)
+        
+        // There can be multiple responses in the responseBuffers, if a Continue response
+        // was received from the server. Each call to this function parses a single
+        // response, starting from the prior parse call, if any, left off. when this
+        // happens, the http_parser needs to be reset between invocations.
+        prepareToReset()
+        
         let parseStatus = super.parse(buffer, from: startParsingFrom, completeBuffer: true)
         
         startParsingFrom = buffer.length - parseStatus.bytesLeft
