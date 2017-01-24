@@ -71,12 +71,16 @@ public class IncomingSocketHandler {
     /// This lets other threads know to not start reads/writes on this socket anymore, which could cause a crash.
     private var isOpen = true
 
-    /// writeInProgress, handleWriteInProgress and handleReadInProgress are:
-    ///   - set when the corresponding functions start their work.
-    ///   - unset when the corresponding functions finish their work.
-    /// This lets other threads know to not try to close this socket while those functions are using it, which could cause a crash.
+    /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
     private var writeInProgress = false
+
+    /// handleWrite() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, handleWrite() re-attempts close when it's done
     private var handleWriteInProgress = false
+
+    /// handleRead() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, handleRead() re-attempts close when it's done
     private var handleReadInProgress = false
 
     /// The file descriptor of the incoming socket
@@ -361,6 +365,8 @@ public class IncomingSocketHandler {
             // Set isOpen to false before the guard below to avoid another thread invoking
             // a read/write function in between us clearing the guard and setting the flag.
             // Make sure to set it back to open if the guard fails and we don't actually close.
+            // This guard needs to be here, not in handleCancel() as readerSource.cancel()
+            // only invokes handleCancel() the first time it is called.
             guard !writeInProgress && !handleWriteInProgress && !handleReadInProgress
                 && writeBuffer.length == writeBufferPosition else {
                     isOpen = true
