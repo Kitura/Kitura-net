@@ -60,10 +60,28 @@ public class IncomingSocketHandler {
     private let readBuffer = NSMutableData()
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
+
+    /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
+    /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
     private var preparingToClose = false
+
+    /// isOpen is set to false when:
+    ///   - close() is invoked AND
+    ///   - it is safe to close the socket (there is no data waiting to be written and a socket read/write is not in progress).
+    /// This lets other threads know to not start reads/writes on this socket anymore, which could cause a crash.
     private var isOpen = true
+
+    /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
     private var writeInProgress = false
-    private var readInProgress = false
+
+    /// handleWrite() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, handleWrite() re-attempts close when it's done
+    private var handleWriteInProgress = false
+
+    /// handleRead() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
+    /// which could cause a crash. If any other threads tried to close during that time, handleRead() re-attempts close when it's done
+    private var handleReadInProgress = false
 
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
@@ -90,17 +108,28 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
-        guard isOpen && socket.socketfd > -1 else { return true }
+        handleReadInProgress = true
+        defer {
+            handleReadInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
+            if preparingToClose {
+                close()
+            }
+        }
+
+        // Set handleReadInProgress flag to true before the guard below to avoid another thread
+        // invoking close() in between us clearing the guard and setting the flag.
+        guard isOpen && socket.socketfd > -1 else {
+            preparingToClose = true // flag the function defer clause to cleanup if needed
+            return true
+        }
 
         var result = true
         
         do {
             var length = 1
-            readInProgress = true
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
             }
-            readInProgress = false
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
             }
@@ -108,23 +137,22 @@ public class IncomingSocketHandler {
                 if socket.remoteConnectionClosed  {
                     Log.debug("socket remoteConnectionClosed in handleRead()")
                     processor?.socketClosed()
-                    prepareToClose()
+                    preparingToClose = true
                 }
             }
         }
         catch let error as Socket.Error {
-            readInProgress = false
             if error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Read from socket (file descriptor \(socket.socketfd)) reset. Error = \(error).")
             } else {
                 Log.error("Read from socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             }
-            prepareToClose()
+            preparingToClose = true
         } catch {
-            readInProgress = false
             Log.error("Unexpected error...")
-            prepareToClose()
+            preparingToClose = true
         }
+
         return result
     }
     
@@ -178,19 +206,41 @@ public class IncomingSocketHandler {
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
-        guard isOpen && socket.socketfd > -1 else { return }
+        handleWriteInProgress = true
+        defer {
+            handleWriteInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
+            if preparingToClose {
+                close()
+            }
+        }
 
         if  writeBuffer.length != 0 {
+            defer {
+                #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+                    if writeBuffer.length == 0, let writerSource = writerSource {
+                        writerSource.cancel()
+                    }
+                #endif
+            }
+
+            // Set handleWriteInProgress flag to true before the guard below to avoid another thread
+            // invoking close() in between us clearing the guard and setting the flag.
+            guard isOpen && socket.socketfd > -1 else {
+                Log.warning("Socket closed with \(writeBuffer.length - writeBufferPosition) bytes still to be written")
+                writeBuffer.length = 0
+                writeBufferPosition = 0
+                preparingToClose = true // flag the function defer clause to cleanup if needed
+                return
+            }
+
             do {
                 let amountToWrite = writeBuffer.length - writeBufferPosition
                 
                 let written: Int
                     
                 if amountToWrite > 0 {
-                    writeInProgress = true
                     written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
                                                bufSize: amountToWrite)
-                    writeInProgress = false
                 }
                 else {
                     if amountToWrite < 0 {
@@ -209,7 +259,6 @@ public class IncomingSocketHandler {
                 }
             }
             catch let error {
-                writeInProgress = false
                 if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                     Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
                 } else {
@@ -219,18 +268,8 @@ public class IncomingSocketHandler {
                 // There was an error writing to the socket, close the socket
                 writeBuffer.length = 0
                 writeBufferPosition = 0
-                prepareToClose()
+                preparingToClose = true
             }
-            
-            #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                if writeBuffer.length == 0, let writerSource = writerSource {
-                    writerSource.cancel()
-                }
-            #endif
-        }
-        
-        if preparingToClose && writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
-            close()
         }
     }
     
@@ -260,8 +299,19 @@ public class IncomingSocketHandler {
     /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
     /// - Parameter length: The number of bytes to write to the socket.
     public func write(from bytes: UnsafeRawPointer, length: Int) {
+        writeInProgress = true
+        defer {
+            writeInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
+            if preparingToClose {
+                close()
+            }
+        }
+
+        // Set writeInProgress flag to true before the guard below to avoid another thread
+        // invoking close() in between us clearing the guard and setting the flag.
         guard isOpen && socket.socketfd > -1 else {
             Log.warning("IncomingSocketHandler write() called after socket \(socket.socketfd) closed")
+            preparingToClose = true // flag the function defer clause to cleanup if needed
             return
         }
 
@@ -269,9 +319,7 @@ public class IncomingSocketHandler {
             let written: Int
             
             if  writeBuffer.length == 0 {
-                writeInProgress = true
                 written = try socket.write(from: bytes, bufSize: length)
-                writeInProgress = false
             }
             else {
                 written = 0
@@ -290,7 +338,6 @@ public class IncomingSocketHandler {
             }
         }
         catch let error {
-            writeInProgress = false
             if let error = error as? Socket.Error, error.errorCode == Int32(Socket.SOCKET_ERR_CONNECTION_RESET) {
                 Log.debug("Write to socket (file descriptor \(socket.socketfd)) failed. Error = \(error).")
             } else {
@@ -298,42 +345,53 @@ public class IncomingSocketHandler {
             }
         }
     }
-    
+
     /// If there is data waiting to be written, set a flag and the socket will
     /// be closed when all the buffered data has been written.
     /// Otherwise, immediately close the socket.
     public func prepareToClose() {
-        if !preparingToClose {
-            preparingToClose = true
-            
-            if writeBuffer.length == writeBufferPosition && !writeInProgress && !readInProgress {
-                close()
-            }
-        }
+        preparingToClose = true
+        close()
     }
 
-    /// Close the socket and mark this handler as no longer in progress.
+    /// Close the socket and mark this handler as no longer in progress, if it is safe.
+    /// (there is no data waiting to be written and a socket read/write is not in progress).
     ///
     /// - Note: On Linux closing the socket causes it to be dropped by epoll.
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
-        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-            readerSource.cancel()
-        #else
-            handleCancel()
-        #endif
+        if isOpen {
+            isOpen = false
+            // Set isOpen to false before the guard below to avoid another thread invoking
+            // a read/write function in between us clearing the guard and setting the flag.
+            // Make sure to set it back to open if the guard fails and we don't actually close.
+            // This guard needs to be here, not in handleCancel() as readerSource.cancel()
+            // only invokes handleCancel() the first time it is called.
+            guard !writeInProgress && !handleWriteInProgress && !handleReadInProgress
+                && writeBuffer.length == writeBufferPosition else {
+                    isOpen = true
+                    return
+            }
+
+            #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+                readerSource.cancel()
+            #else
+                handleCancel()
+            #endif
+        }
     }
-    
+
     /// DispatchSource cancel handler
     private func handleCancel() {
+        isOpen = false // just in case something besides close() calls handleCancel()
         if socket.socketfd > -1 {
-            if isOpen {
-                isOpen = false
-                socket.close()
-            }
+            socket.close()
         }
+
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
+        processor?.handler = nil
         processor?.close()
+        processor = nil
     }
 }
