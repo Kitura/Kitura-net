@@ -44,11 +44,11 @@ class LargePayloadTests: KituraNetTest {
         performServerTest(delegate, useSSL: false, asyncTasks: { expectation in
             let payload = "[" + contentTypesString + "," + contentTypesString + contentTypesString + "," + contentTypesString + "]"
             self.performRequest("post", path: "/largepost", callback: {response in
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
                 do {
                     let expectedResult = "Read \(payload.characters.count) bytes"
                     var data = Data()
-                    let count = try response!.readAllData(into: &data)
+                    let count = try response?.readAllData(into: &data)
                     XCTAssertEqual(count, expectedResult.characters.count, "Result should have been \(expectedResult.characters.count) bytes, was \(count) bytes")
                     let postValue = String(data: data, encoding: .utf8)
                     if  let postValue = postValue {
@@ -72,7 +72,7 @@ class LargePayloadTests: KituraNetTest {
         performServerTest(delegate, useSSL: false, asyncTasks: { expectation in
             // This test is NOT using self.performRequest, in order to test an extra signature of HTTP.request
             let request = HTTP.request("http://localhost:\(self.port)/largepost") {response in
-                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response!.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
                 expectation.fulfill()
             }
             request.end()
