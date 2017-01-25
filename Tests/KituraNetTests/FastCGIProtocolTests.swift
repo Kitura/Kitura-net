@@ -171,7 +171,7 @@ class FastCGIProtocolTests: KituraNetTest {
             XCTAssert(parser.data != nil, "No data was received")
             
             if parser.data != nil {
-                XCTAssert(testData == parser.data!, "Data received was not data sent.")
+                XCTAssert(testData == parser.data, "Data received was not data sent.")
             }
             
         }
