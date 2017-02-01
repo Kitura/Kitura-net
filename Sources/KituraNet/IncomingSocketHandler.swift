@@ -319,6 +319,9 @@ public class IncomingSocketHandler {
             let written: Int
             
             if  writeBuffer.length == 0 {
+                DispatchQueue.global().async() { [unowned self] in
+                    self.close()
+                }
                 written = try socket.write(from: bytes, bufSize: length)
             }
             else {
@@ -386,9 +389,9 @@ public class IncomingSocketHandler {
     /// DispatchSource cancel handler
     private func handleCancel() {
 //        isOpen = false // just in case something besides close() calls handleCancel()
-        if socket.socketfd > -1 {
+//        if socket.socketfd > -1 {
             socket.close()
-        }
+//        }
 
         processor?.inProgress = false
         processor?.keepAliveUntil = 0.0
