@@ -361,6 +361,7 @@ public class IncomingSocketHandler {
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
         if isOpen {
+/*
             isOpen = false
             // Set isOpen to false before the guard below to avoid another thread invoking
             // a read/write function in between us clearing the guard and setting the flag.
@@ -372,6 +373,7 @@ public class IncomingSocketHandler {
                     isOpen = true
                     return
             }
+*/
 
             #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
                 readerSource.cancel()
@@ -383,7 +385,7 @@ public class IncomingSocketHandler {
 
     /// DispatchSource cancel handler
     private func handleCancel() {
-        isOpen = false // just in case something besides close() calls handleCancel()
+//        isOpen = false // just in case something besides close() calls handleCancel()
         if socket.socketfd > -1 {
             socket.close()
         }
