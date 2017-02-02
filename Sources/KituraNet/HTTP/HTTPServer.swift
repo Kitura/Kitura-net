@@ -42,9 +42,6 @@ public class HTTPServer: Server {
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
-    /// Incoming socket handler
-    private let socketManager = IncomingSocketManager()
-
     /// SSL cert configs for handling client requests
     public var sslConfig: SSLService.Configuration?
 
@@ -150,6 +147,11 @@ public class HTTPServer: Server {
 
     /// Listen on socket while server is started
     private func listen(listenSocket: Socket) {
+        let socketManager = IncomingSocketManager()
+        defer {
+            socketManager.stop()
+        }
+
         repeat {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection()

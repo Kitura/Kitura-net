@@ -82,6 +82,18 @@ public class IncomingSocketManager  {
         }
     #endif
 
+    deinit {
+        stop()
+    }
+
+    /// Stop this socket manager instance and cleanup resources.
+    /// If using epoll, it ends the epoll process() task and releases its thread.
+    public func stop() {
+        #if !GCD_ASYNCH && os(Linux)
+            runEpoll = false
+        #endif
+    }
+
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
