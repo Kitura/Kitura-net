@@ -37,7 +37,7 @@ class SocketManagerTests: KituraNetTest {
     override func tearDown() {
         #if !GCD_ASYNCH && os(Linux)
             if let manager = manager {
-                manager.runEpoll = false
+                manager.stop()
                 usleep(UInt32(manager.epollTimeout) * UInt32(1000))  /* epollTimeout is in milliseconds */
             }
         #endif

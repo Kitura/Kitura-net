@@ -42,6 +42,9 @@ public class HTTPServer: Server {
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
+    /// Incoming socket handler
+    private var socketManager: IncomingSocketManager?
+
     /// SSL cert configs for handling client requests
     public var sslConfig: SSLService.Configuration?
 
@@ -66,6 +69,9 @@ public class HTTPServer: Server {
 
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
 
+            let socketManager = IncomingSocketManager()
+            self.socketManager = socketManager
+
             // If a random (ephemeral) port number was requested, get the listening port
             let listeningPort = Int(socket.listeningPort)
             if listeningPort != port {
@@ -85,9 +91,8 @@ public class HTTPServer: Server {
             let queuedBlock = DispatchWorkItem(block: {
                 self.state = .started
                 self.lifecycleListener.performStartCallbacks()
-                self.listen(listenSocket: socket)
+                self.listen(listenSocket: socket, socketManager: socketManager)
                 self.lifecycleListener.performStopCallbacks()
-                self.listenSocket = nil
             })
 
             ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
@@ -145,13 +150,8 @@ public class HTTPServer: Server {
         return server
     }
 
-    /// Listen on socket while server is started
-    private func listen(listenSocket: Socket) {
-        let socketManager = IncomingSocketManager()
-        defer {
-            socketManager.stop()
-        }
-
+    /// Listen on socket while server is started and pass on to socketManager to handle
+    private func listen(listenSocket: Socket, socketManager: IncomingSocketManager) {
         repeat {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection()
@@ -188,7 +188,12 @@ public class HTTPServer: Server {
     /// Stop listening for new connections.
     public func stop() {
         self.state = .stopped
+
         listenSocket?.close()
+        listenSocket = nil
+
+        socketManager?.stop()
+        socketManager = nil
     }
 
     /// Add a new listener for server beeing started
