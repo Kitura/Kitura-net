@@ -88,9 +88,11 @@ public class HTTPServer: Server {
                 Log.info("Listening on port \(self.port!)")
             }
 
+            // set synchronously to avoid contention in back to back server start/stop calls
+            self.state = .started
+            self.lifecycleListener.performStartCallbacks()
+
             let queuedBlock = DispatchWorkItem(block: {
-                self.state = .started
-                self.lifecycleListener.performStartCallbacks()
                 self.listen(listenSocket: socket, socketManager: socketManager)
                 self.lifecycleListener.performStopCallbacks()
             })

@@ -61,12 +61,13 @@ public class FastCGIServer: Server {
             try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
             Log.info("Listening on port \(port)")
 
+            // set synchronously to avoid contention in back to back server start/stop calls
+            self.state = .started
+            self.lifecycleListener.performStartCallbacks()
+
             let queuedBlock = DispatchWorkItem(block: {
-                self.state = .started
-                self.lifecycleListener.performStartCallbacks()
                 self.listen(listenSocket: socket)
                 self.lifecycleListener.performStopCallbacks()
-                self.listenSocket = nil
             })
 
             ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
@@ -206,6 +207,7 @@ public class FastCGIServer: Server {
     public func stop() {
         self.state = .stopped
         listenSocket?.close()
+        listenSocket = nil
     }
 
     /// Add a new listener for server being started
