@@ -50,8 +50,12 @@ class KituraNetTest: XCTestCase {
         #endif
     }()
 
-    func doSetUp() {
+    private static let initOnce: () = {
         PrintLogger.use(colored: true)
+    }()
+
+    func doSetUp() {
+        KituraNetTest.initOnce
     }
 
     func doTearDown() {

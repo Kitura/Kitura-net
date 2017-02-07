@@ -45,7 +45,10 @@ public class IncomingSocketManager  {
     
     /// The last time we checked for an idle socket
     var keepAliveIdleLastTimeChecked = Date()
-    
+
+    /// Flag indicating when we are done using this socket manager, so we can clean up
+    private var stopped = false
+
     #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
     
@@ -55,7 +58,6 @@ public class IncomingSocketManager  {
         private let queues:[DispatchQueue]
 
         let epollTimeout: Int32 = 50
-        var runEpoll = true
 
         private func epollDescriptor(fd:Int32) -> Int32 {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
@@ -82,11 +84,29 @@ public class IncomingSocketManager  {
         }
     #endif
 
+    deinit {
+        stop()
+    }
+
+    /// Stop this socket manager instance and cleanup resources.
+    /// If using epoll, it also ends the epoll process() task, closes the epoll fd and releases its thread.
+    public func stop() {
+        stopped = true
+        #if GCD_ASYNCH || !os(Linux)
+            removeIdleSockets(removeAll: true)
+        #endif
+    }
+
     /// Handle a new incoming socket
     ///
     /// - Parameter socket: the incoming socket to handle
     /// - Parameter using: The ServerDelegate to actually handle the socket
     public func handle(socket: Socket, processor: IncomingSocketProcessor) {
+        guard !stopped else {
+            Log.warning("Cannot handle socket as socket manager has been stopped")
+            return
+        }
+
         do {
             try socket.setBlocking(mode: false)
             
@@ -117,7 +137,7 @@ public class IncomingSocketManager  {
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
         
-            while  runEpoll  {
+            while !stopped {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
             
                 if  count == -1  {
@@ -164,6 +184,10 @@ public class IncomingSocketManager  {
                     deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
                 }
             }
+
+            // cleanup after manager stopped
+            removeIdleSockets(removeAll: true)
+            close(epollDescriptor)
         }
 
         private func process(deferredHandlers: inout [Int32: IncomingSocketHandler]) -> Bool {
@@ -193,13 +217,15 @@ public class IncomingSocketManager  {
     /// to have a lock around the access to the socketHandlers Dictionary. The other
     /// idea here is that if sockets aren't coming in, it doesn't matter too much if
     /// we leave a round some idle sockets.
-    private func removeIdleSockets() {
+    ///
+    /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
+    private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
-        guard  now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
+        guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
-            if  handler.processor != nil  &&  (handler.processor!.inProgress  ||  maxInterval < handler.processor!.keepAliveUntil) {
+            if !removeAll && handler.processor != nil  &&  (handler.processor!.inProgress  ||  maxInterval < handler.processor!.keepAliveUntil) {
                 continue
             }
             socketHandlers.removeValue(forKey: fileDescriptor)
