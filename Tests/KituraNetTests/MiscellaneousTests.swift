@@ -27,8 +27,7 @@ class MiscellaneousTests: KituraNetTest {
         return [
             ("testError", testError),
             ("testEscape", testEscape),
-            ("testHeadersContainers", testHeadersContainers),
-            ("testHTTPIncomingMessage", testHTTPIncomingMessage)
+            ("testHeadersContainers", testHeadersContainers)
         ]
     }
     
@@ -72,11 +71,5 @@ class MiscellaneousTests: KituraNetTest {
         }
         XCTAssert(foundContentType, "Didn't find the Content-Type header")
         XCTAssert(foundSetCookie, "Didn't find the Set-Cookie header")
-    }
-    
-    func testHTTPIncomingMessage() {
-        let message = HTTPIncomingMessage(isRequest: true)
-        
-        XCTAssertEqual(message.parse(NSData(), from: 0).error, HTTPParserErrorType.unexpectedEOF, "Parse should have errored with error=\(HTTPParserErrorType.unexpectedEOF)")
     }
 }
