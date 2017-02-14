@@ -51,11 +51,11 @@ class UpgradeTests: KituraNetTest {
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
 
-            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+            let (rawParser, _) = self.processUpgradeResponse(socket: socket)
 
-            guard let response = rawResponse else { return }
+            guard let parser = rawParser else { return }
             
-            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+            XCTAssertEqual(parser.statusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(parser.statusCode) and not \(HTTPStatusCode.notFound)")
             
             expectation.fulfill()
         }
@@ -74,11 +74,11 @@ class UpgradeTests: KituraNetTest {
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
             
-            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+            let (rawParser, _) = self.processUpgradeResponse(socket: socket)
             
-            guard let response = rawResponse else { return }
+            guard let parser = rawParser else { return }
             
-            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.switchingProtocols, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.switchingProtocols)")
+            XCTAssertEqual(parser.statusCode, HTTPStatusCode.switchingProtocols, "Returned status code on upgrade request was \(parser.statusCode) and not \(HTTPStatusCode.switchingProtocols)")
             
             do {
                 try socket.write(from: NSData(bytes: messageToProtocol, length: messageToProtocol.count))
@@ -113,11 +113,11 @@ class UpgradeTests: KituraNetTest {
             
             guard let socket = self.sendUpgradeRequest(forProtocol: "testing123") else { return }
             
-            let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+            let (rawParser, _) = self.processUpgradeResponse(socket: socket)
             
-            guard let response = rawResponse else { return }
+            guard let parser = rawParser else { return }
             
-            XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+            XCTAssertEqual(parser.statusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(parser.statusCode) and not \(HTTPStatusCode.notFound)")
             
             expectation.fulfill()
         },
@@ -135,11 +135,11 @@ class UpgradeTests: KituraNetTest {
                 
                 try socket.write(from: data)
                 
-                let (rawResponse, _) = self.processUpgradeResponse(socket: socket)
+                let (rawParser, _) = self.processUpgradeResponse(socket: socket)
                 
-                guard let response = rawResponse else { return }
+                guard let parser = rawParser else { return }
                 
-                XCTAssertEqual(response.httpStatusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(response.httpStatusCode) and not \(HTTPStatusCode.notFound)")
+                XCTAssertEqual(parser.statusCode, HTTPStatusCode.notFound, "Returned status code on upgrade request was \(parser.statusCode) and not \(HTTPStatusCode.notFound)")
                 
                 expectation.fulfill()
             }
@@ -174,12 +174,13 @@ class UpgradeTests: KituraNetTest {
     
     
     
-    private func processUpgradeResponse(socket: Socket) -> (HTTPIncomingMessage?, NSData?) {
-        let response: HTTPIncomingMessage = HTTPIncomingMessage(isRequest: false)
+    private func processUpgradeResponse(socket: Socket) -> (HTTPParser?, NSData?) {
+        let parser = HTTPParser(isRequest: false)
         var unparsedData: NSData?
         var errorFlag = false
         
         var keepProcessing = true
+        var notFoundEof = true
         let buffer = NSMutableData()
         
         do {
@@ -187,14 +188,19 @@ class UpgradeTests: KituraNetTest {
                 buffer.length = 0
                 let count = try socket.read(into: buffer)
 
-                if count != 0 {
-                    let parserStatus = response.parse(buffer, from: 0, completeBuffer: true)
+                if notFoundEof {
+                    let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self)
+                    let (numberParsed, _) = parser.execute(bytes, length: buffer.length)
 
-                    if parserStatus.state == .messageComplete {
+                    if parser.completed {
                         keepProcessing = false
-                        if parserStatus.bytesLeft != 0 {
-                            unparsedData = NSData(bytes: buffer.bytes+buffer.length-parserStatus.bytesLeft, length: parserStatus.bytesLeft)
+                        let bytesLeft = buffer.length - numberParsed
+                        if bytesLeft != 0 {
+                            unparsedData = NSData(bytes: buffer.bytes+buffer.length-bytesLeft, length: bytesLeft)
                         }
+                    }
+                    else {
+                        notFoundEof = count != 0
                     }
                 }
                 else {
@@ -208,7 +214,7 @@ class UpgradeTests: KituraNetTest {
             errorFlag = true
             XCTFail("Failed to send upgrade request. Error=\(error)")
         }
-        return (errorFlag ? nil : response, unparsedData)
+        return (errorFlag ? nil : parser, unparsedData)
     }
     
     // A very simple `ConnectionUpgradeFactory` class for testing
