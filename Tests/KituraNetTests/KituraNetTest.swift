@@ -127,7 +127,7 @@ class KituraNetTest: XCTestCase {
         }
     }
 
-    func performRequest(_ method: String, path: String, callback: @escaping ClientRequest.Callback,
+    func performRequest(_ method: String, path: String, close: Bool=true, callback: @escaping ClientRequest.Callback,
                         headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
 
         var allHeaders = [String: String]()
@@ -149,7 +149,7 @@ class KituraNetTest: XCTestCase {
         if let requestModifier = requestModifier {
             requestModifier(req)
         }
-        req.end(close: true)
+        req.end(close: close)
     }
 
     func expectation(line: Int, index: Int) -> XCTestExpectation {
