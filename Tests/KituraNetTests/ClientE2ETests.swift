@@ -25,9 +25,9 @@ class ClientE2ETests: KituraNetTest {
 
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
+            ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testErrorRequests", testErrorRequests),
             ("testHeadRequests", testHeadRequests),
-            ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testPostRequests", testPutRequests),
             ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
