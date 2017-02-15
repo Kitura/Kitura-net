@@ -171,6 +171,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         
         if httpParser.completed {
             status.state = .messageComplete
+            status.keepAlive = httpParser.isKeepAlive() 
             return status
         }
         else if numberParsed != length  {
@@ -185,6 +186,14 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
         let parsingStatus = parse(buffer, from: parseStartingFrom)
+        
+        if parsingStatus.bytesLeft == 0 {
+            parseStartingFrom = 0
+        }
+        else {
+            parseStartingFrom = buffer.length - parsingStatus.bytesLeft
+        }
+        
         guard  parsingStatus.error == nil  else  {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")
             let response = HTTPServerResponse(processor: self, request: nil)
@@ -195,13 +204,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             catch {}
 
             return
-        }
-        
-        if parsingStatus.bytesLeft == 0 {
-            parseStartingFrom = 0
-        }
-        else {
-            parseStartingFrom = buffer.length - parsingStatus.bytesLeft
         }
         
         switch(parsingStatus.state) {
