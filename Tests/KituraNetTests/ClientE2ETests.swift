@@ -28,6 +28,7 @@ class ClientE2ETests: KituraNetTest {
             ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testErrorRequests", testErrorRequests),
             ("testHeadRequests", testHeadRequests),
+            ("testKeepAlive", testKeepAlive),
             ("testPostRequests", testPutRequests),
             ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
@@ -62,6 +63,29 @@ class ClientE2ETests: KituraNetTest {
                 expectation.fulfill()
             })
         }
+    }
+    
+    func testKeepAlive() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("get", path: "/posttest", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                if let connectionHeader = response?.headers["Connection"] {
+                    XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
+                    XCTAssertEqual(connectionHeader[0], "Close", "The Connection header didn't have a value of 'Close' (was \(connectionHeader[0]))")
+                }
+                expectation.fulfill()
+            })
+        },
+        { expectation in
+            self.performRequest("get", path: "/posttest", close: false, callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                if let connectionHeader = response?.headers["Connection"] {
+                    XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
+                    XCTAssertEqual(connectionHeader[0], "Keep-Alive", "The Connection header didn't have a value of 'Keep-Alive' (was \(connectionHeader[0]))")
+                }
+                expectation.fulfill()
+            })
+        })
     }
 
     func testEphemeralListeningPort() {
