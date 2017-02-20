@@ -278,7 +278,9 @@ class ClientE2ETests: KituraNetTest {
     class TestURLDelegate: ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
-            XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
+            XCTAssertEqual(request.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(request.httpVersionMajor)")
+            XCTAssertEqual(request.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(request.httpVersionMinor)")
+            XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.path)")
             XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.url, urlPath.data(using: .utf8))
             do {
