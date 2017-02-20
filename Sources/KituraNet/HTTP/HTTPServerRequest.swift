@@ -37,7 +37,7 @@ public class HTTPServerRequest: ServerRequest {
         return socket.remoteHostname
     }
     
-    /// HTTP Method of the incoming message.
+    /// HTTP Method of the request.
     public var method: String { return httpParser?.method ?? ""}
     
     /// Major version of HTTP of the request
@@ -46,7 +46,7 @@ public class HTTPServerRequest: ServerRequest {
     /// Minor version of HTTP of the request
     public var httpVersionMinor: UInt16? { return httpParser?.httpVersionMinor ?? 0}
     
-    /// Set of HTTP headers of the incoming message.
+    /// Set of HTTP headers of the request.
     public var headers: HeadersContainer { return httpParser?.headers ?? HeadersContainer() }
     
     /// socket signature of the request.
@@ -128,24 +128,25 @@ public class HTTPServerRequest: ServerRequest {
     /// The http_parser Swift wrapper
     weak var httpParser: HTTPParser?
     
-    /// State of incoming message handling
+    /// State of parsing the request
     private var status = HTTPParserStatus()
     
     private var buffer = Data(capacity: bufferSize)
     
-    /// Initializes a new IncomingMessage
+    /// Initializes a new `HTTPServerRequest`
     ///
-    /// - Parameter isRequest: whether this message is a request
+    /// - Parameter socket: The Socket object associated with this request
+    /// - Parameter httpParser: The `HTTPParser` object used to parse the incoming request
     ///
-    /// - Returns: an IncomingMessage instance
+    /// - Returns: an HTTPServerRequest instance
     init (socket: Socket, httpParser: HTTPParser?) {
         self.socket = socket
         self.httpParser = httpParser
     }
     
-    /// Read a chunk of the body of the message.
+    /// Read a chunk of the body of the request.
     ///
-    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Parameter into: An NSMutableData to hold the data in the request.
     /// - Throws: if an error occurs while reading the body.
     /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
@@ -157,9 +158,9 @@ public class HTTPServerRequest: ServerRequest {
         return count
     }
     
-    /// Read the whole body of the message.
+    /// Read the whole body of the request.
     ///
-    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Parameter into: An NSMutableData to hold the data in the request.
     /// - Throws: if an error occurs while reading the data.
     /// - Returns: the number of bytes read.
     @discardableResult

@@ -24,7 +24,7 @@ import LoggerAPI
 /// sent using the `ClientRequest` class.
 public class ClientResponse {
     
-    /// HTTP Status code if this message is a response
+    /// HTTP Status code
     public private(set) var httpStatusCode: HTTPStatusCode = .unknown
     
     /// HTTP Method of the incoming message.
@@ -32,13 +32,13 @@ public class ClientResponse {
     "This method never worked on Client Responses and was inherited incorrectly from a super class")
     public var method: String { return httpParser.method }
     
-    /// Major version of HTTP of the request
+    /// Major version of HTTP of the response
     public var httpVersionMajor: UInt16? { return httpParser.httpVersionMajor }
     
-    /// Minor version of HTTP of the request
+    /// Minor version of HTTP of the response
     public var httpVersionMinor: UInt16? { return httpParser.httpVersionMinor }
     
-    /// Set of HTTP headers of the incoming message.
+    /// Set of HTTP headers of the response.
     public var headers: HeadersContainer { return httpParser.headers }
     
     // Private
@@ -49,7 +49,7 @@ public class ClientResponse {
     /// The http_parser Swift wrapper
     private var httpParser = HTTPParser(isRequest: false)
     
-    /// State of incoming message handling
+    /// State of response parsing
     private var parserStatus = HTTPParserStatus()
     
     private var buffer = Data(capacity: bufferSize)
@@ -93,9 +93,9 @@ public class ClientResponse {
         return parserStatus
     }
     
-    /// Read a chunk of the body of the message.
+    /// Read a chunk of the body of the response.
     ///
-    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Parameter into: An NSMutableData to hold the data in the response.
     /// - Throws: if an error occurs while reading the body.
     /// - Returns: the number of bytes read.
     public func read(into data: inout Data) throws -> Int {
@@ -103,9 +103,9 @@ public class ClientResponse {
         return count
     }
     
-    /// Read the whole body of the message.
+    /// Read the whole body of the response.
     ///
-    /// - Parameter into: An NSMutableData to hold the data in the message.
+    /// - Parameter into: An NSMutableData to hold the data in the response.
     /// - Throws: if an error occurs while reading the data.
     /// - Returns: the number of bytes read.
     @discardableResult
