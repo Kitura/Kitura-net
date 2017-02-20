@@ -120,10 +120,9 @@ class ClientE2ETests: KituraNetTest {
             self.performRequest("post", path: "/posttest", callback: {response in
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
                 do {
-                    var data = Data()
-                    let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
-                    let postValue = String(data: data as Data, encoding: .utf8)
+                    let postValue = try response?.readString()
+                    XCTAssertNotNil(postValue, "The body of the response was empty")
+                    XCTAssertEqual(postValue?.characters.count, 12, "Result should have been 12 bytes, was \(postValue?.characters.count) bytes")
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
