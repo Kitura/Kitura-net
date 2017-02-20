@@ -73,7 +73,7 @@ public class ClientResponse {
         }
         
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
-        let (numberParsed, upgrade) = httpParser.execute(bytes, length: length)
+        let (numberParsed, _) = httpParser.execute(bytes, length: length)
         
         if numberParsed == length {
             // Tell parser we reached the end
@@ -86,10 +86,6 @@ public class ClientResponse {
         else if numberParsed != length  {
             /* Handle error. Usually just close the connection. */
             parserStatus.error = .parsedLessThanRead
-        }
-        
-        if upgrade == 1 {
-            parserStatus.upgrade = true
         }
         
         parserStatus.bytesLeft = length - numberParsed
