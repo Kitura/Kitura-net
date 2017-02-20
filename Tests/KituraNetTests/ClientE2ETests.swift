@@ -60,6 +60,8 @@ class ClientE2ETests: KituraNetTest {
                 catch {
                     XCTFail("Failed reading the body of the response")
                 }
+                XCTAssertEqual(response?.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(response?.httpVersionMajor)")
+                XCTAssertEqual(response?.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(response?.httpVersionMinor)")
                 expectation.fulfill()
             })
         }
