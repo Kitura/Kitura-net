@@ -21,14 +21,15 @@ import LoggerAPI
 // MARK: ClientResponse
 
 /// This class describes the response sent by the remote server to an HTTP request
-/// sent using the `ClientRequest` class. This class is an extension of the 
-/// `HTTPIncomingMessage` class.
+/// sent using the `ClientRequest` class.
 public class ClientResponse {
     
     /// HTTP Status code if this message is a response
     public private(set) var httpStatusCode: HTTPStatusCode = .unknown
     
     /// HTTP Method of the incoming message.
+    @available(*, deprecated, message:
+    "This method never worked on Client Responses and was inherited incorrectly from a super class")
     public var method: String { return httpParser.method }
     
     /// Major version of HTTP of the request

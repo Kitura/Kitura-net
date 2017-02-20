@@ -25,6 +25,8 @@ import LoggerAPI
 public class HTTPServerRequest: ServerRequest {
     
     /// HTTP Status code if this message is a response
+    @available(*, deprecated, message:
+    "This method never worked on Server Requests and was inherited incorrectly from a super class")
     public private(set) var httpStatusCode: HTTPStatusCode = .unknown
     
     /// Client connection socket
@@ -215,8 +217,6 @@ public class HTTPServerRequest: ServerRequest {
         
         status.keepAlive = httpParser.isKeepAlive()
         status.state = .messageComplete
-        
-        httpStatusCode = httpParser.statusCode
     }
 
 }
