@@ -92,7 +92,7 @@ class LargePayloadTests: KituraNetTest {
 
         func handleGet(request: ServerRequest, response: ServerResponse) {
             var payload = "[" + contentTypesString
-            for _ in 0 ... 160 {
+            for _ in 0 ... 320 {
                 payload += "," + contentTypesString
             }
             payload += "]"
