@@ -41,7 +41,7 @@ public class IncomingSocketManager  {
     var socketHandlers = [Int32: IncomingSocketHandler]()
     
     /// Interval at which to check for idle sockets to close
-    let keepAliveIdleCheckingInterval: TimeInterval = 60.0
+    let keepAliveIdleCheckingInterval: TimeInterval = 5.0
     
     /// The last time we checked for an idle socket
     var keepAliveIdleLastTimeChecked = Date()

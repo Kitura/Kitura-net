@@ -39,6 +39,8 @@ public class HTTPServerResponse : ServerResponse {
     
     /// Corresponding socket processor
     private weak var processor : IncomingHTTPSocketProcessor?
+    
+    let request: HTTPServerRequest?
 
     /// HTTP status code of the response.
     public var statusCode: HTTPStatusCode? {
@@ -53,10 +55,11 @@ public class HTTPServerResponse : ServerResponse {
     }
 
     /// Initializes a HTTPServerResponse instance
-    init(processor: IncomingHTTPSocketProcessor) {
+    init(processor: IncomingHTTPSocketProcessor, request: HTTPServerRequest?) {
         self.processor = processor
         buffer = NSMutableData(capacity: HTTPServerResponse.bufferSize) ?? NSMutableData()
         headers["Date"] = [SPIUtils.httpDate()]
+        self.request = request
     }
 
     /// Write a string as a response.
@@ -118,7 +121,9 @@ public class HTTPServerResponse : ServerResponse {
             if !keepAlive && !processor.isUpgrade {
                 processor.close()
             }
-            Monitor.delegate?.finished(request: processor.request, response: self)
+            if let request = request {
+                Monitor.delegate?.finished(request: request, response: self)
+            }
         }
     }
 

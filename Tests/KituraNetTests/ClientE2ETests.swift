@@ -25,9 +25,10 @@ class ClientE2ETests: KituraNetTest {
 
     static var allTests : [(String, (ClientE2ETests) -> () throws -> Void)] {
         return [
+            ("testEphemeralListeningPort", testEphemeralListeningPort),
             ("testErrorRequests", testErrorRequests),
             ("testHeadRequests", testHeadRequests),
-            ("testEphemeralListeningPort", testEphemeralListeningPort),
+            ("testKeepAlive", testKeepAlive),
             ("testPostRequests", testPutRequests),
             ("testPutRequests", testPostRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
@@ -59,9 +60,34 @@ class ClientE2ETests: KituraNetTest {
                 catch {
                     XCTFail("Failed reading the body of the response")
                 }
+                XCTAssertEqual(response?.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(response?.httpVersionMajor)")
+                XCTAssertEqual(response?.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(response?.httpVersionMinor)")
                 expectation.fulfill()
             })
         }
+    }
+    
+    func testKeepAlive() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("get", path: "/posttest", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                if let connectionHeader = response?.headers["Connection"] {
+                    XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
+                    XCTAssertEqual(connectionHeader[0], "Close", "The Connection header didn't have a value of 'Close' (was \(connectionHeader[0]))")
+                }
+                expectation.fulfill()
+            })
+        },
+        { expectation in
+            self.performRequest("get", path: "/posttest", close: false, callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                if let connectionHeader = response?.headers["Connection"] {
+                    XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
+                    XCTAssertEqual(connectionHeader[0], "Keep-Alive", "The Connection header didn't have a value of 'Keep-Alive' (was \(connectionHeader[0]))")
+                }
+                expectation.fulfill()
+            })
+        })
     }
 
     func testEphemeralListeningPort() {
@@ -94,10 +120,9 @@ class ClientE2ETests: KituraNetTest {
             self.performRequest("post", path: "/posttest", callback: {response in
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
                 do {
-                    var data = Data()
-                    let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
-                    let postValue = String(data: data as Data, encoding: .utf8)
+                    let postValue = try response?.readString()
+                    XCTAssertNotNil(postValue, "The body of the response was empty")
+                    XCTAssertEqual(postValue?.characters.count, 12, "Result should have been 12 bytes, was \(postValue?.characters.count) bytes")
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
@@ -235,6 +260,8 @@ class ClientE2ETests: KituraNetTest {
             }
             
             do {
+                response.statusCode = .OK
+                XCTAssertEqual(response.statusCode, .OK, "Set response status code wasn't .OK, it was \(response.statusCode)")
                 response.headers["Content-Type"] = ["text/plain"]
                 if request.method.lowercased() != "head" {
                     response.headers["Content-Length"] = ["\(result.characters.count)"]
@@ -251,7 +278,9 @@ class ClientE2ETests: KituraNetTest {
     class TestURLDelegate: ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
-            XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.port)")
+            XCTAssertEqual(request.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(request.httpVersionMajor)")
+            XCTAssertEqual(request.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(request.httpVersionMinor)")
+            XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.path)")
             XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.url, urlPath.data(using: .utf8))
             do {
