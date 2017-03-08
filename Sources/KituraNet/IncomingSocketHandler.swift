@@ -58,7 +58,9 @@ public class IncomingSocketHandler {
     private weak var manager: IncomingSocketManager?
     
     private let readBuffer = NSMutableData()
-    private let writeBuffer = NSMutableData()
+    
+    private var writeBuffers = [NSData]()
+    private var writeBuffersLock = DispatchSemaphore(value: 1)
     private var writeBufferPosition = 0
 
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
@@ -196,16 +198,6 @@ public class IncomingSocketHandler {
     
     /// Write out any buffered data now that the socket can accept more data
     func handleWrite() {
-        #if !GCD_ASYNCH  &&  os(Linux)
-            IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
-                self.handleWriteHelper()
-            }
-        #endif
-    }
-    
-    /// Inner function to write out any buffered data now that the socket can accept more data,
-    /// invoked in serial queue.
-    private func handleWriteHelper() {
         handleWriteInProgress = true
         defer {
             handleWriteInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
@@ -214,10 +206,10 @@ public class IncomingSocketHandler {
             }
         }
 
-        if  writeBuffer.length != 0 {
+        if  writeBuffers.count != 0 {
             defer {
                 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-                    if writeBuffer.length == 0, let writerSource = writerSource {
+                    if writeBuffers.count == 0, let writerSource = writerSource {
                         writerSource.cancel()
                     }
                 #endif
@@ -226,20 +218,24 @@ public class IncomingSocketHandler {
             // Set handleWriteInProgress flag to true before the guard below to avoid another thread
             // invoking close() in between us clearing the guard and setting the flag.
             guard isOpen && socket.socketfd > -1 else {
-                Log.warning("Socket closed with \(writeBuffer.length - writeBufferPosition) bytes still to be written")
-                writeBuffer.length = 0
+                Log.warning("Socket closed with at least \(writeBuffers[0].length - writeBufferPosition) bytes still to be written")
+                
+                lockWriteBuffersLock()
+                writeBuffers.removeAll()
+                unlockWriteBuffersLock()
+                
                 writeBufferPosition = 0
                 preparingToClose = true // flag the function defer clause to cleanup if needed
                 return
             }
 
             do {
-                let amountToWrite = writeBuffer.length - writeBufferPosition
+                let amountToWrite = writeBuffers[0].length - writeBufferPosition
                 
                 let written: Int
                     
                 if amountToWrite > 0 {
-                    written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
+                    written = try socket.write(from: writeBuffers[0].bytes + writeBufferPosition,
                                                bufSize: amountToWrite)
                 }
                 else {
@@ -254,7 +250,10 @@ public class IncomingSocketHandler {
                     writeBufferPosition += written
                 }
                 else {
-                    writeBuffer.length = 0
+                    lockWriteBuffersLock()
+                    writeBuffers.remove(at: 0)
+                    unlockWriteBuffersLock()
+                    
                     writeBufferPosition = 0
                 }
             }
@@ -266,7 +265,10 @@ public class IncomingSocketHandler {
                 }
                 
                 // There was an error writing to the socket, close the socket
-                writeBuffer.length = 0
+                lockWriteBuffersLock()
+                writeBuffers.removeAll()
+                unlockWriteBuffersLock()
+                
                 writeBufferPosition = 0
                 preparingToClose = true
             }
@@ -279,7 +281,7 @@ public class IncomingSocketHandler {
             writerSource = DispatchSource.makeWriteSource(fileDescriptor: socket.socketfd,
                                                           queue: IncomingSocketHandler.socketWriterQueue)
             
-            writerSource!.setEventHandler(handler: self.handleWriteHelper)
+            writerSource!.setEventHandler(handler: self.handleWrite)
             writerSource!.setCancelHandler() {
                 self.writerSource = nil
             }
@@ -318,7 +320,7 @@ public class IncomingSocketHandler {
         do {
             let written: Int
             
-            if  writeBuffer.length == 0 {
+            if  writeBuffers.count == 0 {
                 written = try socket.write(from: bytes, bufSize: length)
             }
             else {
@@ -326,9 +328,9 @@ public class IncomingSocketHandler {
             }
             
             if written != length {
-                IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
-                    self.writeBuffer.append(bytes + written, length: length - written)
-                }
+                lockWriteBuffersLock()
+                writeBuffers.append(NSData(bytes: bytes + written, length: length - written))
+                unlockWriteBuffersLock()
                 
                 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
                     if writerSource == nil {
@@ -368,7 +370,7 @@ public class IncomingSocketHandler {
             // This guard needs to be here, not in handleCancel() as readerSource.cancel()
             // only invokes handleCancel() the first time it is called.
             guard !writeInProgress && !handleWriteInProgress && !handleReadInProgress
-                && writeBuffer.length == writeBufferPosition else {
+                && writeBuffers.count == 0 else {
                     isOpen = true
                     return
             }
@@ -393,5 +395,13 @@ public class IncomingSocketHandler {
         processor?.handler = nil
         processor?.close()
         processor = nil
+    }
+    
+    private func lockWriteBuffersLock() {
+        _ = writeBuffersLock.wait(timeout: DispatchTime.distantFuture)
+    }
+    
+    private func unlockWriteBuffersLock() {
+        writeBuffersLock.signal()
     }
 }
