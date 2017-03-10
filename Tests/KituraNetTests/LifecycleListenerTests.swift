@@ -14,11 +14,10 @@
  * limitations under the License.
  **/
 
+import Dispatch
 import Foundation
 
 import XCTest
-
-import Socket
 
 @testable import KituraNet
 
@@ -147,23 +146,34 @@ class LifecycleListenerTests: KituraNetTest {
     }
 
     func testServerFailLifecycle() {
-        var failedCallback = false
-        var socketErrorThrown = false
 
-        let server = HTTP.createServer()
-        server.failed(callback: { error in
-            failedCallback = true
+        let failedCallbackExpectation = self.expectation(description: "failedCallback")
+        
+        let firstServer = HTTP.createServer()
+        
+        let secondServer = HTTP.createServer()
+        secondServer.failed(callback: { error in
+            failedCallbackExpectation.fulfill()
         })
 
         do {
-            try server.listen(on: -1)
-        } catch _ as Socket.Error {
-            socketErrorThrown = true
+            try firstServer.listen(on: self.port)
+            
+            DispatchQueue.global().async {
+                do {
+                    try secondServer.listen(on: self.port)
+                } catch {
+                    // Do NOT fail the test here. An error should be thrown....
+                }
+            }
         } catch {
-            socketErrorThrown = false
+            XCTFail("Error: \(error)")
         }
-
-        XCTAssertTrue(failedCallback)
-        XCTAssertTrue(socketErrorThrown)
+        
+        self.waitForExpectations(timeout: 5) { error in
+            XCTAssertNil(error)
+            
+            firstServer.stop()
+        }
     }
 }
