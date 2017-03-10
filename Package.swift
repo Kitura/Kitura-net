@@ -33,4 +33,6 @@ let package = Package(
 #if os(Linux)
     package.dependencies.append(
         .Package(url: "https://github.com/IBM-Swift/CEpoll.git", majorVersion: 0, minor: 1))
+    package.dependencies.append(
+        .Package(url: "https://github.com/IBM-Swift/BlueSignals.git", majorVersion: 0, minor: 9))
 #endif
