@@ -19,6 +19,10 @@ import Dispatch
 import Socket
 import LoggerAPI
 
+#if os(Linux)
+  import Signals
+#endif
+
 /// A server that listens for incoming HTTP requests that are sent using the FastCGI
 /// protocol.
 public class FastCGIServer: Server {
@@ -48,6 +52,18 @@ public class FastCGIServer: Server {
     private var listenSocket: Socket?
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
+
+    public init() {
+        #if os(Linux)
+            // On Linux, it is not possible to set SO_NOSIGPIPE on the socket, nor is it possible
+            // to pass MSG_NOSIGNAL when writing via SSL_write(). Instead, we will receive it but
+            // ignore it. This happens when a remote receiver closes a socket we are to writing to.
+            Signals.trap(signal: .pipe) {
+                _ in
+                Log.info("Receiver closed socket, SIGPIPE ignored")
+            }
+        #endif
+    }
 
     /// Listens for connections on a socket
     ///
