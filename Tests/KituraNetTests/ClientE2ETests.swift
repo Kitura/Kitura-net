@@ -51,17 +51,17 @@ class ClientE2ETests: KituraNetTest {
     func testHeadRequests() {
         performServerTest(delegate) { expectation in
             self.performRequest("head", path: "/headtest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
                     var data = Data()
                     let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 0, "Result should have been zero bytes, was \(count) bytes")
+                    XCTAssertEqual(count, 0, "Result should have been zero bytes, was \(String(describing: count)) bytes")
                 }
                 catch {
                     XCTFail("Failed reading the body of the response")
                 }
-                XCTAssertEqual(response?.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(response?.httpVersionMajor)")
-                XCTAssertEqual(response?.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(response?.httpVersionMinor)")
+                XCTAssertEqual(response?.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(String(describing: response?.httpVersionMajor))")
+                XCTAssertEqual(response?.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(String(describing: response?.httpVersionMinor))")
                 expectation.fulfill()
             })
         }
@@ -70,7 +70,7 @@ class ClientE2ETests: KituraNetTest {
     func testKeepAlive() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("get", path: "/posttest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
                 if let connectionHeader = response?.headers["Connection"] {
                     XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
                     XCTAssertEqual(connectionHeader[0], "Close", "The Connection header didn't have a value of 'Close' (was \(connectionHeader[0]))")
@@ -80,7 +80,7 @@ class ClientE2ETests: KituraNetTest {
         },
         { expectation in
             self.performRequest("get", path: "/posttest", close: false, callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
                 if let connectionHeader = response?.headers["Connection"] {
                     XCTAssertEqual(connectionHeader.count, 1, "The Connection header didn't have only one value. Value=\(connectionHeader)")
                     XCTAssertEqual(connectionHeader[0], "Keep-Alive", "The Connection header didn't have a value of 'Keep-Alive' (was \(connectionHeader[0]))")
@@ -95,7 +95,7 @@ class ClientE2ETests: KituraNetTest {
             let server = try HTTPServer.listen(on: 0, delegate: delegate)
             _ = HTTP.get("http://localhost:\(server.port!)") { response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
             }
             server.stop()
         } catch let error {
@@ -106,7 +106,7 @@ class ClientE2ETests: KituraNetTest {
     func testSimpleHTTPClient() {
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-            XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response?.statusCode)")
+            XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
             let contentType = response?.headers["Content-Type"]
             XCTAssertNotNil(contentType, "No ContentType header in response")
             if let contentType = contentType {
@@ -118,11 +118,11 @@ class ClientE2ETests: KituraNetTest {
     func testPostRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
                     let postValue = try response?.readString()
                     XCTAssertNotNil(postValue, "The body of the response was empty")
-                    XCTAssertEqual(postValue?.characters.count, 12, "Result should have been 12 bytes, was \(postValue?.characters.count) bytes")
+                    XCTAssertEqual(postValue?.characters.count, 12, "Result should have been 12 bytes, was \(String(describing: postValue?.characters.count)) bytes")
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
@@ -138,11 +138,11 @@ class ClientE2ETests: KituraNetTest {
         },
         { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
                     var data = Data()
                     let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(count) bytes")
+                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(String(describing: count)) bytes")
                     let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
@@ -165,11 +165,11 @@ class ClientE2ETests: KituraNetTest {
     func testPutRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("put", path: "/puttest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
                     var data = Data()
                     let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(count) bytes")
+                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(String(describing: count)) bytes")
                     let putValue = String(data: data as Data, encoding: .utf8)
                     if  let putValue = putValue {
                         XCTAssertEqual(putValue, "Read 0 bytes")
@@ -186,11 +186,11 @@ class ClientE2ETests: KituraNetTest {
         },
         { expectation in
             self.performRequest("put", path: "/puttest", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
                     var data = Data()
                     let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(count) bytes")
+                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(String(describing: count)) bytes")
                     let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
@@ -212,7 +212,7 @@ class ClientE2ETests: KituraNetTest {
     func testErrorRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("plover", path: "/xzzy", callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.badRequest, "Status code wasn't .badrequest was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.badRequest, "Status code wasn't .badrequest was \(String(describing: response?.statusCode))")
                 expectation.fulfill()
             })
         })
@@ -221,7 +221,7 @@ class ClientE2ETests: KituraNetTest {
     func testUrlURL() {
         performServerTest(TestURLDelegate()) { expectation in
             self.performRequest("post", path: ClientE2ETests.urlPath, callback: {response in
-                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 expectation.fulfill()
             })
         }
@@ -261,7 +261,7 @@ class ClientE2ETests: KituraNetTest {
             
             do {
                 response.statusCode = .OK
-                XCTAssertEqual(response.statusCode, .OK, "Set response status code wasn't .OK, it was \(response.statusCode)")
+                XCTAssertEqual(response.statusCode, .OK, "Set response status code wasn't .OK, it was \(String(describing: response.statusCode))")
                 response.headers["Content-Type"] = ["text/plain"]
                 if request.method.lowercased() != "head" {
                     response.headers["Content-Length"] = ["\(result.characters.count)"]
@@ -278,8 +278,8 @@ class ClientE2ETests: KituraNetTest {
     class TestURLDelegate: ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
-            XCTAssertEqual(request.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(request.httpVersionMajor)")
-            XCTAssertEqual(request.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(request.httpVersionMinor)")
+            XCTAssertEqual(request.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(String(describing: request.httpVersionMajor))")
+            XCTAssertEqual(request.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(String(describing: request.httpVersionMinor))")
             XCTAssertEqual(request.urlURL.path, urlPath, "Path in request.urlURL wasn't \(urlPath), it was \(request.urlURL.path)")
             XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.url, urlPath.data(using: .utf8))

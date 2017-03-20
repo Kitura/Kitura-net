@@ -311,7 +311,7 @@ class FastCGIRequestTests: KituraNetTest {
     class TestDelegate : ServerDelegate {
         
         func handle(request: ServerRequest, response: ServerResponse) {
-            XCTAssertEqual(request.urlURL.scheme, "HTTP", "Expected a scheme of HTTP, it was \(request.urlURL.scheme)")
+            XCTAssertEqual(request.urlURL.scheme, "HTTP", "Expected a scheme of HTTP, it was \(String(describing: request.urlURL.scheme))")
             XCTAssertEqual(request.urlURL.port, KituraNetTest.portDefault)
             XCTAssertEqual(request.urlURL.path, "/hello", "Expected a path of /hello, it was \(request.urlURL.path)")
             XCTAssertEqual(request.url, "/hello".data(using: .utf8))

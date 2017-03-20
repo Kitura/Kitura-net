@@ -54,7 +54,7 @@ class MonitoringTests: KituraNetTest {
             DispatchQueue.global().async {
                 self.performRequest("get", path: "/plover", callback: { response in
                     XCTAssertNotNil(response, "Received a nil response")
-                    XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(response?.statusCode)")
+                    XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 })
             }
         }
