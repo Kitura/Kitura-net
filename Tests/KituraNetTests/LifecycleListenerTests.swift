@@ -157,7 +157,8 @@ class LifecycleListenerTests: KituraNetTest {
         do {
             try server.listen(on: -1)
         } catch {
-            // Do NOT fail the test here. An error should be thrown....
+            // Do NOT fail the test if an error is thrown.
+            // In this test case an error should be thrown.
         }
         
         self.waitForExpectations(timeout: 5) { error in
