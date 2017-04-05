@@ -75,7 +75,9 @@ public class IncomingSocketManager  {
             queues = t2
 
             for i in 0 ..< numberOfEpollTasks {
-                queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i]) }
+                // Only run removeIdleSockets in the first instance of process.
+                queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i],
+                                                                   runRemoveIdleSockets: i == 0) }
             }
         }
     #else
@@ -132,14 +134,19 @@ public class IncomingSocketManager  {
     
     #if !GCD_ASYNCH && os(Linux)
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
-        private func process(epollDescriptor:Int32) {
+    private func process(epollDescriptor:Int32, runRemoveIdleSockets: Bool) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
         
             while !stopped {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
-            
+    
+                if stopped {
+                    // If stopped was set while we were waiting for epoll, quit now
+                    break
+                }
+    
                 if  count == -1  {
                     Log.error("epollWait failure. Error code=\(errno). Reason=\(lastError())")
                     continue
@@ -186,7 +193,9 @@ public class IncomingSocketManager  {
             }
 
             // cleanup after manager stopped
-            removeIdleSockets(removeAll: true)
+            if runRemoveIdleSockets {
+                removeIdleSockets(removeAll: true)
+            }
             close(epollDescriptor)
         }
 
