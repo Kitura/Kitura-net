@@ -149,31 +149,20 @@ class LifecycleListenerTests: KituraNetTest {
 
         let failedCallbackExpectation = self.expectation(description: "failedCallback")
         
-        let firstServer = HTTP.createServer()
-        
-        let secondServer = HTTP.createServer()
-        secondServer.failed(callback: { error in
+        let server = HTTP.createServer()
+        server.failed(callback: { error in
             failedCallbackExpectation.fulfill()
         })
 
         do {
-            try firstServer.listen(on: self.port)
-            
-            DispatchQueue.global().async {
-                do {
-                    try secondServer.listen(on: self.port)
-                } catch {
-                    // Do NOT fail the test here. An error should be thrown....
-                }
-            }
+            try server.listen(on: -1)
         } catch {
-            XCTFail("Error: \(error)")
+            // Do NOT fail the test if an error is thrown.
+            // In this test case an error should be thrown.
         }
         
         self.waitForExpectations(timeout: 5) { error in
             XCTAssertNil(error)
-            
-            firstServer.stop()
         }
     }
 }
