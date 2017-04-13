@@ -25,7 +25,7 @@ import SSLService
 class KituraNetTest: XCTestCase {
 
     static let useSSLDefault = true
-    static let portDefault = 8090
+    static let portDefault = 8080
 
     var useSSL = useSSLDefault
     var port = portDefault
