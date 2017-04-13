@@ -31,7 +31,7 @@ public protocol Server {
 
     /// Listen for connections on a socket.
     ///
-    /// - Parameter on: port number for new connections (eg. 8090)
+    /// - Parameter on: port number for new connections (eg. 8080)
     func listen(on port: Int) throws
 
     /// Static method to create a new Server and have it listen for connections.
@@ -44,7 +44,7 @@ public protocol Server {
 
     /// Listen for connections on a socket.
     ///
-    /// - Parameter port: port number for new connections (eg. 8090)
+    /// - Parameter port: port number for new connections (eg. 8080)
     /// - Parameter errorHandler: optional callback for error handling
     @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
     func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)

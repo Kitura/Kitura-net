@@ -70,7 +70,7 @@ public class HTTPServer: Server {
 
     /// Listens for connections on a socket
     ///
-    /// - Parameter on: port number for new connections (eg. 8090)
+    /// - Parameter on: port number for new connections (eg. 8080)
     public func listen(on port: Int) throws {
         self.port = port
         do {
