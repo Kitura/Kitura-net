@@ -137,7 +137,7 @@ public class HTTPServer: Server {
 
     /// Listens for connections on a socket
     ///
-    /// - Parameter port: port number for new connections (eg. 8090)
+    /// - Parameter port: port number for new connections (eg. 8080)
     /// - Parameter errorHandler: optional callback for error handling
     @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
