@@ -1,4 +1,4 @@
-# Kitura-net
+# Kitura-net [![codebeat](https://codebeat.co/badges/ca2e2c7c-dbff-4ebd-82c4-1465f633a99b)](https://codebeat.co/projects/github-com-ibm-swift-kitura-net)
 
 [![Build Status - Master](https://travis-ci.org/IBM-Swift/Kitura-net.svg?branch=master)](https://travis-ci.org/IBM-Swift/Kitura-net)
 [![codecov](https://codecov.io/gh/IBM-Swift/Kitura-net/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM-Swift/Kitura-net)
