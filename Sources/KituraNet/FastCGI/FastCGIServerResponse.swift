@@ -17,6 +17,23 @@
 import Foundation
 import Socket
 
+// TBD: Bound should be of type Int i.e. Bound == Int. Currently this syntax is unavailable, expected to be shipped with Swift 3.1.
+// https://forums.developer.apple.com/thread/6627
+extension Range where Bound: IntegerArithmetic {
+    func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
+        
+        var base = self.lowerBound
+        
+        while (base < self.upperBound) {
+            let subRange = (base ..< (base + delta)).clamped(to: self)
+            try action(subRange)
+            
+            base += delta
+        }
+        
+    }
+}
+
 /// The FastCGIServerRequest class implements the `ServerResponse` protocol
 /// for incoming HTTP requests that come in over a FastCGI connection.
 public class FastCGIServerResponse : ServerResponse {
@@ -241,7 +258,15 @@ public class FastCGIServerResponse : ServerResponse {
         }
 
         if wrapAsMessage {
-            try socket.write(from: getMessage(buffer: data))
+            try (0 ..< data.count).iterate(by: FastCGIServerResponse.bufferSize-1) { [weak self] subRange in
+                
+                guard let strongSelf = self else {
+                    return;
+                }
+                
+                let dataPart = data.subdata(in: subRange)
+                try socket.write(from: strongSelf.getMessage(buffer: dataPart))
+            }
         } else {
             try socket.write(from: data)
         }
@@ -285,5 +310,5 @@ public class FastCGIServerResponse : ServerResponse {
         }
         self.socket = nil
     }
-
+    
 }
