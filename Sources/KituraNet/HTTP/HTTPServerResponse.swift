@@ -141,13 +141,9 @@ public class HTTPServerResponse : ServerResponse {
         headerData.append("HTTP/1.1 ")
         headerData.append(String(status))
         headerData.append(" ")
-        var statusText = HTTP.statusCodes[status]
+        let statusText = HTTPURLResponse.localizedString(forStatusCode: status)
 
-        if  statusText == nil {
-            statusText = ""
-        }
-
-        headerData.append(statusText!)
+        headerData.append(statusText)
         headerData.append("\r\n")
 
         for (_, entry) in headers.headers {
