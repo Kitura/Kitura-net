@@ -310,6 +310,9 @@ public class ClientRequest {
     /// - Parameter close: If true, add the "Connection: close" header to the set
     ///                   of headers sent with the request
     public func end(close: Bool = false) {
+        defer {
+          response.close()
+        }
 
         closeConnection = close
 
