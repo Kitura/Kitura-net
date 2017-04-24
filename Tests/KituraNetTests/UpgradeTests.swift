@@ -28,13 +28,12 @@ class UpgradeTests: KituraNetTest {
     
     static var allTests : [(String, (UpgradeTests) -> () throws -> Void)] {
         return [
+            ("testErrorWithStatusCode", testErrorWithStatusCode),
             ("testNoRegistrations", testNoRegistrations),
             ("testSuccessfullUpgrade", testSuccessfullUpgrade),
             ("testWrongRegistration", testWrongRegistration)
         ]
     }
-    
-    
     
     override func setUp() {
         doSetUp()
@@ -42,6 +41,24 @@ class UpgradeTests: KituraNetTest {
     
     override func tearDown() {
         doTearDown()
+    }
+    
+    func testErrorWithStatusCode() {
+        ConnectionUpgrader.clear()
+        ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory(statusCode: .notAcceptable))
+        
+        performServerTest(nil, useSSL: false) { expectation in
+            
+            guard let socket = self.sendUpgradeRequest(forProtocol: "testing") else { return }
+            
+            let (rawParser, _) = self.processUpgradeResponse(socket: socket)
+            
+            guard let parser = rawParser else { return }
+            
+            XCTAssertEqual(parser.statusCode, HTTPStatusCode.notAcceptable, "Returned status code on upgrade request was \(parser.statusCode) and not \(HTTPStatusCode.notAcceptable)")
+            
+            expectation.fulfill()
+        }
     }
     
     func testNoRegistrations() {
@@ -221,14 +238,22 @@ class UpgradeTests: KituraNetTest {
     class TestingProtocolSocketProcessorFactory: ConnectionUpgradeFactory {
         public var name: String { return "Testing" }
         
+        private let statusCode: HTTPStatusCode?
         private let closeCallback: (() -> Void)?
         
-        init(closeCallback: (() -> Void)? = nil) {
+        init(statusCode: HTTPStatusCode? = nil, closeCallback: (() -> Void)? = nil) {
+            self.statusCode = statusCode
             self.closeCallback = closeCallback
         }
         
         public func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?) {
-            return (TestingSocketProcessor(closeCallback: closeCallback), nil)
+            if let statusCode = statusCode {
+                response.statusCode = statusCode
+                return (nil, "Response status code set to \(HTTP.statusCodes[statusCode.rawValue] ?? "Unknown").")
+            }
+            else {
+                return (TestingSocketProcessor(closeCallback: closeCallback), nil)
+            }
         }
     }
     
