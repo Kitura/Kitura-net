@@ -91,7 +91,6 @@ public struct ConnectionUpgrader {
                     response.headers["Upgrade"] = [theProtocolName]
                     response.headers["Connection"] = ["Upgrade"]
                     oldProcessor = handler.processor
-                    theProcessor.handler = handler
                     handler.processor = theProcessor
                     oldProcessor?.inProgress = false
                 }
@@ -107,6 +106,7 @@ public struct ConnectionUpgrader {
                 try response.write(from: theBody)
             }
             try response.end()
+            processor?.handler = handler
         }
         catch {
             Log.error("Failed to send response to Upgrade request")
