@@ -62,6 +62,8 @@ public struct ConnectionUpgrader {
             return
         }
         
+        let statusCode = response.statusCode
+        
         var oldProcessor: IncomingSocketProcessor?
         var processor: IncomingSocketProcessor?
         var responseBody: String?
@@ -94,7 +96,9 @@ public struct ConnectionUpgrader {
                     oldProcessor?.inProgress = false
                 }
                 else {
-                    response.statusCode = .badRequest
+                    if response.statusCode == statusCode {
+                        response.statusCode = .badRequest
+                    }
                 }
             }
             if let theBody = responseBody {
