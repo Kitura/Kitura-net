@@ -62,6 +62,8 @@ public struct ConnectionUpgrader {
             return
         }
         
+        let statusCode = response.statusCode
+        
         var oldProcessor: IncomingSocketProcessor?
         var processor: IncomingSocketProcessor?
         var responseBody: String?
@@ -89,12 +91,13 @@ public struct ConnectionUpgrader {
                     response.headers["Upgrade"] = [theProtocolName]
                     response.headers["Connection"] = ["Upgrade"]
                     oldProcessor = handler.processor
-                    theProcessor.handler = handler
                     handler.processor = theProcessor
                     oldProcessor?.inProgress = false
                 }
                 else {
-                    response.statusCode = .badRequest
+                    if response.statusCode == statusCode {
+                        response.statusCode = .badRequest
+                    }
                 }
             }
             if let theBody = responseBody {
@@ -103,6 +106,7 @@ public struct ConnectionUpgrader {
                 try response.write(from: theBody)
             }
             try response.end()
+            processor?.handler = handler
         }
         catch {
             Log.error("Failed to send response to Upgrade request")
