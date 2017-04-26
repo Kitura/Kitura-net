@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2015
+ * Copyright IBM Corporation 2015, 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ public class HeadersContainer {
     /// The header storage
     internal var headers: [String: (key: String, value: [String])] = [:]
     
+    /// Create an instance of `HeadersContainer`
+    public init() {}
+
     /// Access the value of a HTTP header using subscript syntax.
     ///
     /// - Parameter key: The HTTP header key
