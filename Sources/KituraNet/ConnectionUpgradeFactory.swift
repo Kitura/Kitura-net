@@ -36,3 +36,26 @@ public protocol ConnectionUpgradeFactory {
     ///        needs to add special headers to the response.
     func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?)
 }
+
+extension ConnectionUpgradeFactory {
+    /// "Upgrade" a connection to the protocol supported by this `ConnectionUpgradeFactory`.
+    ///
+    /// - Parameter handler: The `IncomingSocketHandler` that is handling the connection being upgraded.
+    /// - Parameter request: The `ServerRequest` object of the incoming "upgrade" request.
+    /// - Parameter response: The `ServerResponse` object that will be used to send the response of the "upgrade" request.
+    ///
+    /// - Returns: A tuple of the created `IncomingSocketProcessor`, a message to send as the body of the response to
+    ///           the upgrade request, and the mime-type of the message. The `IncomingSocketProcessor` should be nil if the upgrade request wasn't successful.
+    ///           If the message is nil, the response will not contain a body.
+    ///
+    /// - Note: The `ConnectionUpgradeFactory` instance doesn't need to work with the `ServerResponse` unless it
+    ///        needs to add special headers to the response.
+    func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, Data?, String?) {
+        let (processor, responseText) = upgrade(handler: handler, request: request, response: response)
+        
+        if let responseText = responseText {
+            return (processor, responseText.data(using: .utf8), "text/plain")
+        }
+        return (processor, nil, nil)
+    }
+}

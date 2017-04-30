@@ -66,14 +66,15 @@ public struct ConnectionUpgrader {
         
         var oldProcessor: IncomingSocketProcessor?
         var processor: IncomingSocketProcessor?
-        var responseBody: String?
+        var responseBody: Data?
+        var responseBodyMimeType: String?
         var notFound = true
         let protocolList = protocols.split(separator: ",")
         var protocolName: String?
         for eachProtocol in protocolList {
             let theProtocol = eachProtocol.first?.trimmingCharacters(in: CharacterSet.whitespaces) ?? ""
             if theProtocol.characters.count != 0, let factory = registry[theProtocol.lowercased()] {
-                (processor, responseBody) = factory.upgrade(handler: handler, request: request, response: response)
+                (processor, responseBody, responseBodyMimeType) = factory.upgrade(handler: handler, request: request, response: response)
                 protocolName = theProtocol
                 notFound = false
                 break
@@ -83,7 +84,8 @@ public struct ConnectionUpgrader {
         do {
             if notFound {
                 response.statusCode = HTTPStatusCode.notFound
-                responseBody = "None of the protocols specified in the Upgrade header are registered"
+                responseBody = "None of the protocols specified in the Upgrade header are registered".data(using: .utf8)
+                responseBodyMimeType = "text/plain"
             }
             else {
                 if let theProcessor = processor, let theProtocolName = protocolName {
@@ -101,8 +103,8 @@ public struct ConnectionUpgrader {
                 }
             }
             if let theBody = responseBody {
-                response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = [String(theBody.lengthOfBytes(using: .utf8))]
+                response.headers["Content-Type"] = [responseBodyMimeType ?? "text/plain"]
+                response.headers["Content-Length"] = [String(theBody.count)]
                 try response.write(from: theBody)
             }
             try response.end()
