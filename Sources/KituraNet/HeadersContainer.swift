@@ -112,7 +112,7 @@ public class HeadersContainer {
     }
     
     /// Remove all of the headers
-    func removeAll() {
+    public func removeAll() {
         headers.removeAll(keepingCapacity: true)
     }
     
