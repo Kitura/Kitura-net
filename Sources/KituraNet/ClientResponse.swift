@@ -162,7 +162,7 @@ public class ClientResponse {
     public internal(set) var status = -1 {
         
         didSet {
-            statusCode = HTTPStatusCode(rawValue: status)!
+            statusCode = HTTPStatusCode(rawValue: status) ?? .unknown
         }
         
     }
