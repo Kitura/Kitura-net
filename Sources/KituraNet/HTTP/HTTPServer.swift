@@ -55,6 +55,11 @@ public class HTTPServer: Server {
     fileprivate let lifecycleListener = ServerLifecycleListener()
     
     private static let dummyServerDelegate = HTTPDummyServerDelegate()
+    
+    private static var incomingSocketProcessorCreatorRegistry = Dictionary<String, IncomingSocketProcessorCreator>()
+    
+    // Initialize the one time initialization struct to cause one time initializations to occur
+    static private let oneTime = HTTPServerOneTimeInitializations()
 
     public init() {
         #if os(Linux)
@@ -66,6 +71,7 @@ public class HTTPServer: Server {
                 Log.info("Receiver closed socket, SIGPIPE ignored")
             }
         #endif
+        _ = HTTPServer.oneTime
     }
 
     /// Listens for connections on a socket
@@ -176,9 +182,17 @@ public class HTTPServer: Server {
                 Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 
-                socketManager.handle(socket: clientSocket,
-                                     processor: IncomingHTTPSocketProcessor(socket: clientSocket,
-                                                        using: delegate ?? HTTPServer.dummyServerDelegate))
+                let negotiatedProtocol = "http/1.1"
+                if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
+                    let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
+                    let incomingSocketProcessor =
+                        incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket,
+                                                                                     using: serverDelegate)
+                    socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor)
+                }
+                else {
+                    Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
+                }
             } catch let error {
                 if self.state == .stopped {
                     if let socketError = error as? Socket.Error {
@@ -294,4 +308,22 @@ public class HTTPServer: Server {
             }
         }
     }
+    
+    /// Register a class that creates `IncomingSocketProcessor`s for use with new incoming sockets.
+    ///
+    /// - Parameter incomingSocketProcessorCreator: An implementation of the `IncomingSocketProcessorCreator`
+    ///                                            protocol, which creates an implementation of the
+    ///                                            `IncomingSocketProcessor` protocol to process the data
+    ///                                            from a new incoming socket
+    public static func register(incomingSocketProcessorCreator creator: IncomingSocketProcessorCreator) {
+        incomingSocketProcessorCreatorRegistry[creator.name] = creator
+    }
+    
+    /// Singleton struct for one time initializations
+    private struct HTTPServerOneTimeInitializations {
+        init() {
+            HTTPServer.register(incomingSocketProcessorCreator: HTTPIncomingSocketProcessorCreator())
+        }
+    }
 }
+
