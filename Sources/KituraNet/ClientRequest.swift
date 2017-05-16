@@ -373,9 +373,7 @@ public class ClientRequest {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
         }
-        setMethod()
-        let count = writeBuffers.count
-        curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
+        setMethodAndContentLength()
         setupHeaders()
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
 
@@ -383,17 +381,20 @@ public class ClientRequest {
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
     }
 
-    /// Sets the HTTP method in libCurl to the one specified in method
-    private func setMethod() {
+    /// Sets the HTTP method and Content-Length in libCurl
+    private func setMethodAndContentLength() {
 
         let methodUpperCase = method.uppercased()
+        let count = writeBuffers.count
         switch(methodUpperCase) {
             case "GET":
                 curlHelperSetOptBool(handle!, CURLOPT_HTTPGET, CURL_TRUE)
             case "POST":
                 curlHelperSetOptBool(handle!, CURLOPT_POST, CURL_TRUE)
+                curlHelperSetOptInt(handle!, CURLOPT_POSTFIELDSIZE, count)
             case "PUT":
-                curlHelperSetOptBool(handle!, CURLOPT_PUT, CURL_TRUE)
+                curlHelperSetOptBool(handle!, CURLOPT_UPLOAD, CURL_TRUE)
+                curlHelperSetOptInt(handle!, CURLOPT_INFILESIZE, count)
             case "HEAD":
                 curlHelperSetOptBool(handle!, CURLOPT_NOBODY, CURL_TRUE)
             default:
