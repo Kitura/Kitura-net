@@ -105,6 +105,11 @@ public class HTTPServer: Server {
             }
 
             if let delegate = socket.delegate {
+                // Add the list of supported ALPN protocols to the SSLServiceDelegate
+                for (protoName, _) in HTTPServer.incomingSocketProcessorCreatorRegistry {
+                    socket.delegate?.addSupportedAlpnProtocol(proto: protoName)
+                }
+                
                 Log.info("Listening on port \(self.port!) (delegate: \(delegate))")
             } else {
                 Log.info("Listening on port \(self.port!)")
@@ -182,7 +187,7 @@ public class HTTPServer: Server {
                 Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 
-                let negotiatedProtocol = "http/1.1"
+                let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
                 if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
                     let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
                     let incomingSocketProcessor =
