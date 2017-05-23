@@ -24,9 +24,9 @@ let package = Package(
     ],
     dependencies: [
         .Package(url: "https://github.com/IBM-Swift/LoggerAPI.git", majorVersion: 1, minor: 7),
-        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0, minor: 12),
+        .Package(url: "https://github.com/ymesika/BlueSocket.git", majorVersion: 0, minor: 12),
         .Package(url: "https://github.com/IBM-Swift/CCurl.git", majorVersion: 0, minor: 2),
-        .Package(url: "https://github.com/IBM-Swift/BlueSSLService.git", majorVersion: 0, minor: 12)
+        .Package(url: "https://github.com/ymesika/BlueSSLService.git", majorVersion: 0, minor: 12)
     ]
 )
 
