@@ -258,3 +258,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         handler?.handleBufferedReadData()
     }
 }
+
+class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
+    public let name = "http/1.1"
+    
+    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate) -> IncomingSocketProcessor {
+        return IncomingHTTPSocketProcessor(socket: socket, using: using)
+    }
+}
