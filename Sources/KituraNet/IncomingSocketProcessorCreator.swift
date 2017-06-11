@@ -18,9 +18,9 @@ import Foundation
 
 import Socket
 
-/// Implementations of the `IncomingSocketProcessorCreator` protocol create an implementation of the
-///                                            `IncomingSocketProcessor` protocol to process the data
-///                                            from a new incoming socket
+/// Implementations of the `IncomingSocketProcessorCreator` protocol create
+/// an implementation of the `IncomingSocketProcessor` protocol to process
+/// the data from a new incoming socket.
 public protocol IncomingSocketProcessorCreator {
     var name: String { get }
     

@@ -106,10 +106,10 @@ public class HTTPServer: Server {
 
             if let delegate = socket.delegate {
 				#if os(Linux)
-                // Add the list of supported ALPN protocols to the SSLServiceDelegate
-                for (protoName, _) in HTTPServer.incomingSocketProcessorCreatorRegistry {
-                    socket.delegate?.addSupportedAlpnProtocol(proto: protoName)
-                }
+                    // Add the list of supported ALPN protocols to the SSLServiceDelegate
+                    for (protoName, _) in HTTPServer.incomingSocketProcessorCreatorRegistry {
+                        socket.delegate?.addSupportedAlpnProtocol(proto: protoName)
+                    }
 				#endif
                 
                 Log.info("Listening on port \(self.port!) (delegate: \(delegate))")
@@ -190,10 +190,11 @@ public class HTTPServer: Server {
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 				
 				#if os(Linux)
-                let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
+                    let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
 				#else
-				let negotiatedProtocol = "http/1.1"
+				    let negotiatedProtocol = "http/1.1"
 				#endif
+                
                 if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
                     let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
                     let incomingSocketProcessor =
