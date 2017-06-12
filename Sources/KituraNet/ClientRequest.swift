@@ -69,6 +69,9 @@ public class ClientRequest {
     
     /// Should SSL verification be disabled
     private var disableSSLVerification = false
+	
+	/// Should HTTP/2 protocol be used
+	private var useHTTP2 = false
     
     /// Client request option enum
     public enum Options {
@@ -105,7 +108,10 @@ public class ClientRequest {
         ///
         /// - Note: This is very useful when working with self signed certificates.
         case disableSSLVerification
-        
+		
+		/// If present, the client will try to use HTTP/2 protocol for the connection.
+		case useHTTP2
+		
     }
     
     /// Response callback closure type
@@ -141,7 +147,7 @@ public class ClientRequest {
         for option in options  {
             switch(option) {
 
-                case .method, .headers, .maxRedirects, .disableSSLVerification:
+                case .method, .headers, .maxRedirects, .disableSSLVerification, .useHTTP2:
                     // call set() for Options that do not construct the URL
                     set(option)
                 case .schema(var schema):
@@ -196,6 +202,8 @@ public class ClientRequest {
             self.maxRedirects = maxRedirects
         case .disableSSLVerification:
             self.disableSSLVerification = true
+		case .useHTTP2:
+			self.useHTTP2 = true
         }
     }
 
@@ -379,6 +387,10 @@ public class ClientRequest {
 
         // To see the messages sent by libCurl, uncomment the next line of code
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
+		
+		if useHTTP2 {
+			curlHelperSetOptInt(handle!, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
+		}
     }
 
     /// Sets the HTTP method and Content-Length in libCurl
