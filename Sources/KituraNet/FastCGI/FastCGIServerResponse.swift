@@ -19,32 +19,47 @@ import Socket
 
 // TBD: Bound should be of type Int i.e. Bound == Int. Currently this syntax is unavailable, expected to be shipped with Swift 3.1.
 // https://forums.developer.apple.com/thread/6627
-extension Range where Bound: IntegerArithmetic {
-    func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
-        
-        var base = self.lowerBound
-        
-        while (base < self.upperBound) {
-            let subRange = (base ..< (base + delta)).clamped(to: self)
-            try action(subRange)
-            
-            base += delta
+#if swift(>=4)
+    extension Range where Bound: BinaryInteger {
+        func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
+
+            var base = self.lowerBound
+
+            while (base < self.upperBound) {
+                let subRange = (base ..< (base + delta)).clamped(to: self)
+                try action(subRange)
+
+                base += delta
+            }
         }
-        
     }
-}
+#else
+    extension Range where Bound: IntegerArithmetic {
+        func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
+
+            var base = self.lowerBound
+
+            while (base < self.upperBound) {
+                let subRange = (base ..< (base + delta)).clamped(to: self)
+                try action(subRange)
+                
+                base += delta
+            }
+        }
+    }
+#endif
 
 /// The FastCGIServerRequest class implements the `ServerResponse` protocol
 /// for incoming HTTP requests that come in over a FastCGI connection.
 public class FastCGIServerResponse : ServerResponse {
- 
+
     /// Socket for the ServerResponse
     private var socket: Socket?
 
     /// Size of buffers (64 * 1024 is the max size for a FastCGI outbound record)
     /// Which also gives a bit more internal buffer room.
     private static let bufferSize = 64 * 1024
-    
+
     /// Buffer for HTTP response line, headers, and short bodies
     private var buffer = Data(capacity: FastCGIServerResponse.bufferSize)
 
@@ -53,13 +68,13 @@ public class FastCGIServerResponse : ServerResponse {
 
     /// The headers to send back as part of the HTTP response.
     public var headers = HeadersContainer()
-    
+
     /// Status code
     private var status = HTTPStatusCode.OK.rawValue
-    
+
     /// Corresponding server request
     private weak var serverRequest : FastCGIServerRequest?
-    
+
     /// The status code to send in the HTTP response.
     public var statusCode: HTTPStatusCode? {
         get {
@@ -71,7 +86,7 @@ public class FastCGIServerResponse : ServerResponse {
             }
         }
     }
-    
+
     /// Initializes a `FastCGIServerResponse` instance
     ///
     /// - Parameter socket: The socket to write the ersponse to.
@@ -82,7 +97,7 @@ public class FastCGIServerResponse : ServerResponse {
         self.serverRequest = request
         self.headers["Date"] = [SPIUtils.httpDate()]
     }
-    
+
     /// Add a string to the body of the HTTP response and complete sending the HTTP response
     ///
     /// - Parameter text: The String to add to the body of the HTTP response.
@@ -101,23 +116,23 @@ public class FastCGIServerResponse : ServerResponse {
     public func write(from string: String) throws {
         try write(from: string.data(using: .utf8)!)
     }
-    
+
     /// Add bytes to the body of the HTTP response.
     ///
     /// - Parameter data: The Data struct that contains the bytes to be added.
     ///
     /// - Throws: Socket.error if an error occurred while writing to the socket
     public func write(from data: Data) throws {
-        
+
         try startResponse()
-        
+
         if (buffer.count + data.count) > FastCGIServerResponse.bufferSize {
             try flush()
         }
-        
+
         buffer.append(data)
     }
-    
+
     /// Complete sending the HTTP response
     ///
     /// - Throws: Socket.error if an error occurred while writing to a socket
@@ -126,7 +141,7 @@ public class FastCGIServerResponse : ServerResponse {
         try concludeResponse()
         Monitor.delegate?.finished(request: self.serverRequest, response: self)
     }
-    
+
     /// Begin the buffer flush.
     ///
     /// This can only happen once and is called by all the tools that write
@@ -136,7 +151,7 @@ public class FastCGIServerResponse : ServerResponse {
     /// Note that we can jump the queue internally to bypass this for writing
     /// FastCGI error messages.
     private func startResponse() throws {
-        
+
         guard socket != nil && !startFlushed else {
             return
         }
@@ -157,37 +172,37 @@ public class FastCGIServerResponse : ServerResponse {
         }
 
         headerData.append("\r\n")
-        
+
         try writeToSocket(headerData.data(using: .utf8)!)
         try flush()
-        
+
         startFlushed = true
     }
-    
+
     /// Get messages for FastCGI.
     private func getEndRequestMessage(requestId: UInt16, protocolStatus: UInt8) throws -> Data {
-        
+
         let record = FastCGIRecordCreate()
-        
+
         record.recordType = FastCGI.Constants.FCGI_END_REQUEST
         record.protocolStatus = protocolStatus
         record.requestId = requestId
-        
+
         return try record.create()
-        
+
     }
-    
+
     /// Generate a "request complete" message to be transmitted to the server, indicating
     /// that the response is finished.
     private func getRequestCompleteMessage() throws -> Data {
-        
+
         guard let serverRequest = self.serverRequest else {
             throw FastCGI.RecordErrors.internalError
         }
-        
+
         return try getEndRequestMessage(requestId: serverRequest.requestId,
                                         protocolStatus: FastCGI.Constants.FCGI_REQUEST_COMPLETE)
-        
+
     }
 
     /// Generate a "Can't Multiplex" messages for the specified request ID.
@@ -200,16 +215,16 @@ public class FastCGIServerResponse : ServerResponse {
     /// Generate an "unsupported role" message. Indicates to the calling web server
     /// that we only intend to fulfill a specific role in the FastCGI chain (responder).
     private func getUnsupportedRoleMessage() throws -> Data? {
-        
+
         guard let serverRequest = self.serverRequest else {
             throw FastCGI.RecordErrors.internalError
         }
         guard serverRequest.requestId != FastCGI.Constants.FASTCGI_DEFAULT_REQUEST_ID else {
             throw FastCGI.RecordErrors.internalError
         }
-        
+
         return try getEndRequestMessage(requestId: serverRequest.requestId, protocolStatus: FastCGI.Constants.FCGI_UNKNOWN_ROLE)
-        
+
     }
 
     /// External message write for multiplex rejection
@@ -219,7 +234,7 @@ public class FastCGIServerResponse : ServerResponse {
         let message = try getNoMultiplexingMessage(requestId: requestId)
         try writeToSocket(message, wrapAsMessage: false)
     }
-    
+
     /// External message write for role rejection
     public func rejectUnsupportedRole() throws {
         guard let message = try getUnsupportedRoleMessage() else {
@@ -232,24 +247,24 @@ public class FastCGIServerResponse : ServerResponse {
     public func reset() {
         /*****  TBD *******/
     }
-    
+
     /// Get a FastCGI STDOUT message, wrapping the specified data
     /// for delivery.
     private func getMessage(buffer: Data?) throws -> Data {
-        
+
         let record = FastCGIRecordCreate()
-        
+
         record.recordType = FastCGI.Constants.FCGI_STDOUT
         record.requestId = serverRequest!.requestId
-        
+
         if buffer != nil {
             record.data = buffer
         }
-        
+
         return try record.create()
-                
+
     }
-    
+
     /// Write NSData to the socket
     private func writeToSocket(_ data: Data, wrapAsMessage: Bool = true) throws {
 
@@ -259,50 +274,50 @@ public class FastCGIServerResponse : ServerResponse {
 
         if wrapAsMessage {
             try (0 ..< data.count).iterate(by: FastCGIServerResponse.bufferSize-1) { [weak self] subRange in
-                
+
                 guard let strongSelf = self else {
                     return;
                 }
-                
+
                 let dataPart = data.subdata(in: subRange)
                 try socket.write(from: strongSelf.getMessage(buffer: dataPart))
             }
         } else {
             try socket.write(from: data)
         }
-        
+
     }
-    
+
     /// Flush any data in the buffer to the socket, then
     /// reest the buffer for more data.
     private func flush() throws {
-        
+
         guard buffer.count > 0 else {
             return
         }
-    
+
         try writeToSocket(buffer)
-        
+
         buffer.count = 0
-        
+
     }
-    
+
     /// Conclude this response.
     ///
-    /// We're basically sending out anything left in the buffer, followed 
-    /// by a blank STDOUT message, followed by an "END REQUEST" record with 
+    /// We're basically sending out anything left in the buffer, followed
+    /// by a blank STDOUT message, followed by an "END REQUEST" record with
     /// "REQUEST COMPLETE" as it's protocol status.
-    private func concludeResponse() throws {    
-        
+    private func concludeResponse() throws {
+
         // flush the reset of the buffer
         try flush()
-        
+
         // send a blank packet
         try writeToSocket(getMessage(buffer: nil), wrapAsMessage: false)
-        
+
         // send done
         try writeToSocket(getRequestCompleteMessage(), wrapAsMessage: false)
-        
+
         // close the socket.
         // we presently don't support keep-alive so this is fine.
         if let socket = self.socket {
