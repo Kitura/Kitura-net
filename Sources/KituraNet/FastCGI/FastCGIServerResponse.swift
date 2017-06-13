@@ -19,35 +19,23 @@ import Socket
 
 // TBD: Bound should be of type Int i.e. Bound == Int. Currently this syntax is unavailable, expected to be shipped with Swift 3.1.
 // https://forums.developer.apple.com/thread/6627
-#if swift(>=4)
-    extension Range where Bound: BinaryInteger {
-        func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
-
-            var base = self.lowerBound
-
-            while (base < self.upperBound) {
-                let subRange = (base ..< (base + delta)).clamped(to: self)
-                try action(subRange)
-
-                base += delta
-            }
-        }
-    }
-#else
-    extension Range where Bound: IntegerArithmetic {
-        func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
-
-            var base = self.lowerBound
-
-            while (base < self.upperBound) {
-                let subRange = (base ..< (base + delta)).clamped(to: self)
-                try action(subRange)
-                
-                base += delta
-            }
-        }
-    }
+#if !swift(>=4)
+    typealias BinaryInteger = IntegerArithmetic
 #endif
+
+extension Range where Bound: BinaryInteger {
+    func iterate(by delta: Bound, action: (Range<Bound>) throws -> ()) throws {
+
+        var base = self.lowerBound
+
+        while (base < self.upperBound) {
+            let subRange = (base ..< (base + delta)).clamped(to: self)
+            try action(subRange)
+
+            base += delta
+        }
+    }
+}
 
 /// The FastCGIServerRequest class implements the `ServerResponse` protocol
 /// for incoming HTTP requests that come in over a FastCGI connection.
@@ -314,10 +302,10 @@ public class FastCGIServerResponse : ServerResponse {
 
         // send a blank packet
         try writeToSocket(getMessage(buffer: nil), wrapAsMessage: false)
-
+        
         // send done
         try writeToSocket(getRequestCompleteMessage(), wrapAsMessage: false)
-
+        
         // close the socket.
         // we presently don't support keep-alive so this is fine.
         if let socket = self.socket {
