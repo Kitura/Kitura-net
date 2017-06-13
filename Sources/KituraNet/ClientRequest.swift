@@ -69,16 +69,16 @@ public class ClientRequest {
     
     /// Should SSL verification be disabled
     private var disableSSLVerification = false
-	
-	/// Should HTTP/2 protocol be used
-	private var useHTTP2 = false
-	
-	/// Data that represents the "HTTP/2 " header status line prefix
-	fileprivate static let Http2StatusLineVersion = "HTTP/2 ".data(using: .utf8)!
-	
-	/// Data that represents the "HTTP/2.0 " header status line prefix
-	fileprivate static let Http2StatusLineVersionWithMinor = "HTTP/2.0 ".data(using: .utf8)!
-	
+
+    /// Should HTTP/2 protocol be used
+    private var useHTTP2 = false
+
+    /// Data that represents the "HTTP/2 " header status line prefix
+    fileprivate static let Http2StatusLineVersion = "HTTP/2 ".data(using: .utf8)!
+
+    /// Data that represents the "HTTP/2.0 " (with a minor) header status line prefix
+    fileprivate static let Http2StatusLineVersionWithMinor = "HTTP/2.0 ".data(using: .utf8)!
+
     /// Client request option enum
     public enum Options {
         
@@ -114,10 +114,10 @@ public class ClientRequest {
         ///
         /// - Note: This is very useful when working with self signed certificates.
         case disableSSLVerification
-		
-		/// If present, the client will try to use HTTP/2 protocol for the connection.
-		case useHTTP2
-		
+        
+        /// If present, the client will try to use HTTP/2 protocol for the connection.
+        case useHTTP2
+        
     }
     
     /// Response callback closure type
@@ -208,8 +208,8 @@ public class ClientRequest {
             self.maxRedirects = maxRedirects
         case .disableSSLVerification:
             self.disableSSLVerification = true
-		case .useHTTP2:
-			self.useHTTP2 = true
+        case .useHTTP2:
+            self.useHTTP2 = true
         }
     }
 
@@ -394,9 +394,9 @@ public class ClientRequest {
         // To see the messages sent by libCurl, uncomment the next line of code
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
 		
-		if useHTTP2 {
-			curlHelperSetOptInt(handle!, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
-		}
+        if useHTTP2 {
+            curlHelperSetOptInt(handle!, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
+        }
     }
 
     /// Sets the HTTP method and Content-Length in libCurl
@@ -455,28 +455,28 @@ extension ClientRequest: CurlInvokerDelegate {
         let count = writeBuffers.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         return count
         
-	}
-	
-	/// libCurl callback to recieve header sent by the server
-	fileprivate func curlHeaderCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
-		// If the header status line begins with 'HTTP/2 ' we replace it with 'HTTP/2.0' because
-		// otherwise the CHTTPParser will parse this line incorrectly and won't extract the status code
-		ClientRequest.Http2StatusLineVersion.withUnsafeBytes() { (ptr: UnsafePointer<UInt8>) -> Void in
-			if memcmp(ptr, buf, ClientRequest.Http2StatusLineVersion.count) == 0 {
-				ClientRequest.Http2StatusLineVersionWithMinor.withUnsafeBytes() { (p: UnsafePointer<UInt8>) -> Void in
-					response?.responseBuffers.append(bytes: p, length: ClientRequest.Http2StatusLineVersionWithMinor.count)
-					response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self) + ClientRequest.Http2StatusLineVersion.count,
-					                                 length: size - ClientRequest.Http2StatusLineVersion.count)
-				}
-			}
-			else {
-				response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
-			}
-		}
-		
-		return size
-		
-	}
+    }
+    
+    /// libCurl callback to recieve header sent by the server. Being called per each header line.
+    fileprivate func curlHeaderCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
+        // If the header status line begins with 'HTTP/2 ' we replace it with 'HTTP/2.0' because
+        // otherwise the CHTTPParser will parse this line incorrectly and won't extract the status code
+        ClientRequest.Http2StatusLineVersion.withUnsafeBytes() { (ptr: UnsafePointer<UInt8>) -> Void in
+            if memcmp(ptr, buf, ClientRequest.Http2StatusLineVersion.count) == 0 {
+                ClientRequest.Http2StatusLineVersionWithMinor.withUnsafeBytes() { (p: UnsafePointer<UInt8>) -> Void in
+                    response?.responseBuffers.append(bytes: p, length: ClientRequest.Http2StatusLineVersionWithMinor.count)
+                    response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self) + ClientRequest.Http2StatusLineVersion.count,
+                                                     length: size - ClientRequest.Http2StatusLineVersion.count)
+                }
+            }
+            else {
+                response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+            }
+        }
+        
+        return size
+        
+    }
 
     /// libCurl callback invoked when a redirect is about to be done
     fileprivate func prepareForRedirect() {
@@ -562,13 +562,13 @@ private class CurlInvoker {
 
                 let p = privateData?.assumingMemoryBound(to: CurlInvokerDelegate.self).pointee
                 return (p?.curlWriteCallback(buf!, size: size*nMemb))!
-		}
-		
-		curlHelperSetOptHeaderFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutableRawPointer?) -> Int in
-			
-				let p = privateData?.assumingMemoryBound(to: CurlInvokerDelegate.self).pointee
-				return (p?.curlHeaderCallback(buf!, size: size*nMemb))!
-		}
+        }
+        
+        curlHelperSetOptHeaderFunc(handle, ptr) { (buf: UnsafeMutablePointer<Int8>?, size: Int, nMemb: Int, privateData: UnsafeMutableRawPointer?) -> Int in
+            
+                let p = privateData?.assumingMemoryBound(to: CurlInvokerDelegate.self).pointee
+                return (p?.curlHeaderCallback(buf!, size: size*nMemb))!
+        }
     }
     
 }
@@ -579,7 +579,7 @@ private protocol CurlInvokerDelegate: class {
     
     func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
-	func curlHeaderCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
+    func curlHeaderCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func prepareForRedirect()
     
 }
