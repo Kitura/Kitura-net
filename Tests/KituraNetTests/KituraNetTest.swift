@@ -62,7 +62,7 @@ class KituraNetTest: XCTestCase {
     }
 
     func performServerTest(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault,
-                           line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+                           line: Int = #line, asyncTasks: (XCTestExpectation) -> Void...) {
 
         do {
             self.useSSL = useSSL
@@ -99,7 +99,7 @@ class KituraNetTest: XCTestCase {
     }
 
     func performFastCGIServerTest(_ delegate: ServerDelegate?, port: Int = portDefault,
-                                  line: Int = #line, asyncTasks: @escaping (XCTestExpectation) -> Void...) {
+                                  line: Int = #line, asyncTasks: (XCTestExpectation) -> Void...) {
 
         do {
             self.port = port
