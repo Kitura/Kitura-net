@@ -76,8 +76,13 @@ public class IncomingSocketManager  {
 
             for i in 0 ..< numberOfEpollTasks {
                 // Only run removeIdleSockets in the first instance of process.
-                queues[i].async() { [unowned self] in self.process(epollDescriptor: self.epollDescriptors[i],
-                                                                   runRemoveIdleSockets: i == 0) }
+                let runRemoveIdleSockets = (i == 0)
+                let epollDescriptor = epollDescriptors[i]
+
+                queues[i].async() { [weak self] in
+                    // server could be stopped and socketManager deallocated before this is run.
+                    self?.process(epollDescriptor: epollDescriptor, runRemoveIdleSockets: runRemoveIdleSockets)
+                }
             }
         }
     #else
