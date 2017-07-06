@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016, 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,7 @@ public class IncomingSocketHandler {
     
         private let numberOfSocketReaderQueues = IncomingSocketHandler.socketReaderQueues.count
     
-        private func socketReaderQueue(fd: Int32) -> DispatchQueue {
-            return IncomingSocketHandler.socketReaderQueues[Int(fd) % numberOfSocketReaderQueues];
-        }
+        private let socketReaderQueue: DispatchQueue
     #endif
 
     let socket: Socket
@@ -90,11 +88,12 @@ public class IncomingSocketHandler {
         self.socket = socket
         processor = using
         manager = managedBy
-        processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
+            socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
+            
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
-                                                         queue: socketReaderQueue(fd: socket.socketfd))
+                                                         queue: socketReaderQueue)
         
             readerSource.setEventHandler() {
                 _ = self.handleRead()
@@ -102,6 +101,8 @@ public class IncomingSocketHandler {
             readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
+        
+        processor?.handler = self
     }
     
     /// Read in the available data and hand off to common processing code
@@ -187,7 +188,7 @@ public class IncomingSocketHandler {
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             if socket.socketfd != Socket.SOCKET_INVALID_DESCRIPTOR {
-                socketReaderQueue(fd: socket.socketfd).sync() { [unowned self] in
+                socketReaderQueue.sync() { [unowned self] in
                     _ = self.handleBufferedReadDataHelper()
                 }
             }
