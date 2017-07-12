@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016, 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
     var socketHandlers = [Int32: IncomingSocketHandler]()
+    
+    /// Lock to manege acess to IncomingSocketHandler dictionary
+    private var socketHandlersLock = DispatchSemaphore(value: 1)
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 5.0
@@ -117,8 +120,10 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let handler = IncomingSocketHandler(socket: socket, using: processor, managedBy: self)
+            let handler = IncomingSocketHandler(socket: socket, using: processor)
+            lockSocketHandlersLock()
             socketHandlers[socket.socketfd] = handler
+            unlockSocketHandlersLock()
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -172,7 +177,10 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
-                        if  let handler = socketHandlers[event.data.fd] {
+                        lockSocketHandlersLock()
+                        let tempHandler = socketHandlers[event.data.fd]
+                        unlockSocketHandlersLock()
+                        if  let handler = tempHandler {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
                                 handler.handleWrite()
@@ -242,7 +250,9 @@ public class IncomingSocketManager  {
             if !removeAll && handler.processor != nil  &&  (handler.processor!.inProgress  ||  maxInterval < handler.processor!.keepAliveUntil) {
                 continue
             }
+            lockSocketHandlersLock()
             socketHandlers.removeValue(forKey: fileDescriptor)
+            unlockSocketHandlersLock()
 
             #if !GCD_ASYNCH && os(Linux)
                 let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
@@ -265,6 +275,16 @@ public class IncomingSocketManager  {
     private func lastError() -> String {
         
         return String(validatingUTF8: strerror(errno)) ?? "Error: \(errno)"
+    }
+    
+    /// Private function to lock the socketHandlers lock
+    private func lockSocketHandlersLock() {
+        _ = socketHandlersLock.wait(timeout: DispatchTime.distantFuture)
+    }
+    
+    /// Private function to unlock the socketHandlers lock
+    private func unlockSocketHandlersLock() {
+        socketHandlersLock.signal()
     }
 }
 
