@@ -53,8 +53,6 @@ public class IncomingSocketHandler {
     /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
     public var processor: IncomingSocketProcessor?
     
-    private weak var manager: IncomingSocketManager?
-    
     private let readBuffer = NSMutableData()
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
@@ -84,25 +82,26 @@ public class IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor, managedBy: IncomingSocketManager) {
+    init(socket: Socket, using: IncomingSocketProcessor) {
         self.socket = socket
         processor = using
-        manager = managedBy
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
             
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: socketReaderQueue)
+        #endif
         
+        processor?.handler = self
+        
+        #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             readerSource.setEventHandler() {
                 _ = self.handleRead()
             }
             readerSource.setCancelHandler(handler: self.handleCancel)
             readerSource.resume()
         #endif
-        
-        processor?.handler = self
     }
     
     /// Read in the available data and hand off to common processing code
