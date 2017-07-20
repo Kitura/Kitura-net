@@ -239,7 +239,7 @@ public class IncomingSocketManager  {
         
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
-            if !removeAll && handler.processor != nil  &&  (handler.processor!.inProgress  ||  maxInterval < handler.processor!.keepAliveUntil) {
+            if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
                 continue
             }
             socketHandlers.removeValue(forKey: fileDescriptor)
