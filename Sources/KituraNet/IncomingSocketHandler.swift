@@ -35,7 +35,12 @@ import Socket
 public class IncomingSocketHandler {
     
     static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
-    
+   
+    // This variable is unused. It is a temporary workaround for a rare crash under load
+    // (see: https://github.com/IBM-Swift/Kitura/issues/1034) while a proper fix is
+    // investigated.
+    var superfluousOptional:String? = String(repeating: "x", count: 2)
+ 
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
         static let socketReaderQueues = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
     
