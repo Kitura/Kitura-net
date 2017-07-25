@@ -384,14 +384,15 @@ public class IncomingSocketHandler {
     /// DispatchSource cancel handler
     private func handleCancel() {
         isOpen = false // just in case something besides close() calls handleCancel()
+        
+        processor?.handler = nil
+        processor?.inProgress = false
+        processor?.keepAliveUntil = 0.0
+        processor?.close()
+        processor = nil
+        
         if socket.socketfd > -1 {
             socket.close()
         }
-
-        processor?.inProgress = false
-        processor?.keepAliveUntil = 0.0
-        processor?.handler = nil
-        processor?.close()
-        processor = nil
     }
 }
