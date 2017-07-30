@@ -148,6 +148,10 @@ public class ClientRequest {
 
     /// Should HTTP/2 protocol be used
     private var useHTTP2 = false
+    
+    /// The Unix socket path used for the request
+    private var socketPath: String? = nil
+
 
     /// Data that represents the "HTTP/2 " header status line prefix
     fileprivate static let Http2StatusLineVersion = "HTTP/2 ".data(using: .utf8)!
@@ -210,6 +214,9 @@ public class ClientRequest {
         /// If present, the client will try to use HTTP/2 protocol for the connection.
         case useHTTP2
         
+        /// If present, the client will connect using the Unix Socket
+        case socketPath(String)
+        
     }
 
     /**
@@ -252,7 +259,7 @@ public class ClientRequest {
         for option in options  {
             switch(option) {
 
-                case .method, .headers, .maxRedirects, .disableSSLVerification, .useHTTP2:
+                case .method, .headers, .maxRedirects, .disableSSLVerification, .useHTTP2, .socketPath:
                     // call set() for Options that do not construct the URL
                     set(option)
                 case .schema(var schema):
@@ -320,6 +327,8 @@ public class ClientRequest {
             self.disableSSLVerification = true
         case .useHTTP2:
             self.useHTTP2 = true
+        case .socketPath(let socketPath):
+            self.socketPath = socketPath
         }
     }
 
@@ -561,6 +570,10 @@ public class ClientRequest {
 		
         if useHTTP2 {
             curlHelperSetOptInt(handle!, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
+        }
+        
+        if let socketPath = socketPath?.cString(using: .utf8) {
+            curlHelperSetUnixSocketPath(handle!, UnsafePointer(socketPath))
         }
     }
 
