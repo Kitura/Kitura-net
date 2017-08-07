@@ -135,6 +135,17 @@ class ClientRequestTests: KituraNetTest {
     testRequest = ClientRequest(options: options3, callback: testCallback)
     XCTAssertEqual(testRequest.url, "http://myusername:mypassword@66o.tech")
 }
+    
+    func testClientRequestSSL() {
+        let options: [ClientRequest.Options] = [ .sslCertificate("myCert.pem"),
+                                                 .sslKey("myKey.pem"),
+                                                 .sslKeyPassphrase("myPassword") ]
+        let testRequest = ClientRequest(options: options, callback: testCallback)
+        
+        XCTAssertEqual(testRequest.sslCertificate, "myCert.pem")
+        XCTAssertEqual(testRequest.sslKey, "myKey.pem")
+        XCTAssertEqual(testRequest.sslKeyPassphrase, "myPassword")
+    }
 
 }
 
@@ -151,7 +162,8 @@ extension ClientRequestTests {
              ("testClientRequestAppendsPort", testClientRequestAppendsPort),
              ("testClientRequestSet", testClientRequestSet),
              ("testClientRequestParse", testClientRequestParse),
-             ("testClientRequestBasicAuthentcation", testClientRequestBasicAuthentcation)
+             ("testClientRequestBasicAuthentcation", testClientRequestBasicAuthentcation),
+             ("testClientRequestSSL", testClientRequestSSL)
     ]
   }
 }
