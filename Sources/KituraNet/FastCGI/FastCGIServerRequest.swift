@@ -53,7 +53,7 @@ public class FastCGIServerRequest : ServerRequest {
     /// This contains just the path and query parameters starting with '/'
     /// Use 'urlURL' for the full URL
     @available(*, deprecated, message:
-        "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
+    "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var urlString : String { return requestUri ?? "" }
 
     /// The URL from the request in UTF-8 form
@@ -64,10 +64,10 @@ public class FastCGIServerRequest : ServerRequest {
     /// The URL from the request as URLComponents
     /// URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
     @available(*, deprecated, message:
-        "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
+    "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
     public lazy var urlComponents: URLComponents = { [unowned self] () in
         return URLComponents(url: self.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
-    }()
+        }()
 
     /// Chunk of body read in by the http_parser, filled by callbacks to onBody
     private var bodyChunk = BufferList()
@@ -200,14 +200,16 @@ public class FastCGIServerRequest : ServerRequest {
     /// with "HTTP_" prefixed. We want to normalize these out to remove HTTP_
     /// and correct the capitilization (first letter of each word capitilized).
     private func processHttpHeader(_ name: String, value: String, remove: String) {
-        
-        var processedName : String = name.substring(from:
-            name.index(name.startIndex, offsetBy: remove.characters.count))
+        #if swift(>=3.2)
+            var processedName = String(name[name.index(name.startIndex, offsetBy: remove.count)...])
+        #else
+            var processedName = name.substring(from: name.index(name.startIndex, offsetBy: remove.characters.count))
+        #endif
         
         processedName = processedName.replacingOccurrences(of: "_", with: "-")
         processedName = processedName.capitalized
         
-        headers.append(processedName as String, value: value)
+        headers.append(processedName, value: value)
     }
     
     /// Parse the server protocol into a major and minor version
@@ -219,11 +221,15 @@ public class FastCGIServerRequest : ServerRequest {
         
         guard protocolString.lowercased().hasPrefix("http/") &&
             protocolString.characters.count > "http/".characters.count else {
-            return
+                return
         }
-        
-        let versionPortion : String = protocolString.substring(from:
-            protocolString.index(protocolString.startIndex, offsetBy: "http/".characters.count))
+
+        #if swift(>=3.2)
+            let versionPortion = String(protocolString[protocolString.index(protocolString.startIndex, offsetBy: "http/".count)...])
+        #else
+            let versionPortion = protocolString.substring(from: protocolString.index(protocolString.startIndex, offsetBy: "http/".characters.count))
+        #endif
+
         var decimalPosition : Int = 0
         
         for i in versionPortion.characters {
@@ -239,15 +245,23 @@ public class FastCGIServerRequest : ServerRequest {
         
         // get major version
         if decimalPosition > 0 {
-            let majorPortion : String = versionPortion.substring(to:
-                versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition))
+            #if swift(>=3.2)
+                let majorPortion = String(versionPortion[..<versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition)])
+            #else
+                let majorPortion = versionPortion.substring(to: versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition))
+            #endif
+
             majorVersion = UInt16(majorPortion)
         }
         
         // get minor version
         if protocolString.characters.count > decimalPosition {
-            let minorPortion : String = versionPortion.substring(from:
-                versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1))
+            #if swift(>=3.2)
+                let minorPortion = String(versionPortion[versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1)...])
+            #else
+                let minorPortion = versionPortion.substring(from:versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1))
+            #endif
+
             minorVersion = UInt16(minorPortion)
         }
         
@@ -256,7 +270,7 @@ public class FastCGIServerRequest : ServerRequest {
             httpVersionMajor = majorVersion!
             httpVersionMinor = minorVersion!
         }
-    
+
     }
     
     
@@ -486,8 +500,7 @@ public class FastCGIServerRequest : ServerRequest {
                         return
                     }
                     
-                }
-                while true
+                } while true
                 
                 
             } catch FastCGI.RecordErrors.invalidVersion {
