@@ -46,6 +46,9 @@ public class HTTPServer: Server {
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
+    /// Maximum number of requests per Keep-Alive connection. A negative value disables this feature.
+    public var maxRequests = -1
+    
     /// Incoming socket handler
     private var socketManager: IncomingSocketManager?
 
@@ -199,7 +202,8 @@ public class HTTPServer: Server {
                     let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
                     let incomingSocketProcessor =
                         incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket,
-                                                                                     using: serverDelegate)
+                                                                                     using: serverDelegate,
+                                                                                     requestsRemaining: self.maxRequests)
                     socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor)
                 }
                 else {
