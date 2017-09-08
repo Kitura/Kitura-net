@@ -164,7 +164,11 @@ public class HTTPServerResponse : ServerResponse {
         if !upgrade {
             if  keepAlive {
                 headerData.append("Connection: Keep-Alive\r\n")
-                headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout)), max=\((processor?.numberOfRequests ?? 1) - 1)\r\n")
+                headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout))")
+                if let numberOfRequests = processor?.numberOfRequests, numberOfRequests > 0 {
+                    headerData.append(", max=\(numberOfRequests)")
+                }
+                headerData.append("\r\n")
             }
             else {
                 headerData.append("Connection: Close\r\n")
