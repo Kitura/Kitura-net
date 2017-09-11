@@ -165,7 +165,7 @@ public class HTTPServerResponse : ServerResponse {
             if  keepAlive {
                 headerData.append("Connection: Keep-Alive\r\n")
                 headerData.append("Keep-Alive: timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout))")
-                if let numberOfRequests = processor?.numberOfRequests, numberOfRequests > 0 {
+                if let numberOfRequests = processor?.keepAliveState.requestsRemaining {
                     headerData.append(", max=\(numberOfRequests)")
                 }
                 headerData.append("\r\n")
@@ -214,4 +214,45 @@ public class HTTPServerResponse : ServerResponse {
         headers.removeAll()
         headers["Date"] = [SPIUtils.httpDate()]
     }
+}
+
+extension HTTPServerResponse {
+    
+    public enum KeepAliveState {
+        
+        case disabled
+        case unlimited
+        case limited(maxRequests: UInt)
+        
+        /// Returns true if there are requests remaining, or unlimited requests are allowed
+        func keepAlive() -> Bool {
+            switch self {
+            case .unlimited: return true
+            case .disabled: return false
+            case .limited(let limit): return limit > 0
+            }
+        }
+        
+        /// Decrements the number of requests remaining
+        mutating func decrement() -> Void {
+            switch self {
+            case .limited(let limit):
+                if limit > 1 {
+                    self = .limited(maxRequests: limit - 1)
+                } else {
+                    self = .disabled
+                }
+            default: break
+            }
+        }
+        
+        /// Returns the number of requests remaining if the KeepAlive state is `limited`.
+        var requestsRemaining: UInt? {
+            switch self {
+            case .limited(let limit): return limit
+            default: return nil
+            }
+        }
+    }
+    
 }

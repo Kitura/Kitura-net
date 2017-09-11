@@ -49,12 +49,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     ///HTTP Parser
     private let httpParser: HTTPParser
     
-    /// The number of remaining requests that will be allowed on the socket being handled by this handler.
-    /// A negative number indicates that this feature is disabled, and an unlimited number will be allowed.
-    private(set) var numberOfRequests: Int
+    /// Controls the number of requests that may be sent on this connection.
+    private(set) var keepAliveState: HTTPServerResponse.KeepAliveState
     
     /// Should this socket actually be kept alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests != 0 }
+    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() }
     
     let socket: Socket
     
@@ -69,11 +68,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
     
-    init(socket: Socket, using: ServerDelegate, requestsRemaining: Int) {
+    init(socket: Socket, using: ServerDelegate, keepalive: HTTPServerResponse.KeepAliveState) {
         delegate = using
         self.httpParser = HTTPParser(isRequest: true)
         self.socket = socket
-        self.numberOfRequests = requestsRemaining
+        self.keepAliveState = keepalive
     }
     
     /// Process data read from the socket. It is either passed to the HTTP parser or
@@ -254,9 +253,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
     func keepAlive() {
         state = .reset
-        if numberOfRequests > 0 {
-            numberOfRequests -= 1
-        }
+        keepAliveState.decrement()
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
         handler?.handleBufferedReadData()
@@ -266,7 +263,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
 class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
     public let name = "http/1.1"
     
-    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, requestsRemaining: Int) -> IncomingSocketProcessor {
-        return IncomingHTTPSocketProcessor(socket: socket, using: using, requestsRemaining: requestsRemaining)
+    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: HTTPServerResponse.KeepAliveState) -> IncomingSocketProcessor {
+        return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: keepalive)
     }
 }
