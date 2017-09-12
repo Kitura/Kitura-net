@@ -50,7 +50,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private let httpParser: HTTPParser
     
     /// Controls the number of requests that may be sent on this connection.
-    private(set) var keepAliveState: HTTPServerResponse.KeepAliveState
+    private(set) var keepAliveState: KeepAliveState
     
     /// Should this socket actually be kept alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() }
@@ -68,7 +68,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
     
-    init(socket: Socket, using: ServerDelegate, keepalive: HTTPServerResponse.KeepAliveState) {
+    init(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) {
         delegate = using
         self.httpParser = HTTPParser(isRequest: true)
         self.socket = socket
@@ -263,7 +263,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
 class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
     public let name = "http/1.1"
     
-    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: HTTPServerResponse.KeepAliveState) -> IncomingSocketProcessor {
+    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) -> IncomingSocketProcessor {
         return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: keepalive)
     }
 }
