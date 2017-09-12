@@ -188,22 +188,11 @@ public class HTTPServer: Server {
                 let clientSocket = try listenSocket.acceptClientConnection()
                 Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
-				
-                #if os(Linux)
-                    let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
-                #else
-                    let negotiatedProtocol = "http/1.1"
-                #endif
                 
-                if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
-                    let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
-                    let incomingSocketProcessor =
-                        incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket,
-                                                                                     using: serverDelegate)
-                    socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor)
-                }
-                else {
-                    Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
+                DispatchQueue.global().async() { [weak self] in
+                    if let strongSelf = self {
+                        strongSelf.handleNewClient(socket: clientSocket, socketManager: socketManager)
+                    }
                 }
             } catch let error {
                 if self.state == .stopped {
@@ -228,6 +217,27 @@ public class HTTPServer: Server {
             stop()
         }
     }
+    
+    /// Handle new incoming sockets in a "parallel thread"
+    private func handleNewClient(socket clientSocket: Socket, socketManager: IncomingSocketManager) {
+        #if os(Linux)
+            let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
+        #else
+            let negotiatedProtocol = "http/1.1"
+        #endif
+        
+        if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
+            let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
+            let incomingSocketProcessor =
+                incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket,
+                                                                             using: serverDelegate)
+            socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor)
+        }
+        else {
+            Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
+        }
+    }
+    
 
     /// Stop listening for new connections.
     public func stop() {
