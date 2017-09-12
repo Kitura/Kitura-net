@@ -47,7 +47,7 @@ public class HTTPServer: Server {
     private let maxPendingConnections = 100
 
     /// Controls the maximum number of requests per Keep-Alive connection.
-    public var keepAliveState: HTTPServerResponse.KeepAliveState = .unlimited
+    public var keepAliveState: KeepAliveState = .unlimited
     
     /// Incoming socket handler
     private var socketManager: IncomingSocketManager?
