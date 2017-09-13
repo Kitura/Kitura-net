@@ -29,6 +29,5 @@ public protocol IncomingSocketProcessorCreator {
     /// - Parameter socket: The new incoming socket.
     /// - Parameter using: The `ServerDelegate` the HTTPServer is working with, which should be used
     ///                   by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
-    /// - Parameter keepalive: The `KeepAliveState` for this connection (limited, unlimited or disabled)
-    func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) -> IncomingSocketProcessor
+    func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate) -> IncomingSocketProcessor
 }

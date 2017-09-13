@@ -263,7 +263,17 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
 class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
     public let name = "http/1.1"
     
-    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) -> IncomingSocketProcessor {
+    public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate) -> IncomingSocketProcessor {
+        return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: .unlimited)
+    }
+    
+    /// Create an instance of `IncomingHTTPSocketProcessor` for use with new incoming sockets.
+    ///
+    /// - Parameter socket: The new incoming socket.
+    /// - Parameter using: The `ServerDelegate` the HTTPServer is working with, which should be used
+    ///                   by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
+    /// - Parameter keepalive: The `KeepAliveState` for this connection (limited, unlimited or disabled)
+    func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) -> IncomingSocketProcessor {
         return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: keepalive)
     }
 }
