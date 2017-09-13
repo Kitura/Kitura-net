@@ -34,12 +34,8 @@ public enum KeepAliveState {
         switch self {
         case .unlimited: break
         case .limited(let limit):
-            if limit > 1 {
-                self = .limited(maxRequests: limit - 1)
-            } else {
-                assert(limit > 0, "Cannot decrement with zero requests remaining")
-                self = .disabled
-            }
+            assert(limit > 0, "Cannot decrement with zero requests remaining")
+            self = .limited(maxRequests: limit - 1)
         case .disabled:
             assertionFailure("Cannot decrement when Keep-Alive is disabled")
         }
