@@ -200,11 +200,14 @@ public class HTTPServer: Server {
                 
                 if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
                     let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
-                    let incomingSocketProcessor =
-                        incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket,
-                            using: serverDelegate,
-                            keepalive: self.keepAliveState)
-                    socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor)
+                    let incomingSocketProcessor: IncomingSocketProcessor?
+                    switch incomingSocketProcessorCreator {
+                    case let creator as HTTPIncomingSocketProcessorCreator:
+                        incomingSocketProcessor = creator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate, keepalive: self.keepAliveState)
+                    default:
+                        incomingSocketProcessor = incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate)
+                    }
+                    socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor!)
                 }
                 else {
                     Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
