@@ -224,7 +224,7 @@ public class HTTPServer: Server {
     
     private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket, socketManager: IncomingSocketManager) {
         do {
-            try listenSocket.invokeDelegateOnAccept(socket: clientSocket)
+            try listenSocket.invokeDelegateOnAccept(for: clientSocket)
             #if os(Linux)
                 let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
             #else
