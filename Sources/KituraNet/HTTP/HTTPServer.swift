@@ -192,12 +192,16 @@ public class HTTPServer: Server {
                 Log.debug("Accepted HTTP connection from: " +
                     "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
 				
-                DispatchQueue.global().async { [weak self] in
-                    if let strongSelf = self {
-                        strongSelf.initializeClientConnection(clientSocket: clientSocket, listenSocket: listenSocket, socketManager: socketManager)
+                if let _ = listenSocket.delegate {
+                    DispatchQueue.global().async { [weak self] in
+                        if let strongSelf = self {
+                            strongSelf.initializeClientConnection(clientSocket: clientSocket, listenSocket: listenSocket)
+                            strongSelf.handleClientConnection(clientSocket: clientSocket, socketManager: socketManager)
+                        }
                     }
+                } else {
+                    handleClientConnection(clientSocket: clientSocket, socketManager: socketManager)
                 }
-                
             } catch let error {
                 if self.state == .stopped {
                     if let socketError = error as? Socket.Error {
@@ -226,30 +230,10 @@ public class HTTPServer: Server {
     /// This procedure may involve reading bytes from the client (in the case of an SSL handshake),
     /// so must be done on a separate thread to avoid blocking the listener (Kitura issue #1143).
     ///
-    private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket, socketManager: IncomingSocketManager) {
+    private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket) {
         do {
             if let _ = listenSocket.delegate {
                 try listenSocket.invokeDelegateOnAccept(for: clientSocket)
-            }
-            #if os(Linux)
-                let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
-            #else
-                let negotiatedProtocol = "http/1.1"
-            #endif
-            
-            if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
-                let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
-                let incomingSocketProcessor: IncomingSocketProcessor?
-                switch incomingSocketProcessorCreator {
-                case let creator as HTTPIncomingSocketProcessorCreator:
-                    incomingSocketProcessor = creator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate, keepalive: self.keepAliveState)
-                default:
-                    incomingSocketProcessor = incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate)
-                }
-                socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor!)
-            }
-            else {
-                Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
             }
         } catch let error {
             if self.state == .stopped {
@@ -266,6 +250,32 @@ public class HTTPServer: Server {
                 Log.error("Error accepting client connection: \(error)")
                 self.lifecycleListener.performClientConnectionFailCallbacks(with: error)
             }
+        }
+    }
+
+    /// Completes the process of accepting a new client connection. This is either invoked from the
+    /// main listen() loop, or in the presence of an SSL delegate, from an async block.
+    /// 
+    private func handleClientConnection(clientSocket: Socket, socketManager: IncomingSocketManager) {
+        #if os(Linux)
+            let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
+        #else
+            let negotiatedProtocol = "http/1.1"
+        #endif
+        
+        if let incomingSocketProcessorCreator = HTTPServer.incomingSocketProcessorCreatorRegistry[negotiatedProtocol] {
+            let serverDelegate = delegate ?? HTTPServer.dummyServerDelegate
+            let incomingSocketProcessor: IncomingSocketProcessor?
+            switch incomingSocketProcessorCreator {
+            case let creator as HTTPIncomingSocketProcessorCreator:
+                incomingSocketProcessor = creator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate, keepalive: self.keepAliveState)
+            default:
+                incomingSocketProcessor = incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate)
+            }
+            socketManager.handle(socket: clientSocket, processor: incomingSocketProcessor!)
+        }
+        else {
+            Log.error("Negotiated protocol \(negotiatedProtocol) not supported on this server")
         }
     }
 
