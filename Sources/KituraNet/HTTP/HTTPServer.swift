@@ -221,10 +221,16 @@ public class HTTPServer: Server {
             stop()
         }
     }
-    
+
+    /// Initializes a newly accepted client connection.
+    /// This procedure may involve reading bytes from the client (in the case of an SSL handshake),
+    /// so must be done on a separate thread to avoid blocking the listener (Kitura issue #1143).
+    ///
     private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket, socketManager: IncomingSocketManager) {
         do {
-            try listenSocket.invokeDelegateOnAccept(for: clientSocket)
+            if let _ = listenSocket.delegate {
+                try listenSocket.invokeDelegateOnAccept(for: clientSocket)
+            }
             #if os(Linux)
                 let negotiatedProtocol = clientSocket.delegate?.negotiatedAlpnProtocol ?? "http/1.1"
             #else
