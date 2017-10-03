@@ -15,6 +15,7 @@
  **/
 
 import Foundation
+import Dispatch
 
 import XCTest
 
