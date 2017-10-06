@@ -42,6 +42,21 @@ class RegressionTests: KituraNetTest {
     /// Tests the resolution of Kitura issue 1143: SSL socket listener becomes blocked and
     /// does not accept further connections if a 'bad' connection is made that then sends
     /// no data (where the server is waiting on SSL_accept to receive a handshake).
+    ///
+    /// The sequence of steps that cause a hang:
+    ///
+    /// - A non-SSL client connects to SSL listener port, then does nothing
+    /// - On the server side, the listener thread expects an SSL client to be connecting.
+    ///   It invokes the SSL delegate, goes into SSL_accept and then blocks, waiting for 
+    ///   an SSL handshake (which will never arrive)
+    /// - Another (well-behaved) SSL client attempts to connect. This hangs, because the
+    ///   thread that normally loops around accepting incoming connections is still blocked
+    ///   trying to SSL_accept the previous connection.
+    ///
+    /// The fix for this issue is to decouple the socket accept from the SSL handshake, and
+    /// perform the latter on a separate thread. The expected behaviour is that a 'bad'
+    /// (non-SSL) connection does not interfere with the server's ability to accept other
+    /// connections.
     func testIssue1143() {
         do {
             let server: HTTPServer = try startServer(nil, port: 0, useSSL: true)
@@ -56,7 +71,7 @@ class RegressionTests: KituraNetTest {
             XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
             
             // Queue a server stop operation in 1 second, in case the test hangs (socket listener blocks)
-             let recoveryOperation = DispatchWorkItem {
+            let recoveryOperation = DispatchWorkItem {
                 server.stop()
                 XCTFail("Test did not complete (hung), server has been stopped")
             }
