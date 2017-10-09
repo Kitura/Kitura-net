@@ -44,6 +44,8 @@ class KituraNetTest: XCTestCase {
                                             usingSelfSignedCerts: true, cipherSuite: nil)
         #endif
     }()
+    
+    static let clientSSLConfig = SSLService.Configuration(withCipherSuite: nil, clientAllowsSelfSignedCertificates: true)
 
     private static let initOnce: () = PrintLogger.use(colored: true)
 
@@ -54,6 +56,20 @@ class KituraNetTest: XCTestCase {
     func doTearDown() {
     }
 
+    func startServer(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault) throws -> HTTPServer {
+        
+        let server: HTTPServer
+        if useSSL {
+            server = HTTP.createServer()
+            server.delegate = delegate
+            server.sslConfig = KituraNetTest.sslConfig
+            try server.listen(on: port)
+        } else {
+            server = try HTTPServer.listen(on: port, delegate: delegate)
+        }
+        return server
+    }
+    
     func performServerTest(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault,
                            line: Int = #line, asyncTasks: (XCTestExpectation) -> Void...) {
 
@@ -61,15 +77,7 @@ class KituraNetTest: XCTestCase {
             self.useSSL = useSSL
             self.port = port
 
-            let server: HTTPServer
-            if useSSL {
-                server = HTTP.createServer()
-                server.delegate = delegate
-                server.sslConfig = KituraNetTest.sslConfig
-                try server.listen(on: port)
-            } else {
-                server = try HTTPServer.listen(on: port, delegate: delegate)
-            }
+            let server: HTTPServer = try startServer(delegate, port: port, useSSL: useSSL)
             defer {
                 server.stop()
             }
