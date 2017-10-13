@@ -189,14 +189,29 @@ public class HTTPServer: Server {
         repeat {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection(invokeDelegate: false)
-                Log.debug("Accepted HTTP connection from: " +
-                    "\(clientSocket.remoteHostname):\(clientSocket.remotePort)")
+                let clientSource = "\(clientSocket.remoteHostname):\(clientSocket.remotePort)"
+                Log.debug("Accepted HTTP connection from: \(clientSource)")
 				
-                if let _ = listenSocket.delegate {
+                if listenSocket.delegate != nil {
                     DispatchQueue.global().async { [weak self] in
-                        if let strongSelf = self {
-                            strongSelf.initializeClientConnection(clientSocket: clientSocket, listenSocket: listenSocket)
+                        guard let strongSelf = self else {
+                            Log.info("Cannot initialize client connection from \(clientSource), server has been deallocated")
+                            return
+                        }
+                        do {
+                            try strongSelf.initializeClientConnection(clientSocket: clientSocket, listenSocket: listenSocket)
                             strongSelf.handleClientConnection(clientSocket: clientSocket, socketManager: socketManager)
+                        } catch let error {
+                            if strongSelf.state == .stopped {
+                                if let socketError = error as? Socket.Error {
+                                    Log.warning("Socket.Error initializing client connection from \(clientSource) after server stopped: \(socketError)")
+                                } else {
+                                    Log.warning("Error initializing client connection from \(clientSource) after server stopped: \(error)")
+                                }
+                            } else {
+                                Log.error("Error initializing client connection from \(clientSource): \(error)")
+                                strongSelf.lifecycleListener.performClientConnectionFailCallbacks(with: error)
+                            }
                         }
                     }
                 } else {
@@ -230,26 +245,9 @@ public class HTTPServer: Server {
     /// This procedure may involve reading bytes from the client (in the case of an SSL handshake),
     /// so must be done on a separate thread to avoid blocking the listener (Kitura issue #1143).
     ///
-    private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket) {
-        do {
-            if let _ = listenSocket.delegate {
-                try listenSocket.invokeDelegateOnAccept(for: clientSocket)
-            }
-        } catch let error {
-            if self.state == .stopped {
-                if let socketError = error as? Socket.Error {
-                    if socketError.errorCode == Int32(Socket.SOCKET_ERR_ACCEPT_FAILED) {
-                        Log.info("Server has stopped listening")
-                    } else {
-                        Log.warning("Socket.Error accepting client connection after server stopped: \(error)")
-                    }
-                } else {
-                    Log.warning("Error accepting client connection after server stopped: \(error)")
-                }
-            } else {
-                Log.error("Error accepting client connection: \(error)")
-                self.lifecycleListener.performClientConnectionFailCallbacks(with: error)
-            }
+    private func initializeClientConnection(clientSocket: Socket, listenSocket: Socket) throws {
+        if listenSocket.delegate != nil {
+            try listenSocket.invokeDelegateOnAccept(for: clientSocket)
         }
     }
 
