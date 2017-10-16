@@ -244,7 +244,7 @@ class ClientE2ETests: KituraNetTest {
                         XCTAssertEqual(patchValue, "Read 16 bytes")
                     }
                     else {
-                        XCTFail("postValue's value wasn't an UTF8 string")
+                        XCTFail("patchValue's value wasn't an UTF8 string")
                     }
                 }
                 catch {
