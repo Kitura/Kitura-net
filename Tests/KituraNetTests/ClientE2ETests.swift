@@ -31,6 +31,7 @@ class ClientE2ETests: KituraNetTest {
             ("testKeepAlive", testKeepAlive),
             ("testPostRequests", testPostRequests),
             ("testPutRequests", testPutRequests),
+            ("testPatchRequests", testPatchRequests),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testUrlURL", testUrlURL)
         ]
@@ -161,7 +162,7 @@ class ClientE2ETests: KituraNetTest {
             }
         })
     }
-    
+
     func testPutRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("put", path: "/puttest", callback: {response in
@@ -194,6 +195,53 @@ class ClientE2ETests: KituraNetTest {
                     let postValue = String(data: data as Data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 16 bytes")
+                    }
+                    else {
+                        XCTFail("postValue's value wasn't an UTF8 string")
+                    }
+                }
+                catch {
+                    XCTFail("Failed reading the body of the response")
+                }
+                expectation.fulfill()
+            }) {request in
+                request.write(from: "A few characters")
+            }
+        })
+    }    
+
+    func testPatchRequests() {
+        performServerTest(delegate, asyncTasks: { expectation in
+            self.performRequest("patch", path: "/patchtest", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
+                do {
+                    var data = Data()
+                    let count = try response?.readAllData(into: &data)
+                    XCTAssertEqual(count, 12, "Result should have been 12 bytes, was \(String(describing: count)) bytes")
+                    let patchValue = String(data: data as Data, encoding: .utf8)
+                    if  let patchValue = patchValue {
+                        XCTAssertEqual(patchValue, "Read 0 bytes")
+                    }
+                    else {
+                        XCTFail("patchValue's value wasn't an UTF8 string")
+                    }
+                }
+                catch {
+                    XCTFail("Failed reading the body of the response")
+                }
+                expectation.fulfill()
+            })
+        },
+        { expectation in
+            self.performRequest("patch", path: "/patchtest", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
+                do {
+                    var data = Data()
+                    let count = try response?.readAllData(into: &data)
+                    XCTAssertEqual(count, 13, "Result should have been 13 bytes, was \(String(describing: count)) bytes")
+                    let patchValue = String(data: data as Data, encoding: .utf8)
+                    if  let patchValue = patchValue {
+                        XCTAssertEqual(patchValue, "Read 16 bytes")
                     }
                     else {
                         XCTFail("postValue's value wasn't an UTF8 string")
