@@ -50,6 +50,9 @@ public class FastCGIServer: Server {
 
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
+    
+    /// Whether or not this server allows port reuse (default: disallowed)
+    private var allowPortReuse: Bool = false
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
 
@@ -74,8 +77,9 @@ public class FastCGIServer: Server {
             let socket = try Socket.create()
             self.listenSocket = socket
 
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+            try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse)
             Log.info("Listening on port \(port)")
+            Log.verbose("Options for port \(port): maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
 
             // set synchronously to avoid contention in back to back server start/stop calls
             self.state = .started

@@ -43,6 +43,9 @@ public class HTTPServer: Server {
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
 
+    /// Whether or not this server allows port reuse (default: disallowed)
+    private var allowPortReuse: Bool = false
+
     /// Maximum number of pending connections
     private let maxPendingConnections = 100
 
@@ -92,7 +95,7 @@ public class HTTPServer: Server {
                 socket.delegate = try SSLService(usingConfiguration: sslConfig);
             }
 
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections)
+            try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse)
 
             let socketManager = IncomingSocketManager()
             self.socketManager = socketManager
@@ -116,8 +119,10 @@ public class HTTPServer: Server {
                 #endif
                 
                 Log.info("Listening on port \(self.port!) (delegate: \(delegate))")
+                Log.verbose("Options for port \(self.port!): delegate: \(delegate), maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
             } else {
                 Log.info("Listening on port \(self.port!)")
+                Log.verbose("Options for port \(self.port!): maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
             }
 
             // set synchronously to avoid contention in back to back server start/stop calls
