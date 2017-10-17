@@ -44,7 +44,7 @@ public class HTTPServer: Server {
     private var listenSocket: Socket?
 
     /// Whether or not this server allows port reuse (default: disallowed)
-    private var allowPortReuse: Bool = false
+    public var allowPortReuse: Bool = false
 
     /// Maximum number of pending connections
     private let maxPendingConnections = 100

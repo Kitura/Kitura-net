@@ -52,7 +52,7 @@ public class FastCGIServer: Server {
     private var listenSocket: Socket?
     
     /// Whether or not this server allows port reuse (default: disallowed)
-    private var allowPortReuse: Bool = false
+    public var allowPortReuse: Bool = false
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
 
