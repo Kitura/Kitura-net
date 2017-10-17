@@ -148,4 +148,63 @@ class RegressionTests: KituraNetTest {
         }
         
     }
+    
+    /// Tests that attempting to start a second HTTPServer on the same port fails.
+    func testServersCollidingOnPort() {
+        do {
+            let server: HTTPServer = try startServer(nil, port: 0, useSSL: false)
+            defer {
+                server.stop()
+            }
+            
+            guard let serverPort = server.port else {
+                XCTFail("Server port was not initialized")
+                return
+            }
+            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
+            
+            do {
+                let collidingServer: HTTPServer = try startServer(nil, port: serverPort, useSSL: false)
+                defer {
+                    collidingServer.stop()
+                }
+                XCTFail("Server unexpectedly succeeded in listening on a port already in use")
+            } catch {
+                XCTAssert(error is Socket.Error, "Expected a Socket.Error, received: \(error)")
+            }
+            
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+
+    /// Tests that attempting to start a second HTTPServer on the same port with
+    /// SO_REUSEPORT enabled is successful.
+    func testServersSharingPort() {
+        do {
+            let server: HTTPServer = try startServer(nil, port: 0, useSSL: false, allowPortReuse: true)
+            defer {
+                server.stop()
+            }
+            
+            guard let serverPort = server.port else {
+                XCTFail("Server port was not initialized")
+                return
+            }
+            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
+            
+            do {
+                let sharingServer: HTTPServer = try startServer(nil, port: serverPort, useSSL: false, allowPortReuse: true)
+                defer {
+                    sharingServer.stop()
+                }
+            } catch {
+                XCTFail("Second server could not share listener port, received: \(error)")
+            }
+            
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+
 }
