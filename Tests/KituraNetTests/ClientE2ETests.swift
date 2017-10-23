@@ -311,9 +311,7 @@ class ClientE2ETests: KituraNetTest {
                 response.statusCode = .OK
                 XCTAssertEqual(response.statusCode, .OK, "Set response status code wasn't .OK, it was \(String(describing: response.statusCode))")
                 response.headers["Content-Type"] = ["text/plain"]
-                if request.method.lowercased() != "head" {
-                    response.headers["Content-Length"] = ["\(result.characters.count)"]
-                }
+                response.headers["Content-Length"] = ["\(result.characters.count)"]
                 
                 try response.end(text: result)
             }

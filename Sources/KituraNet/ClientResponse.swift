@@ -47,7 +47,7 @@ public class ClientResponse {
     private static let bufferSize = 2000
     
     /// The http_parser Swift wrapper
-    private var httpParser = HTTPParser(isRequest: false)
+    private var httpParser: HTTPParser
     
     /// State of response parsing
     private var parserStatus = HTTPParserStatus()
@@ -71,7 +71,7 @@ public class ClientResponse {
         if  parserStatus.state == .reset  {
             reset()
         }
-        
+
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
         let (numberParsed, _) = httpParser.execute(bytes, length: length)
         
@@ -155,7 +155,8 @@ public class ClientResponse {
     }
 
     /// Initializes a `ClientResponse` instance
-    init() {
+    init(skipBody: Bool = false) {
+        httpParser = HTTPParser(isRequest: false, skipBody: skipBody)
     }
     
     /// The HTTP Status code, as an Int, sent in the response by the remote server.

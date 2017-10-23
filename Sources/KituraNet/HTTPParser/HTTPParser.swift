@@ -63,9 +63,10 @@ class HTTPParser {
     /// Initializes a HTTPParser instance
     ///
     /// - Parameter isRequest: whether or not this HTTP message is a request
+    /// - Parameter skipBody: whether parser should skip body content (ie when parsing the response to a HEAD request)
     ///
     /// - Returns: an HTTPParser instance
-    init(isRequest: Bool) {
+    init(isRequest: Bool, skipBody: Bool = false) {
 
         self.isRequest = isRequest
 
@@ -99,14 +100,35 @@ class HTTPParser {
             return 0
         }
         
-        settings.on_headers_complete = { (parser) -> Int32 in
-            let method = String(cString: get_method(parser))
+        // Callback should return 1 when instructing the C HTTP parser
+        // to skip body content. This closure is bound to a C function
+        // pointer and cannot capture values (including self.skipBody)
+        // so instead we choose which closure to assign outside the
+        // closure.
+        // NOTE: We could extract the common code into a static function
+        //       to reduce duplication.
+        if skipBody {
+            settings.on_headers_complete = { (parser) -> Int32 in
+                let method = String(cString: get_method(parser))
 
-            let results = getResults(parser)
-            
-            results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
-                versionMinor: (parser?.pointee.http_minor)!)
-            return 0
+                let results = getResults(parser)
+                
+                results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
+                    versionMinor: (parser?.pointee.http_minor)!)
+                
+                return 1
+            }
+        } else {
+            settings.on_headers_complete = { (parser) -> Int32 in
+                let method = String(cString: get_method(parser))
+
+                let results = getResults(parser)
+                
+                results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
+                    versionMinor: (parser?.pointee.http_minor)!)
+                
+                return 0
+            }
         }
         
         settings.on_message_complete = { (parser) -> Int32 in
@@ -116,7 +138,7 @@ class HTTPParser {
         
         reset()	
     }
-    
+
     /// Executes the parsing on the byte array
     ///
     /// - Parameter data: pointer to a byte array
