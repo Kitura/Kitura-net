@@ -105,28 +105,14 @@ class HTTPParser {
         // pointer and cannot capture values (including self.skipBody)
         // so instead we choose which closure to assign outside the
         // closure.
-        // NOTE: We could extract the common code into a static function
-        //       to reduce duplication.
         if skipBody {
             settings.on_headers_complete = { (parser) -> Int32 in
-                let method = String(cString: get_method(parser))
-
-                let results = getResults(parser)
-                
-                results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
-                    versionMinor: (parser?.pointee.http_minor)!)
-                
+                onHeadersComplete(parser)
                 return 1
             }
         } else {
             settings.on_headers_complete = { (parser) -> Int32 in
-                let method = String(cString: get_method(parser))
-
-                let results = getResults(parser)
-                
-                results?.onHeadersComplete(method: method, versionMajor: (parser?.pointee.http_major)!,
-                    versionMinor: (parser?.pointee.http_minor)!)
-                
+                onHeadersComplete(parser)
                 return 0
             }
         }
@@ -166,6 +152,16 @@ class HTTPParser {
     var statusCode: HTTPStatusCode {
         return isRequest ? .unknown : HTTPStatusCode(rawValue: Int(parser.status_code)) ?? .unknown
     }
+}
+
+fileprivate func onHeadersComplete(_ parser: UnsafeMutableRawPointer?) {
+    let httpParser = parser?.assumingMemoryBound(to: http_parser.self)
+    let method = String(cString: get_method(httpParser!))
+
+    let results = getResults(httpParser)
+
+    results?.onHeadersComplete(method: method, versionMajor: (httpParser?.pointee.http_major)!,
+        versionMinor: (httpParser?.pointee.http_minor)!)
 }
 
 fileprivate func getResults(_ parser: UnsafeMutableRawPointer?) -> ParseResults? {
