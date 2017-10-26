@@ -123,6 +123,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         keepAliveUntil=0.0
         inProgress = false
         clientRequestedKeepAlive = false
+        parserUnlock()  // In case the socket was closed while we were handling a request
         handler?.prepareToClose()
     }
     
@@ -186,15 +187,16 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
+        parserLock()
         let parsingStatus = parse(buffer, from: parseStartingFrom)
-        
+        parserUnlock()
+
         if parsingStatus.bytesLeft == 0 {
             parseStartingFrom = 0
         }
         else {
             parseStartingFrom = buffer.length - parsingStatus.bytesLeft
         }
-        
         guard  parsingStatus.error == nil  else  {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")
             let response = HTTPServerResponse(processor: self, request: nil)
@@ -203,7 +205,6 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
                 try response.end()
             }
             catch {}
-
             return
         }
         
@@ -240,6 +241,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             inProgress = false
         }
         else {
+            // Prevent changes to the HTTPParser's state during handling of the request.
+            // Once handling has finished, the HTTPServerResponse will call handlingComplete()
+            // to unlock the parser. It cannot be called within the closure below, because
+            // handle will first try to process buffered data, and the lock must be released
+            // before this can happen.
+            parserLock()
             weak var weakRequest = request
             DispatchQueue.global().async() { [weak self] in
                 if let strongSelf = self, let strongRequest = weakRequest {
@@ -250,6 +257,13 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         }
     }
     
+    /// Called by the request handler to signify that it has finished making use of the
+    /// HTTPServerRequest (and the HTTPParser it refers to), such that the parser can
+    /// safely be reused.
+    func handlingComplete() {
+        parserUnlock()
+    }
+    
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
     func keepAlive() {
         state = .reset
@@ -258,6 +272,21 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
         handler?.handleBufferedReadData()
     }
+    
+    private let parserSemaphore = DispatchSemaphore(value: 1)
+    
+    /// Indicate that we are dependent on the state of the HTTPParser.
+    /// This should be obtained before executing the parser.
+    /// If we are ready to handle a request, we will retain this lock until handling is complete.
+    private func parserLock() {
+        parserSemaphore.wait()
+    }
+    
+    /// Indicate that we are no longer dependent on the state of the HTTPParser.
+    private func parserUnlock() {
+        parserSemaphore.signal()
+    }
+
 }
 
 class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
