@@ -336,7 +336,8 @@ public class ClientRequest {
 
         let invoker = CurlInvoker(handle: handle!, maxRedirects: maxRedirects)
         invoker.delegate = self
-        response = ClientResponse()
+        let skipBody = (method.uppercased() == "HEAD")
+        response = ClientResponse(skipBody: skipBody)
         
         var code = invoker.invoke()
         guard code == CURLE_OK else {
