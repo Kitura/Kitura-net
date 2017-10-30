@@ -120,7 +120,6 @@ public class HTTPServerResponse : ServerResponse {
             // Ordering is important here. Keepalive allows the processor to continue
             // processing further requests, so must only be called once monitoring
             // has completed, as the HTTPParser for this connection is reused.
-            processor.handlingComplete()
             if  keepAlive {
                 processor.keepAlive()
             }
