@@ -117,8 +117,16 @@ class HTTPParser {
             }
         }
         
+        // When the parser reaches the end of a message, we will pause
+        // so that execute() completes and the handler can be invoked.
+        // Any remaining data in the buffer will be consumed as follows:
+        // - if Keep-Alive is disabled, the data will be discarded.
+        // - if Keep-Alive is enabled, the keepAlive() call and the
+        //   subsequent handleBuffererdReadData() call will reset the
+        //   parser's state, and then resume parsing the buffer.
         settings.on_message_complete = { (parser) -> Int32 in
             getResults(parser)?.onMessageComplete()
+            http_parser_pause(parser, 1)
             return 0
         }
         
