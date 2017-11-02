@@ -15,6 +15,7 @@
  **/
 
 import Foundation
+import Dispatch
 
 import XCTest
 
@@ -190,7 +191,6 @@ class ClientE2ETests: KituraNetTest {
                 if responseBody != expectedResponse {
                     XCTFail("Expected: '\(expectedResponse)', but response \(responseNumber) was: '\(responseBody)'")
                 }
-                print("ok \(responseNumber)")
             }
             // We completed reading the responses, cancel the recovery task
             recoveryTask.cancel()
