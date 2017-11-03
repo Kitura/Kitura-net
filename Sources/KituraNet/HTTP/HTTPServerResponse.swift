@@ -107,22 +107,21 @@ public class HTTPServerResponse : ServerResponse {
     public func end() throws {
         if let processor = processor {
             try flushStart()
-            
-            let keepAlive = processor.isKeepAlive
-            
-            if  keepAlive {
-                processor.keepAlive()
-            }
-            
             if  buffer.length > 0  {
                 processor.write(from: buffer)
             }
-            
+            let keepAlive = processor.isKeepAlive
             if !keepAlive && !processor.isUpgrade {
                 processor.close()
             }
             if let request = request {
                 Monitor.delegate?.finished(request: request, response: self)
+            }
+            // Ordering is important here. Keepalive allows the processor to continue
+            // processing further requests, so must only be called once monitoring
+            // has completed, as the HTTPParser for this connection is reused.
+            if  keepAlive {
+                processor.keepAlive()
             }
         }
     }
