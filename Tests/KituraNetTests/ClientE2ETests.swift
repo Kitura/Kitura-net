@@ -15,6 +15,7 @@
  **/
 
 import Foundation
+import Dispatch
 
 import XCTest
 
@@ -32,6 +33,8 @@ class ClientE2ETests: KituraNetTest {
             ("testPostRequests", testPostRequests),
             ("testPutRequests", testPutRequests),
             ("testPatchRequests", testPatchRequests),
+            ("testPipelining", testPipelining),
+            ("testPipeliningSpanningPackets", testPipeliningSpanningPackets),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testUrlURL", testUrlURL)
         ]
@@ -90,7 +93,114 @@ class ClientE2ETests: KituraNetTest {
             })
         })
     }
-
+    
+    /// Tests that the server responds appropriately to pipelined requests.
+    /// Three POST requests are sent to a test server in a single socket write. The
+    /// server is expected to process them sequentially, sending three separate
+    /// responses, each indicating that a body of 6 bytes was received.
+    func testPipelining() {
+        let postRequest = "POST / HTTP/1.1\r\nHost: localhost:8080\r\nContent-Length: 6\r\n\r\nabcdef"
+        let expectedResponse = "Read 6 bytes"
+        let totalRequests = 3
+        let pipelinedRequests = String(repeating: postRequest, count: totalRequests)
+        doPipelineTest(expecting: expectedResponse, totalRequests: totalRequests) {
+            socket in
+            try socket.write(from: pipelinedRequests)
+        }
+    }
+        
+    /// Tests that the server responds appropriately to pipelined requests.
+    /// Three POST requests are sent to a test server in a pipelined fashion, but
+    /// spanning several packets. It is necessary to sleep between writes to allow
+    /// the server time to receive and process the data.
+    func testPipeliningSpanningPackets() {
+        let firstBuffer = "POST / HTTP/1.1\r\nHost: localhost:8080\r\nContent-Length: 6\r\n\r\nabcdefPOST / HTTP/1.1\r\nHost: localhost:80"
+        let secondBuffer = "80\r\nContent-Length: 6\r\n\r\nabcdefPO"
+        let thirdBuffer = "ST / HTTP/1.1\r\nHost: localhost:8080\r\nContent-Length: 6\r\n\r\nabcdef"
+        let expectedResponse = "Read 6 bytes"
+        let totalRequests = 2
+        doPipelineTest(expecting: expectedResponse, totalRequests: totalRequests) {
+            socket in
+            // Disable Nagle's algorithm on this socket to flush first write
+            var on: Int32 = 1
+            setsockopt(socket.socketfd, Int32(IPPROTO_TCP), TCP_NODELAY, &on, socklen_t(MemoryLayout<Int32>.size))
+            try socket.write(from: firstBuffer)
+            usleep(1000)
+            try socket.write(from: secondBuffer)
+            usleep(1000)
+            try socket.write(from: thirdBuffer)
+        }
+    }
+    
+    private func doPipelineTest(expecting expectedResponse: String, totalRequests: Int, writer: (Socket) throws -> Void) {
+        do {
+            let server: HTTPServer = try startServer(TestServerDelegate(), port: 0, useSSL: false)
+            defer {
+                server.stop()
+            }
+            
+            guard let serverPort = server.port else {
+                XCTFail("Server port was not initialized")
+                return
+            }
+            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
+            
+            // Send pipelined requests to the server
+            let clientSocket = try Socket.create()
+            try clientSocket.connect(to: "localhost", port: Int32(serverPort))
+            defer {
+                clientSocket.close()
+            }
+            try writer(clientSocket)
+            //try clientSocket.write(from: pipelinedRequests)
+            
+            // Queue a recovery task to close our socket so that the test cannot wait forever
+            // waiting for responses from the server
+            let recoveryTask = DispatchWorkItem {
+                XCTFail("Timed out waiting for responses from server")
+                clientSocket.close()
+            }
+            let timeout = DispatchTime.now() + .seconds(1)
+            DispatchQueue.global().asyncAfter(deadline: timeout, execute: recoveryTask)
+            
+            // Read responses from the server
+            let buffer = NSMutableData(capacity: 2000)!
+            var read = 0
+            var bufferPosition = 0
+            var responsesToRead = totalRequests
+            while responsesToRead > 0 {
+                responsesToRead -= 1
+                let response = ClientResponse()
+                while true {
+                    XCTAssert(read == buffer.length, "Bytes read does not equal buffer length")
+                    let status = response.parse(buffer, from: bufferPosition)
+                    bufferPosition = buffer.length - status.bytesLeft
+                    if status.state == .messageComplete {
+                        break
+                    }
+                    read += try clientSocket.read(into: buffer)
+                }
+                let responseNumber = totalRequests - responsesToRead
+                // Check that the response indicates success
+                XCTAssert(response.httpStatusCode == .OK, "Response \(responseNumber) was not 200/OK, was \(response.httpStatusCode)")
+                guard let responseBody = try response.readString() else {
+                    XCTFail("Unable to read body of response \(responseNumber)")
+                    break
+                }
+                // Check that the response body contains the expected content
+                if responseBody != expectedResponse {
+                    XCTFail("Expected: '\(expectedResponse)', but response \(responseNumber) was: '\(responseBody)'")
+                }
+            }
+            // We completed reading the responses, cancel the recovery task
+            recoveryTask.cancel()
+            XCTAssert(bufferPosition == buffer.length, "Unparsed bytes remaining after final response")
+            
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+    
     func testEphemeralListeningPort() {
         do {
             let server = try HTTPServer.listen(on: 0, delegate: delegate)
