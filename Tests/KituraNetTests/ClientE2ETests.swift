@@ -134,16 +134,12 @@ class ClientE2ETests: KituraNetTest {
     
     private func doPipelineTest(expecting expectedResponse: String, totalRequests: Int, writer: (Socket) throws -> Void) {
         do {
-            let server: HTTPServer = try startServer(TestServerDelegate(), port: 0, useSSL: false)
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: false)
             defer {
                 server.stop()
             }
-            
-            guard let serverPort = server.port else {
-                XCTFail("Server port was not initialized")
-                return
-            }
-            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
             
             // Send pipelined requests to the server
             let clientSocket = try Socket.create()

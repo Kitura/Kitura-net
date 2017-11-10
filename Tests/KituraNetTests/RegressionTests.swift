@@ -28,6 +28,10 @@ class RegressionTests: KituraNetTest {
     static var allTests : [(String, (RegressionTests) -> () throws -> Void)] {
         return [
             ("testIssue1143", testIssue1143),
+            ("testServersCollidingOnPort", testServersCollidingOnPort),
+            ("testServersSharingPort", testServersSharingPort),
+            ("testBadRequest", testBadRequest),
+            ("testBadRequestFollowingGoodRequest", testBadRequestFollowingGoodRequest),
         ]
     }
     
@@ -59,17 +63,13 @@ class RegressionTests: KituraNetTest {
     /// connections.
     func testIssue1143() {
         do {
-            let server: HTTPServer = try startServer(nil, port: 0, useSSL: true)
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: true)
             defer {
                 server.stop()
             }
 
-            guard let serverPort = server.port else {
-                XCTFail("Server port was not initialized")
-                return
-            }
-            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
-            
             // Queue a server stop operation in 1 second, in case the test hangs (socket listener blocks)
             let recoveryOperation = DispatchWorkItem {
                 server.stop()
@@ -152,16 +152,12 @@ class RegressionTests: KituraNetTest {
     /// Tests that attempting to start a second HTTPServer on the same port fails.
     func testServersCollidingOnPort() {
         do {
-            let server: HTTPServer = try startServer(nil, port: 0, useSSL: false)
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: false)
             defer {
                 server.stop()
             }
-            
-            guard let serverPort = server.port else {
-                XCTFail("Server port was not initialized")
-                return
-            }
-            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
             
             do {
                 let collidingServer: HTTPServer = try startServer(nil, port: serverPort, useSSL: false)
@@ -205,6 +201,164 @@ class RegressionTests: KituraNetTest {
         } catch {
             XCTFail("Error: \(error)")
         }
+    }
+    
+    /// Tests that sending a bad request results in a `400/Bad Request` response
+    /// from the server with `Connection: Close` header.
+    func testBadRequest() {
+        let requestBuffer = "GET / HTTP/1.1\r\nFOO\r\n\r\n"
+        do {
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: false)
+            defer {
+                server.stop()
+            }
+            
+            // Send request to the server
+            let clientSocket = try Socket.create()
+            try clientSocket.connect(to: "localhost", port: Int32(serverPort))
+            defer {
+                clientSocket.close()
+            }
+            try clientSocket.write(from: requestBuffer)
+            
+            // Queue a recovery task to close our socket so that the test cannot wait forever
+            // waiting for responses from the server
+            let recoveryTask = DispatchWorkItem {
+                XCTFail("Timed out waiting for responses from server")
+                clientSocket.close()
+            }
+            let timeout = DispatchTime.now() + .seconds(1)
+            DispatchQueue.global().asyncAfter(deadline: timeout, execute: recoveryTask)
+            
+            // Read responses from the server
+            let buffer = NSMutableData(capacity: 2000)!
+            var read = 0
+            var bufferPosition = 0
+            let response = ClientResponse()
+            while true {
+                XCTAssert(read == buffer.length, "Bytes read does not equal buffer length")
+                let status = response.parse(buffer, from: bufferPosition)
+                bufferPosition = buffer.length - status.bytesLeft
+                if status.state == .messageComplete {
+                    break
+                }
+                read += try clientSocket.read(into: buffer)
+            }
+            // Check that the response indicates failure
+            validate400Response(response: response, responseNumber: 1)
+            // We completed reading the responses, cancel the recovery task
+            recoveryTask.cancel()
+            XCTAssert(bufferPosition == buffer.length, "Unparsed bytes remaining after final response")
+            
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+
+    /// Tests that sending a good request followed by garbage on a Keep-Alive
+    /// connection results in a `200/OK` response, followed by a `400/Bad Request`
+    /// response with `Connection: Close` header.
+    /// This is to verify the fix introduced in Kitura-net PR #229, where a malformed
+    /// request sent during a Keep-Alive session could cause the server to crash.
+    func testBadRequestFollowingGoodRequest() {
+        let requestBuffer = "GET / HTTP/1.1\r\n\r\nFOO\r\n"
+        let totalRequests = 2
+        do {
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: false)
+            defer {
+                server.stop()
+            }
+            
+            // Send requests to the server
+            let clientSocket = try Socket.create()
+            try clientSocket.connect(to: "localhost", port: Int32(serverPort))
+            defer {
+                clientSocket.close()
+            }
+            try clientSocket.write(from: requestBuffer)
+            
+            // Queue a recovery task to close our socket so that the test cannot wait forever
+            // waiting for responses from the server
+            let recoveryTask = DispatchWorkItem {
+                XCTFail("Timed out waiting for responses from server")
+                clientSocket.close()
+            }
+            let timeout = DispatchTime.now() + .seconds(1)
+            DispatchQueue.global().asyncAfter(deadline: timeout, execute: recoveryTask)
+            
+            // Read responses from the server
+            let buffer = NSMutableData(capacity: 2000)!
+            var read = 0
+            var bufferPosition = 0
+            var responsesToRead = totalRequests
+            while responsesToRead > 0 {
+                responsesToRead -= 1
+                let response = ClientResponse()
+                while true {
+                    XCTAssert(read == buffer.length, "Bytes read does not equal buffer length")
+                    let status = response.parse(buffer, from: bufferPosition)
+                    bufferPosition = buffer.length - status.bytesLeft
+                    if status.state == .messageComplete {
+                        break
+                    }
+                    read += try clientSocket.read(into: buffer)
+                }
+                let responseNumber = totalRequests - responsesToRead
+                switch responseNumber {
+                case 1:
+                    validate200Response(response: response, responseNumber: responseNumber)
+                case 2:
+                    validate400Response(response: response, responseNumber: responseNumber)
+                default:
+                    XCTFail("Unexpected responseNumber \(responseNumber)")
+                }
+                // Check that the response indicates success
+                
+            }
+            // We completed reading the responses, cancel the recovery task
+            recoveryTask.cancel()
+            XCTAssert(bufferPosition == buffer.length, "Unparsed bytes remaining after final response")
+            
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+    
+    /// Checks that the provided ClientResponse represents an HTTP `200 OK`
+    /// response from the server with an appropriate `Connection: Keep-Alive`
+    /// header.
+    private func validate200Response(response: ClientResponse, responseNumber: Int) {
+        XCTAssert(response.httpStatusCode == .OK, "Response \(responseNumber) was not 200/OK, was \(response.httpStatusCode)")
+        guard let connectionHeader = response.headers["Connection"] else {
+            XCTFail("Response did not contain a 'Connection' header")
+            return
+        }
+        guard connectionHeader.count == 1 else {
+            XCTFail("Connection header did not have a single value: \(connectionHeader)")
+            return
+        }
+        let connectionValue = connectionHeader[0]
+        XCTAssert(connectionValue == "Keep-Alive", "Response 'Connection' header should be 'Keep-Alive', but was \(connectionValue)")
+    }
+    
+    /// Checks that the provided ClientResponse represents an HTTP `400 Bad Request`
+    /// response from the server with an appropriate `Connection: Close` header.
+    private func validate400Response(response: ClientResponse, responseNumber: Int) {
+        XCTAssert(response.httpStatusCode == .badRequest, "Response was not 400/Bad Request, was \(response.httpStatusCode)")
+        guard let connectionHeader = response.headers["Connection"] else {
+            XCTFail("Response did not contain a 'Connection' header")
+            return
+        }
+        guard connectionHeader.count == 1 else {
+            XCTFail("Connection header did not have a single value: \(connectionHeader)")
+            return
+        }
+        let connectionValue = connectionHeader[0]
+        XCTAssert(connectionValue == "Close", "Response 'Connection' header should be 'Close', but was \(connectionValue)")
     }
 
 }

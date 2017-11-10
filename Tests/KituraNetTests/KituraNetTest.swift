@@ -22,6 +22,10 @@ import Foundation
 import Dispatch
 import SSLService
 
+struct KituraNetTestError: Swift.Error {
+    let message: String
+}
+
 class KituraNetTest: XCTestCase {
 
     static let useSSLDefault = true
@@ -67,6 +71,19 @@ class KituraNetTest: XCTestCase {
         }
         try server.listen(on: port)
         return server
+    }
+    
+    /// Convenience function for starting an HTTPServer on an ephemeral port,
+    /// returning the a tuple containing the server and the port it is listening on.
+    func startEphemeralServer(_ delegate: ServerDelegate?, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> (server: HTTPServer, port: Int) {
+        let server = try startServer(delegate, port: 0, useSSL: useSSL, allowPortReuse: allowPortReuse)
+        guard let serverPort = server.port else {
+            throw KituraNetTestError(message: "Server port was not initialized")
+        }
+        guard serverPort != 0 else {
+            throw KituraNetTestError(message: "Ephemeral server port not set (was zero)")
+        }
+        return (server, serverPort)
     }
     
     func performServerTest(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault,

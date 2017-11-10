@@ -49,11 +49,14 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     ///HTTP Parser
     private let httpParser: HTTPParser
     
+    /// Indicates whether the HTTP parser has encountered a parsing error
+    private var parserErrored = false
+    
     /// Controls the number of requests that may be sent on this connection.
     private(set) var keepAliveState: KeepAliveState
     
     /// Should this socket actually be kept alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() }
+    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() && !parserErrored }
     
     let socket: Socket
     
@@ -199,6 +202,9 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")
             let response = HTTPServerResponse(processor: self, request: nil)
             response.statusCode = .badRequest
+            // We must avoid any further attempts to process data from this client
+            // after a parser error has occurred. (see Kitura-net#228)
+            parserErrored = true
             do {
                 try response.end()
             }
