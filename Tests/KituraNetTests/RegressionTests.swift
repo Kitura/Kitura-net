@@ -59,17 +59,13 @@ class RegressionTests: KituraNetTest {
     /// connections.
     func testIssue1143() {
         do {
-            let server: HTTPServer = try startServer(nil, port: 0, useSSL: true)
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: true)
             defer {
                 server.stop()
             }
 
-            guard let serverPort = server.port else {
-                XCTFail("Server port was not initialized")
-                return
-            }
-            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
-            
             // Queue a server stop operation in 1 second, in case the test hangs (socket listener blocks)
             let recoveryOperation = DispatchWorkItem {
                 server.stop()
@@ -152,16 +148,12 @@ class RegressionTests: KituraNetTest {
     /// Tests that attempting to start a second HTTPServer on the same port fails.
     func testServersCollidingOnPort() {
         do {
-            let server: HTTPServer = try startServer(nil, port: 0, useSSL: false)
+            let server: HTTPServer
+            let serverPort: Int
+            (server, serverPort) = try startEphemeralServer(ClientE2ETests.TestServerDelegate(), useSSL: false)
             defer {
                 server.stop()
             }
-            
-            guard let serverPort = server.port else {
-                XCTFail("Server port was not initialized")
-                return
-            }
-            XCTAssertTrue(serverPort != 0, "Ephemeral server port not set")
             
             do {
                 let collidingServer: HTTPServer = try startServer(nil, port: serverPort, useSSL: false)
