@@ -199,6 +199,9 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")
             let response = HTTPServerResponse(processor: self, request: nil)
             response.statusCode = .badRequest
+            // We must avoid any further attempts to process data from this client
+            // after a parser error has occurred. (see Kitura-net#228)
+            clientRequestedKeepAlive = false
             do {
                 try response.end()
             }

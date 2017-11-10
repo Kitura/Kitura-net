@@ -192,8 +192,10 @@ public class IncomingSocketHandler {
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             if socket.socketfd != Socket.SOCKET_INVALID_DESCRIPTOR {
-                socketReaderQueue.sync() { [unowned self] in
-                    _ = self.handleBufferedReadDataHelper()
+                socketReaderQueue.sync() { [weak self] in
+                    if let strongSelf = self {
+                        _ = strongSelf.handleBufferedReadDataHelper()
+                    }
                 }
             }
         #endif
