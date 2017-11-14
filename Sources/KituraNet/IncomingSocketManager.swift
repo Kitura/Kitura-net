@@ -55,33 +55,60 @@ public class IncomingSocketManager  {
         private let numberOfEpollTasks = 2 // TODO: this tuning parameter should be revisited as Kitura and libdispatch mature
 
         private let epollDescriptors:[Int32]
+        private let epollWakeDescriptors:[Int32]
         private let queues:[DispatchQueue]
 
         let epollTimeout: Int32 = 50
 
+        /// Socket file descriptors are distributed between Epoll descriptors, with
+        /// one Epoll FD for each Epoll read queue.
+        /// Returns the Epoll FD that should be used with a given socket FD.
         private func epollDescriptor(fd:Int32) -> Int32 {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
         }
 
+        /// Returns the eventfd that can be used to wake the Epoll read queue for
+        /// a given socket FD.
+        private func epollWakeDescriptor(fd:Int32) -> Int32 {
+            return epollWakeDescriptors[Int(fd) % numberOfEpollTasks];
+        }
+
         public init() {
-            var t1 = [Int32]()
-            var t2 = [DispatchQueue]()
+            var epollDescriptors = [Int32]()
+            var epollWakeDescriptors = [Int32]()
+            var queues = [DispatchQueue]()
+
             for i in 0 ..< numberOfEpollTasks {
                 // Note: The parameter to epoll_create is ignored on modern Linux's
-                t1 += [epoll_create(100)]
-                t2 += [DispatchQueue(label: "IncomingSocketManager\(i)")]
+                let epollFd = epoll_create(100)
+                epollDescriptors.append(epollFd)
+
+                // Create an eventfd that can be used to wake the epoll_wait when
+                // we are ready to process further buffered (pipelined) requests
+                let epollWakeFd = eventfd(1, 0)
+                var event = epoll_event()
+                event.events = EPOLLIN.rawValue | EPOLLET.rawValue
+                event.data.fd = epollWakeFd
+                let result = epoll_ctl(epollFd, EPOLL_CTL_ADD, epollWakeFd, &event)
+                assert(result != -1, "epoll_ctl failure adding eventfd")
+                epollWakeDescriptors.append(epollWakeFd)
+
+                queues.append(DispatchQueue(label: "IncomingSocketManager\(i)"))
             }
-            epollDescriptors = t1
-            queues = t2
+
+            self.epollDescriptors = epollDescriptors
+            self.queues = queues
+            self.epollWakeDescriptors = epollWakeDescriptors
 
             for i in 0 ..< numberOfEpollTasks {
                 // Only run removeIdleSockets in the first instance of process.
                 let runRemoveIdleSockets = (i == 0)
                 let epollDescriptor = epollDescriptors[i]
+                let epollWakeDescriptor = epollWakeDescriptors[i]
 
                 queues[i].async() { [weak self] in
                     // server could be stopped and socketManager deallocated before this is run.
-                    self?.process(epollDescriptor: epollDescriptor, runRemoveIdleSockets: runRemoveIdleSockets)
+                    self?.process(epollDescriptor: epollDescriptor, epollWakeDescriptor: epollWakeDescriptor, runRemoveIdleSockets: runRemoveIdleSockets)
                 }
             }
         }
@@ -121,11 +148,12 @@ public class IncomingSocketManager  {
             socketHandlers[socket.socketfd] = handler
             
             #if !GCD_ASYNCH && os(Linux)
+                handler.epollWakeFd = epollWakeDescriptor(fd: socket.socketfd)
                 var event = epoll_event()
                 event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
                 event.data.fd = socket.socketfd
                 let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, socket.socketfd, &event)
-                if  result == -1  {
+                if result == -1 {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                 }
             #endif
@@ -139,7 +167,7 @@ public class IncomingSocketManager  {
     
     #if !GCD_ASYNCH && os(Linux)
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
-    private func process(epollDescriptor:Int32, runRemoveIdleSockets: Bool) {
+    private func process(epollDescriptor:Int32, epollWakeDescriptor:Int32, runRemoveIdleSockets: Bool) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
@@ -185,7 +213,9 @@ public class IncomingSocketManager  {
                                 }
                             }
                         }
-                        else {
+                        else if event.data.fd == epollWakeDescriptor {
+                            // No need to read from an eventfd
+                        } else {
                             Log.error("No handler for file descriptor \(event.data.fd)")
                         }
                     }

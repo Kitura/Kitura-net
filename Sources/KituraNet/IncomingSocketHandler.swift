@@ -21,6 +21,11 @@ import Foundation
 import LoggerAPI
 import Socket
 
+#if !GCD_ASYNCH && os(Linux)
+    import CEpoll
+    import Glibc
+#endif
+
 /// This class handles incoming sockets to the HTTPServer. The data sent by the client
 /// is read and passed to the current `IncomingDataProcessor`.
 ///
@@ -61,6 +66,12 @@ public class IncomingSocketHandler {
     private let readBuffer = NSMutableData()
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
+
+    #if !GCD_ASYNCH && os(Linux)
+        /// An eventfd which can be used to wake the epoll_wait early in order to process pipelined request data which has
+        /// already been read from the socket.
+        internal var epollWakeFd: Int32 = -1
+    #endif
 
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
@@ -108,7 +119,7 @@ public class IncomingSocketHandler {
             readerSource.resume()
         #endif
     }
-    
+
     /// Read in the available data and hand off to common processing code
     ///
     /// - Returns: true if the data read in was processed
@@ -198,6 +209,10 @@ public class IncomingSocketHandler {
                     }
                 }
             }
+        #endif
+        #if !GCD_ASYNCH && os(Linux)
+            // Wake the epoll_wait thread early to allow it to process the buffer
+            eventfd_write(epollWakeFd, 0)
         #endif
     }
     
