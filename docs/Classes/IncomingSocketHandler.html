@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -180,19 +195,16 @@
               </div>
             <p>This class handles incoming sockets to the HTTPServer. The data sent by the client
 is read and passed to the current <code>IncomingDataProcessor</code>.</p>
-
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
     <p>The IncomingDataProcessor can change due to an Upgrade request.</p>
 
 </div>
-
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
     <p>This class uses different underlying technologies depending on:</p>
 
 </div>
-
 <pre class="highlight plaintext"><code>1. On Linux, if no special compile time options are specified, epoll is used
 2. On OSX, DispatchSource is used
 3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
@@ -209,9 +221,9 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet21IncomingSocketHandler9processorGSqPS_23IncomingSocketProcessor__"></a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC9processorAA0cD9Processor_pSgv"></a>
                     <a name="//apple_ref/swift/Property/processor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet21IncomingSocketHandler9processorGSqPS_23IncomingSocketProcessor__">processor</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC9processorAA0cD9Processor_pSgv">processor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -236,9 +248,9 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketHandler22handleBufferedReadDataFT_T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC22handleBufferedReadDatayyF"></a>
                     <a name="//apple_ref/swift/Method/handleBufferedReadData()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler22handleBufferedReadDataFT_T_">handleBufferedReadData()</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC22handleBufferedReadDatayyF">handleBufferedReadData()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -247,7 +259,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Handle data read in while the processor couldn&rsquo;t process it, if there is any</p>
-
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
     On Linux, the <code><a href="../Classes/IncomingSocketManager.html">IncomingSocketManager</a></code> should call <code>handleBufferedReadDataHelper</code>
@@ -270,9 +281,9 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromCSo6NSData_T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC5writeySo6NSDataC4from_tF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromCSo6NSData_T_">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC5writeySo6NSDataC4from_tF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -281,12 +292,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Write as much data to the socket as possible, buffering the rest</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter data: The NSData object containing the bytes to write to the socket.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -310,7 +315,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                               <td>
                                 <div>
                                   <p>The NSData object containing the bytes to write to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -323,9 +327,9 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromSV6lengthSi_T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC5writeySV4from_Si6lengthtF"></a>
                     <a name="//apple_ref/swift/Method/write(from:length:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler5writeFT4fromSV6lengthSi_T_">write(from:length:)</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC5writeySV4from_Si6lengthtF">write(from:length:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -334,18 +338,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Write a sequence of bytes in an array to the socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter length: The number of bytes to write to the socket.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -369,7 +361,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                               <td>
                                 <div>
                                   <p>An UnsafeRawPointer to the sequence of bytes to be written to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -382,7 +373,6 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                               <td>
                                 <div>
                                   <p>The number of bytes to write to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -395,9 +385,9 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketHandler14prepareToCloseFT_T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC14prepareToCloseyyF"></a>
                     <a name="//apple_ref/swift/Method/prepareToClose()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketHandler14prepareToCloseFT_T_">prepareToClose()</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC14prepareToCloseyyF">prepareToClose()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -429,8 +419,8 @@ Otherwise, immediately close the socket.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-11-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

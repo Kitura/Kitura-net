@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -192,9 +207,9 @@ instance per incoming request.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet23IncomingSocketProcessor14keepAliveUntilSd"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP14keepAliveUntilSdv"></a>
                     <a name="//apple_ref/swift/Property/keepAliveUntil" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet23IncomingSocketProcessor14keepAliveUntilSd">keepAliveUntil</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP14keepAliveUntilSdv">keepAliveUntil</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -219,9 +234,9 @@ instance per incoming request.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet23IncomingSocketProcessor10inProgressSb"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP10inProgressSbv"></a>
                     <a name="//apple_ref/swift/Property/inProgress" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet23IncomingSocketProcessor10inProgressSb">inProgress</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP10inProgressSbv">inProgress</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -246,9 +261,9 @@ instance per incoming request.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet23IncomingSocketProcessor7handlerXwGSqCS_21IncomingSocketHandler_"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP7handlerAA0cD7HandlerCSgXwv"></a>
                     <a name="//apple_ref/swift/Property/handler" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet23IncomingSocketProcessor7handlerXwGSqCS_21IncomingSocketHandler_">handler</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP7handlerAA0cD7HandlerCSgXwv">handler</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -274,9 +289,9 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet23IncomingSocketProcessor7processFCSo6NSDataSb"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP7processSbSo6NSDataCF"></a>
                     <a name="//apple_ref/swift/Method/process(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet23IncomingSocketProcessor7processFCSo6NSDataSb">process(_:)</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP7processSbSo6NSDataCF">process(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -285,19 +300,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Process data read from the socket.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter buffer: An NSData object containing the data that was read in
-               and needs to be processed.</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>true if the data was processed, false if it needs to be processed later.</p>
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -320,8 +322,8 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>An NSData object containing the data that was read in and needs to be processed.</p>
-
+                                  <p>An NSData object containing the data that was read in
+               and needs to be processed.</p>
                                 </div>
                               </td>
                             </tr>
@@ -331,7 +333,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>true if the data was processed, false if it needs to be processed later.</p>
-
                       </div>
                     </section>
                   </div>
@@ -339,9 +340,9 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet23IncomingSocketProcessor5writeFT4fromCSo6NSData_T_"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP5writeySo6NSDataC4from_tF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet23IncomingSocketProcessor5writeFT4fromCSo6NSData_T_">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP5writeySo6NSDataC4from_tF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -350,12 +351,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Write data to the socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter from: An NSData object containing the bytes to be written to the socket.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -379,7 +374,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                               <td>
                                 <div>
                                   <p>An NSData object containing the bytes to be written to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -392,9 +386,9 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet23IncomingSocketProcessor5writeFT4fromSV6lengthSi_T_"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP5writeySV4from_Si6lengthtF"></a>
                     <a name="//apple_ref/swift/Method/write(from:length:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet23IncomingSocketProcessor5writeFT4fromSV6lengthSi_T_">write(from:length:)</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP5writeySV4from_Si6lengthtF">write(from:length:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -403,18 +397,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Write a sequence of bytes in an array to the socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter length: The number of bytes to write to the socket.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -438,7 +420,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                               <td>
                                 <div>
                                   <p>An UnsafeRawPointer to the sequence of bytes to be written to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -451,7 +432,6 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                               <td>
                                 <div>
                                   <p>The number of bytes to write to the socket.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -464,9 +444,9 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet23IncomingSocketProcessor5closeFT_T_"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP5closeyyF"></a>
                     <a name="//apple_ref/swift/Method/close()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet23IncomingSocketProcessor5closeFT_T_">close()</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP5closeyyF">close()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -491,9 +471,9 @@ this <code>IncomingDataProcessor</code> is processing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet23IncomingSocketProcessor12socketClosedFT_T_"></a>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP12socketClosedyyF"></a>
                     <a name="//apple_ref/swift/Method/socketClosed()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet23IncomingSocketProcessor12socketClosedFT_T_">socketClosed()</a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP12socketClosedyyF">socketClosed()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -524,8 +504,8 @@ socket has been closed by the remote side.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-11-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

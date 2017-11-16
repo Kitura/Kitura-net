@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -191,9 +206,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest13remoteAddressSS"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC13remoteAddressSSv"></a>
                     <a name="//apple_ref/swift/Property/remoteAddress" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest13remoteAddressSS">remoteAddress</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC13remoteAddressSSv">remoteAddress</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -218,9 +233,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest16httpVersionMajorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC16httpVersionMajors6UInt16VSgv"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMajor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest16httpVersionMajorGSqVs6UInt16_">httpVersionMajor</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC16httpVersionMajors6UInt16VSgv">httpVersionMajor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -245,9 +260,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest16httpVersionMinorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC16httpVersionMinors6UInt16VSgv"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMinor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest16httpVersionMinorGSqVs6UInt16_">httpVersionMinor</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC16httpVersionMinors6UInt16VSgv">httpVersionMinor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -272,9 +287,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest7headersCS_16HeadersContainer"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC7headersAA16HeadersContainerCv"></a>
                     <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest7headersCS_16HeadersContainer">headers</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC7headersAA16HeadersContainerCv">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -299,9 +314,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest14fastCGIHeadersCS_16HeadersContainer"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC14fastCGIHeadersAA16HeadersContainerCv"></a>
                     <a name="//apple_ref/swift/Property/fastCGIHeaders" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest14fastCGIHeadersCS_16HeadersContainer">fastCGIHeaders</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC14fastCGIHeadersAA16HeadersContainerCv">fastCGIHeaders</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -326,9 +341,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest6methodSS"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC6methodSSv"></a>
                     <a name="//apple_ref/swift/Property/method" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest6methodSS">method</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC6methodSSv">method</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -353,9 +368,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest6urlURLV10Foundation3URL"></a>
+                    <a name="/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vv"></a>
                     <a name="//apple_ref/swift/Property/urlURL" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest6urlURLV10Foundation3URL">urlURL</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vv">urlURL</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -363,8 +378,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>URI Component received from FastCGI</p>
-
+                        
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -380,9 +394,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest9urlStringSS"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC9urlStringSSv"></a>
                     <a name="//apple_ref/swift/Property/urlString" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest9urlStringSS">urlString</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC9urlStringSSv">urlString</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -409,9 +423,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest3urlV10Foundation4Data"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC3url10Foundation4DataVv"></a>
                     <a name="//apple_ref/swift/Property/url" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest3urlV10Foundation4Data">url</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC3url10Foundation4DataVv">url</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -438,9 +452,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest13urlComponentsV10Foundation13URLComponents"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC13urlComponents10Foundation13URLComponentsVv"></a>
                     <a name="//apple_ref/swift/Property/urlComponents" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest13urlComponentsV10Foundation13URLComponents">urlComponents</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC13urlComponents10Foundation13URLComponentsVv">urlComponents</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -466,9 +480,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest9requestIdVs6UInt16"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC9requestIds6UInt16Vv"></a>
                     <a name="//apple_ref/swift/Property/requestId" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest9requestIdVs6UInt16">requestId</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC9requestIds6UInt16Vv">requestId</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -493,9 +507,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet20FastCGIServerRequest15extraRequestIdsGSaVs6UInt16_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC05extraE3IdsSays6UInt16VGv"></a>
                     <a name="//apple_ref/swift/Property/extraRequestIds" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet20FastCGIServerRequest15extraRequestIdsGSaVs6UInt16_">extraRequestIds</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC05extraE3IdsSays6UInt16VGv">extraRequestIds</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -522,9 +536,9 @@ extra requests as being unusable.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:OC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO"></a>
                     <a name="//apple_ref/swift/Enum/FastCGIParserErrorType" class="dashAnchor"></a>
-                    <a class="token" href="#/s:OC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType">FastCGIParserErrorType</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO">FastCGIParserErrorType</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -550,9 +564,9 @@ extra requests as being unusable.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet20FastCGIServerRequestcFT6socketC6Socket6Socket_S0_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestCAC6SocketADC6socket_tcfc"></a>
                     <a name="//apple_ref/swift/Method/init(socket:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet20FastCGIServerRequestcFT6socketC6Socket6Socket_S0_">init(socket:)</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestCAC6SocketADC6socket_tcfc">init(socket:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -561,12 +575,6 @@ extra requests as being unusable.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Initialize a <code>FastCGIServerRequest</code> instance</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter socket: The socket to read the request from.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -590,7 +598,6 @@ extra requests as being unusable.</p>
                               <td>
                                 <div>
                                   <p>The socket to read the request from.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -603,9 +610,9 @@ extra requests as being unusable.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet20FastCGIServerRequest4readFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC4readSi10Foundation4DataVz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/read(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet20FastCGIServerRequest4readFzT4intoRV10Foundation4Data_Si">read(into:)</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC4readSi10Foundation4DataVz4into_tKF">read(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -614,22 +621,9 @@ extra requests as being unusable.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read data from the body of the request</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data read in.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while reading from the socket.</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes read.</p>
 
 </div>
 
@@ -655,7 +649,6 @@ extra requests as being unusable.</p>
                               <td>
                                 <div>
                                   <p>A Data struct to hold the data read in.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -665,7 +658,6 @@ extra requests as being unusable.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>The number of bytes read.</p>
-
                       </div>
                     </section>
                   </div>
@@ -673,9 +665,9 @@ extra requests as being unusable.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet20FastCGIServerRequest11readAllDataFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC11readAllDataSi10Foundation0H0Vz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/readAllData(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet20FastCGIServerRequest11readAllDataFzT4intoRV10Foundation4Data_Si">readAllData(into:)</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC11readAllDataSi10Foundation0H0Vz4into_tKF">readAllData(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -684,22 +676,9 @@ extra requests as being unusable.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read all of the data in the body of the request</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data read in.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while reading from the socket.</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes read.</p>
 
 </div>
 
@@ -725,7 +704,6 @@ extra requests as being unusable.</p>
                               <td>
                                 <div>
                                   <p>A Data struct to hold the data read in.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -735,7 +713,6 @@ extra requests as being unusable.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>The number of bytes read.</p>
-
                       </div>
                     </section>
                   </div>
@@ -743,9 +720,9 @@ extra requests as being unusable.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet20FastCGIServerRequest10readStringFzT_GSqSS_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC10readStringSSSgyKF"></a>
                     <a name="//apple_ref/swift/Method/readString()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet20FastCGIServerRequest10readStringFzT_GSqSS_">readString()</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC10readStringSSSgyKF">readString()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -754,16 +731,9 @@ extra requests as being unusable.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read a string from the body of the request.</p>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     Socket.error if an error occurred while reading from the socket.
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    An Optional string.
 
 </div>
 
@@ -779,7 +749,6 @@ extra requests as being unusable.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>An Optional string.</p>
-
                       </div>
                     </section>
                   </div>
@@ -792,8 +761,8 @@ extra requests as being unusable.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-11-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

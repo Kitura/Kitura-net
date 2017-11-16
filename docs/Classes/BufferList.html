@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -202,9 +217,9 @@ beginning again.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10BufferList5countSi"></a>
+                    <a name="/s:9KituraNet10BufferListC5countSiv"></a>
                     <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10BufferList5countSi">count</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC5countSiv">count</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -229,9 +244,9 @@ beginning again.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10BufferList4dataV10Foundation4Data"></a>
+                    <a name="/s:9KituraNet10BufferListC4data10Foundation4DataVv"></a>
                     <a name="//apple_ref/swift/Property/data" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10BufferList4dataV10Foundation4Data">data</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC4data10Foundation4DataVv">data</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -256,9 +271,9 @@ beginning again.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferListcFT_S0_"></a>
+                    <a name="/s:9KituraNet10BufferListCACycfc"></a>
                     <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferListcFT_S0_">init()</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListCACycfc">init()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -267,12 +282,6 @@ beginning again.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Initializes a BufferList instance</p>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    a BufferList instance
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -286,7 +295,6 @@ beginning again.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>a BufferList instance</p>
-
                       </div>
                     </section>
                   </div>
@@ -294,9 +302,9 @@ beginning again.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList6appendFT5bytesGSPVs5UInt8_6lengthSi_T_"></a>
+                    <a name="/s:9KituraNet10BufferListC6appendySPys5UInt8VG5bytes_Si6lengthtF"></a>
                     <a name="//apple_ref/swift/Method/append(bytes:length:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList6appendFT5bytesGSPVs5UInt8_6lengthSi_T_">append(bytes:length:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC6appendySPys5UInt8VG5bytes_Si6lengthtF">append(bytes:length:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -324,9 +332,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList6appendFT4dataV10Foundation4Data_T_"></a>
+                    <a name="/s:9KituraNet10BufferListC6appendy10Foundation4DataV4data_tF"></a>
                     <a name="//apple_ref/swift/Method/append(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList6appendFT4dataV10Foundation4Data_T_">append(data:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC6appendy10Foundation4DataV4data_tF">append(data:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -353,9 +361,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList4fillFT5arrayRGSaVs5UInt8__Si"></a>
+                    <a name="/s:9KituraNet10BufferListC4fillSiSays5UInt8VGz5array_tF"></a>
                     <a name="//apple_ref/swift/Method/fill(array:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList4fillFT5arrayRGSaVs5UInt8__Si">fill(array:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC4fillSiSays5UInt8VGz5array_tF">fill(array:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -364,20 +372,6 @@ Parameter length: The number of bytes to append</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Fill an array with data from the buffer</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter array: a [UInt8] for the data you want from the buffer</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes actually copied from the buffer. It will be the
-      lessor of the number of bytes left in the buffer and the length
-      of the array.</p>
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -401,7 +395,6 @@ Parameter length: The number of bytes to append</p>
                               <td>
                                 <div>
                                   <p>a [UInt8] for the data you want from the buffer</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -410,8 +403,9 @@ Parameter length: The number of bytes to append</p>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>The number of bytes actually copied from the buffer. It will be the lessor of the number of bytes left in the buffer and the length of the array.</p>
-
+                        <p>The number of bytes actually copied from the buffer. It will be the
+      lessor of the number of bytes left in the buffer and the length
+      of the array.</p>
                       </div>
                     </section>
                   </div>
@@ -419,9 +413,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList4fillFT6bufferGSpVs5UInt8_6lengthSi_Si"></a>
+                    <a name="/s:9KituraNet10BufferListC4fillSiSpys5UInt8VG6buffer_Si6lengthtF"></a>
                     <a name="//apple_ref/swift/Method/fill(buffer:length:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList4fillFT6bufferGSpVs5UInt8_6lengthSi_Si">fill(buffer:length:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC4fillSiSpys5UInt8VG6buffer_Si6lengthtF">fill(buffer:length:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -430,26 +424,6 @@ Parameter length: The number of bytes to append</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Fill memory with data from the buffer</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter buffer: NSMutablePointer to the beginning of the memory to be filled
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter length: The number of bytes to fill</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes actually copied from the buffer. It will be the
-      lessor of the number of bytes left in the buffer and the length
-      of the memory area provided.</p>
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -473,7 +447,6 @@ Parameter length: The number of bytes to append</p>
                               <td>
                                 <div>
                                   <p>NSMutablePointer to the beginning of the memory to be filled</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -486,7 +459,6 @@ Parameter length: The number of bytes to append</p>
                               <td>
                                 <div>
                                   <p>The number of bytes to fill</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -495,8 +467,9 @@ Parameter length: The number of bytes to append</p>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>The number of bytes actually copied from the buffer. It will be the lessor of the number of bytes left in the buffer and the length of the memory area provided.</p>
-
+                        <p>The number of bytes actually copied from the buffer. It will be the
+      lessor of the number of bytes left in the buffer and the length
+      of the memory area provided.</p>
                       </div>
                     </section>
                   </div>
@@ -504,9 +477,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList4fillFT4dataRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet10BufferListC4fillSi10Foundation4DataVz4data_tF"></a>
                     <a name="//apple_ref/swift/Method/fill(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList4fillFT4dataRV10Foundation4Data_Si">fill(data:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC4fillSi10Foundation4DataVz4data_tF">fill(data:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -515,19 +488,6 @@ Parameter length: The number of bytes to append</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Fill a Data struct with data from the buffer</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: The Data struct to fill from data in the buffer</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes actually copied from the buffer. It will be equal
-      to the number of bytes left in the buffer.</p>
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -551,7 +511,6 @@ Parameter length: The number of bytes to append</p>
                               <td>
                                 <div>
                                   <p>The Data struct to fill from data in the buffer</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -560,8 +519,8 @@ Parameter length: The number of bytes to append</p>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>The number of bytes actually copied from the buffer. It will be equal to the number of bytes left in the buffer.</p>
-
+                        <p>The number of bytes actually copied from the buffer. It will be equal
+      to the number of bytes left in the buffer.</p>
                       </div>
                     </section>
                   </div>
@@ -569,9 +528,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList4fillFT4dataCSo13NSMutableData_Si"></a>
+                    <a name="/s:9KituraNet10BufferListC4fillSiSo13NSMutableDataC4data_tF"></a>
                     <a name="//apple_ref/swift/Method/fill(data:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList4fillFT4dataCSo13NSMutableData_Si">fill(data:)</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC4fillSiSo13NSMutableDataC4data_tF">fill(data:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -580,19 +539,6 @@ Parameter length: The number of bytes to append</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Fill an NSMutableData with data from the buffer</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: The NSMutableData object to fill from data in the buffer</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes actually copied from the buffer. It will be equal
-      to the number of bytes left in the buffer.</p>
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -616,7 +562,6 @@ Parameter length: The number of bytes to append</p>
                               <td>
                                 <div>
                                   <p>The NSMutableData object to fill from data in the buffer</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -625,8 +570,8 @@ Parameter length: The number of bytes to append</p>
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>The number of bytes actually copied from the buffer. It will be equal to the number of bytes left in the buffer.</p>
-
+                        <p>The number of bytes actually copied from the buffer. It will be equal
+      to the number of bytes left in the buffer.</p>
                       </div>
                     </section>
                   </div>
@@ -634,9 +579,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList5resetFT_T_"></a>
+                    <a name="/s:9KituraNet10BufferListC5resetyyF"></a>
                     <a name="//apple_ref/swift/Method/reset()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList5resetFT_T_">reset()</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC5resetyyF">reset()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -661,9 +606,9 @@ Parameter length: The number of bytes to append</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10BufferList6rewindFT_T_"></a>
+                    <a name="/s:9KituraNet10BufferListC6rewindyyF"></a>
                     <a name="//apple_ref/swift/Method/rewind()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10BufferList6rewindFT_T_">rewind()</a>
+                    <a class="token" href="#/s:9KituraNet10BufferListC6rewindyyF">rewind()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -694,8 +639,8 @@ from the beginning of the buffer.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-11-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

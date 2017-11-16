@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -192,9 +207,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser6schemaGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC6schemaSSSgv"></a>
                     <a name="//apple_ref/swift/Property/schema" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser6schemaGSqSS_">schema</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC6schemaSSSgv">schema</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -219,9 +234,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser4hostGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC4hostSSSgv"></a>
                     <a name="//apple_ref/swift/Property/host" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser4hostGSqSS_">host</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC4hostSSSgv">host</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -246,9 +261,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser4pathGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC4pathSSSgv"></a>
                     <a name="//apple_ref/swift/Property/path" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser4pathGSqSS_">path</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC4pathSSSgv">path</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -273,9 +288,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser5queryGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC5querySSSgv"></a>
                     <a name="//apple_ref/swift/Property/query" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser5queryGSqSS_">query</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC5querySSSgv">query</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -300,9 +315,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser8fragmentGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC8fragmentSSSgv"></a>
                     <a name="//apple_ref/swift/Property/fragment" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser8fragmentGSqSS_">fragment</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC8fragmentSSSgv">fragment</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -327,9 +342,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser8userinfoGSqSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC8userinfoSSSgv"></a>
                     <a name="//apple_ref/swift/Property/userinfo" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser8userinfoGSqSS_">userinfo</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC8userinfoSSSgv">userinfo</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -354,9 +369,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser4portGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet9URLParserC4ports6UInt16VSgv"></a>
                     <a name="//apple_ref/swift/Property/port" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser4portGSqVs6UInt16_">port</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC4ports6UInt16VSgv">port</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -381,9 +396,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser15queryParametersGVs10DictionarySSSS_"></a>
+                    <a name="/s:9KituraNet9URLParserC15queryParameterss10DictionaryVyS2SGv"></a>
                     <a name="//apple_ref/swift/Property/queryParameters" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser15queryParametersGVs10DictionarySSSS_">queryParameters</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC15queryParameterss10DictionaryVyS2SGv">queryParameters</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -408,9 +423,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet9URLParser11descriptionSS"></a>
+                    <a name="/s:9KituraNet9URLParserC11descriptionSSv"></a>
                     <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet9URLParser11descriptionSS">description</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserC11descriptionSSv">description</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -435,9 +450,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet9URLParsercFT3urlV10Foundation4Data9isConnectSb_S0_"></a>
+                    <a name="/s:9KituraNet9URLParserCAC10Foundation4DataV3url_Sb9isConnecttcfc"></a>
                     <a name="//apple_ref/swift/Method/init(url:isConnect:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet9URLParsercFT3urlV10Foundation4Data9isConnectSb_S0_">init(url:isConnect:)</a>
+                    <a class="token" href="#/s:9KituraNet9URLParserCAC10Foundation4DataV3url_Sb9isConnecttcfc">init(url:isConnect:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -446,18 +461,6 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Initialize a new URLParser instance.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter url: URL to be parsed.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter isConnect: whether or not a connection has been established.
-
-</div>
 
                       </div>
                       <div class="declaration">
@@ -481,7 +484,6 @@
                               <td>
                                 <div>
                                   <p>URL to be parsed.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -494,7 +496,6 @@
                               <td>
                                 <div>
                                   <p>whether or not a connection has been established.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -512,8 +513,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-11-16)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
