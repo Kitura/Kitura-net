@@ -237,22 +237,14 @@ public class FastCGIServerRequest : ServerRequest {
 
         // get major version
         if decimalPosition > 0 {
-            #if swift(>=3.2)
-                let majorPortion = String(versionPortion[..<versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition)])
-            #else
-                let majorPortion = versionPortion.substring(to: versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition))
-            #endif
+            let majorPortion = String(versionPortion[..<versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition)])
 
             majorVersion = UInt16(majorPortion)
         }
 
         // get minor version
         if protocolString.count > decimalPosition {
-            #if swift(>=3.2)
-                let minorPortion = String(versionPortion[versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1)...])
-            #else
-                let minorPortion = versionPortion.substring(from:versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1))
-            #endif
+            let minorPortion = String(versionPortion[versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1)...])
 
             minorVersion = UInt16(minorPortion)
         }
