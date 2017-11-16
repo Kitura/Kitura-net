@@ -166,7 +166,7 @@ public class ClientRequest {
                 case .port(let thePort):
                     port = ":\(thePort)"
                 case .path(var thePath):
-                    if thePath.characters.first != "/" {
+                    if thePath.first != "/" {
                       thePath = "/" + thePath
                     }
                     path = thePath

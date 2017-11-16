@@ -163,7 +163,7 @@ public class FastCGIServerRequest : ServerRequest {
             Log.error("Host header not received")
         }
 
-        if let requestUri = requestUri, requestUri.characters.count > 0 {
+        if let requestUri = requestUri, requestUri.count > 0 {
             url.append(requestUri)
         } else {
             Log.error("REQUEST_URI header value not received")
@@ -182,12 +182,12 @@ public class FastCGIServerRequest : ServerRequest {
     private func postProcessParameters() {
         
         // make sure our method is set
-        if method.characters.count == 0 {
+        if method.count == 0 {
             method = FastCGIServerRequest.defaultMethod
         }
         
         // make sure our remoteAddress is set
-        if remoteAddress.characters.count == 0 {
+        if remoteAddress.count == 0 {
             remoteAddress = socket.remoteHostname
         }
         
@@ -203,7 +203,7 @@ public class FastCGIServerRequest : ServerRequest {
         #if swift(>=3.2)
             var processedName = String(name[name.index(name.startIndex, offsetBy: remove.count)...])
         #else
-            var processedName = name.substring(from: name.index(name.startIndex, offsetBy: remove.characters.count))
+            var processedName = name.substring(from: name.index(name.startIndex, offsetBy: remove.count))
         #endif
         
         processedName = processedName.replacingOccurrences(of: "_", with: "-")
@@ -215,24 +215,24 @@ public class FastCGIServerRequest : ServerRequest {
     /// Parse the server protocol into a major and minor version
     private func processServerProtocol(_ protocolString: String) {
         
-        guard protocolString.characters.count > 0 else {
+        guard protocolString.count > 0 else {
             return
         }
         
         guard protocolString.lowercased().hasPrefix("http/") &&
-            protocolString.characters.count > "http/".characters.count else {
+            protocolString.count > "http/".count else {
                 return
         }
 
         #if swift(>=3.2)
             let versionPortion = String(protocolString[protocolString.index(protocolString.startIndex, offsetBy: "http/".count)...])
         #else
-            let versionPortion = protocolString.substring(from: protocolString.index(protocolString.startIndex, offsetBy: "http/".characters.count))
+            let versionPortion = protocolString.substring(from: protocolString.index(protocolString.startIndex, offsetBy: "http/".count))
         #endif
 
         var decimalPosition : Int = 0
         
-        for i in versionPortion.characters {
+        for i in versionPortion {
             if i == "." {
                 break
             } else {
@@ -255,7 +255,7 @@ public class FastCGIServerRequest : ServerRequest {
         }
         
         // get minor version
-        if protocolString.characters.count > decimalPosition {
+        if protocolString.count > decimalPosition {
             #if swift(>=3.2)
                 let minorPortion = String(versionPortion[versionPortion.index(versionPortion.startIndex, offsetBy: decimalPosition + 1)...])
             #else

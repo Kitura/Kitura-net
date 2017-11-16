@@ -1,3 +1,6 @@
+// swift-tools-version:4.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 /**
  * Copyright IBM Corporation 2016, 2017
  *
@@ -16,23 +19,56 @@
 
 import PackageDescription
 
-let package = Package(
-    name: "Kitura-net",
-    targets: [
-        Target(name: "KituraNet", dependencies: ["CHTTPParser"]),
-        Target(name: "CHTTPParser", dependencies: [])
-    ],
-    dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/LoggerAPI.git", majorVersion: 1, minor: 7),
-        .Package(url: "https://github.com/IBM-Swift/BlueSocket.git", majorVersion: 0, minor: 12),
-        .Package(url: "https://github.com/IBM-Swift/CCurl.git", majorVersion: 0, minor: 4),
-        .Package(url: "https://github.com/IBM-Swift/BlueSSLService.git", majorVersion: 0, minor: 12)
-    ]
-)
+var dependencies: [Package.Dependency] = [
+    .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", .upToNextMinor(from: "1.7.0")),
+    .package(url: "https://github.com/IBM-Swift/BlueSocket.git", .upToNextMinor(from: "0.12.0")),
+    .package(url: "https://github.com/IBM-Swift/CCurl.git", .upToNextMinor(from: "0.4.0")),
+    .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", .upToNextMinor(from: "0.12.0"))
+]
+
+var kituraNetDependencies: [Target.Dependency] = [
+    .byNameItem(name: "CHTTPParser"),
+    .byNameItem(name: "LoggerAPI"),
+    .byNameItem(name: "Socket"),
+    .byNameItem(name: "CCurl"),
+    .byNameItem(name: "SSLService")
+]
 
 #if os(Linux)
-    package.dependencies.append(
-        .Package(url: "https://github.com/IBM-Swift/CEpoll.git", majorVersion: 0, minor: 1))
-    package.dependencies.append(
-        .Package(url: "https://github.com/IBM-Swift/BlueSignals.git", majorVersion: 0, minor: 9))
+dependencies.append(contentsOf: [
+    .package(url: "https://github.com/IBM-Swift/CEpoll.git", .upToNextMinor(from: "0.1.0")),
+    .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .upToNextMinor(from: "0.9.0"))
+    ])
+
+kituraNetDependencies.append(contentsOf: [
+    .byNameItem(name: "CEpoll"),
+    .byNameItem(name: "Signals")
+    ])
 #endif
+
+let package = Package(
+    name: "Kitura-net",
+    products: [
+        // Products define the executables and libraries produced by a package, and make them visible to other packages.
+        .library(
+            name: "KituraNet",
+            targets: ["KituraNet"]
+        )
+    ],
+    dependencies: dependencies,
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+        .target(
+            name: "CHTTPParser"
+        ),
+        .target(
+            name: "KituraNet",
+            dependencies: kituraNetDependencies
+        ),
+        .testTarget(
+            name: "KituraNetTests",
+            dependencies: ["KituraNet"]
+        )
+    ]
+)

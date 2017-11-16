@@ -46,10 +46,10 @@ class LargePayloadTests: KituraNetTest {
             self.performRequest("post", path: "/largepost", callback: {response in
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
                 do {
-                    let expectedResult = "Read \(payload.characters.count) bytes"
+                    let expectedResult = "Read \(payload.count) bytes"
                     var data = Data()
                     let count = try response?.readAllData(into: &data)
-                    XCTAssertEqual(count, expectedResult.characters.count, "Result should have been \(expectedResult.characters.count) bytes, was \(String(describing: count)) bytes")
+                    XCTAssertEqual(count, expectedResult.count, "Result should have been \(expectedResult.count) bytes, was \(String(describing: count)) bytes")
                     let postValue = String(data: data, encoding: .utf8)
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, expectedResult)
@@ -113,7 +113,7 @@ class LargePayloadTests: KituraNetTest {
                 let length = try request.readAllData(into: &body)
                 let result = "Read \(length) bytes"
                 response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = ["\(result.characters.count)"]
+                response.headers["Content-Length"] = ["\(result.count)"]
 
                 try response.end(text: result)
             }
