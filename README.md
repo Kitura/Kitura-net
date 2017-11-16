@@ -11,16 +11,32 @@
 
 ## Summary
 
-This is the Kitura-net module for the Kitura project. Full details on the project can be found in the [main repo](https://github.com/IBM-Swift/Kitura).
+The Kitura-net module contains logic for sending and receiving HTTP requests. It also contains the structure for listening on a port and sending requests to a delegate for processing. It can be used to create HTTP/CGI Servers on specific ports, and provides HTTP functionality.
 
-The Kitura-net module contains logic for sending and receiving HTTP requests. It also contains the structure for listening on a port and sending requests to a delegate for processing.
+If you require Routing, Templates or Middleware functionality, please see the [Kitura](https://github.com/IBM-Swift/Kitura) project.
+
+Kitura-net utilises the [BlueSocket](https://github.com/IBM-Swift/BlueSocket) framework, the [BlueSSLService](https://github.com/IBM-Swift/BlueSSLService.git) framework and [CCurl](https://github.com/IBM-Swift/CCurl.git).
 
 ## Features
 
 - Port Listening
-- FastCGI Server suppport
-- HTTP Server support
+- FastCGI Server support
+- HTTP Server support (request and response)
 
 ## Getting Started
 
-This is a sub-module, and is intended to be used under-the-hood on Kitura. Visit [www.kitura.io](http://www.kitura.io/) for a Getting Started guide, tutorials, and API reference documentation.
+Visit [www.kitura.io](http://www.kitura.io/) for reference documentation.
+
+## Contributing to Kitura-net
+
+All improvements to Kitura-net are very welcome! Here's how to get started with developing Kitura-net itself.
+
+1. Clone this repository.
+
+`$ git clone https://github.com/IBM-Swift/Kitura-net`
+
+2. Build and run tests.
+
+`$ swift test`
+
+You can find more info on contributing to Kitura in our [contributing guidelines](https://github.com/IBM-Swift/Kitura/blob/master/.github/CONTRIBUTING.md).

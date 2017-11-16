@@ -13,9 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+    The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
+    The delegate's handle function is invoked when new requests arrive at the server for processing.
 
-/// The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
-/// The delegate's handle function is invoked when new requests arrive at the server for processing.
+
+ ### Usage Example: ###
+ ````swift
+ func handle(request: ServerRequest, response: ServerResponse) {
+ 
+     let parsedURL = URLParser(url: request.url, isConnect: false)
+ 
+     if parsedURL.path == "/hello" {
+        let payload = "Hello, world!"
+        response.headers["Content-Type"] = ["text/plain"]
+        response.headers["Content-Length"] = [String(payload.characters.count)]
+        response.statusCode = .OK
+        do {
+            try response.write(from: payload)
+            try response.end()
+        }
+        catch {
+            print("Failed to write the response. Error: \(error)")
+        }
+ }
+ ````
+ */
+
 public protocol ServerDelegate: class {
     /// Handle new incoming requests to the server
     ///

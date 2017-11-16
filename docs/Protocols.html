@@ -442,7 +442,26 @@ instance per incoming request.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
-The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
+   The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">let</span> <span class="nv">parsedURL</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parsedURL</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s">"/hello"</span> <span class="p">{</span>
+       <span class="k">let</span> <span class="nv">payload</span> <span class="o">=</span> <span class="s">"Hello, world!"</span>
+       <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+       <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Length"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">characters</span><span class="o">.</span><span class="n">count</span><span class="p">)]</span>
+       <span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="o">.</span><span class="kt">OK</span>
+       <span class="k">do</span> <span class="p">{</span>
+           <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">payload</span><span class="p">)</span>
+           <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+       <span class="p">}</span>
+       <span class="k">catch</span> <span class="p">{</span>
+           <span class="nf">print</span><span class="p">(</span><span class="s">"Failed to write the response. Error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+       <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
 
                         <a href="Protocols/ServerDelegate.html" class="slightly-smaller">See more</a>
                       </div>
