@@ -211,8 +211,10 @@ public class IncomingSocketHandler {
             }
         #endif
         #if !GCD_ASYNCH && os(Linux)
-            // Wake the epoll_wait thread early to allow it to process the buffer
-            eventfd_write(epollWakeFd, 0)
+            if readBuffer.length > 0 {
+                // Wake the epoll_wait thread early to allow it to process the buffer
+                eventfd_write(epollWakeFd, 0)
+            }
         #endif
     }
     
