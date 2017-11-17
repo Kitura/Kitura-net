@@ -311,7 +311,7 @@ class FastCGIRecordParser {
                 throw FastCGI.RecordErrors.emptyParameters
             }
             
-            guard nameString.characters.count > 0 else {
+            guard nameString.count > 0 else {
                 // The data received form the web server existed and transcoded,
                 // but someone resulted in a string of zero length. 
                 // Strange, but an error none the less.

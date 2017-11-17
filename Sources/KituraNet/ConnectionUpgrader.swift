@@ -73,7 +73,7 @@ public struct ConnectionUpgrader {
         var protocolName: String?
         for eachProtocol in protocolList {
             let theProtocol = eachProtocol.first?.trimmingCharacters(in: CharacterSet.whitespaces) ?? ""
-            if theProtocol.characters.count != 0, let factory = registry[theProtocol.lowercased()] {
+            if theProtocol.count != 0, let factory = registry[theProtocol.lowercased()] {
                 (processor, responseBody, responseBodyMimeType) = factory.upgrade(handler: handler, request: request, response: response)
                 protocolName = theProtocol
                 notFound = false
