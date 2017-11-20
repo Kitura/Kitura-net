@@ -160,14 +160,23 @@ public class IncomingSocketHandler {
 
         return result
     }
-    
+   
+    private let processingSemaphore = DispatchSemaphore(value: 1)
+ 
     private func handleReadHelper() -> Bool {
         guard let processor = processor else { return true }
-        
+
+        guard processingSemaphore.wait(timeout: DispatchTime.now()) == .success else {
+            // Another thread is already processing the buffer
+            return false
+        }
+
         let processed = processor.process(readBuffer)
         if  processed {
             readBuffer.length = 0
         }
+
+        processingSemaphore.signal()
         return processed
     }
     
@@ -198,6 +207,11 @@ public class IncomingSocketHandler {
                     }
                 }
             }
+        #endif
+        #if !GCD_ASYNCH && os(Linux)
+            // Attempt to process the remaining buffer on the current thread.
+            // This will fail if the epoll thread is already processing the buffer.
+            _ = handleBufferedReadDataHelper()
         #endif
     }
     
