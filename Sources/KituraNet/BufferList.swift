@@ -23,11 +23,14 @@ import Foundation
  
     ### Usage Example: ###
     ````swift
-    var writeBuffers = BufferList()
+    //Create a BufferList object.
+    var writeBuffer = BufferList()
  
-    writeBuffer.append(bytes + written, length: length - written)
- 
+    //Create a new constant of type Int of the number of bytes copied from the buffer.
     let count = writeBuffer.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+ 
+    //Append some data to the initialized writeBuffer object.
+    writeBuffer.append(bytes + written, length: length - written)
     ````
     */
 public class BufferList {
@@ -188,6 +191,11 @@ public class BufferList {
     
     /**
      Resets the buffer to zero length and the beginning position.
+     
+     ### Usage Example: ###
+     ````swift
+     writeBuffer.reset()
+     ````
     */
     public func reset() {
         
@@ -198,6 +206,11 @@ public class BufferList {
     
     /**
      Sets the buffer back to the beginning position. The next fill call will take data from the beginning of the buffer.
+     
+     ### Usage Example: ###
+     ````swift
+     writeBuffer.rewind()
+     ````
     */
     public func rewind() {
         

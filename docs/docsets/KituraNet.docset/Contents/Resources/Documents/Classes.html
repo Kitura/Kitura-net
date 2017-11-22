@@ -260,11 +260,14 @@ In particular, it is in charge of:</p>
                       <div class="abstract">
                         <p>This class provides an implementation of a buffer that can be added to and <q>taken</q> from in chunks. Data is always added to the end of the buffer and data is <q>taken</q> from the buffer from the beginning towards the end. A pointer is maintained as where the next chunk of data will be <q>taken</q> from. This pointer can be reset, to enable the data in the buffer to be fetched from the beginning again.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">writeBuffers</span> <span class="o">=</span> <span class="kt">BufferList</span><span class="p">()</span>
+<pre class="highlight swift"><code><span class="c1">//Create a BufferList object.</span>
+<span class="k">var</span> <span class="nv">writeBuffer</span> <span class="o">=</span> <span class="kt">BufferList</span><span class="p">()</span>
 
-<span class="n">writeBuffer</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">bytes</span> <span class="o">+</span> <span class="n">written</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="n">length</span> <span class="o">-</span> <span class="n">written</span><span class="p">)</span>
-
+<span class="c1">//Create a new constant of type Int of the number of bytes copied from the buffer.</span>
 <span class="k">let</span> <span class="nv">count</span> <span class="o">=</span> <span class="n">writeBuffer</span><span class="o">.</span><span class="nf">fill</span><span class="p">(</span><span class="nv">buffer</span><span class="p">:</span> <span class="kt">UnsafeMutableRawPointer</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="o">.</span><span class="nf">assumingMemoryBound</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="kt">UInt8</span><span class="o">.</span><span class="k">self</span><span class="p">),</span> <span class="nv">length</span><span class="p">:</span> <span class="n">size</span><span class="p">)</span>
+
+<span class="c1">//Append some data to the initialized writeBuffer object.</span>
+<span class="n">writeBuffer</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">bytes</span> <span class="o">+</span> <span class="n">written</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="n">length</span> <span class="o">-</span> <span class="n">written</span><span class="p">)</span>
 </code></pre>
 
                         <a href="Classes/BufferList.html" class="slightly-smaller">See more</a>
