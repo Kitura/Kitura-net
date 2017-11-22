@@ -47,11 +47,11 @@ class ClientE2ETests: KituraNetTest {
     override func tearDown() {
         doTearDown()
     }
-    
+
     static let urlPath = "/urltest"
-    
+
     let delegate = TestServerDelegate()
-    
+
     func testHeadRequests() {
         performServerTest(delegate) { expectation in
             self.performRequest("head", path: "/headtest", callback: {response in
@@ -70,7 +70,7 @@ class ClientE2ETests: KituraNetTest {
             })
         }
     }
-    
+
     func testKeepAlive() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("get", path: "/posttest", callback: {response in
@@ -93,7 +93,7 @@ class ClientE2ETests: KituraNetTest {
             })
         })
     }
-    
+
     /// Tests that the server responds appropriately to pipelined requests.
     /// Three POST requests are sent to a test server in a single socket write. The
     /// server is expected to process them sequentially, sending three separate
@@ -108,7 +108,7 @@ class ClientE2ETests: KituraNetTest {
             try socket.write(from: pipelinedRequests)
         }
     }
-        
+
     /// Tests that the server responds appropriately to pipelined requests.
     /// Three POST requests are sent to a test server in a pipelined fashion, but
     /// spanning several packets. It is necessary to sleep between writes to allow
@@ -131,7 +131,7 @@ class ClientE2ETests: KituraNetTest {
             try socket.write(from: thirdBuffer)
         }
     }
-    
+
     private func doPipelineTest(expecting expectedResponse: String, totalRequests: Int, writer: (Socket) throws -> Void) {
         do {
             let server: HTTPServer
@@ -140,7 +140,7 @@ class ClientE2ETests: KituraNetTest {
             defer {
                 server.stop()
             }
-            
+
             // Send pipelined requests to the server
             let clientSocket = try Socket.create()
             try clientSocket.connect(to: "localhost", port: Int32(serverPort))
@@ -149,7 +149,7 @@ class ClientE2ETests: KituraNetTest {
             }
             try writer(clientSocket)
             //try clientSocket.write(from: pipelinedRequests)
-            
+
             // Queue a recovery task to close our socket so that the test cannot wait forever
             // waiting for responses from the server
             let recoveryTask = DispatchWorkItem {
@@ -158,7 +158,7 @@ class ClientE2ETests: KituraNetTest {
             }
             let timeout = DispatchTime.now() + .seconds(1)
             DispatchQueue.global().asyncAfter(deadline: timeout, execute: recoveryTask)
-            
+
             // Read responses from the server
             let buffer = NSMutableData(capacity: 2000)!
             var read = 0
@@ -191,12 +191,12 @@ class ClientE2ETests: KituraNetTest {
             // We completed reading the responses, cancel the recovery task
             recoveryTask.cancel()
             XCTAssert(bufferPosition == buffer.length, "Unparsed bytes remaining after final response")
-            
+
         } catch {
             XCTFail("Error: \(error)")
         }
     }
-    
+
     func testEphemeralListeningPort() {
         do {
             let server = try HTTPServer.listen(on: 0, delegate: delegate)
@@ -221,7 +221,7 @@ class ClientE2ETests: KituraNetTest {
             }
         }
     }
-    
+
     func testPostRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
@@ -229,7 +229,7 @@ class ClientE2ETests: KituraNetTest {
                 do {
                     let postValue = try response?.readString()
                     XCTAssertNotNil(postValue, "The body of the response was empty")
-                    XCTAssertEqual(postValue?.characters.count, 12, "Result should have been 12 bytes, was \(String(describing: postValue?.characters.count)) bytes")
+                    XCTAssertEqual(postValue?.count, 12, "Result should have been 12 bytes, was \(String(describing: postValue?.count)) bytes")
                     if  let postValue = postValue {
                         XCTAssertEqual(postValue, "Read 0 bytes")
                     }
@@ -314,7 +314,7 @@ class ClientE2ETests: KituraNetTest {
                 request.write(from: "A few characters")
             }
         })
-    }    
+    }
 
     func testPatchRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
@@ -362,7 +362,7 @@ class ClientE2ETests: KituraNetTest {
             }
         })
     }
-    
+
     func testErrorRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("plover", path: "/xzzy", callback: {response in
@@ -371,7 +371,7 @@ class ClientE2ETests: KituraNetTest {
             })
         })
     }
-    
+
     func testUrlURL() {
         performServerTest(TestURLDelegate()) { expectation in
             self.performRequest("post", path: ClientE2ETests.urlPath, callback: {response in
@@ -380,27 +380,27 @@ class ClientE2ETests: KituraNetTest {
             })
         }
     }
-    
+
     class TestServerDelegate: ServerDelegate {
-    
+
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.remoteAddress, "127.0.0.1", "Remote address wasn't 127.0.0.1, it was \(request.remoteAddress)")
-            
+
             let result: String
             switch request.method.lowercased() {
             case "head":
                 result = "This a really simple head request result"
-            
+
             case "put":
                 do {
-                    var body = try request.readString()
-                    result = "Read \(body?.characters.count ?? 0) bytes"
+                    let body = try request.readString()
+                    result = "Read \(body?.count ?? 0) bytes"
                 }
                 catch {
                     print("Error reading body")
                     result = "Read -1 bytes"
                 }
-                
+
             default:
                 var body = Data()
                 do {
@@ -412,13 +412,13 @@ class ClientE2ETests: KituraNetTest {
                     result = "Read -1 bytes"
                 }
             }
-            
+
             do {
                 response.statusCode = .OK
                 XCTAssertEqual(response.statusCode, .OK, "Set response status code wasn't .OK, it was \(String(describing: response.statusCode))")
                 response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = ["\(result.characters.count)"]
-                
+                response.headers["Content-Length"] = ["\(result.count)"]
+
                 try response.end(text: result)
             }
             catch {
@@ -426,9 +426,9 @@ class ClientE2ETests: KituraNetTest {
             }
         }
     }
-    
+
     class TestURLDelegate: ServerDelegate {
-        
+
         func handle(request: ServerRequest, response: ServerResponse) {
             XCTAssertEqual(request.httpVersionMajor, 1, "HTTP Major code from KituraNet should be 1, was \(String(describing: request.httpVersionMajor))")
             XCTAssertEqual(request.httpVersionMinor, 1, "HTTP Minor code from KituraNet should be 1, was \(String(describing: request.httpVersionMinor))")
@@ -441,7 +441,7 @@ class ClientE2ETests: KituraNetTest {
                 response.headers["Content-Type"] = ["text/plain"]
                 let resultData = result.data(using: .utf8)!
                 response.headers["Content-Length"] = ["\(resultData.count)"]
-                
+
                 try response.write(from: resultData)
                 try response.end()
             }
