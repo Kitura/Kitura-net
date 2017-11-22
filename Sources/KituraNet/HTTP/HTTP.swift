@@ -21,7 +21,14 @@ import Foundation
 /// A set of helpers for HTTP: status codes mapping, server and client request creation.
 public class HTTP {
     
-    /// Mapping of integer HTTP status codes to the String description.
+    /**
+     Mapping of integer HTTP status codes to the String description.
+    
+    ### Usage Example: ###
+    ````swift
+     var statusText = HTTP.statusCodes[HTTPStatusCode.OK.rawValue]
+    ````
+    */
     public static let statusCodes = [
         
         100: "Continue", 101: "Switching Protocols", 102: "Processing",
@@ -42,27 +49,52 @@ public class HTTP {
         511: "Network Authentication Required"
     ]
     
-    /// Create a new `HTTPServer`.
-    ///
-    /// - Returns: an instance of `HTTPServer`.
+    /**
+    Create a new `HTTPServer`.
+    
+    - Returns: an instance of `HTTPServer`.
+    
+    ### Usage Example: ###
+    ````swift
+    let server = HTTP.createServer()
+    ````
+    */
     public static func createServer() -> HTTPServer {
         return HTTPServer()
     }
     
-    /// Create a new `ClientRequest` using URL.
-    ///
-    /// - Parameter url: URL address for the request.
-    /// - Parameter callback: closure to run after the request.
-    /// - Returns: a `ClientRequest` instance
+    /**
+    Create a new `ClientRequest` using URL.
+    
+    - Parameter url: URL address for the request.
+    - Parameter callback: closure to run after the request.
+    - Returns: a `ClientRequest` instance
+    
+    ### Usage Example: ###
+    ````swift
+     let request = HTTP.request("http://localhost/8080") {response in
+         ...
+     }
+    ````
+    */
     public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(url: url, callback: callback)
     }
     
-    /// Create a new `ClientRequest` using a list of options.
-    ///
-    /// - Parameter options: a list of `ClientRequest.Options`.
-    /// - Parameter callback: closure to run after the request.
-    /// - Returns: a `ClientRequest` instance
+    /**
+    Create a new `ClientRequest` using a list of options.
+    
+    - Parameter options: a list of `ClientRequest.Options`.
+    - Parameter callback: closure to run after the request.
+    - Returns: a `ClientRequest` instance
+    
+    ### Usage Example: ###
+    ````swift
+    let request = HTTP.request([ClientRequest.Options]) {response in
+        ...
+    }
+    ````
+    */
     public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(options: options, callback: callback)
     }

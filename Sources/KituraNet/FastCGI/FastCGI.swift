@@ -79,11 +79,17 @@ public class FastCGI {
         case protocolError
     }
 
-    /// Create a `FastCGIServer` instance.
-    /// Provided as a convenience and for consistency
-    /// with the HTTP implementation.
-    ///
-    /// - Returns: A `FastCGIServer` instance.
+    /**
+    Create a `FastCGIServer` instance.
+    Provided as a convenience and for consistency
+    with the HTTP implementation.
+    
+    - Returns: A `FastCGIServer` instance.
+    ### Usage Example: ###
+    ````swift
+    let server = FastCGI.createServer()
+    ````
+    */
     public static func createServer() -> FastCGIServer {
         return FastCGIServer()
     }

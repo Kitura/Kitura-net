@@ -217,6 +217,9 @@ for a group of listener blocks to finish executing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Wait for all of the listeners to stop</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -246,6 +249,9 @@ for a group of listener blocks to finish executing.</p>
                         <p>Enqueue a block of code on a given queue, assigning
 it to the listener group in the process (so we can wait
 on it later).</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span> <span class="nv">block</span><span class="p">:</span> <span class="n">queuedBlock</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
