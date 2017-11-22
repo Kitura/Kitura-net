@@ -26,9 +26,17 @@ import Foundation
 
 // MARK: URLParser
 
-/// A parsing of HTTP URL according to the folowing format:
-///   
-/// scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
+/**
+A parsing of HTTP URL according to the folowing format:
+
+scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
+
+### Usage Example: ###
+````swift
+ let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: .utf8)!
+ let urlParser = URLParser(url: url, isConnect: false)
+````
+*/
 public class URLParser : CustomStringConvertible {
 
     /// Schema.

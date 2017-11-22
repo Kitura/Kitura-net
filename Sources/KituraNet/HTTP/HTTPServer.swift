@@ -26,7 +26,16 @@ import SSLService
 
 // MARK: HTTPServer
 
-/// An HTTP server that listens for connections on a socket.
+/**
+An HTTP server that listens for connections on a socket.
+
+### Usage Example: ###
+````swift
+ let server = try HTTPServer.listen(on: 0, delegate: delegate)
+ ...
+ server.stop()
+````
+*/
 public class HTTPServer: Server {
 
     public typealias ServerType = HTTPServer

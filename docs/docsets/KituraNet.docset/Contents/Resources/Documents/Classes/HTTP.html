@@ -194,6 +194,19 @@
                 </div>
               </div>
             <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="k">let</span> <span class="nv">getHTTP</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="kt">HTTP</span><span class="o">.</span><span class="nf">escape</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">testString</span><span class="p">)</span>
+</code></pre>
 
           </div>
         </section>
@@ -413,7 +426,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using URL.</p>
+                        <p>Get a <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using URL.</p>
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
     <p>This method will invoke the end function of the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code>

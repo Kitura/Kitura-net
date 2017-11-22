@@ -115,7 +115,16 @@ public class FastCGIServerRequest : ServerRequest {
         case requestComplete
     }
 
-    /// HTTP parser error types
+    /**
+    HTTP parser error types
+    
+    ### Usage Example: ###
+    ````swift
+     func parse (_ callback: (FastCGIParserErrorType) -> Void) {
+         ...
+     }
+    ````
+    */
     public enum FastCGIParserErrorType {
         /// Parser was successful.
         case success

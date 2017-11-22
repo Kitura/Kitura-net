@@ -504,6 +504,19 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="k">let</span> <span class="nv">getHTTP</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="kt">HTTP</span><span class="o">.</span><span class="nf">escape</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">testString</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/HTTP.html" class="slightly-smaller">See more</a>
                       </div>
@@ -543,6 +556,11 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An HTTP server that listens for connections on a socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">HTTPServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
+ <span class="o">...</span>
+ <span class="n">server</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/HTTPServer.html" class="slightly-smaller">See more</a>
                       </div>
@@ -728,6 +746,10 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
                         <p>A parsing of HTTP URL according to the folowing format:</p>
 
 <p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="s">"https://example.org/absolute/URI/with/absolute/path/to/resource.txt"</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span>
+ <span class="k">let</span> <span class="nv">urlParser</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/URLParser.html" class="slightly-smaller">See more</a>
                       </div>
@@ -761,6 +783,9 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
                       <div class="abstract">
                         <p>A class that abstracts out the HTTP header APIs of the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> and
 <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt">HeadersContainer</span> <span class="p">{</span> <span class="k">return</span> <span class="n">httpParser</span><span class="p">?</span><span class="o">.</span><span class="n">headers</span> <span class="p">??</span> <span class="kt">HeadersContainer</span><span class="p">()</span> <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/HeadersContainer.html" class="slightly-smaller">See more</a>
                       </div>
@@ -900,8 +925,12 @@ In particular, it is in charge of:</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A class that provides a set of helper functions that enables a caller to wait
-for a group of listener blocks to finish executing.</p>
+                        <p>A class that provides a set of helper functions that enables a caller to wait for a group of listener blocks to finish executing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+
+ <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span> <span class="nv">block</span><span class="p">:</span> <span class="n">queuedBlock</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/ListenerGroup.html" class="slightly-smaller">See more</a>
                       </div>
@@ -941,6 +970,9 @@ for a group of listener blocks to finish executing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>A set of utility functions.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">SPIUtils</span><span class="o">.</span><span class="nf">httpDate</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/SPIUtils.html" class="slightly-smaller">See more</a>
                       </div>

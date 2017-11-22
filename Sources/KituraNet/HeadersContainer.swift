@@ -18,8 +18,15 @@ import Foundation
 
 import LoggerAPI
 
-/// A class that abstracts out the HTTP header APIs of the `ServerRequest` and
-/// `ServerResponse` protocols.
+/**
+A class that abstracts out the HTTP header APIs of the `ServerRequest` and
+`ServerResponse` protocols.
+
+### Usage Example: ###
+````swift
+ public var headers: HeadersContainer { return httpParser?.headers ?? HeadersContainer() }
+````
+*/
 public class HeadersContainer {
     
     /// The header storage

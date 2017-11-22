@@ -16,8 +16,16 @@
 
 import Dispatch
 
-/// A class that provides a set of helper functions that enables a caller to wait
-/// for a group of listener blocks to finish executing.
+/**
+A class that provides a set of helper functions that enables a caller to wait for a group of listener blocks to finish executing.
+
+### Usage Example: ###
+````swift
+ ListenerGroup.waitForListeners()
+ 
+ ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
+````
+*/
 public class ListenerGroup {
     
     /// Group for waiting on listeners

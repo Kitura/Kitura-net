@@ -18,7 +18,24 @@ import Foundation
 
 // MARK: HTTP
 
-/// A set of helpers for HTTP: status codes mapping, server and client request creation.
+/**
+A set of helpers for HTTP: status codes mapping, server and client request creation.
+
+### Usage Example: ###
+````swift
+ let server = HTTP.createServer()
+ 
+ let request = HTTP.request("http://localhost/8080") {response in
+ ...
+ }
+ 
+ let getHTTP = HTTP.get("http://localhost/8080") { response in
+ ...
+ }
+ 
+ HTTP.escape(url: testString)
+````
+*/
 public class HTTP {
     
     /**
@@ -100,7 +117,7 @@ public class HTTP {
     }
     
     /**
-    Create a new `ClientRequest` using URL.
+    Get a `ClientRequest` using URL.
     
     - Parameter url: URL address for the request.
     - Parameter callback: closure to run after the request.
@@ -148,7 +165,14 @@ public class HTTP {
 
 // MARK HTTPStatusCode
 
-/// HTTP status codes and numbers.
+/**
+HTTP status codes and numbers.
+
+### Usage Example: ###
+````swift
+var httpStatusCode: HTTPStatusCode = .unknown
+````
+*/
 public enum HTTPStatusCode: Int {
     /// HTTP code 202
     case accepted = 202,

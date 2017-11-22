@@ -25,7 +25,14 @@ import Foundation
 
 // MARK: SPIUtils
 
-/// A set of utility functions.
+/**
+A set of utility functions.
+
+### Usage Example: ###
+````swift
+SPIUtils.httpDate()
+````
+*/
 public class SPIUtils {
     
     /// Abbreviations for month names

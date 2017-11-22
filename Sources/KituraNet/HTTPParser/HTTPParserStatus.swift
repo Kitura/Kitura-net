@@ -24,16 +24,33 @@ enum HTTPParserState {
     case reset
 }
 
-/// HTTP parser error types
+/**
+HTTP parser error types
+
+### Usage Example: ###
+````swift
+var error = HTTPParserErrorType.internalError
+````
+*/
 enum HTTPParserErrorType {
     case parsedLessThanRead
     case unexpectedEOF
     case internalError // TODO
 }
 
+
+/**
+ HTTP parser error types
+ 
+ ### Usage Example: ###
+ ````swift
+ var error = HTTPParserErrorType.internalError
+ ````
+ */
 extension HTTPParserErrorType: CustomStringConvertible {
     /**
      Returns the corresponding description for returned errors when parsing HTTP responses.
+     
      ### Usage Example: ###
      ````swift
      var error = HTTPParserErrorType.internalError

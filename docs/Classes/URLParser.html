@@ -196,6 +196,10 @@
             <p>A parsing of HTTP URL according to the folowing format:</p>
 
 <p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="s">"https://example.org/absolute/URI/with/absolute/path/to/resource.txt"</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span>
+ <span class="k">let</span> <span class="nv">urlParser</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+</code></pre>
 
           </div>
         </section>

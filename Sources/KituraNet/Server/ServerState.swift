@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-/// Enum defining possible server states.
+/**
+Enum defining possible server states.
+
+### Usage Example: ###
+````swift
+var state: ServerState = .unknown
+````
+*/
 public enum ServerState {
 
     /// Initial server state.
