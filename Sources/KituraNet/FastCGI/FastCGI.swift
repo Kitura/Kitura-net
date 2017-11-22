@@ -85,6 +85,7 @@ public class FastCGI {
     with the HTTP implementation.
     
     - Returns: A `FastCGIServer` instance.
+     
     ### Usage Example: ###
     ````swift
     let server = FastCGI.createServer()

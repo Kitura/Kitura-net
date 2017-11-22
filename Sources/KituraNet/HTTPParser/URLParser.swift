@@ -52,10 +52,24 @@ public class URLParser : CustomStringConvertible {
     /// The port specified, if any, in the URL.
     public var port: UInt16?
     
-    /// The query parameters broken out.
+    /**
+    The query parameters broken out.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURLParameters = urlParser.queryParameters["key"]
+    ````
+    */
     public var queryParameters: [String:String] = [:]
     
-    /// Nicely formatted description of the parsed result.
+    /**
+    Nicely formatted description of the parsed result.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURLDescription = urlParser.description
+    ````
+    */
     public var description: String {
         var desc = ""
         
@@ -85,11 +99,17 @@ public class URLParser : CustomStringConvertible {
         return desc
     }
     
+    /**
+    Initialize a new URLParser instance.
     
-    /// Initialize a new URLParser instance.
-    ///
-    /// - Parameter url: URL to be parsed.
-    /// - Parameter isConnect: whether or not a connection has been established.
+    - Parameter url: URL to be parsed.
+    - Parameter isConnect: whether or not a connection has been established.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURL = URLParser(url: someURL, isConnect: false)
+    ````
+    */
     public init (url: Data, isConnect: Bool) {
         
         var parsedURL = http_parser_url_url()
