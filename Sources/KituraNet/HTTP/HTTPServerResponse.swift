@@ -18,8 +18,27 @@ import Foundation
 
 // MARK: HTTPServerResponse
 
-/// This class implements the `ServerResponse` protocol for outgoing server
-/// responses via the HTTP protocol.
+/**
+This class implements the `ServerResponse` protocol for outgoing server
+responses via the HTTP protocol.
+
+### Usage Example: ###
+````swift
+ func upgradeConnection(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) {
+     guard let protocols = request.headers["Upgrade"] else {
+         do {
+             response.statusCode = HTTPStatusCode.badRequest
+             try response.write(from: "No protocol specified in the Upgrade header")
+             try response.end()
+         }
+         catch {
+             Log.error("Failed to send error response to Upgrade request")
+         }
+         return
+     }
+ }
+````
+*/
 public class HTTPServerResponse : ServerResponse {
 
     /// Size of buffer

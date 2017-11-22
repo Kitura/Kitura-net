@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (96% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -193,8 +193,24 @@
 
                 </div>
               </div>
-            <p>The FastCGIServerRequest class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+            <p>The FastCGIServerRequest class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming HTTP requests that come in over a FastCGI connection.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">FastCGIServerRequest</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="n">clientSocket</span><span class="p">)</span>
+
+ <span class="n">request</span><span class="o">.</span><span class="nf">parse</span><span class="p">()</span> <span class="p">{</span> <span class="n">status</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">status</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">success</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">unsupportedRole</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">default</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>

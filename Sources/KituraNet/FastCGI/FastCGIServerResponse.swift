@@ -37,8 +37,20 @@ extension Range where Bound: BinaryInteger {
     }
 }
 
-/// The FastCGIServerRequest class implements the `ServerResponse` protocol
-/// for incoming HTTP requests that come in over a FastCGI connection.
+/**
+The FastCGIServerRequest class implements the `ServerResponse` protocol for incoming HTTP requests that come in over a FastCGI connection.
+
+### Usage Example: ###
+````swift
+ let response = FastCGIServerResponse(socket: clientSocket, request: request)
+ ...
+ response.statusCode = HTTPStatusCode.badRequest
+ ...
+ try response.write(from: "Some string")
+ ...
+ try response.end()
+````
+*/
 public class FastCGIServerResponse : ServerResponse {
 
     /// Socket for the ServerResponse

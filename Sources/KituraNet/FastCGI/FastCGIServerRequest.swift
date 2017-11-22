@@ -19,8 +19,29 @@ import Foundation
 import LoggerAPI
 import Socket
 
-/// The FastCGIServerRequest class implements the `ServerRequest` protocol
-/// for incoming HTTP requests that come in over a FastCGI connection.
+/**
+The FastCGIServerRequest class implements the `ServerRequest` protocol for incoming HTTP requests that come in over a FastCGI connection.
+
+### Usage Example: ###
+````swift
+ let request = FastCGIServerRequest(socket: clientSocket)
+ 
+ request.parse() { status in
+     switch status {
+     case .success:
+         ...
+     break
+     case .unsupportedRole:
+         ...
+     break
+     default:
+         ...
+     break
+     }
+ }
+````
+*/
+
 public class FastCGIServerRequest : ServerRequest {
 
     /// Socket for the request
@@ -96,11 +117,17 @@ public class FastCGIServerRequest : ServerRequest {
 
     /// HTTP parser error types
     public enum FastCGIParserErrorType {
+        /// Parser was successful.
         case success
+        /// Error with the protocol when parsing.
         case protocolError
+        /// Error with invalid types when parsing.
         case invalidType
+        /// Error with client disconnecting when parsing.
         case clientDisconnect
+        /// Error with an unsupported role when parsing.
         case unsupportedRole
+        /// An internal error.
         case internalError
     }
 
