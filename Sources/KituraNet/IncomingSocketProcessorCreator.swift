@@ -20,7 +20,7 @@ import Socket
 /**
 Implementations of the `IncomingSocketProcessorCreator` protocol create an implementation of the `IncomingSocketProcessor` protocol to process the data from a new incoming socket.
 ### Usage Example: ###
-````
+````swift
  class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
  ...
  }
@@ -37,7 +37,7 @@ public protocol IncomingSocketProcessorCreator {
                       by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
      
     ### Usage Example: ###
-    ````
+    ````swift
      switch incomingSocketProcessorCreator {
      case let creator as HTTPIncomingSocketProcessorCreator:
          incomingSocketProcessor = creator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate, keepalive: self.keepAliveState)

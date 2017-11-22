@@ -195,9 +195,9 @@
               </div>
             <p>A common protocol for Kitura-net Servers</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>public class FastCGIServer: Server {
-...
-}
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span><span class="p">:</span> <span class="kt">Server</span> <span class="p">{</span>
+<span class="o">...</span>
+<span class="p">}</span>
 </code></pre>
 
           </div>
@@ -222,9 +222,9 @@
                       <div class="abstract">
                         <p>A type that will be returned by static <code>listen</code> method</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> static func listen(on port: Int, delegate: ServerDelegate?) throws -&gt; ServerType
-    ...
- }
+<pre class="highlight swift"><code> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">listen</span><span class="p">(</span><span class="n">on</span> <span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt">ServerDelegate</span><span class="p">?)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">ServerType</span>
+    <span class="o">...</span>
+ <span class="p">}</span>
 </code></pre>
 
                       </div>
@@ -335,7 +335,7 @@
                       <div class="abstract">
                         <p>Listen for connections on a socket.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> try server.listen(on: port)
+<pre class="highlight swift"><code> <span class="k">try</span> <span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="n">port</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -384,7 +384,7 @@
                       <div class="abstract">
                         <p>Static method to create a new Server and have it listen for connections.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> let server = try FastCGIServer.listen(on: port, delegate: delegate)
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">FastCGIServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -449,7 +449,7 @@
                       <div class="abstract">
                         <p>Listen for connections on a socket.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> server.listen(port: port, errorHandler: errorHandler)
+<pre class="highlight swift"><code> <span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -510,7 +510,7 @@
                       <div class="abstract">
                         <p>Static method to create a new Server and have it listen for connections.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> server.listen(port: port, delegate: delegate, errorHandler: errorHandler)
+<pre class="highlight swift"><code> <span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
 </code></pre>
 
                       </div>

@@ -195,7 +195,7 @@
               </div>
             <p>This protocol defines the API of the classes used to process the data that comes in from a client&rsquo;s request. There should be one <code>IncomingSocketProcessor</code> instance per incoming request.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> var processor: IncomingSocketProcessor?
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt">IncomingSocketProcessor</span><span class="p">?</span>
 </code></pre>
 
           </div>
@@ -220,7 +220,7 @@
                       <div class="abstract">
                         <p>The socket if idle will be kep alive until&hellip;</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>processor?.keepAliveUntil = 0.0
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="n">keepAliveUntil</span> <span class="o">=</span> <span class="mf">0.0</span>
 </code></pre>
 
                       </div>
@@ -250,7 +250,7 @@
                       <div class="abstract">
                         <p>A flag to indicate that the socket has a request in progress</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>processor?.inProgress = false
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="n">inProgress</span> <span class="o">=</span> <span class="kc">false</span>
 </code></pre>
 
                       </div>
@@ -280,7 +280,7 @@
                       <div class="abstract">
                         <p>A back reference to the <code><a href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a></code> processing the socket that this <code>IncomingDataProcessor</code> is processing.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>processor?.handler = nil
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="kc">nil</span>
 </code></pre>
 
                       </div>
@@ -465,7 +465,7 @@
                       <div class="abstract">
                         <p>Close the socket and mark this handler as no longer in progress.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>processor?.close()
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="nf">close</span><span class="p">()</span>
 </code></pre>
 
                       </div>
@@ -495,7 +495,7 @@
                       <div class="abstract">
                         <p>Called by the <code><a href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a></code> to tell the <code>IncomingSocketProcessor</code> that the socket has been closed by the remote side.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>processor?.socketClosed()
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="nf">socketClosed</span><span class="p">()</span>
 </code></pre>
 
                       </div>

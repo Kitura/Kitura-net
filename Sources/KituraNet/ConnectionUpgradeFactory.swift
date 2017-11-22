@@ -18,7 +18,7 @@ import Foundation
 /**
 A class to create new `IncomingSocketProcessor`s for upgraded connections. These factory classes are invoked when an "upgrade" HTTP request comes to the server for a particular protocol.
 ### Usage Example: ###
-````
+````swift
  public static func register(factory: ConnectionUpgradeFactory) {
      ConnectionUpgrader.instance.registry[factory.name.lowercased()] = factory
  }
@@ -42,7 +42,7 @@ public protocol ConnectionUpgradeFactory {
             needs to add special headers to the response.
     
     ### Usage Example: ###
-    ````
+    ````swift
      private var registry = [String: ConnectionUpgradeFactory]()
      ...
      let factory = registry[theProtocol.lowercased()] {
@@ -69,7 +69,7 @@ extension ConnectionUpgradeFactory {
      needs to add special headers to the response.
      
      ### Usage Example: ###
-     ````
+     ````swift
      private var registry = [String: ConnectionUpgradeFactory]()
      ...
      let factory = registry[theProtocol.lowercased()] {

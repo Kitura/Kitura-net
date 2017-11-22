@@ -17,7 +17,7 @@
 /**
 A common protocol for Kitura-net Servers
 ### Usage Example: ###
-````
+````swift
 public class FastCGIServer: Server {
 ...
 }
@@ -28,7 +28,7 @@ public protocol Server {
     /**
     A type that will be returned by static `listen` method
     ### Usage Example: ###
-    ````
+    ````swift
      static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
         ...
      }
@@ -51,7 +51,7 @@ public protocol Server {
     - Parameter on: port number for new connections (eg. 8080)
      
     ### Usage Example: ###
-     ````
+     ````swift
      try server.listen(on: port)
      ````
      */
@@ -66,7 +66,7 @@ public protocol Server {
     - Returns: a new Server instance
      
     ### Usage Example: ###
-    ````
+    ````swift
      let server = try FastCGIServer.listen(on: port, delegate: delegate)
      ````
      */
@@ -79,7 +79,7 @@ public protocol Server {
     - Parameter errorHandler: optional callback for error handling
     
     ### Usage Example: ###
-    ````
+    ````swift
      server.listen(port: port, errorHandler: errorHandler)
     ````
     */
@@ -96,7 +96,7 @@ public protocol Server {
     - Returns: a new Server instance
     
     ### Usage Example: ###
-    ````
+    ````swift
      server.listen(port: port, delegate: delegate, errorHandler: errorHandler)
     ````
     */

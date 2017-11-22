@@ -216,7 +216,10 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An event fired when a HTTP request has finished being parsed and is about
-to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> for processing.</p>
+ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> for processing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">started</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -275,6 +278,9 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An event fired when the processing of a HTTP request has finished.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">finished</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="k">self</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">

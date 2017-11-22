@@ -16,9 +16,14 @@
 
 import Foundation
 
-/// The ServerRequest protocol allows requests to be abstracted 
-/// across different networking protocols in an agnostic way to the
-/// Kitura project Router.
+/**
+The ServerRequest protocol allows requests to be abstracted across different networking protocols in an agnostic way to the Kitura project Router.
+
+### Usage Example: ###
+````swift
+ func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, String?)
+````
+*/
 public protocol ServerRequest: class {
     
     /// The set of headers received with the incoming request
@@ -57,26 +62,46 @@ public protocol ServerRequest: class {
     /// The HTTP Method specified in the request
     var method: String { get }
     
-    /// Read data from the body of the request
-    ///
-    /// - Parameter data: A Data struct to hold the data read in.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: The number of bytes read
+    /**
+    Read data from the body of the request
+    
+    - Parameter data: A Data struct to hold the data read in.
+    
+    - Throws: Socket.error if an error occurred while reading from the socket
+    - Returns: The number of bytes read
+    
+    ### Usage Example: ###
+    ````swift
+     let rc = try self.read(into: data)
+    ````
+    */
     func read(into data: inout Data) throws -> Int
     
-    /// Read a string from the body of the request.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: An Optional string
+    /**
+    Read a string from the body of the request.
+    
+    - Throws: Socket.error if an error occurred while reading from the socket
+    - Returns: An Optional string
+    
+    ### Usage Example: ###
+    ````swift
+     let body = try request.readString()
+    ````
+    */
     func readString() throws -> String?
     
+    /**
+    Read all of the data in the body of the request
     
-    /// Read all of the data in the body of the request
-    ///
-    /// - Parameter data: A Data struct to hold the data read in.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket
-    /// - Returns: The number of bytes read
+    - Parameter data: A Data struct to hold the data read in.
+    
+    - Throws: Socket.error if an error occurred while reading from the socket
+    - Returns: The number of bytes read
+    
+    ### Usage Example: ###
+    ````swift
+     let count = try response?.readAllData(into: &data)
+    ````
+    */
     func readAllData(into data: inout Data) throws -> Int
 }

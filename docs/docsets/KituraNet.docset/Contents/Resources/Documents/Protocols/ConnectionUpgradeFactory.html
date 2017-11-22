@@ -195,9 +195,9 @@
               </div>
             <p>A class to create new <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code>s for upgraded connections. These factory classes are invoked when an <q>upgrade</q> HTTP request comes to the server for a particular protocol.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> public static func register(factory: ConnectionUpgradeFactory) {
-     ConnectionUpgrader.instance.registry[factory.name.lowercased()] = factory
- }
+<pre class="highlight swift"><code> <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">register</span><span class="p">(</span><span class="nv">factory</span><span class="p">:</span> <span class="kt">ConnectionUpgradeFactory</span><span class="p">)</span> <span class="p">{</span>
+     <span class="kt">ConnectionUpgrader</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">factory</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()]</span> <span class="o">=</span> <span class="n">factory</span>
+ <span class="p">}</span>
 </code></pre>
 
           </div>
@@ -255,11 +255,11 @@
 
 </div>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> private var registry = [String: ConnectionUpgradeFactory]()
- ...
- let factory = registry[theProtocol.lowercased()] {
- (processor, responseBody, responseBodyMimeType) = factory.upgrade(handler: handler, request: request, response: response)
- }
+<pre class="highlight swift"><code> <span class="kd">private</span> <span class="k">var</span> <span class="nv">registry</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">ConnectionUpgradeFactory</span><span class="p">]()</span>
+ <span class="o">...</span>
+ <span class="k">let</span> <span class="nv">factory</span> <span class="o">=</span> <span class="n">registry</span><span class="p">[</span><span class="n">theProtocol</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()]</span> <span class="p">{</span>
+ <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">responseBody</span><span class="p">,</span> <span class="n">responseBodyMimeType</span><span class="p">)</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="n">handler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+ <span class="p">}</span>
 </code></pre>
 
                       </div>

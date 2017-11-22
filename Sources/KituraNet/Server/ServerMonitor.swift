@@ -17,22 +17,44 @@
 
 /// A protocol for implementing a delegate to receive monitoring events from KituraNet.
 public protocol ServerMonitor {
-    /// An event fired when a HTTP request has finished being parsed and is about
-    /// to be passed to the `ServerDelegate` for processing.
-    ///
-    /// - Parameter request: The `ServerRequest` class instance for the request starting.
-    /// - Parameter response: The `ServerResponse` class instance for the request starting.
+    /**
+     An event fired when a HTTP request has finished being parsed and is about
+     to be passed to the `ServerDelegate` for processing.
+    
+     - Parameter request: The `ServerRequest` class instance for the request starting.
+     - Parameter response: The `ServerResponse` class instance for the request starting.
+     
+    ### Usage Example: ###
+    ````swift
+    Monitor.delegate?.started(request: request, response: response)
+    ````
+    */
     func started(request: ServerRequest, response: ServerResponse)
     
-    /// An event fired when the processing of a HTTP request has finished.
-    ///
-    /// - Parameter request: The `ServerRequest` class instance for the request that finished.
-    /// - Parameter response: The `ServerResponse` class instance for the request  that finished.
+    /**
+    An event fired when the processing of a HTTP request has finished.
+    
+    - Parameter request: The `ServerRequest` class instance for the request that finished.
+    - Parameter response: The `ServerResponse` class instance for the request  that finished.
+    
+    ### Usage Example: ###
+    ````swift
+    Monitor.delegate?.finished(request: request, response: self)
+    ````
+    */
     func finished(request: ServerRequest?, response: ServerResponse)
 }
 
 /// A struct that holds the reference to the server wide monitoring delegate.
 public struct Monitor {
-    /// The reference to the server wide monitoring delegate.
+    /**
+     The reference to the server wide monitoring delegate.
+     
+    ### Usage Example: ###
+    ````swift
+     Monitor.delegate?.started(request: request, response: response)
+     Monitor.delegate?.finished(request: request, response: self)
+    ````
+    */
     public static var delegate: ServerMonitor?
 }

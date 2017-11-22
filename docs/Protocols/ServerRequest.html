@@ -193,9 +193,10 @@
 
                 </div>
               </div>
-            <p>The ServerRequest protocol allows requests to be abstracted 
-across different networking protocols in an agnostic way to the
-Kitura project Router.</p>
+            <p>The ServerRequest protocol allows requests to be abstracted across different networking protocols in an agnostic way to the Kitura project Router.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span>
+</code></pre>
 
           </div>
         </section>
@@ -471,6 +472,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
     <p>Socket.error if an error occurred while reading from the socket</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">rc</span> <span class="o">=</span> <span class="k">try</span> <span class="k">self</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -526,6 +530,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
     Socket.error if an error occurred while reading from the socket
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">body</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readString</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -562,6 +569,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
     <p>Socket.error if an error occurred while reading from the socket</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">count</span> <span class="o">=</span> <span class="k">try</span> <span class="n">response</span><span class="p">?</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">

@@ -210,9 +210,9 @@
                       <div class="abstract">
                         <p>A class to create new <code><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code>s for upgraded connections. These factory classes are invoked when an <q>upgrade</q> HTTP request comes to the server for a particular protocol.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> public static func register(factory: ConnectionUpgradeFactory) {
-     ConnectionUpgrader.instance.registry[factory.name.lowercased()] = factory
- }
+<pre class="highlight swift"><code> <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">register</span><span class="p">(</span><span class="nv">factory</span><span class="p">:</span> <span class="kt">ConnectionUpgradeFactory</span><span class="p">)</span> <span class="p">{</span>
+     <span class="kt">ConnectionUpgrader</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">registry</span><span class="p">[</span><span class="n">factory</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()]</span> <span class="o">=</span> <span class="n">factory</span>
+ <span class="p">}</span>
 </code></pre>
 
                         <a href="Protocols/ConnectionUpgradeFactory.html" class="slightly-smaller">See more</a>
@@ -247,7 +247,7 @@
                       <div class="abstract">
                         <p>This protocol defines the API of the classes used to process the data that comes in from a client&rsquo;s request. There should be one <code>IncomingSocketProcessor</code> instance per incoming request.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> var processor: IncomingSocketProcessor?
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt">IncomingSocketProcessor</span><span class="p">?</span>
 </code></pre>
 
                         <a href="Protocols/IncomingSocketProcessor.html" class="slightly-smaller">See more</a>
@@ -282,9 +282,9 @@
                       <div class="abstract">
                         <p>Implementations of the <code>IncomingSocketProcessorCreator</code> protocol create an implementation of the <code><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> protocol to process the data from a new incoming socket.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code> class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
- ...
- }
+<pre class="highlight swift"><code> <span class="kd">class</span> <span class="kt">HTTPIncomingSocketProcessorCreator</span><span class="p">:</span> <span class="kt">IncomingSocketProcessorCreator</span> <span class="p">{</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
 </code></pre>
 
                         <a href="Protocols/IncomingSocketProcessorCreator.html" class="slightly-smaller">See more</a>
@@ -319,9 +319,9 @@
                       <div class="abstract">
                         <p>A common protocol for Kitura-net Servers</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight plaintext"><code>public class FastCGIServer: Server {
-...
-}
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span><span class="p">:</span> <span class="kt">Server</span> <span class="p">{</span>
+<span class="o">...</span>
+<span class="p">}</span>
 </code></pre>
 
                         <a href="Protocols/Server.html" class="slightly-smaller">See more</a>
@@ -438,9 +438,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The ServerRequest protocol allows requests to be abstracted 
-across different networking protocols in an agnostic way to the
-Kitura project Router.</p>
+                        <p>The ServerRequest protocol allows requests to be abstracted across different networking protocols in an agnostic way to the Kitura project Router.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span>
+</code></pre>
 
                         <a href="Protocols/ServerRequest.html" class="slightly-smaller">See more</a>
                       </div>
@@ -472,9 +473,10 @@ Kitura project Router.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The ServerResponse protocol allows responses to be abstracted
-across different networking protocols in an agnostic way to the
-Kitura project Router.</p>
+                        <p>The ServerResponse protocol allows responses to be abstracted across different networking protocols in an agnostic way to the Kitura project Router.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span>
+</code></pre>
 
                         <a href="Protocols/ServerResponse.html" class="slightly-smaller">See more</a>
                       </div>
