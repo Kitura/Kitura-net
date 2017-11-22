@@ -193,8 +193,23 @@
 
                 </div>
               </div>
-            <p>This class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
-are communicating via the HTTP protocol.</p>
+            <p>This class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that are communicating via the HTTP protocol.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">handlePost</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">var</span> <span class="nv">body</span> <span class="o">=</span> <span class="kt">Data</span><span class="p">()</span>
+     <span class="k">do</span> <span class="p">{</span>
+         <span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+         <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="s">"Read </span><span class="se">\(</span><span class="n">length</span><span class="se">)</span><span class="s"> bytes"</span>
+         <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+         <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Length"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"</span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">]</span>
+
+         <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+     <span class="p">}</span>
+     <span class="k">catch</span> <span class="p">{</span>
+         <span class="nf">print</span><span class="p">(</span><span class="s">"Error reading body or writing response"</span><span class="p">)</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>

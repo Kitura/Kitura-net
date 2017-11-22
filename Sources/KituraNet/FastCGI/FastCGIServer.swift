@@ -23,8 +23,14 @@ import LoggerAPI
   import Signals
 #endif
 
-/// A server that listens for incoming HTTP requests that are sent using the FastCGI
-/// protocol.
+/**
+A server that listens for incoming HTTP requests that are sent using the FastCGI protocol.
+
+### Usage Example: ###
+````swift
+let server = try FastCGIServer.listen(on: port, delegate: delegate)
+````
+*/
 public class FastCGIServer: Server {
 
     public typealias ServerType = FastCGIServer

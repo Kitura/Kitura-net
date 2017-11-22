@@ -26,15 +26,26 @@ import Foundation
 import LoggerAPI
 import Socket
 
-/// The IncomingSocketManager class is in charge of managing all of the incoming sockets.
-/// In particular, it is in charge of:
-///   1. On Linux when no special compile options are specified:
-///       a. Creating the epoll handle
-///       b. Adding new incoming sockets to the epoll descriptor for read events
-///       c. Running the "thread" that does the epoll_wait
-///   2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
-///      (one pair per incomng socket)
-///   3. Cleaning up idle sockets, when new incoming sockets arrive.
+/**
+The IncomingSocketManager class is in charge of managing all of the incoming sockets.
+In particular, it is in charge of:
+  1. On Linux when no special compile options are specified:
+      a. Creating the epoll handle
+      b. Adding new incoming sockets to the epoll descriptor for read events
+      c. Running the "thread" that does the epoll_wait
+  2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
+     (one pair per incomng socket)
+  3. Cleaning up idle sockets, when new incoming sockets arrive.
+
+### Usage Example: ###
+````swift
+ var manager: IncomingSocketManager?
+ 
+ override func setUp() {
+     manager = IncomingSocketManager()
+ }
+````
+*/
 public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler

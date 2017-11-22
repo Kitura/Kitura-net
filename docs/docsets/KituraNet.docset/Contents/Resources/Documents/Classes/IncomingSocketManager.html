@@ -205,6 +205,13 @@ In particular, it is in charge of:</p>
  (one pair per incomng socket)</li>
 <li>Cleaning up idle sockets, when new incoming sockets arrive.</li>
 </ol>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">manager</span><span class="p">:</span> <span class="kt">IncomingSocketManager</span><span class="p">?</span>
+
+ <span class="k">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+     <span class="n">manager</span> <span class="o">=</span> <span class="kt">IncomingSocketManager</span><span class="p">()</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>

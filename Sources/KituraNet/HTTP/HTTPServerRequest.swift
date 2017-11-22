@@ -20,8 +20,27 @@ import LoggerAPI
 
 // MARK: HTTPServerRequest
 
-/// This class implements the `ServerRequest` protocol for incoming sockets that
-/// are communicating via the HTTP protocol. 
+/**
+This class implements the `ServerRequest` protocol for incoming sockets that are communicating via the HTTP protocol.
+
+### Usage Example: ###
+````swift
+ func handlePost(request: ServerRequest, response: ServerResponse) {
+     var body = Data()
+     do {
+         let length = try request.readAllData(into: &body)
+         let result = "Read \(length) bytes"
+         response.headers["Content-Type"] = ["text/plain"]
+         response.headers["Content-Length"] = ["\(result.count)"]
+ 
+         try response.end(text: result)
+     }
+     catch {
+         print("Error reading body or writing response")
+     }
+ }
+````
+*/
 public class HTTPServerRequest: ServerRequest {
     
     /// HTTP Status code if this message is a response

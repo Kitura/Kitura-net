@@ -210,6 +210,16 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
 3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
    DispatchSource is used, as it is used on OSX.
 </code></pre>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">Data</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span> <span class="p">{</span>
+     <span class="nf">let</span> <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">responseText</span><span class="p">)</span> <span class="o">=</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="n">handler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+
+     <span class="k">if</span> <span class="k">let</span> <span class="nv">responseText</span> <span class="o">=</span> <span class="n">responseText</span> <span class="p">{</span>
+         <span class="nf">return</span> <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">responseText</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">),</span> <span class="s">"text/plain"</span><span class="p">)</span>
+     <span class="p">}</span>
+     <span class="nf">return</span> <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>

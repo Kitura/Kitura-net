@@ -2,7 +2,7 @@
   "warnings": [
     {
       "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/FastCGI/FastCGIServer.swift",
-      "line": 59,
+      "line": 65,
       "symbol": "FastCGIServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
@@ -16,7 +16,7 @@
     },
     {
       "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/IncomingSocketManager.swift",
-      "line": 89,
+      "line": 100,
       "symbol": "IncomingSocketManager.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"

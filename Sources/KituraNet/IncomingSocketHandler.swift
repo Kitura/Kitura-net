@@ -21,17 +21,31 @@ import Foundation
 import LoggerAPI
 import Socket
 
-/// This class handles incoming sockets to the HTTPServer. The data sent by the client
-/// is read and passed to the current `IncomingDataProcessor`.
-///
-/// - Note: The IncomingDataProcessor can change due to an Upgrade request.
-///
-/// - Note: This class uses different underlying technologies depending on:
-///
-///     1. On Linux, if no special compile time options are specified, epoll is used
-///     2. On OSX, DispatchSource is used
-///     3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
-///        DispatchSource is used, as it is used on OSX.
+/**
+This class handles incoming sockets to the HTTPServer. The data sent by the client
+is read and passed to the current `IncomingDataProcessor`.
+
+- Note: The IncomingDataProcessor can change due to an Upgrade request.
+
+- Note: This class uses different underlying technologies depending on:
+
+    1. On Linux, if no special compile time options are specified, epoll is used
+    2. On OSX, DispatchSource is used
+    3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
+       DispatchSource is used, as it is used on OSX.
+
+### Usage Example: ###
+````swift
+ func upgrade(handler: IncomingSocketHandler, request: ServerRequest, response: ServerResponse) -> (IncomingSocketProcessor?, Data?, String?) {
+     let (processor, responseText) = upgrade(handler: handler, request: request, response: response)
+ 
+     if let responseText = responseText {
+         return (processor, responseText.data(using: .utf8), "text/plain")
+     }
+     return (processor, nil, nil)
+ }
+````
+*/
 public class IncomingSocketHandler {
     
     static let socketWriterQueue = DispatchQueue(label: "Socket Writer")

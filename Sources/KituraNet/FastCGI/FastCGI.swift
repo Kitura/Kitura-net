@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-/// The "root" class for the FastCGI server implementation.
+/**
+The "root" class for the FastCGI server implementation.
+
+### Usage Example: ###
+````swift
+let server = FastCGI.createServer()
+````
+*/
 public class FastCGI {
  
     //
