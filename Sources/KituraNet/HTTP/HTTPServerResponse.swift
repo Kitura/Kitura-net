@@ -31,7 +31,14 @@ public class HTTPServerResponse : ServerResponse {
     /// Whether or not the HTTP response line and headers have been flushed.
     private var startFlushed = false
 
-    /// The HTTP headers to be sent to the client as part of the response.
+    /**
+    The HTTP headers to be sent to the client as part of the response.
+    
+    ### Usage Example: ###
+    ````swift
+    ServerResponse.headers["Content-Type"] = ["text/plain"]
+    ````
+    */
     public var headers = HeadersContainer()
     
     /// Status code
@@ -42,7 +49,14 @@ public class HTTPServerResponse : ServerResponse {
     
     let request: HTTPServerRequest?
 
-    /// HTTP status code of the response.
+    /**
+    HTTP status code of the response.
+    
+    ### Usage Example: ###
+    ````swift
+    ServerResponse.statusCode = HTTPStatusCode.badRequest
+    ````
+    */
     public var statusCode: HTTPStatusCode? {
         get {
             return HTTPStatusCode(rawValue: status)
@@ -62,19 +76,33 @@ public class HTTPServerResponse : ServerResponse {
         self.request = request
     }
 
-    /// Write a string as a response.
-    ///
-    /// - Parameter from: String data to be written.
-    /// - Throws: Socket.error if an error occurred while writing to a socket.
+    /**
+    Write a string as a response.
+    
+    - Parameter from: String data to be written.
+    - Throws: Socket.error if an error occurred while writing to a socket.
+    
+    ### Usage Example: ###
+    ````swift
+     try ServerResponse.write(from: "Some string")
+    ````
+    */
     public func write(from string: String) throws {
         try flushStart()
         try writeToSocketThroughBuffer(text: string)
     }
 
-    /// Write data as a response.
-    ///
-    /// - Parameter from: Data object that contains the data to be written.
-    /// - Throws: Socket.error if an error occurred while writing to a socket.
+    /**
+    Write data as a response.
+    
+    - Parameter from: Data object that contains the data to be written.
+    - Throws: Socket.error if an error occurred while writing to a socket.
+    
+    ### Usage Example: ###
+    ````swift
+    try ServerResponse.write(from: someData)
+    ````
+    */
     public func write(from data: Data) throws {
         if  let processor = processor {
             try flushStart()
@@ -92,18 +120,32 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
 
-    /// Write a string and end sending the response.
-    ///
-    /// - Parameter text: String to write to a socket.
-    /// - Throws: Socket.error if an error occurred while writing to a socket.
+    /**
+    Write a string and end sending the response.
+    
+    - Parameter text: String to write to a socket.
+    - Throws: Socket.error if an error occurred while writing to a socket.
+    
+    ### Usage Example: ###
+    ````swift
+    try ServerResponse.end("Some string")
+    ````
+    */
     public func end(text: String) throws {
         try write(from: text)
         try end()
     }
     
-    /// End sending the response.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket.
+    /**
+    End sending the response.
+    
+    - Throws: Socket.error if an error occurred while writing to a socket.
+    
+    ### Usage Example: ###
+    ````swift
+    try ServerResponse.end()
+    ````
+    */
     public func end() throws {
         if let processor = processor {
             try flushStart()
@@ -205,7 +247,14 @@ public class HTTPServerResponse : ServerResponse {
         }
     }
     
-    /// Reset this response object back to its initial state
+    /**
+    Reset this response object back to its initial state
+    
+    ### Usage Example: ###
+    ````swift
+    try ServerResponse.reset()
+    ````
+    */
     public func reset() {
         status = HTTPStatusCode.OK.rawValue
         buffer.length = 0

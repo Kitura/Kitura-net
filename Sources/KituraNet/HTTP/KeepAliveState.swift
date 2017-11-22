@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
+/// Enum defining possible request states.
 public enum KeepAliveState {
     
+    /// Disables keeping requests alive.
     case disabled
+    /// Allows unlimited requests.
     case unlimited
+    /// Allows a defined limited set of requests.
     case limited(maxRequests: UInt)
     
     /// Returns true if there are requests remaining, or unlimited requests are allowed

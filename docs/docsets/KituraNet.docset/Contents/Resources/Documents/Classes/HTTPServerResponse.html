@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (79% documented)
+         (96% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -217,6 +217,9 @@ responses via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP headers to be sent to the client as part of the response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ServerResponse</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -244,6 +247,9 @@ responses via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP status code of the response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ServerResponse</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="n">badRequest</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -276,6 +282,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="s">"Some string"</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -327,6 +336,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">someData</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -378,6 +390,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="s">"Some string"</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -429,6 +444,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -456,6 +474,9 @@ responses via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Reset this response object back to its initial state</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">reset</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">

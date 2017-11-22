@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (79% documented)
+         (96% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -216,6 +216,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Mapping of integer HTTP status codes to the String description.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">statusText</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="n">statusCodes</span><span class="p">[</span><span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="kt">OK</span><span class="o">.</span><span class="n">rawValue</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -243,6 +246,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Create a new <code><a href="../Classes/HTTPServer.html">HTTPServer</a></code>.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -274,6 +280,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using URL.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -336,6 +347,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Create a new <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> using a list of options.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">([</span><span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Options</span><span class="p">])</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -404,6 +420,11 @@
    immediately after its creation.</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="k">in</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -472,6 +493,9 @@
 transform unsafe ASCII characters with a &lsquo;%&rsquo; followed by two hexadecimal digits.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">HTTP</span><span class="o">.</span><span class="nf">escape</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">testString</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
