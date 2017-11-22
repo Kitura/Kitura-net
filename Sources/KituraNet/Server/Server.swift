@@ -14,10 +14,26 @@
  * limitations under the License.
  */
 
-/// A common protocol for Kitura-net Servers
+/**
+A common protocol for Kitura-net Servers
+### Usage Example: ###
+````
+public class FastCGIServer: Server {
+...
+}
+````
+*/
 public protocol Server {
 
-    /// A type that will be returned by static `listen` method
+    /**
+    A type that will be returned by static `listen` method
+    ### Usage Example: ###
+    ````
+     static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
+        ...
+     }
+    ````
+    */
     associatedtype ServerType
 
     /// A `ServerDelegate` used for request handling
@@ -29,33 +45,61 @@ public protocol Server {
     /// A server state.
     var state: ServerState { get }
 
-    /// Listen for connections on a socket.
-    ///
-    /// - Parameter on: port number for new connections (eg. 8080)
+    /**
+    Listen for connections on a socket.
+    
+    - Parameter on: port number for new connections (eg. 8080)
+     
+    ### Usage Example: ###
+     ````
+     try server.listen(on: port)
+     ````
+     */
     func listen(on port: Int) throws
 
-    /// Static method to create a new Server and have it listen for connections.
-    ///
-    /// - Parameter on: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for HTTP connections
-    ///
-    /// - Returns: a new Server instance
+    /**
+    Static method to create a new Server and have it listen for connections.
+    
+    - Parameter on: port number for accepting new connections
+    - Parameter delegate: the delegate handler for HTTP connections
+    
+    - Returns: a new Server instance
+     
+    ### Usage Example: ###
+    ````
+     let server = try FastCGIServer.listen(on: port, delegate: delegate)
+     ````
+     */
     static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
 
-    /// Listen for connections on a socket.
-    ///
-    /// - Parameter port: port number for new connections (eg. 8080)
-    /// - Parameter errorHandler: optional callback for error handling
+    /**
+    Listen for connections on a socket.
+    
+    - Parameter port: port number for new connections (eg. 8080)
+    - Parameter errorHandler: optional callback for error handling
+    
+    ### Usage Example: ###
+    ````
+     server.listen(port: port, errorHandler: errorHandler)
+    ````
+    */
     @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
     func listen(port: Int, errorHandler: ((Swift.Error) -> Void)?)
 
-    /// Static method to create a new Server and have it listen for connections.
-    ///
-    /// - Parameter port: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for HTTP connections
-    /// - Parameter errorHandler: optional callback for error handling
-    ///
-    /// - Returns: a new Server instance
+    /**
+    Static method to create a new Server and have it listen for connections.
+    
+    - Parameter port: port number for accepting new connections
+    - Parameter delegate: the delegate handler for HTTP connections
+    - Parameter errorHandler: optional callback for error handling
+    
+    - Returns: a new Server instance
+    
+    ### Usage Example: ###
+    ````
+     server.listen(port: port, delegate: delegate, errorHandler: errorHandler)
+    ````
+    */
     @available(*, deprecated, message: "use 'listen(on:delegate:) throws' with 'server.failed(callback:)' instead")
     static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)?) -> ServerType
 

@@ -15,20 +15,40 @@
  */
 
 import Foundation
-
-/// This protocol defines the API of the classes used to process the data that
-/// comes in from a client's request. There should be one `IncomingSocketProcessor`
-/// instance per incoming request.
+/**
+This protocol defines the API of the classes used to process the data that comes in from a client's request. There should be one `IncomingSocketProcessor` instance per incoming request.
+### Usage Example: ###
+````
+ var processor: IncomingSocketProcessor?
+````
+*/
 public protocol IncomingSocketProcessor: class {
     
-    /// The socket if idle will be kep alive until...
+    /**
+     The socket if idle will be kep alive until...
+    ### Usage Example: ###
+    ````
+    processor?.keepAliveUntil = 0.0
+    ````
+    */
     var keepAliveUntil: TimeInterval { get set }
     
-    /// A flag to indicate that the socket has a request in progress
+    /**
+    A flag to indicate that the socket has a request in progress
+    ### Usage Example: ###
+    ````
+    processor?.inProgress = false
+    ````
+    */
     var inProgress: Bool { get set }
 
-    /// A back reference to the `IncomingSocketHandler` processing the socket that
-    /// this `IncomingDataProcessor` is processing.
+    /**
+    A back reference to the `IncomingSocketHandler` processing the socket that this `IncomingDataProcessor` is processing.
+    ### Usage Example: ###
+    ````
+    processor?.handler = nil
+    ````
+    */
     weak var handler: IncomingSocketHandler? { get set }
 
     /// Process data read from the socket.
@@ -50,10 +70,21 @@ public protocol IncomingSocketProcessor: class {
     /// - Parameter length: The number of bytes to write to the socket.
     func write(from bytes: UnsafeRawPointer, length: Int)
     
-    /// Close the socket and mark this handler as no longer in progress.
+    /**
+    Close the socket and mark this handler as no longer in progress.
+    ### Usage Example: ###
+    ````
+    processor?.close()
+    ````
+    */
     func close()
     
-    /// Called by the `IncomingSocketHandler` to tell the `IncomingSocketProcessor` that the
-    /// socket has been closed by the remote side.
+    /**
+    Called by the `IncomingSocketHandler` to tell the `IncomingSocketProcessor` that the socket has been closed by the remote side.
+    ### Usage Example: ###
+    ````
+    processor?.socketClosed()
+    ````
+    */
     func socketClosed()
 }
