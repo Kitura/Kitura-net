@@ -22,7 +22,7 @@ Implementations of the `IncomingSocketProcessorCreator` protocol create an imple
 ### Usage Example: ###
 ````swift
  class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
- ...
+     ...
  }
 ````
 */

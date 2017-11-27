@@ -20,7 +20,7 @@ import Foundation
 
 /**
 This class implements the `ServerResponse` protocol for outgoing server
-responses via the HTTP protocol.
+responses via the HTTP protocol. Data and Strings can be written.
 
 ### Usage Example: ###
 ````swift

@@ -23,12 +23,15 @@ A set of helpers for HTTP: status codes mapping, server and client request creat
 
 ### Usage Example: ###
 ````swift
+ //Create a HTTP server.
  let server = HTTP.createServer()
  
+ //Create a new a `ClientRequest` instance using a URL.
  let request = HTTP.request("http://localhost/8080") {response in
  ...
  }
  
+ //Get a `ClientRequest` instance from a URL.
  let getHTTP = HTTP.get("http://localhost/8080") { response in
  ...
  }

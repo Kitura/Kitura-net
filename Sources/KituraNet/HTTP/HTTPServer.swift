@@ -31,8 +31,10 @@ An HTTP server that listens for connections on a socket.
 
 ### Usage Example: ###
 ````swift
+ //Create a server that listens for connections on a specified socket.
  let server = try HTTPServer.listen(on: 0, delegate: delegate)
  ...
+ //Stop the server.
  server.stop()
 ````
 */

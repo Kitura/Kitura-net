@@ -42,12 +42,16 @@ The FastCGIServerRequest class implements the `ServerResponse` protocol for inco
 
 ### Usage Example: ###
 ````swift
+ //Create a `FastCGIServerResponse` object with socket and request parameters.
  let response = FastCGIServerResponse(socket: clientSocket, request: request)
  ...
+ //Set the status code.
  response.statusCode = HTTPStatusCode.badRequest
  ...
- try response.write(from: "Some string")
+ //Write a String to the `FastCGIServerResponse` object.
+ try response.write(from: "Some String")
  ...
+ //Stop the `FastCGIServerResponse` object.
  try response.end()
 ````
 */

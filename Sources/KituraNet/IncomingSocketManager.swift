@@ -39,6 +39,7 @@ In particular, it is in charge of:
 
 ### Usage Example: ###
 ````swift
+ //Create a manager to manage all of the incoming sockets.
  var manager: IncomingSocketManager?
  
  override func setUp() {

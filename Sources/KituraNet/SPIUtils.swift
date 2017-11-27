@@ -26,10 +26,11 @@ import Foundation
 // MARK: SPIUtils
 
 /**
-A set of utility functions.
+A set of utility functions. Includes formatting the given time and date for use in HTTP, where the default value is the current time.
 
 ### Usage Example: ###
 ````swift
+//Format the given date for use in HTTP
 SPIUtils.httpDate()
 ````
 */

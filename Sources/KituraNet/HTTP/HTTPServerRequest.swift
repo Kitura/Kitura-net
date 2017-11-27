@@ -21,7 +21,7 @@ import LoggerAPI
 // MARK: HTTPServerRequest
 
 /**
-This class implements the `ServerRequest` protocol for incoming sockets that are communicating via the HTTP protocol.
+This class implements the `ServerRequest` protocol for incoming sockets that are communicating via the HTTP protocol. Data and Strings can be read in.
 
 ### Usage Example: ###
 ````swift

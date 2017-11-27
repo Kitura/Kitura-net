@@ -18,9 +18,9 @@
 A common protocol for Kitura-net Servers
 ### Usage Example: ###
 ````swift
-public class FastCGIServer: Server {
-...
-}
+ public class FastCGIServer: Server {
+     ...
+ }
 ````
 */
 public protocol Server {

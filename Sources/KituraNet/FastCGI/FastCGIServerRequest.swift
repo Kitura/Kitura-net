@@ -20,12 +20,14 @@ import LoggerAPI
 import Socket
 
 /**
-The FastCGIServerRequest class implements the `ServerRequest` protocol for incoming HTTP requests that come in over a FastCGI connection.
+The FastCGIServerRequest class implements the `ServerRequest` protocol for incoming HTTP requests that come in over a FastCGI connection. This can be used to read data from the body of the request and process the original request URI.
 
 ### Usage Example: ###
 ````swift
+ //Create a `FastCGIServerRequest` to handle a new client FastCGI request.
  let request = FastCGIServerRequest(socket: clientSocket)
  
+ //Handle a new client FastCGI request.
  request.parse() { status in
      switch status {
      case .success:
@@ -116,10 +118,11 @@ public class FastCGIServerRequest : ServerRequest {
     }
 
     /**
-    HTTP parser error types
+    HTTP parser error type. Used when parsing requests from a FastCGI server instance.
     
     ### Usage Example: ###
     ````swift
+     //Parse the request from FastCGI and pass back an error type.
      func parse (_ callback: (FastCGIParserErrorType) -> Void) {
          ...
      }

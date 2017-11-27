@@ -20,8 +20,15 @@ import LoggerAPI
 
 // MARK: ClientResponse
 
-/// This class describes the response sent by the remote server to an HTTP request
-/// sent using the `ClientRequest` class.
+/**
+This class describes the response sent by the remote server to an HTTP request sent using the `ClientRequest` class. Data or Strings can be read in, and URLs can be parsed.
+
+### Usage Example: ###
+````swift
+//The `ClientResponse` object that describes the response that was received from the remote server is used in a callback.
+public typealias Callback = (ClientResponse?) -> Void
+````
+*/
 public class ClientResponse {
     
     /// HTTP Status code

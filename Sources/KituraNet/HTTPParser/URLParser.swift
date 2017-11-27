@@ -33,6 +33,7 @@ scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
 
 ### Usage Example: ###
 ````swift
+ //Initialize a new URLParser instance, and check whether or not a connection has been established.
  let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: .utf8)!
  let urlParser = URLParser(url: url, isConnect: false)
 ````

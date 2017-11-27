@@ -21,8 +21,10 @@ A class that provides a set of helper functions that enables a caller to wait fo
 
 ### Usage Example: ###
 ````swift
+ //Wait for all of the listeners to stop.
  ListenerGroup.waitForListeners()
  
+ //Enqueue a block of code on a given queue, assigning it to the listener group in the process (so we can wait on it later).
  ListenerGroup.enqueueAsynchronously(on: DispatchQueue.global(), block: queuedBlock)
 ````
 */

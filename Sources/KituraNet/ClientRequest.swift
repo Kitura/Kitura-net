@@ -21,8 +21,22 @@ import Socket
 import Foundation
 
 // MARK: ClientRequest
+/**
+This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameteres such as HTTP headers, HTTP methods, host names, and SSL credentials. Data and Strings can also be written to it, and URLs can be parsed.
 
-/// This class provides a set of low level APIs for issuing HTTP requests to another server.
+### Usage Example: ###
+````swift
+//Function to create a new `ClientRequest` using a URL.
+ public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
+     return ClientRequest(url: url, callback: callback)
+ }
+
+ //Create a new `ClientRequest` using a URL.
+ let request = HTTP.request("http://localhost/8080") {response in
+     ...
+ }
+````
+*/
 public class ClientRequest {
 
     /// Initialize the one time initialization struct to cause one time initializations to occur
@@ -79,7 +93,15 @@ public class ClientRequest {
     /// Data that represents the "HTTP/2.0 " (with a minor) header status line prefix
     fileprivate static let Http2StatusLineVersionWithMinor = "HTTP/2.0 ".data(using: .utf8)!
 
-    /// Client request option enum
+    /**
+    Client request options enum. This allows the client to specify certain parameteres such as HTTP headers, HTTP methods, host names, and SSL credentials.
+    
+    ### Usage Example: ###
+    ````swift
+    //If present in the options provided, the client will try to use HTTP/2 protocol for the connection.
+    Options.useHTTP2
+    ````
+    */
     public enum Options {
         
         /// Specifies the HTTP method (i.e. PUT, POST...) to be sent in the request

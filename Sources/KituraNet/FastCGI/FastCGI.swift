@@ -15,10 +15,11 @@
  */
 
 /**
-The "root" class for the FastCGI server implementation.
+The "root" class for the FastCGI server implementation. A `FastCGIServer` instance can be created.
 
 ### Usage Example: ###
 ````swift
+//Implement a `FastCGI` server.
 let server = FastCGI.createServer()
 ````
 */

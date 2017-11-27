@@ -24,10 +24,11 @@ import LoggerAPI
 #endif
 
 /**
-A server that listens for incoming HTTP requests that are sent using the FastCGI protocol.
+A server that listens for incoming HTTP requests that are sent using the FastCGI protocol. This can be used to create a new `FastCGIServer` and have it listen for conenctions and handle a new client FastCGI request.
 
 ### Usage Example: ###
 ````swift
+//Create a `FastCGI` server on a specified port.
 let server = try FastCGIServer.listen(on: port, delegate: delegate)
 ````
 */

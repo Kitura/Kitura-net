@@ -20,9 +20,22 @@ import Dispatch
 import LoggerAPI
 import Socket
 
-/// This class processes the data sent by the client after the data was read. The data
-/// is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the
-/// `ServerDelegate` is invoked.
+
+/**
+This class processes the data sent by the client after the data was read. The data is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the `ServerDelegate` is invoked.
+ 
+### Usage Example: ###
+````swift
+ //Create an `IncomingHTTPSocketProcessor` object.
+ var processor : IncomingHTTPSocketProcessor?
+ 
+ //Write from an NSMutableData buffer.
+ processor.write(from: NSMutableData)
+ 
+ //Write from a data object.
+ processor.write(from: utf8, length: utf8Length)
+ ````
+ */
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// A back reference to the `IncomingSocketHandler` processing the socket that
