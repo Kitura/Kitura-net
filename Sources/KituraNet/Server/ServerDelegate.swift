@@ -43,7 +43,7 @@
 public protocol ServerDelegate: class {
     
     /**
-    Handle new incoming requests to the server
+     Handle new incoming requests to the server
      
      ### Usage Example: ###
      ````swift

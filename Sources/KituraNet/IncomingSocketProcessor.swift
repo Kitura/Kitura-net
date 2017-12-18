@@ -51,23 +51,41 @@ public protocol IncomingSocketProcessor: class {
     */
     weak var handler: IncomingSocketHandler? { get set }
 
-    /// Process data read from the socket.
-    ///
-    /// - Parameter buffer: An NSData object containing the data that was read in
-    ///                    and needs to be processed.
-    ///
-    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    /**
+    Process data read from the socket.
+    ### Usage Example: ###
+    ````swift
+    self?.process(epollDescriptor: epollDescriptor, runRemoveIdleSockets: runRemoveIdleSockets)
+    ````
+    
+    - Parameter buffer: An NSData object containing the data that was read in
+                       and needs to be processed.
+    
+    - Returns: true if the data was processed, false if it needs to be processed later.
+    */
     func process(_ buffer: NSData) -> Bool
-    
-    /// Write data to the socket
-    ///
-    /// - Parameter from: An NSData object containing the bytes to be written to the socket.
+
+    /**
+    Write data to the socket
+    ### Usage Example: ###
+    ````swift
+    processor.write(from: buffer)
+    ````
+ 
+    - Parameter from: An NSData object containing the bytes to be written to the socket.
+    */
     func write(from data: NSData)
-    
-    /// Write a sequence of bytes in an array to the socket
-    ///
-    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-    /// - Parameter length: The number of bytes to write to the socket.
+
+    /**
+    Write a sequence of bytes in an array to the socket
+    ### Usage Example: ###
+    ````swift
+    processor.write(from: utf8, length: utf8Length)
+    ````
+ 
+    - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+    - Parameter length: The number of bytes to write to the socket.
+    */
     func write(from bytes: UnsafeRawPointer, length: Int)
     
     /**
