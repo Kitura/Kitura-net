@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (98% documented)
+         (99% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -222,6 +222,11 @@
                       <div class="abstract">
                         <p>Register a <code><a href="../Protocols/ConnectionUpgradeFactory.html">ConnectionUpgradeFactory</a></code> class instances used to create appropriate <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code>s
 for upgraded conections</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kt">ConnectionUpgrader</span><span class="o">.</span><span class="nf">register</span><span class="p">(</span><span class="nv">factory</span><span class="p">:</span> <span class="kt">TestingProtocolSocketProcessorFactory</span><span class="p">()</span> <span class="p">{</span>
+     <span class="o">...</span>
+ <span class="p">})</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">

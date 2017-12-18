@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (98% documented)
+         (99% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -219,6 +219,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The set of headers received with the incoming request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -248,6 +251,9 @@
                         <p>The URL from the request in string form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlString</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -277,6 +283,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                         <p>The URL from the request in UTF-8 form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -305,6 +314,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                       <div class="abstract">
                         <p>The URL from the request as URLComponents
 URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rsquo; instead</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlComponents</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -332,6 +344,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The URL from the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlURL</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -359,6 +374,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The IP address of the client</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">remoteAddress</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -386,6 +404,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Major version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMajor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -413,6 +434,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Minor version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMinor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -440,6 +464,18 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Method specified in the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s">"head"</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="k">case</span> <span class="s">"put"</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="k">default</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">

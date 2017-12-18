@@ -31,10 +31,18 @@ public struct ConnectionUpgrader {
     
     private var registry = [String: ConnectionUpgradeFactory]()
     
-    /// Register a `ConnectionUpgradeFactory` class instances used to create appropriate `IncomingSocketProcessor`s
-    /// for upgraded conections
-    ///
-    /// - Parameter factory: The `ConnectionUpgradeFactory` class instance being registered.
+    /**
+    Register a `ConnectionUpgradeFactory` class instances used to create appropriate `IncomingSocketProcessor`s
+    for upgraded conections
+    
+    ### Usage Example: ###
+    ````swift
+     ConnectionUpgrader.register(factory: TestingProtocolSocketProcessorFactory() {
+         ...
+     })
+    ````
+     - Parameter factory: The `ConnectionUpgradeFactory` class instance being registered.
+     */
     public static func register(factory: ConnectionUpgradeFactory) {
         ConnectionUpgrader.instance.registry[factory.name.lowercased()] = factory
     }
