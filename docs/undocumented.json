@@ -13,13 +13,6 @@
       "symbol": "HTTPServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
-    },
-    {
-      "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/IncomingSocketManager.swift",
-      "line": 101,
-      "symbol": "IncomingSocketManager.init()",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
     }
   ],
   "source_directory": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net"
