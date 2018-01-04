@@ -220,6 +220,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> to handle incoming requests.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="n">delegate</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -247,6 +250,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Port number for listening for new connections</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -274,6 +280,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>A server state.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="o">.</span><span class="n">started</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -301,6 +310,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Whether or not this server allows port reuse (default: disallowed)</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="n">allowPortReuse</span> <span class="o">=</span> <span class="n">allowPortReuse</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -355,6 +367,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Listens for connections on a socket</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">FastCGIServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="n">port</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -401,6 +416,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Static method to create a new <code>FastCGIServer</code> and have it listen for conenctions</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">FastCGIServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -463,6 +481,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Listens for connections on a socket</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -521,6 +542,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Static method to create a new <code>FastCGIServer</code> and have it listen for conenctions</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -595,6 +619,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Stop listening for new connections.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -622,6 +649,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a new listener for server being started</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">started</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -672,6 +702,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a new listener for server being stopped</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">stopped</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -722,6 +755,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a new listener for server throwing an error</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">failed</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -772,6 +808,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a new listener for when listenSocket.acceptClientConnection throws an error</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">clientConnectionFailed</span><span class="p">()</span> <span class="p">{</span> <span class="n">error</span> <span class="k">in</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
