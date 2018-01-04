@@ -49,43 +49,114 @@ public class FastCGIServerRequest : ServerRequest {
     /// Socket for the request
     private let socket: Socket
 
-    /// The IP address of the client
+    /**
+     The IP address of the client
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.remoteAddress)
+     ````
+     */
     public private(set) var remoteAddress: String = ""
 
-    /// Major version of HTTP of the request
+    /**
+     Major version of HTTP of the request
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMajor))
+     ````
+     */
     public private(set) var httpVersionMajor: UInt16? = 0
 
-    /// Minor version of HTTP of the request
+    /**
+     Minor version of HTTP of the request
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMinor))
+     ````
+     */
     public private(set) var httpVersionMinor: UInt16? = 9
-
-    /// The set of HTTP headers received with the incoming request
+    
+    /**
+     The set of HTTP headers received with the incoming request
+     
+     ### Usage Example: ###
+     ````swift
+     let protocols = request.headers["Upgrade"]
+     ````
+     */
     public var headers = HeadersContainer()
 
-    /// The set of non-HTTP headers received with the incoming request
+    /**
+     The set of non-HTTP headers received with the incoming request
+     
+     ### Usage Example: ###
+     ````swift
+     let protocols = request.fastCGIHeaders["Upgrade"]
+     ````
+     */
     public var fastCGIHeaders = HeadersContainer()
 
-    /// The HTTP Method specified in the request
+    /**
+     The HTTP Method specified in the request
+     
+     ### Usage Example: ###
+     ````swift
+     request.method.lowercased()
+     ````
+     */
     public private(set) var method: String = ""
 
     /// URI Component received from FastCGI
     private var requestUri : String? = nil
 
+    /**
+     Create and validate the full URL.
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlURL)
+     ````
+     */
     public private(set) var urlURL = URL(string: "http://not_available/")!
-
-    /// The URL from the request in string form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use 'urlURL' for the full URL
+ 
+    /**
+     The URL from the request in string form
+     This contains just the path and query parameters starting with '/'
+     Use 'urlURL' for the full URL
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlString)
+     ````
+     */
     @available(*, deprecated, message:
     "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     public var urlString : String { return requestUri ?? "" }
 
-    /// The URL from the request in UTF-8 form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use 'urlURL' for the full URL
+    /**
+     The URL from the request in UTF-8 form
+     This contains just the path and query parameters starting with '/'
+     Use 'urlURL' for the full URL
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.url)
+     ````
+     */
     public var url : Data { return requestUri?.data(using: .utf8) ?? Data() }
 
-    /// The URL from the request as URLComponents
-    /// URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
+    /**
+     The URL from the request as URLComponents
+     URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlComponents)
+     ````
+     */
     @available(*, deprecated, message:
     "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
     public lazy var urlComponents: URLComponents = { [unowned self] () in
@@ -98,12 +169,28 @@ public class FastCGIServerRequest : ServerRequest {
     /// State of incoming message handling
     private var status = Status.initial
 
-    /// The request ID established by the FastCGI client.
+    /**
+     The request ID established by the FastCGI client.
+     
+     ### Usage Example: ###
+     ````swift
+     requestId = record.requestId
+     ````
+     */
     public private(set) var requestId : UInt16 = 0
 
-    /// An array of request ID's that are not our primary one.
-    /// When the main request is done, the FastCGIServer can reject the
-    /// extra requests as being unusable.
+    /**
+     An array of request ID's that are not our primary one.
+     When the main request is done, the FastCGIServer can reject the
+     extra requests as being unusable.
+     
+     ### Usage Example: ###
+     ````swift
+     if request.extraRequestIds.count > 0 {
+         ...
+     }
+     ````
+     */
     public private(set) var extraRequestIds : [UInt16] = []
 
     /// Some defaults
@@ -150,30 +237,51 @@ public class FastCGIServerRequest : ServerRequest {
         self.socket = socket
     }
 
-    /// Read data from the body of the request
-    ///
-    /// - Parameter data: A Data struct to hold the data read in.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket.
-    /// - Returns: The number of bytes read.
+    /**
+     Read data from the body of the request
+     
+     - Parameter data: A Data struct to hold the data read in.
+     
+     - Throws: Socket.error if an error occurred while reading from the socket.
+     - Returns: The number of bytes read.
+     
+     ### Usage Example: ###
+     ````swift
+     let readData = try self.read(into: data)
+     ````
+     */
     public func read(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
 
-    /// Read all of the data in the body of the request
-    ///
-    /// - Parameter data: A Data struct to hold the data read in.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket.
-    /// - Returns: The number of bytes read.
+    /**
+     Read all of the data in the body of the request
+     
+     - Parameter data: A Data struct to hold the data read in.
+     
+     - Throws: Socket.error if an error occurred while reading from the socket.
+     - Returns: The number of bytes read.
+     
+     ### Usage Example: ###
+     ````swift
+     let length = try request.readAllData(into: &body)
+     ````
+     */
     public func readAllData(into data: inout Data) throws -> Int {
         return bodyChunk.fill(data: &data)
     }
 
-    /// Read a string from the body of the request.
-    ///
-    /// - Throws: Socket.error if an error occurred while reading from the socket.
-    /// - Returns: An Optional string.
+    /**
+     Read a string from the body of the request.
+     
+     - Throws: Socket.error if an error occurred while reading from the socket.
+     - Returns: An Optional string.
+     
+     ### Usage Example: ###
+     ````swift
+     let body = try request.readString()
+     ````
+     */
     public func readString() throws -> String? {
         var data = Data()
         let bytes : Int = bodyChunk.fill(data: &data)
