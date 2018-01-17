@@ -1,19 +1,19 @@
 {
   "warnings": [
     {
-      "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/FastCGI/FastCGIServer.swift",
+      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/FastCGI/FastCGIServer.swift",
       "line": 94,
       "symbol": "FastCGIServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/HTTP/HTTPServer.swift",
+      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/HTTP/HTTPServer.swift",
       "line": 81,
       "symbol": "HTTPServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     }
   ],
-  "source_directory": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net"
+  "source_directory": "/Users/kyemaloy/Kitura/Kitura-net"
 }
