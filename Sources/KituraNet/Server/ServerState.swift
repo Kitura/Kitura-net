@@ -24,15 +24,43 @@ var state: ServerState = .unknown
 */
 public enum ServerState {
 
-    /// Initial server state.
+    /**
+    Initial server state.
+    
+    ### Usage Example: ###
+    ````swift
+    var state: ServerState = .unknown
+    ````
+    */
     case unknown
-
-    /// State indicating that server has been started.
+    
+    /**
+    State indicating that server has been started.
+    
+    ### Usage Example: ###
+    ````swift
+    var state: ServerState = .started
+    ````
+    */
     case started
-
-    /// State indicating that server was stopped.
+    
+    /**
+    State indicating that server was stopped.
+    
+    ### Usage Example: ###
+    ````swift
+    var state: ServerState = .stopped
+    ````
+    */
     case stopped
-
-    /// State indicating that server has thrown an error.
+    
+    /**
+    State indicating that server has thrown an error.
+    
+    ### Usage Example: ###
+    ````swift
+    var state: ServerState = .failed
+    ````
+    */
     case failed
 }

@@ -69,8 +69,15 @@ public class FastCGIServerResponse : ServerResponse {
 
     /// Whether or not the HTTP response line and headers have been flushed.
     private var startFlushed = false
-
-    /// The headers to send back as part of the HTTP response.
+    
+    /**
+     The headers to send back as part of the HTTP response.
+     
+     ### Usage Example: ###
+     ````swift
+     response.headers["Content-Length"] = [String(theBody.count)]
+     ````
+     */
     public var headers = HeadersContainer()
 
     /// Status code
@@ -79,7 +86,14 @@ public class FastCGIServerResponse : ServerResponse {
     /// Corresponding server request
     private weak var serverRequest : FastCGIServerRequest?
 
-    /// The status code to send in the HTTP response.
+    /**
+     The status code to send in the HTTP response.
+     
+     ### Usage Example: ###
+     ````swift
+     let statusCode = response.statusCode
+     ````
+     */
     public var statusCode: HTTPStatusCode? {
         get {
             return HTTPStatusCode(rawValue: status)
@@ -102,30 +116,51 @@ public class FastCGIServerResponse : ServerResponse {
         self.headers["Date"] = [SPIUtils.httpDate()]
     }
 
-    /// Add a string to the body of the HTTP response and complete sending the HTTP response
-    ///
-    /// - Parameter text: The String to add to the body of the HTTP response.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to the socket
+    /**
+     Add a string to the body of the HTTP response and complete sending the HTTP response
+     
+     - Parameter text: The String to add to the body of the HTTP response.
+     
+     - Throws: Socket.error if an error occurred while writing to the socket
+     
+     ### Usage Example: ###
+     ````swift
+     try response.end(text: result)
+     ````
+     */
     public func end(text: String) throws {
         try write(from: text)
         try end()
     }
-
-    /// Add a string to the body of the HTTP response.
-    ///
-    /// - Parameter string: The String data to be added.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to the socket
+    
+    /**
+     Add a string to the body of the HTTP response.
+     
+     - Parameter string: The String data to be added.
+     
+     - Throws: Socket.error if an error occurred while writing to the socket
+     
+     ### Usage Example: ###
+     ````swift
+     try response.write(from: theBody)
+     ````
+     */
     public func write(from string: String) throws {
         try write(from: string.data(using: .utf8)!)
     }
 
-    /// Add bytes to the body of the HTTP response.
-    ///
-    /// - Parameter data: The Data struct that contains the bytes to be added.
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to the socket
+    /**
+     Add bytes to the body of the HTTP response.
+     
+     - Parameter data: The Data struct that contains the bytes to be added.
+     
+     - Throws: Socket.error if an error occurred while writing to the socket
+     
+     ### Usage Example: ###
+     ````swift
+     try response.write(from: theData)
+     ````
+     */
     public func write(from data: Data) throws {
 
         try startResponse()
@@ -137,9 +172,16 @@ public class FastCGIServerResponse : ServerResponse {
         buffer.append(data)
     }
 
-    /// Complete sending the HTTP response
-    ///
-    /// - Throws: Socket.error if an error occurred while writing to a socket
+    /**
+     Complete sending the HTTP response
+     
+     - Throws: Socket.error if an error occurred while writing to a socket
+     
+     ### Usage Example: ###
+     ````swift
+     try response.end()
+     ````
+     */
     public func end() throws {
         try startResponse()
         try concludeResponse()
@@ -231,15 +273,29 @@ public class FastCGIServerResponse : ServerResponse {
 
     }
 
-    /// External message write for multiplex rejection
-    ///
-    /// - Parameter requestId: The id of the request to reject.
+    /**
+     External message write for multiplex rejection
+     
+     - Parameter requestId: The id of the request to reject.
+     
+     ### Usage Example: ###
+     ````swift
+     try response.rejectMultiplexConnecton(requestId: requestId)
+     ````
+     */
     public func rejectMultiplexConnecton(requestId: UInt16) throws {
         let message = try getNoMultiplexingMessage(requestId: requestId)
         try writeToSocket(message, wrapAsMessage: false)
     }
 
-    /// External message write for role rejection
+    /**
+     External message write for role rejection
+     
+     ### Usage Example: ###
+     ````swift
+     try response.rejectUnsupportedRole()
+     ````
+     */
     public func rejectUnsupportedRole() throws {
         guard let message = try getUnsupportedRoleMessage() else {
             return
@@ -247,7 +303,14 @@ public class FastCGIServerResponse : ServerResponse {
         try writeToSocket(message, wrapAsMessage: false)
     }
 
-    /// Reset the request for reuse in Keep alive
+    /**
+     Reset the request for reuse in Keep alive
+     
+     ### Usage Example: ###
+     ````swift
+     response?.responseBuffers.reset()
+     ````
+     */
     public func reset() {
         /*****  TBD *******/
     }

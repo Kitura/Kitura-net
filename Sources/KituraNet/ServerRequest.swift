@@ -26,40 +26,112 @@ The ServerRequest protocol allows requests to be abstracted across different net
 */
 public protocol ServerRequest: class {
     
-    /// The set of headers received with the incoming request
+    /**
+     The set of headers received with the incoming request
+     
+     ### Usage Example: ###
+     ````swift
+     let protocols = request.headers["Upgrade"]
+     ````
+     */
     var headers : HeadersContainer { get }
-
-    /// The URL from the request in string form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use 'urlURL' for the full URL
+    
+    /**
+     The URL from the request in string form
+     This contains just the path and query parameters starting with '/'
+     Use 'urlURL' for the full URL
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlString)
+     ````
+     */
     @available(*, deprecated, message:
         "This contains just the path and query parameters starting with '/'. use 'urlURL' instead")
     var urlString : String { get }
-
-    /// The URL from the request in UTF-8 form
-    /// This contains just the path and query parameters starting with '/'
-    /// Use 'urlURL' for the full URL
+    
+    /**
+     The URL from the request in UTF-8 form
+     This contains just the path and query parameters starting with '/'
+     Use 'urlURL' for the full URL
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.url)
+     ````
+     */
     var url : Data { get }
-
-    /// The URL from the request as URLComponents
-    /// URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
+    
+    /**
+     The URL from the request as URLComponents
+     URLComponents has a memory leak on linux as of swift 3.0.1. Use 'urlURL' instead
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlComponents)
+     ````
+     */
     @available(*, deprecated, message:
         "URLComponents has a memory leak on linux as of swift 3.0.1. use 'urlURL' instead")
     var urlComponents : URLComponents { get }
 
-    /// The URL from the request
+    /**
+     The URL from the request
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.urlURL)
+     ````
+     */
     var urlURL : URL { get }
-
-    /// The IP address of the client
+    
+    /**
+     The IP address of the client
+     
+     ### Usage Example: ###
+     ````swift
+     print(request.remoteAddress)
+     ````
+     */
     var remoteAddress: String { get }
     
-    /// Major version of HTTP of the request
+    /**
+     Major version of HTTP of the request
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMajor))
+     ````
+     */
     var httpVersionMajor: UInt16? { get }
 
-    /// Minor version of HTTP of the request
+    /**
+     Minor version of HTTP of the request
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMinor))
+     ````
+     */
     var httpVersionMinor: UInt16? { get }
     
-    /// The HTTP Method specified in the request
+    /**
+     The HTTP Method specified in the request
+     
+     ### Usage Example: ###
+     ````swift
+     func handle(request: ServerRequest, response: ServerResponse) {
+         switch request.method.lowercased() {
+         case "head":
+             ...
+         case "put":
+             ...
+         default:
+             ...
+         }
+     }
+     ````
+     */
     var method: String { get }
     
     /**

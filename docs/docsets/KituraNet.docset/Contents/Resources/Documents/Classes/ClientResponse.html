@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (98% documented)
+         (99% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -220,6 +220,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Status code</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">httpStatusCode</span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span>
+<span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -247,6 +252,11 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Method of the incoming message.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+<span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -274,6 +284,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Major version of HTTP of the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMajor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -301,6 +314,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Minor version of HTTP of the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMinor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -327,7 +343,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set of HTTP headers of the response.</p>
+                        <p>The set of HTTP headers received with the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -360,6 +379,9 @@
     if an error occurs while reading the body.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">readData</span> <span class="o">=</span> <span class="k">try</span> <span class="k">self</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -415,6 +437,9 @@
     if an error occurs while reading the data.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -470,6 +495,9 @@
     if an error occurs while reading the data.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">body</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readString</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -501,6 +529,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Status code, as an Int, sent in the response by the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="n">status</span><span class="p">)</span> <span class="p">??</span> <span class="o">.</span><span class="n">unknown</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -528,6 +559,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Status code, as an <code><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></code>, sent in the response by the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="o">.</span><span class="n">badRequest</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -549,7 +583,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-04)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

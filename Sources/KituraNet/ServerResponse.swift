@@ -76,7 +76,7 @@ public protocol ServerResponse: class {
     */
     func write(from data: Data) throws
     
-    /*
+    /**
     Add a string to the body of the HTTP response and complete sending the HTTP response
     
     - Parameter text: The String to add to the body of the HTTP response.

@@ -38,25 +38,53 @@ This class processes the data sent by the client after the data was read. The da
  */
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
-    /// A back reference to the `IncomingSocketHandler` processing the socket that
-    /// this `IncomingDataProcessor` is processing.
+    /**
+     A back reference to the `IncomingSocketHandler` processing the socket that
+     this `IncomingDataProcessor` is processing.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.handler = handler
+     ````
+     */
     public weak var handler: IncomingSocketHandler?
         
     private weak var delegate: ServerDelegate?
     
-    /// Keep alive timeout for idle sockets in seconds
+    /**
+     Keep alive timeout for idle sockets in seconds
+     
+     ### Usage Example: ###
+     ````swift
+     print("timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout))")
+     ````
+     */
     static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kept alive
     private(set) var clientRequestedKeepAlive = false
     
-    /// The socket if idle will be kep alive until...
+    /**
+     The socket if idle will be kep alive until...
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.keepAliveUntil = 0.0
+     ````
+     */
     public var keepAliveUntil: TimeInterval = 0.0
     
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
     
-    /// A flag that indicates that there is a request in progress
+    /**
+     A flag that indicates that there is a request in progress
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.inProgress = false
+     ````
+     */
     public var inProgress = true
     
     ///HTTP Parser
@@ -91,12 +119,19 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         self.keepAliveState = keepalive
     }
     
-    /// Process data read from the socket. It is either passed to the HTTP parser or
-    /// it is saved in the Pseudo synchronous reader to be read later on.
-    ///
-    /// - Parameter buffer: An NSData object that contains the data read from the socket.
-    ///
-    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    /**
+     Process data read from the socket. It is either passed to the HTTP parser or
+     it is saved in the Pseudo synchronous reader to be read later on.
+     
+     - Parameter buffer: An NSData object that contains the data read from the socket.
+     
+     - Returns: true if the data was processed, false if it needs to be processed later.
+     
+     ### Usage Example: ###
+     ````swift
+     let processed = processor.process(readBuffer)
+     ````
+     */
     public func process(_ buffer: NSData) -> Bool {
         let result: Bool
         
@@ -119,22 +154,43 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         return result
     }
     
-    /// Write data to the socket
-    ///
-    /// - Parameter data: An NSData object containing the bytes to be written to the socket.
+    /**
+     Write data to the socket
+     
+     - Parameter data: An NSData object containing the bytes to be written to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor.write(from: buffer)
+     ````
+     */
     public func write(from data: NSData) {
         handler?.write(from: data)
     }
     
-    /// Write a sequence of bytes in an array to the socket
-    ///
-    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-    /// - Parameter length: The number of bytes to write to the socket.
+    /**
+     Write a sequence of bytes in an array to the socket
+     
+     - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+     - Parameter length: The number of bytes to write to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor.write(from: utf8, length: utf8Length)
+     ````
+     */
     public func write(from bytes: UnsafeRawPointer, length: Int) {
         handler?.write(from: bytes, length: length)
     }
     
-    /// Close the socket and mark this handler as no longer in progress.
+    /**
+     Close the socket and mark this handler as no longer in progress.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.close()
+     ````
+     */
     public func close() {
         keepAliveUntil=0.0
         inProgress = false
@@ -142,8 +198,15 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         handler?.prepareToClose()
     }
     
-    /// Called by the `IncomingSocketHandler` to tell us that the socket has been closed
-    /// by the remote side. 
+    /**
+     Called by the `IncomingSocketHandler` to tell us that the socket has been closed
+     by the remote side.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.socketClosed()
+     ````
+     */
     public func socketClosed() {
         keepAliveUntil=0.0
         inProgress = false

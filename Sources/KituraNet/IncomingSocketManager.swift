@@ -75,6 +75,10 @@ public class IncomingSocketManager  {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
         }
 
+    
+    /**
+     IncomingSocketManager initializer
+     */
         public init() {
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
@@ -98,6 +102,9 @@ public class IncomingSocketManager  {
             }
         }
     #else
+    /**
+     IncomingSocketManager initializer
+     */
         public init() {
             
         }
@@ -107,19 +114,33 @@ public class IncomingSocketManager  {
         stop()
     }
 
-    /// Stop this socket manager instance and cleanup resources.
-    /// If using epoll, it also ends the epoll process() task, closes the epoll fd and releases its thread.
+    /**
+     Stop this socket manager instance and cleanup resources.
+     If using epoll, it also ends the epoll process() task, closes the epoll fd and releases its thread.
+     
+     ### Usage Example: ###
+     ````swift
+     socketManager?.stop()
+     ````
+     */
     public func stop() {
         stopped = true
         #if GCD_ASYNCH || !os(Linux)
             removeIdleSockets(removeAll: true)
         #endif
     }
-
-    /// Handle a new incoming socket
-    ///
-    /// - Parameter socket: the incoming socket to handle
-    /// - Parameter using: The ServerDelegate to actually handle the socket
+    
+    /**
+     Handle a new incoming socket
+     
+     - Parameter socket: the incoming socket to handle
+     - Parameter using: The ServerDelegate to actually handle the socket
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.handler = handler
+     ````
+     */
     public func handle(socket: Socket, processor: IncomingSocketProcessor) {
         guard !stopped else {
             Log.warning("Cannot handle socket as socket manager has been stopped")

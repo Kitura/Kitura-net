@@ -35,14 +35,32 @@ public protocol Server {
     ````
     */
     associatedtype ServerType
-
-    /// A `ServerDelegate` used for request handling
+    
+    /**
+     A `ServerDelegate` used for request handling
+     ### Usage Example: ###
+     ````swift
+     server.delegate = delegate
+     ````
+     */
     var delegate: ServerDelegate? { get set }
-
-    /// Port number for listening for new connections.
+    
+    /**
+     Port number for listening for new connections.
+     ### Usage Example: ###
+     ````swift
+     let serverPort = server.port
+     ````
+     */
     var port: Int? { get }
-
-    /// A server state.
+    
+    /**
+     A server state.
+     ### Usage Example: ###
+     ````swift
+     print(server.state)
+     ````
+     */
     var state: ServerState { get }
 
     /**

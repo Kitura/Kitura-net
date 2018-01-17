@@ -69,7 +69,14 @@ public class IncomingSocketHandler {
 
     let socket: Socket
 
-    /// The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
+    /**
+     The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.inProgress = false
+     ````
+     */
     public var processor: IncomingSocketProcessor?
     
     private let readBuffer = NSMutableData()
@@ -199,10 +206,17 @@ public class IncomingSocketHandler {
         return result
     }
     
-    /// Handle data read in while the processor couldn't process it, if there is any
-    ///
-    /// - Note: On Linux, the `IncomingSocketManager` should call `handleBufferedReadDataHelper`
-    ///        directly.
+    /**
+     Handle data read in while the processor couldn't process it, if there is any
+     
+     - Note: On Linux, the `IncomingSocketManager` should call `handleBufferedReadDataHelper`
+     directly.
+     
+     ### Usage Example: ###
+     ````swift
+     handler?.handleBufferedReadData()
+     ````
+     */
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             if socket.socketfd != Socket.SOCKET_INVALID_DESCRIPTOR {
@@ -308,17 +322,31 @@ public class IncomingSocketHandler {
         #endif
     }
     
-    /// Write as much data to the socket as possible, buffering the rest
-    ///
-    /// - Parameter data: The NSData object containing the bytes to write to the socket.
+    /**
+     Write as much data to the socket as possible, buffering the rest
+     
+     - Parameter data: The NSData object containing the bytes to write to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     try response.write(from: "No protocol specified in the Upgrade header")
+     ````
+     */
     public func write(from data: NSData) {
         write(from: data.bytes, length: data.length)
     }
     
-    /// Write a sequence of bytes in an array to the socket
-    ///
-    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-    /// - Parameter length: The number of bytes to write to the socket.
+    /**
+     Write a sequence of bytes in an array to the socket
+     
+     - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+     - Parameter length: The number of bytes to write to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor.write(from: utf8, length: utf8Length)
+     ````
+     */
     public func write(from bytes: UnsafeRawPointer, length: Int) {
         writeInProgress = true
         defer {
@@ -366,10 +394,17 @@ public class IncomingSocketHandler {
             }
         }
     }
-
-    /// If there is data waiting to be written, set a flag and the socket will
-    /// be closed when all the buffered data has been written.
-    /// Otherwise, immediately close the socket.
+    
+    /**
+     If there is data waiting to be written, set a flag and the socket will
+     be closed when all the buffered data has been written.
+     Otherwise, immediately close the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     handler?.prepareToClose()
+     ````
+     */
     public func prepareToClose() {
         preparingToClose = true
         close()

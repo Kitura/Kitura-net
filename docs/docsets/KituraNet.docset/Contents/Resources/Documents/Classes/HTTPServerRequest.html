@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (98% documented)
+         (99% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -232,6 +232,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Status code if this message is a response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">response</span><span class="o">!.</span><span class="n">httpStatusCode</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -259,6 +262,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Server IP address pulled from socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">request</span><span class="o">.</span><span class="n">remoteAddress</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -286,6 +292,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Method of the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -313,6 +322,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Major version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMajor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -340,6 +352,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Minor version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMinor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -367,6 +382,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Set of HTTP headers of the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -394,6 +412,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>socket signature of the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">signature</span><span class="p">:</span> <span class="kt">Socket</span><span class="o">.</span><span class="kt">Signature</span><span class="p">?</span> <span class="p">{</span> <span class="k">return</span> <span class="n">socket</span><span class="o">.</span><span class="n">signature</span> <span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -410,9 +431,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vv"></a>
+                    <a name="/s:9KituraNet17HTTPServerRequestC6urlURL10Foundation0F0Vv"></a>
                     <a name="//apple_ref/swift/Property/urlURL" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vv">urlURL</a>
+                    <a class="token" href="#/s:9KituraNet17HTTPServerRequestC6urlURL10Foundation0F0Vv">urlURL</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -420,7 +441,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create and validate the full URL.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlURL</span><span class="p">)</span>
+</code></pre>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -448,6 +473,9 @@
                       <div class="abstract">
                         <p>The URL from the request as URLComponents
 URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rsquo; instead</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlComponents</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -477,6 +505,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <p>The URL from the request in string form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlString</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -506,6 +537,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                         <p>The URL from the request in UTF-8 form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -538,6 +572,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
     if an error occurs while reading the body.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">readData</span> <span class="o">=</span> <span class="k">try</span> <span class="k">self</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -593,6 +630,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
     if an error occurs while reading the data.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -648,6 +688,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
     if an error occurs while reading the data.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">body</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readString</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -673,7 +716,7 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-04)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

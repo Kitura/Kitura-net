@@ -1,33 +1,19 @@
 {
   "warnings": [
     {
-      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/FastCGI/FastCGIServer.swift",
-      "line": 66,
+      "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/FastCGI/FastCGIServer.swift",
+      "line": 94,
       "symbol": "FastCGIServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/HTTP/HTTPServer.swift",
+      "file": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net/Sources/KituraNet/HTTP/HTTPServer.swift",
       "line": 81,
       "symbol": "HTTPServer.init()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
-    },
-    {
-      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/IncomingSocketManager.swift",
-      "line": 101,
-      "symbol": "IncomingSocketManager.init()",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
-    },
-    {
-      "file": "/Users/kyemaloy/Kitura/Kitura-net/Sources/KituraNet/ServerResponse.swift",
-      "line": 91,
-      "symbol": "ServerResponse.end(text:)",
-      "symbol_kind": "source.lang.swift.decl.function.method.instance",
-      "warning": "undocumented"
     }
   ],
-  "source_directory": "/Users/kyemaloy/Kitura/Kitura-net"
+  "source_directory": "/Users/shihab.mehboob1@ibm.com/Documents/KituraNet/Kitura-net"
 }

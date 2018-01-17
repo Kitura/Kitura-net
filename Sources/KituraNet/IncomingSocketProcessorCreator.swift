@@ -27,7 +27,14 @@ Implementations of the `IncomingSocketProcessorCreator` protocol create an imple
 ````
 */
 public protocol IncomingSocketProcessorCreator {
-    /// The name of the protocol supported by this `IncomingSocketProcessorCreator`.
+    
+    /**
+     The name of the protocol supported by this `IncomingSocketProcessorCreator`.
+    ### Usage Example: ###
+    ````swift
+    print(IncomingSocketProcessorCreator().name.lowercased())
+    ````
+    */
     var name: String { get }
     /**
     Create an instance of the  `IncomingSocketProcessor`s for use with new incoming sockets.

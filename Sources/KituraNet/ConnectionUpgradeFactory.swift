@@ -25,7 +25,14 @@ A class to create new `IncomingSocketProcessor`s for upgraded connections. These
 ````
 */
 public protocol ConnectionUpgradeFactory {
-    /// The name of the protocol supported by this `ConnectionUpgradeFactory`. A case insensitive compare is made with this name.
+    
+    /**
+    The name of the protocol supported by this `ConnectionUpgradeFactory`. A case insensitive compare is made with this name.
+    ### Usage Example: ###
+    ````swift
+    print(ConnectionUpgradeFactory().name.lowercased())
+    ````
+    */
     var name: String { get }
     /**
      "Upgrade" a connection to the protocol supported by this `ConnectionUpgradeFactory`.

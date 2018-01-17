@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (98% documented)
+         (99% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -229,6 +229,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The headers to send back as part of the HTTP response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Length"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">(</span><span class="n">theBody</span><span class="o">.</span><span class="n">count</span><span class="p">)]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -256,6 +259,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The status code to send in the HTTP response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">statusCode</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">statusCode</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -288,6 +294,9 @@
     <p>Socket.error if an error occurred while writing to the socket</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -339,6 +348,9 @@
     <p>Socket.error if an error occurred while writing to the socket</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">theBody</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -390,6 +402,9 @@
     <p>Socket.error if an error occurred while writing to the socket</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">theData</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -441,6 +456,9 @@
     Socket.error if an error occurred while writing to a socket
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -468,6 +486,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>External message write for multiplex rejection</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">rejectMultiplexConnecton</span><span class="p">(</span><span class="nv">requestId</span><span class="p">:</span> <span class="n">requestId</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -514,6 +535,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>External message write for role rejection</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">rejectUnsupportedRole</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -541,6 +565,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Reset the request for reuse in Keep alive</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">response</span><span class="p">?</span><span class="o">.</span><span class="n">responseBuffers</span><span class="o">.</span><span class="nf">reset</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -562,7 +589,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-04)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
