@@ -66,25 +66,27 @@ public class BufferList {
     /**
      Creates a BufferList instance to store bytes to be written.
      
-     - Returns: A BufferList instance.
-     
      ### Usage Example: ###
      ````swift
      var writeBuffers = BufferList()
      ````
+     
+     - Returns: A BufferList instance.
+     
      */
     public init() {}
     
     /**
      Append bytes to the buffer.
      
-     - Parameter bytes: The pointer to the bytes.
-     - Parameter length: The number of bytes to append.
-     
      ### Usage Example: ###
      ````swift
      writeBuffer.append(bytes + written, length: length - written)
      ````
+     
+     - Parameter bytes: The pointer to the bytes.
+     - Parameter length: The number of bytes to append.
+     
      */
     public func append(bytes: UnsafePointer<UInt8>, length: Int) {
         localData.append(bytes, length: length)
@@ -94,12 +96,13 @@ public class BufferList {
     /**
      Append data into the BufferList.
      
-     - Parameter data: The data to append.
-     
      ### Usage Example: ###
      ````swift
      writeBuffer.append(data)
      ````
+     
+     - Parameter data: The data to append.
+     
      */
     public func append(data: Data) {
         localData.append(data)
@@ -109,14 +112,15 @@ public class BufferList {
     /**
      Fill an array with data from the buffer.
      
-     - Parameter array: A [UInt8] for the data you want from the buffer.
-     
-     - Returns: The number of bytes actually copied from the buffer. It will be the lesser of the number of bytes left in the buffer and the length of the array.
-     
      ### Usage Example: ###
      ````swift
      let count = writeBuffer.fill(array: [UInt8])
      ````
+     
+     - Parameter array: A [UInt8] for the data you want from the buffer.
+     
+     - Returns: The number of bytes actually copied from the buffer. It will be the lesser of the number of bytes left in the buffer and the length of the array.
+     
      */
     public func fill(array: inout [UInt8]) -> Int {
         
@@ -126,15 +130,16 @@ public class BufferList {
     /**
      Fill memory with data from the buffer.
      
+     ### Usage Example: ###
+     ````swift
+     let count = writeBuffer.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+     ````
+     
      - Parameter buffer: A NSMutablePointer to the beginning of the memory to be filled.
      - Parameter length: The number of bytes to fill.
      
      - Returns: The number of bytes actually copied from the buffer. It will be the lesser of the number of bytes left in the buffer and the length of the memory area provided.
      
-     ### Usage Example: ###
-     ````swift
-     let count = writeBuffer.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
-     ````
      */
     public func fill(buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
         
@@ -150,14 +155,15 @@ public class BufferList {
     /**
      Fill a Data Structure with data from the buffer.
      
-     - Parameter data: The Data Structure to fill from the data in the buffer.
-     
-     - Returns: The number of bytes actually copied from the buffer. It will be equal to the number of bytes left in the buffer.
-     
      ### Usage Example: ###
      ````swift
      let count = writeBuffer.fill(data: &data)
      ````
+     
+     - Parameter data: The Data Structure to fill from the data in the buffer.
+     
+     - Returns: The number of bytes actually copied from the buffer. It will be equal to the number of bytes left in the buffer.
+     
      */
     public func fill(data: inout Data) -> Int {
         
