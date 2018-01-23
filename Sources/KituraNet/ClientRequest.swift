@@ -47,7 +47,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.headers["Content-Type"] = ["text/plain"]
+     clientRequest.headers["Content-Type"] = ["text/plain"]
      ````
      */
     public var headers = [String: String]()
@@ -57,7 +57,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.url = "https://localhost:8080"
+     clientRequest.url = "https://localhost:8080"
      ````
      */
     public private(set) var url: String = ""
@@ -67,7 +67,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.method = "post"
+     clientRequest.method = "post"
      ````
      */
     public private(set) var method: String = "get"
@@ -77,7 +77,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.userName = "user1"
+     clientRequest.userName = "user1"
      ````
      */
     public private(set) var userName: String?
@@ -87,7 +87,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.password = "sUpeR_seCurE_paSsw0rd"
+     clientRequest.password = "sUpeR_seCurE_paSsw0rd"
      ````
      */
     public private(set) var password: String?
@@ -99,7 +99,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.maxRedirects = 10
+     clientRequest.maxRedirects = 10
      ````
      */
     public private(set) var maxRedirects = 10
@@ -274,7 +274,7 @@ public class ClientRequest {
      ````swift
      var options: [ClientRequest.Options] = []
      options.append(.port(Int16(port)))
-     ClientRequest.set(options)
+     clientRequest.set(options)
      ````
      
      - Parameter option: An `Options` instance describing the change to be made to the request.
@@ -307,7 +307,7 @@ public class ClientRequest {
      ### Usage Example: ###
      ````swift
      let url: String = "http://www.website.com"
-     let parsedOptions = ClientRequest.parse(url)
+     let parsedOptions = clientRequest.parse(url)
      ````
      
      - Parameter urlString: A String object referencing a URL.
@@ -327,7 +327,7 @@ public class ClientRequest {
      ### Usage Example: ###
      ````swift
      let url: URL = URL(string: "http://www.website.com")!
-     let parsedOptions = ClientRequest.parse(url)
+     let parsedOptions = clientRequest.parse(url)
      ````
      
      - Parameter url: Foundation URL object.
@@ -381,7 +381,7 @@ public class ClientRequest {
      ### Usage Example: ###
      ````swift
      let stringToSend: String = "send something"
-     ClientRequest.write(from: stringToSend)
+     clientRequest.write(from: stringToSend)
      ````
      
      - Parameter from: The String to be added to the request.
@@ -401,7 +401,7 @@ public class ClientRequest {
      ````swift
      let string = "some some more stuff"
      if let data: Data = string.data(using: .utf8) {
-        ClientRequest.write(from: data)
+        clientRequest.write(from: data)
      }
      
      ````
@@ -420,7 +420,7 @@ public class ClientRequest {
      ### Usage Example: ###
      ````swift
      let data: String = "send something"
-     ClientRequest.end(from: data, close: true)
+     clientRequest.end(from: data, close: true)
      ````
      
      - Parameter data: The String to be added to the request.
@@ -440,7 +440,7 @@ public class ClientRequest {
      ````swift
      let stringToSend = "send this"
      let data: Data = stringToSend.data(using: .utf8) {
-        ClientRequest.end(from: data, close: true)
+        clientRequest.end(from: data, close: true)
      }
      ````
      
@@ -459,7 +459,7 @@ public class ClientRequest {
      
      ### Usage Example: ###
      ````swift
-     ClientRequest.end(true)
+     clientRequest.end(true)
      ````
      
      - Parameter close: If true, add the "Connection: close" header to the set of headers sent with the request.

@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (99% documented)
+         (100% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -228,7 +228,7 @@
                       <div class="abstract">
                         <p>The set of HTTP headers to be sent with the request.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
 </code></pre>
 
                       </div>
@@ -258,7 +258,7 @@
                       <div class="abstract">
                         <p>The URL for the request.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">"https://localhost:8080"</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">"https://localhost:8080"</span>
 </code></pre>
 
                       </div>
@@ -288,7 +288,7 @@
                       <div class="abstract">
                         <p>The HTTP method (i.e. GET, POST, PUT, DELETE) for the request.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">"post"</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">"post"</span>
 </code></pre>
 
                       </div>
@@ -318,7 +318,7 @@
                       <div class="abstract">
                         <p>The username to be used if using Basic Auth authentication.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">userName</span> <span class="o">=</span> <span class="s">"user1"</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">userName</span> <span class="o">=</span> <span class="s">"user1"</span>
 </code></pre>
 
                       </div>
@@ -348,7 +348,7 @@
                       <div class="abstract">
                         <p>The password to be used if using Basic Auth authentication.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="s">"sUpeR_seCurE_paSsw0rd"</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="s">"sUpeR_seCurE_paSsw0rd"</span>
 </code></pre>
 
                       </div>
@@ -383,7 +383,7 @@
 
 </div>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">maxRedirects</span> <span class="o">=</span> <span class="mi">10</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">maxRedirects</span> <span class="o">=</span> <span class="mi">10</span>
 </code></pre>
 
                       </div>
@@ -526,7 +526,7 @@
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[</span><span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Options</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">options</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="o">.</span><span class="nf">port</span><span class="p">(</span><span class="kt">Int16</span><span class="p">(</span><span class="n">port</span><span class="p">)))</span>
-<span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -576,7 +576,7 @@
                         <p>Parse an URL (String) into an array of ClientRequest.Options.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"http://www.website.com"</span>
-<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="n">clientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -630,7 +630,7 @@
                         <p>Parse an URL Foudation object into an array of ClientRequest.Options.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://www.website.com"</span><span class="p">)</span><span class="o">!</span>
-<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="n">clientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -684,7 +684,7 @@
                         <p>Add a String to the body of the request to be sent.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">stringToSend</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"send something"</span>
-<span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">stringToSend</span><span class="p">)</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">stringToSend</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -735,7 +735,7 @@
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">string</span> <span class="o">=</span> <span class="s">"some some more stuff"</span>
 <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+   <span class="n">clientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
 <span class="p">}</span>
 
 </code></pre>
@@ -787,7 +787,7 @@
                         <p>Add a String to the body of the request to be sent and then send the request to the remote server.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"send something"</span>
-<span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -850,7 +850,7 @@
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">let</span> <span class="nv">stringToSend</span> <span class="o">=</span> <span class="s">"send this"</span>
 <span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span> <span class="o">=</span> <span class="n">stringToSend</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">{</span>
-   <span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+   <span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre>
 
@@ -912,7 +912,7 @@
                       <div class="abstract">
                         <p>Send the request to the remote server.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
-<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
 </code></pre>
 
                       </div>
@@ -954,7 +954,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-23)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

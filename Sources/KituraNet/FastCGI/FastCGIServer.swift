@@ -91,6 +91,7 @@ public class FastCGIServer: Server {
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
 
+    /// Creates a FastCGI server instance.
     public init() {
         #if os(Linux)
             // On Linux, it is not possible to set SO_NOSIGPIPE on the socket, nor is it possible
@@ -110,7 +111,7 @@ public class FastCGIServer: Server {
      
      ### Usage Example: ###
      ````swift
-     let server = try FastCGIServer.listen(on: port)
+     try server.listen(on: port)
      ````
      */
     public func listen(on port: Int) throws {
@@ -197,7 +198,7 @@ public class FastCGIServer: Server {
      
      ### Usage Example: ###
      ````swift
-     server.listen(port: port, delegate: delegate, errorHandler: errorHandler)
+     let server = FastCGIServer.listen(port: port, delegate: delegate, errorHandler: errorHandler)
      ````
      */
     @available(*, deprecated, message: "use 'listen(on:delegate:) throws' with 'server.failed(callback:)' instead")
@@ -309,7 +310,7 @@ public class FastCGIServer: Server {
      
      ### Usage Example: ###
      ````swift
-     Monitor.delegate?.started(request: request, response: response)
+     server.started(request: request, response: response)
      ````
      */
     @discardableResult
@@ -327,7 +328,7 @@ public class FastCGIServer: Server {
      
      ### Usage Example: ###
      ````swift
-     Monitor.delegate?.stopped(request: request, response: response)
+     server.stopped(request: request, response: response)
      ````
      */
     @discardableResult
@@ -345,7 +346,7 @@ public class FastCGIServer: Server {
      
      ### Usage Example: ###
      ````swift
-     Monitor.delegate?.failed(request: request, response: response)
+     server.failed(request: request, response: response)
      ````
      */
     @discardableResult

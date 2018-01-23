@@ -64,7 +64,7 @@ public class IncomingSocketManager  {
     #if !GCD_ASYNCH && os(Linux)
         private let maximumNumberOfEvents = 300
     
-        private let numberOfEpollTasks = 2 // TODO: this tuning parameter should be revisited as Kitura and libdispatch mature
+        private let numberOfEpollTasks = 2 // todo - this tuning parameter should be revisited as Kitura and libdispatch mature
 
         private let epollDescriptors:[Int32]
         private let queues:[DispatchQueue]
