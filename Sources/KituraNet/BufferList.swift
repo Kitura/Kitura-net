@@ -26,13 +26,17 @@ import Foundation
     //Create a BufferList object.
     var writeBuffer = BufferList()
  
+    //Array of UInt8 to act as the buffer.
+    let arrayOfNumbers: [UInt8] = [1,2,3,4]
+ 
     //Create a new constant of type Int of the number of bytes copied from the buffer.
-    let count = writeBuffer.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+    let count = writeBuffer.fill(buffer: UnsafeMutableRawPointer(mutating: arrayOfNumbers).assumingMemoryBound(to: UInt8.self), length: ((MemoryLayout<UInt8>.size) * 10))
  
     //Append some data to the initialized writeBuffer object.
-    writeBuffer.append(bytes + written, length: length - written)
+    writeBuffer.append(bytes: UnsafePointer<UInt8>(bitPattern: 10)!, length: MemoryLayout<UInt8>.size)
     ````
     */
+
 public class BufferList {
 
     // MARK: -- Private 
