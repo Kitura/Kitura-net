@@ -94,6 +94,7 @@ public class IncomingSocketHandler {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
             
+            Log.insane("Adding socket fd=\(socket.socketfd) to SocketReaderQueue \(Int(socket.socketfd) % numberOfSocketReaderQueues)")
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: socketReaderQueue)
         #endif
@@ -113,12 +114,14 @@ public class IncomingSocketHandler {
     ///
     /// - Returns: true if the data read in was processed
     func handleRead() -> Bool {
+        Log.entry("fd=\(socket.socketfd)")
         handleReadInProgress = true
         defer {
             handleReadInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
             if preparingToClose {
                 close()
             }
+            Log.exit("fd=\(socket.socketfd)")
         }
 
         // Set handleReadInProgress flag to true before the guard below to avoid another thread
@@ -134,6 +137,7 @@ public class IncomingSocketHandler {
             var length = 1
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
+                Log.insane("fd=\(socket.socketfd), read \(length) bytes")
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
@@ -164,16 +168,19 @@ public class IncomingSocketHandler {
     private func handleReadHelper() -> Bool {
         guard let processor = processor else { return true }
         
+        Log.entry("fd=\(socket.socketfd)")
         let processed = processor.process(readBuffer)
         if  processed {
             readBuffer.length = 0
         }
+        Log.exit("fd=\(socket.socketfd), processed=\(processed)")
         return processed
     }
     
     /// Helper function for handling data read in while the processor couldn't
     /// process it, if there is any
     func handleBufferedReadDataHelper() -> Bool {
+        Log.entry("fd=\(socket.socketfd)")
         let result : Bool
         
         if  readBuffer.length > 0  {
@@ -182,6 +189,7 @@ public class IncomingSocketHandler {
         else {
             result = true
         }
+        Log.exit("fd=\(socket.socketfd), result=\(result)")
         return result
     }
     
@@ -197,6 +205,7 @@ public class IncomingSocketHandler {
                         _ = strongSelf.handleBufferedReadDataHelper()
                     }
                 }
+                Log.insane("fd=\(socket.socketfd), queued handleBufferedReadDataHelper()")
             }
         #endif
     }
@@ -207,18 +216,21 @@ public class IncomingSocketHandler {
             IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
                 self.handleWriteHelper()
             }
+            Log.insane("fd=\(socket.socketfd), queued handleWriteHelper()")
         #endif
     }
     
     /// Inner function to write out any buffered data now that the socket can accept more data,
     /// invoked in serial queue.
     private func handleWriteHelper() {
+        Log.entry("fd=\(socket.socketfd)")
         handleWriteInProgress = true
         defer {
             handleWriteInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
             if preparingToClose {
                 close()
             }
+            Log.exit("fd=\(socket.socketfd)")
         }
 
         if  writeBuffer.length != 0 {
@@ -248,6 +260,7 @@ public class IncomingSocketHandler {
                 if amountToWrite > 0 {
                     written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
                                                bufSize: amountToWrite)
+                    Log.insane("fd=\(socket.socketfd), amountToWrite=\(amountToWrite), written=\(written)")
                 }
                 else {
                     if amountToWrite < 0 {
@@ -306,12 +319,14 @@ public class IncomingSocketHandler {
     /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
     /// - Parameter length: The number of bytes to write to the socket.
     public func write(from bytes: UnsafeRawPointer, length: Int) {
+        Log.entry("fd=\(socket.socketfd), length=\(length)")
         writeInProgress = true
         defer {
             writeInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
             if preparingToClose {
                 close()
             }
+            Log.exit("fd=\(socket.socketfd)")
         }
 
         // Set writeInProgress flag to true before the guard below to avoid another thread
@@ -327,6 +342,7 @@ public class IncomingSocketHandler {
             
             if  writeBuffer.length == 0 {
                 written = try socket.write(from: bytes, bufSize: length)
+                Log.insane("fd=\(socket.socketfd), length=\(length), written=\(written)")
             }
             else {
                 written = 0
@@ -336,7 +352,7 @@ public class IncomingSocketHandler {
                 IncomingSocketHandler.socketWriterQueue.sync() { [unowned self] in
                     self.writeBuffer.append(bytes + written, length: length - written)
                 }
-                
+                Log.insane("fd=\(socket.socketfd), queued writeBuffer.append(), length=\(length - written)")
                 #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
                     if writerSource == nil {
                         createWriterSource()
@@ -367,6 +383,11 @@ public class IncomingSocketHandler {
     /// - Note: On Linux closing the socket causes it to be dropped by epoll.
     /// - Note: On OSX the cancel handler will actually close the socket.
     private func close() {
+        let logSocketFd = socket.socketfd
+        Log.entry("fd=\(logSocketFd)")
+        defer {
+            Log.exit("fd=\(logSocketFd)")
+        }
         if isOpen {
             isOpen = false
             // Set isOpen to false before the guard below to avoid another thread invoking
@@ -390,6 +411,11 @@ public class IncomingSocketHandler {
 
     /// DispatchSource cancel handler
     private func handleCancel() {
+        let logSocketFd = socket.socketfd
+        Log.entry("fd=\(logSocketFd)")
+        defer {
+            Log.exit("fd=\(logSocketFd)")
+        }
         isOpen = false // just in case something besides close() calls handleCancel()
         if socket.socketfd > -1 {
             socket.close()

@@ -189,8 +189,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Invoke the HTTP parser against the specified buffer of data and
     /// convert the HTTP parser's status to our own.
     private func parse(_ buffer: NSData) {
+        Log.entry("fd=\(socket.socketfd), buffer.length=\(buffer.length), parseStartingFrom=\(parseStartingFrom)")
+        defer {
+           Log.exit("fd=\(socket.socketfd), parseStartingFrom=\(parseStartingFrom)")
+        }
         let parsingStatus = parse(buffer, from: parseStartingFrom)
-        
+        Log.insane("fd=\(socket.socketfd), parsed \(buffer.length - parseStartingFrom - parsingStatus.bytesLeft) bytes, bytesLeft=\(parsingStatus.bytesLeft)")
         if parsingStatus.bytesLeft == 0 {
             parseStartingFrom = 0
         }
@@ -228,6 +232,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Parsing has completed. Invoke the ServerDelegate to handle the request
     private func parsingComplete() {
+        Log.entry("fd=\(socket.socketfd)")
+        defer {
+            Log.exit("fd=\(socket.socketfd)")
+        }
         state = .messageCompletelyRead
         
         let request = HTTPServerRequest(socket: socket, httpParser: httpParser)
@@ -246,6 +254,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             inProgress = false
         }
         else {
+            Log.insane("fd=\(socket.socketfd) - Queue delegate.handle() for \(request)")
             weak var weakRequest = request
             DispatchQueue.global().async() { [weak self] in
                 if let strongSelf = self, let strongRequest = weakRequest {
@@ -258,6 +267,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
     func keepAlive() {
+        Log.entry("fd=\(socket.socketfd)")
+        defer {
+            Log.exit("fd=\(socket.socketfd)")
+        }
         state = .reset
         keepAliveState.decrement()
         inProgress = false

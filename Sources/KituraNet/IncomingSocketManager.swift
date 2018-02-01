@@ -143,6 +143,7 @@ public class IncomingSocketManager  {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
+            Log.insane("Starting epoll thread for epollfd=\(epollDescriptor), epollTimeout=\(epollTimeout) (ms)")
         
             while !stopped {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
@@ -159,6 +160,7 @@ public class IncomingSocketManager  {
                 
                 if  count == 0  {
                     if deferredHandlingNeeded {
+                        Log.insane("Epoll (\(epollDescriptor)) - processing deferred handlers")
                         deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
                     }
                     continue
@@ -175,11 +177,14 @@ public class IncomingSocketManager  {
                         if  let handler = socketHandlers[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
+                                Log.insane("Epoll (\(epollDescriptor)) - fd=\(event.data.fd), event=EPOLLOUT")
                                 handler.handleWrite()
                             }
                             if  (event.events & EPOLLIN.rawValue) != 0 {
+                                Log.insane("Epoll (\(epollDescriptor)) - fd=\(event.data.fd), event=EPOLLIN")
                                 let processed = handler.handleRead()
                                 if !processed {
+                                    Log.insane("Epoll (\(epollDescriptor)) - fd=\(event.data.fd), deferred handling needed")
                                     deferredHandlingNeeded = true
                                     deferredHandlers[event.data.fd] = handler
                                 }
@@ -193,12 +198,14 @@ public class IncomingSocketManager  {
     
                 // Handle any deferred processing of read data
                 if deferredHandlingNeeded {
+                    Log.insane("Epoll (\(epollDescriptor)) - processing deferred handlers")
                     deferredHandlingNeeded = process(deferredHandlers: &deferredHandlers)
                 }
             }
 
             // cleanup after manager stopped
             if runRemoveIdleSockets {
+                Log.insane("Epoll (\(epollDescriptor)) - removing all sockets")
                 removeIdleSockets(removeAll: true)
             }
             close(epollDescriptor)
@@ -236,12 +243,13 @@ public class IncomingSocketManager  {
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        
+        Log.insane("Time to check for idle sockets")
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
             if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
                 continue
             }
+            Log.insane("Removing idle socket fd=\(fileDescriptor)")
             socketHandlers.removeValue(forKey: fileDescriptor)
 
             #if !GCD_ASYNCH && os(Linux)

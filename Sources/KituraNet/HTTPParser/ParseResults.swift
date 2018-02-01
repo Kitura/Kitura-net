@@ -15,6 +15,7 @@
  */
 
 import Foundation
+import LoggerAPI
 
 /// class to hold results of callbacks from the http_parser
 class ParseResults {
@@ -59,6 +60,7 @@ class ParseResults {
     /// - Parameter count: The number of bytes parsed
     func onBody (_ bytes: UnsafePointer<UInt8>, count: Int) {
         bodyChunk.append(bytes: bytes, length: count)
+        Log.insane("Parsed \(count) bytes of body data, bodyChunk length=\(bodyChunk.count)")
     }
     
     /// Callback for when the headers have been finished being parsed.
@@ -78,6 +80,7 @@ class ParseResults {
         url.append(&zero, length: 1)
         urlString = String(cString: url.bytes.assumingMemoryBound(to: CChar.self))
         url.length -= 1
+        Log.insane("Method=\(method), URL=\(urlString)")
     }
     
     /// Callback for when a piece of a header key was parsed
