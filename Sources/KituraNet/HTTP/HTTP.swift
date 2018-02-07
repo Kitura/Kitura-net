@@ -118,3 +118,15 @@ public enum HTTPStatusCode: Int {
     case unsupportedMediaType = 415, useProxy = 305, misdirectedRequest = 421, unknown = -1
     
 }
+
+extension HTTPStatusCode: Comparable {
+
+    public static func <(lhs: HTTPStatusCode, rhs: HTTPStatusCode) -> Bool { return lhs.rawValue < rhs.rawValue }
+
+}
+
+extension HTTPStatusCode {
+
+    public static var successRange: Range<HTTPStatusCode> { return .OK ..< .multipleChoices }
+
+}
