@@ -90,7 +90,11 @@ public class BufferList {
         
         let result = min(length, localData.length - byteIndex)
         let bytes = localData.bytes.assumingMemoryBound(to: UInt8.self) + byteIndex
-        UnsafeMutableRawPointer(buffer).copyBytes(from: bytes, count: result)
+        #if swift(>=4.1)
+            UnsafeMutableRawPointer(buffer).copyMemory(from: bytes, byteCount: result)
+        #else
+            UnsafeMutableRawPointer(buffer).copyBytes(from: bytes, count: result)
+        #endif
         byteIndex += result
         
         return result
