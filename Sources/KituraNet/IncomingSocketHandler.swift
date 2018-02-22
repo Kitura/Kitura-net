@@ -40,15 +40,40 @@ public class IncomingSocketHandler {
     // (see: https://github.com/IBM-Swift/Kitura/issues/1034) while a proper fix is
     // investigated.
     var superfluousOptional:String? = String(repeating: "x", count: 2)
- 
+
+    // Default tuning for number of GCD serial read queues for DispatchSourceRead.
+    // On OSX, the optimum number depends on the number of physical threads, with a
+    // decline in performance if too many are used, so a conservative number (4) is
+    // chosen by default. Systems with more than 8 hardware threads may benefit from a
+    // larger number.
+    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+        private static let numberOfSocketReaderQueues = 4
+    #endif
+
+    // Default tuning for GCD serial read queues on Linux (with GCD_ASYNCH)
+    // As of Swift 4.0, it appears that a larger number of queues provides better
+    // performance (even if that number exceeds the number of hardware threads),
+    // though there are diminishing returns after that point.
+    // The default of 8 queues is sufficient for moderately sized systems. Systems
+    // with more than 8 hardware threads may benefit from a larger number.
+    #if os(Linux) && GCD_ASYNCH
+        private static let numberOfSocketReaderQueues = 8
+    #endif
+
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-        static let socketReaderQueues = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
+        private static var _socketReaderQueues:[DispatchQueue] {
+            var result:[DispatchQueue] = []
+            for i in 1...numberOfSocketReaderQueues {
+                result.append(DispatchQueue(label: "Socket Reader \(i)"))
+            }
+            return result
+        }
+
+        static let socketReaderQueues:[DispatchQueue] = _socketReaderQueues
     
         // Note: This var is optional to enable it to be constructed in the init function
         var readerSource: DispatchSourceRead!
         var writerSource: DispatchSourceWrite?
-    
-        private let numberOfSocketReaderQueues = IncomingSocketHandler.socketReaderQueues.count
     
         private let socketReaderQueue: DispatchQueue
     #endif
@@ -92,7 +117,7 @@ public class IncomingSocketHandler {
         processor = using
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-            socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
+            socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % IncomingSocketHandler.numberOfSocketReaderQueues]
             
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: socketReaderQueue)
