@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -178,8 +193,14 @@
 
                 </div>
               </div>
-            <p>A class that provides a set of helper functions that enables a caller to wait
-for a group of listener blocks to finish executing.</p>
+            <p>A class that provides a set of helper functions that enables a caller to wait for a group of listener blocks to finish executing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Wait for all of the listeners to stop.</span>
+ <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+
+ <span class="c1">//Enqueue a block of code on a given queue, assigning it to the listener group in the process (so we can wait on it later).</span>
+ <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span> <span class="nv">block</span><span class="p">:</span> <span class="n">queuedBlock</span><span class="p">)</span>
+</code></pre>
 
           </div>
         </section>
@@ -191,9 +212,9 @@ for a group of listener blocks to finish executing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet13ListenerGroup16waitForListenersFT_T_"></a>
+                    <a name="/s:9KituraNet13ListenerGroupC16waitForListenersyyFZ"></a>
                     <a name="//apple_ref/swift/Method/waitForListeners()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet13ListenerGroup16waitForListenersFT_T_">waitForListeners()</a>
+                    <a class="token" href="#/s:9KituraNet13ListenerGroupC16waitForListenersyyFZ">waitForListeners()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -202,6 +223,9 @@ for a group of listener blocks to finish executing.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Wait for all of the listeners to stop</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -218,9 +242,9 @@ for a group of listener blocks to finish executing.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onCSo13DispatchQueue5blockC8Dispatch16DispatchWorkItem_T_"></a>
+                    <a name="/s:9KituraNet13ListenerGroupC21enqueueAsynchronouslyySo13DispatchQueueC2on_0G00G8WorkItemC5blocktFZ"></a>
                     <a name="//apple_ref/swift/Method/enqueueAsynchronously(on:block:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet13ListenerGroup21enqueueAsynchronouslyFT2onCSo13DispatchQueue5blockC8Dispatch16DispatchWorkItem_T_">enqueueAsynchronously(on:block:)</a>
+                    <a class="token" href="#/s:9KituraNet13ListenerGroupC21enqueueAsynchronouslyySo13DispatchQueueC2on_0G00G8WorkItemC5blocktFZ">enqueueAsynchronously(on:block:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -231,19 +255,9 @@ for a group of listener blocks to finish executing.</p>
                         <p>Enqueue a block of code on a given queue, assigning
 it to the listener group in the process (so we can wait
 on it later).</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter on: The queue on to which the provided block will be enqueued
-           for asynchronous execution.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter block: The block to be enqueued for asynchronous execution.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span> <span class="nv">block</span><span class="p">:</span> <span class="n">queuedBlock</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -266,8 +280,8 @@ on it later).</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The queue on to which the provided block will be enqueued for asynchronous execution.</p>
-
+                                  <p>The queue on to which the provided block will be enqueued
+           for asynchronous execution.</p>
                                 </div>
                               </td>
                             </tr>
@@ -280,7 +294,6 @@ on it later).</p>
                               <td>
                                 <div>
                                   <p>The block to be enqueued for asynchronous execution.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -298,8 +311,8 @@ on it later).</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-29)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

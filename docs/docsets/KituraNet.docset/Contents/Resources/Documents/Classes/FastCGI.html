@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -178,7 +193,11 @@
 
                 </div>
               </div>
-            <p>The <q>root</q> class for the FastCGI server implementation.</p>
+            <p>The <q>root</q> class for the FastCGI server implementation. A <code><a href="../Classes/FastCGIServer.html">FastCGIServer</a></code> instance can be created.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Implement a `FastCGI` server.</span>
+<span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">FastCGI</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +209,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet7FastCGI12createServerFT_CS_13FastCGIServer"></a>
+                    <a name="/s:9KituraNet7FastCGIC12createServerAA0C9CGIServerCyFZ"></a>
                     <a name="//apple_ref/swift/Method/createServer()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet7FastCGI12createServerFT_CS_13FastCGIServer">createServer()</a>
+                    <a class="token" href="#/s:9KituraNet7FastCGIC12createServerAA0C9CGIServerCyFZ">createServer()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -203,12 +222,9 @@
                         <p>Create a <code><a href="../Classes/FastCGIServer.html">FastCGIServer</a></code> instance.
 Provided as a convenience and for consistency
 with the HTTP implementation.</p>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    A <code><a href="../Classes/FastCGIServer.html">FastCGIServer</a></code> instance.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">FastCGI</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -222,7 +238,6 @@ with the HTTP implementation.</p>
                       <div>
                         <h4>Return Value</h4>
                         <p>A <code><a href="../Classes/FastCGIServer.html">FastCGIServer</a></code> instance.</p>
-
                       </div>
                     </section>
                   </div>
@@ -235,8 +250,8 @@ with the HTTP implementation.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-29)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

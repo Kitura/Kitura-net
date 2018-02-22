@@ -18,10 +18,37 @@ import Foundation
 
 // MARK: HTTP
 
-/// A set of helpers for HTTP: status codes mapping, server and client request creation.
+/**
+A set of helpers for HTTP: status codes mapping, server and client request creation.
+
+### Usage Example: ###
+````swift
+ //Create a HTTP server.
+ let server = HTTP.createServer()
+ 
+ //Create a new a `ClientRequest` instance using a URL.
+ let request = HTTP.request("http://localhost/8080") {response in
+ ...
+ }
+ 
+ //Get a `ClientRequest` instance from a URL.
+ let getHTTP = HTTP.get("http://localhost/8080") { response in
+ ...
+ }
+ 
+ HTTP.escape(url: testString)
+````
+*/
 public class HTTP {
     
-    /// Mapping of integer HTTP status codes to the String description.
+    /**
+     Mapping of integer HTTP status codes to the String description.
+    
+    ### Usage Example: ###
+    ````swift
+     var statusText = HTTP.statusCodes[HTTPStatusCode.OK.rawValue]
+    ````
+    */
     public static let statusCodes = [
         
         100: "Continue", 101: "Switching Protocols", 102: "Processing",
@@ -42,39 +69,73 @@ public class HTTP {
         511: "Network Authentication Required"
     ]
     
-    /// Create a new `HTTPServer`.
-    ///
-    /// - Returns: an instance of `HTTPServer`.
+    /**
+    Create a new `HTTPServer`.
+    
+    - Returns: an instance of `HTTPServer`.
+    
+    ### Usage Example: ###
+    ````swift
+    let server = HTTP.createServer()
+    ````
+    */
     public static func createServer() -> HTTPServer {
         return HTTPServer()
     }
     
-    /// Create a new `ClientRequest` using URL.
-    ///
-    /// - Parameter url: URL address for the request.
-    /// - Parameter callback: closure to run after the request.
-    /// - Returns: a `ClientRequest` instance
+    /**
+    Create a new `ClientRequest` using URL.
+    
+    - Parameter url: URL address for the request.
+    - Parameter callback: closure to run after the request.
+    - Returns: a `ClientRequest` instance
+    
+    ### Usage Example: ###
+    ````swift
+     let request = HTTP.request("http://localhost/8080") {response in
+         ...
+     }
+    ````
+    */
     public static func request(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(url: url, callback: callback)
     }
     
-    /// Create a new `ClientRequest` using a list of options.
-    ///
-    /// - Parameter options: a list of `ClientRequest.Options`.
-    /// - Parameter callback: closure to run after the request.
-    /// - Returns: a `ClientRequest` instance
+    /**
+    Create a new `ClientRequest` using a list of options.
+    
+    - Parameter options: a list of `ClientRequest.Options`.
+    - Parameter callback: closure to run after the request.
+    - Returns: a `ClientRequest` instance
+    
+    ### Usage Example: ###
+    ````swift
+    let request = HTTP.request([ClientRequest.Options]) {response in
+        ...
+    }
+    ````
+    */
     public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
         return ClientRequest(options: options, callback: callback)
     }
     
-    /// Create a new `ClientRequest` using URL.
-    ///
-    /// - Parameter url: URL address for the request.
-    /// - Parameter callback: closure to run after the request.
-    /// - Returns: a ClientRequest instance.
-    ///
-    /// - Note: This method will invoke the end function of the `ClientRequest`
-    ///        immediately after its creation.
+    /**
+    Get a `ClientRequest` using URL.
+    
+    - Parameter url: URL address for the request.
+    - Parameter callback: closure to run after the request.
+    - Returns: a ClientRequest instance.
+    
+    - Note: This method will invoke the end function of the `ClientRequest`
+           immediately after its creation.
+    
+    ### Usage Example: ###
+    ````swift
+     let request = HTTP.get("http://localhost/8080") { response in
+         ...
+     }
+    ````
+    */
     public static func get(_ url: String, callback: @escaping ClientRequest.Callback) -> ClientRequest {
         let req = ClientRequest(url: url, callback: callback)
         req.end()
@@ -84,10 +145,17 @@ public class HTTP {
     /// A set of characters that are valid in requests.
     private static let allowedCharacterSet =  NSCharacterSet(charactersIn:"\"#%/<>?@\\^`{|} ").inverted
     
-    /// Transform the URL into escaped characters.
-    ///
-    /// - note: URLs can only be sent over the Internet using the ASCII character set, so character escaping will
-    /// transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
+    /**
+    Transform the URL into escaped characters.
+    
+    - note: URLs can only be sent over the Internet using the ASCII character set, so character escaping will
+    transform unsafe ASCII characters with a '%' followed by two hexadecimal digits.
+    
+    ### Usage Example: ###
+    ````swift
+    HTTP.escape(url: testString)
+    ````
+    */
     public static func escape(url: String) -> String {
         if let escaped = url.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) {
             return escaped
@@ -100,21 +168,120 @@ public class HTTP {
 
 // MARK HTTPStatusCode
 
-/// HTTP status codes and numbers.
+/**
+HTTP status codes and numbers.
+
+### Usage Example: ###
+````swift
+var httpStatusCode: HTTPStatusCode = .unknown
+````
+*/
 public enum HTTPStatusCode: Int {
-    
-    case accepted = 202, badGateway = 502, badRequest = 400, conflict = 409, `continue` = 100, created = 201
-    case expectationFailed = 417, failedDependency  = 424, forbidden = 403, gatewayTimeout = 504, gone = 410
-    case httpVersionNotSupported = 505, insufficientSpaceOnResource = 419, insufficientStorage = 507
-    case internalServerError = 500, lengthRequired = 411, methodFailure = 420, methodNotAllowed = 405
-    case movedPermanently = 301, movedTemporarily = 302, multiStatus = 207, multipleChoices = 300
-    case networkAuthenticationRequired = 511, noContent = 204, nonAuthoritativeInformation = 203
-    case notAcceptable = 406, notFound = 404, notImplemented = 501, notModified = 304, OK = 200
-    case partialContent = 206, paymentRequired = 402, preconditionFailed = 412, preconditionRequired = 428
-    case proxyAuthenticationRequired = 407, processing = 102, requestHeaderFieldsTooLarge = 431
-    case requestTimeout = 408, requestTooLong = 413, requestURITooLong = 414, requestedRangeNotSatisfiable = 416
-    case resetContent = 205, seeOther = 303, serviceUnavailable = 503, switchingProtocols = 101
-    case temporaryRedirect = 307, tooManyRequests = 429, unauthorized = 401, unprocessableEntity = 422
-    case unsupportedMediaType = 415, useProxy = 305, misdirectedRequest = 421, unknown = -1
+    /// HTTP code 202
+    case accepted = 202,
+    /// HTTP code 502
+    badGateway = 502,
+    /// HTTP code 400
+    badRequest = 400,
+    /// HTTP code 409
+    conflict = 409,
+    /// HTTP code 100
+    `continue` = 100,
+    /// HTTP code 201
+    created = 201
+    /// HTTP code 417
+    case expectationFailed = 417,
+    /// HTTP code 424
+    failedDependency  = 424,
+    /// HTTP code 403
+    forbidden = 403,
+    /// HTTP code 504
+    gatewayTimeout = 504,
+    /// HTTP code 410
+    gone = 410
+    /// HTTP code 505
+    case httpVersionNotSupported = 505,
+    /// HTTP code 419
+    insufficientSpaceOnResource = 419,
+    /// HTTP code 507
+    insufficientStorage = 507
+    /// HTTP code 500
+    case internalServerError = 500,
+    /// HTTP code 411
+    lengthRequired = 411,
+    /// HTTP code 420
+    methodFailure = 420,
+    /// HTTP code 405
+    methodNotAllowed = 405
+    /// HTTP code 301
+    case movedPermanently = 301,
+    /// HTTP code 302
+    movedTemporarily = 302,
+    /// HTTP code 207
+    multiStatus = 207,
+    /// HTTP code 300
+    multipleChoices = 300
+    /// HTTP code 511
+    case networkAuthenticationRequired = 511,
+    /// HTTP code 204
+    noContent = 204,
+    /// HTTP code 203
+    nonAuthoritativeInformation = 203
+    /// HTTP code 406
+    case notAcceptable = 406,
+    /// HTTP code 404
+    notFound = 404,
+    /// HTTP code 501
+    notImplemented = 501,
+    /// HTTP code 304
+    notModified = 304,
+    /// HTTP code 200
+    OK = 200
+    /// HTTP code 206
+    case partialContent = 206,
+    /// HTTP code 402
+    paymentRequired = 402,
+    /// HTTP code 412
+    preconditionFailed = 412,
+    /// HTTP code 428
+    preconditionRequired = 428
+    /// HTTP code 407
+    case proxyAuthenticationRequired = 407,
+    /// HTTP code 102
+    processing = 102,
+    /// HTTP code 431
+    requestHeaderFieldsTooLarge = 431
+    /// HTTP code 408
+    case requestTimeout = 408,
+    /// HTTP code 413
+    requestTooLong = 413,
+    /// HTTP code 414
+    requestURITooLong = 414,
+    /// HTTP code 416
+    requestedRangeNotSatisfiable = 416
+    /// HTTP code 205
+    case resetContent = 205,
+    /// HTTP code 303
+    seeOther = 303,
+    /// HTTP code 503
+    serviceUnavailable = 503,
+    /// HTTP code 101
+    switchingProtocols = 101
+    /// HTTP code 307
+    case temporaryRedirect = 307,
+    /// HTTP code 429
+    tooManyRequests = 429,
+    /// HTTP code 401
+    unauthorized = 401,
+    /// HTTP code 422
+    unprocessableEntity = 422
+    /// HTTP code 415
+    case unsupportedMediaType = 415,
+    /// HTTP code 305
+    useProxy = 305,
+    /// HTTP code 421
+    misdirectedRequest = 421,
+    /// HTTP code -1
+    unknown = -1
     
 }

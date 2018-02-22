@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>ServerState Enum Reference</title>
+    <title>ServerState Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset="utf-8">
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
     <a name="//apple_ref/swift/Enum/ServerState" class="dashAnchor"></a>
 
-    <a title="ServerState Enum Reference"></a>
+    <a title="ServerState Enumeration Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -35,7 +44,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../index.html">KituraNet Reference</a>
       <img class="carat" src="../img/carat.png" />
-      ServerState Enum Reference
+      ServerState Enumeration Reference
     </p>
 
     <div class="content-wrapper">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -179,6 +194,9 @@
                 </div>
               </div>
             <p>Enum defining possible server states.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">ServerState</span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +208,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9KituraNet11ServerState7unknownFMS0_S0_"></a>
+                    <a name="/s:9KituraNet11ServerStateO7unknownA2CmF"></a>
                     <a name="//apple_ref/swift/Element/unknown" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9KituraNet11ServerState7unknownFMS0_S0_">unknown</a>
+                    <a class="token" href="#/s:9KituraNet11ServerStateO7unknownA2CmF">unknown</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -201,6 +219,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Initial server state.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">ServerState</span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -221,9 +242,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9KituraNet11ServerState7startedFMS0_S0_"></a>
+                    <a name="/s:9KituraNet11ServerStateO7startedA2CmF"></a>
                     <a name="//apple_ref/swift/Element/started" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9KituraNet11ServerState7startedFMS0_S0_">started</a>
+                    <a class="token" href="#/s:9KituraNet11ServerStateO7startedA2CmF">started</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -232,6 +253,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>State indicating that server has been started.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">ServerState</span> <span class="o">=</span> <span class="o">.</span><span class="n">started</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -252,9 +276,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9KituraNet11ServerState7stoppedFMS0_S0_"></a>
+                    <a name="/s:9KituraNet11ServerStateO7stoppedA2CmF"></a>
                     <a name="//apple_ref/swift/Element/stopped" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9KituraNet11ServerState7stoppedFMS0_S0_">stopped</a>
+                    <a class="token" href="#/s:9KituraNet11ServerStateO7stoppedA2CmF">stopped</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -263,6 +287,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>State indicating that server was stopped.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">ServerState</span> <span class="o">=</span> <span class="o">.</span><span class="n">stopped</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -283,9 +310,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FO9KituraNet11ServerState6failedFMS0_S0_"></a>
+                    <a name="/s:9KituraNet11ServerStateO6failedA2CmF"></a>
                     <a name="//apple_ref/swift/Element/failed" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FO9KituraNet11ServerState6failedFMS0_S0_">failed</a>
+                    <a class="token" href="#/s:9KituraNet11ServerStateO6failedA2CmF">failed</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -294,6 +321,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>State indicating that server has thrown an error.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">ServerState</span> <span class="o">=</span> <span class="o">.</span><span class="n">failed</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -315,8 +345,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-29)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

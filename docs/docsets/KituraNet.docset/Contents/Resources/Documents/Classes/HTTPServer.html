@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -179,6 +194,13 @@
                 </div>
               </div>
             <p>An HTTP server that listens for connections on a socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a server that listens for connections on a specified socket.</span>
+ <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">HTTPServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
+ <span class="o">...</span>
+ <span class="c1">//Stop the server.</span>
+ <span class="n">server</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +212,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10HTTPServer8delegateGSqPS_14ServerDelegate__"></a>
+                    <a name="/s:9KituraNet10HTTPServerC8delegateAA14ServerDelegate_pSgv"></a>
                     <a name="//apple_ref/swift/Property/delegate" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10HTTPServer8delegateGSqPS_14ServerDelegate__">delegate</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC8delegateAA14ServerDelegate_pSgv">delegate</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -201,6 +223,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code>.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">httpServer</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="k">self</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -217,9 +242,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10HTTPServer4portGSqSi_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC4portSiSgv"></a>
                     <a name="//apple_ref/swift/Property/port" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10HTTPServer4portGSqSi_">port</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC4portSiSgv">port</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -228,6 +253,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Port number for listening for new connections.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">httpServer</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">8080</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -244,9 +272,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10HTTPServer5stateOS_11ServerState"></a>
+                    <a name="/s:9KituraNet10HTTPServerC5stateAA11ServerStateOv"></a>
                     <a name="//apple_ref/swift/Property/state" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10HTTPServer5stateOS_11ServerState">state</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC5stateAA11ServerStateOv">state</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -254,7 +282,12 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A server state.</p>
+                        <p>A server state</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">if</span><span class="p">(</span><span class="n">httpSever</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">unknown</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">httpServer</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -271,9 +304,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet10HTTPServer9sslConfigGSqVC10SSLService10SSLService13Configuration_"></a>
-                    <a name="//apple_ref/swift/Property/sslConfig" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet10HTTPServer9sslConfigGSqVC10SSLService10SSLService13Configuration_">sslConfig</a>
+                    <a name="/s:9KituraNet10HTTPServerC14allowPortReuseSbv"></a>
+                    <a name="//apple_ref/swift/Property/allowPortReuse" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC14allowPortReuseSbv">allowPortReuse</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -281,7 +314,70 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>SSL cert configs for handling client requests</p>
+                        <p>Whether or not this server allows port reuse (default: disallowed).</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">httpServer</span><span class="o">.</span><span class="n">allowPortReuse</span> <span class="o">=</span> <span class="kc">true</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">allowPortReuse</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet10HTTPServerC14keepAliveStateAA04KeepeF0Ov"></a>
+                    <a name="//apple_ref/swift/Property/keepAliveState" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC14keepAliveStateAA04KeepeF0Ov">keepAliveState</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Controls the maximum number of requests per Keep-Alive connection.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">httpServer</span><span class="o">.</span><span class="n">keepAliveState</span> <span class="o">=</span> <span class="o">.</span><span class="n">unlimited</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">keepAliveState</span><span class="p">:</span> <span class="kt"><a href="../Enums/KeepAliveState.html">KeepAliveState</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">unlimited</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet10HTTPServerC9sslConfig10SSLServiceAEC13ConfigurationVSgv"></a>
+                    <a name="//apple_ref/swift/Property/sslConfig" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC9sslConfig10SSLServiceAEC13ConfigurationVSgv">sslConfig</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>SSL cert configuration for handling client requests.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">httpServer</span><span class="o">.</span><span class="n">sslConfig</span> <span class="o">=</span> <span class="n">sslConfiguration</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -298,9 +394,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServercFT_S0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerCACycfc"></a>
                     <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServercFT_S0_">init()</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerCACycfc">init()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -308,14 +404,18 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Creates an HTTP server object.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTPServer</span><span class="p">()</span>
+<span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">8080</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span><span class="p">:</span> <span class="kt"><a href="../Protocols/Server.html">Server</a></span></code></pre>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -325,9 +425,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer6listenFzT2onSi_T_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC6listenySi2on_tKF"></a>
                     <a name="//apple_ref/swift/Method/listen(on:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer6listenFzT2onSi_T_">listen(on:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC6listenySi2on_tKF">listen(on:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -335,13 +435,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Listens for connections on a socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter on: port number for new connections (eg. 8080)
-
-</div>
+                        <p>Listens for connections on a socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">8080</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -364,8 +461,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>port number for new connections (eg. 8080)</p>
-
+                                  <p>Port number for new connections, e.g. 8080</p>
                                 </div>
                               </td>
                             </tr>
@@ -378,9 +474,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet10HTTPServer6listenFzT2onSi8delegateGSqPS_14ServerDelegate___S0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC6listenACSi2on_AA14ServerDelegate_pSg8delegatetKFZ"></a>
                     <a name="//apple_ref/swift/Method/listen(on:delegate:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet10HTTPServer6listenFzT2onSi8delegateGSqPS_14ServerDelegate___S0_">listen(on:delegate:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC6listenACSi2on_AA14ServerDelegate_pSg8delegatetKFZ">listen(on:delegate:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -388,25 +484,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Static method to create a new HTTPServer and have it listen for connections.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter on: port number for accepting new connections
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter delegate: the delegate handler for HTTP connections</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a new <code>HTTPServer</code> instance</p>
-
-</div>
+                        <p>Static method to create a new HTTP server and have it listen for connections.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTPServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="k">self</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -429,8 +510,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>port number for accepting new connections</p>
-
+                                  <p>Port number for accepting new connections.</p>
                                 </div>
                               </td>
                             </tr>
@@ -442,8 +522,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>the delegate handler for HTTP connections</p>
-
+                                  <p>The delegate handler for HTTP connections.</p>
                                 </div>
                               </td>
                             </tr>
@@ -452,8 +531,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a new <code>HTTPServer</code> instance</p>
-
+                        <p>A new instance of a <code>HTTPServer</code>.</p>
                       </div>
                     </section>
                   </div>
@@ -461,9 +539,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer6listenFT4portSi12errorHandlerGSqFPs5Error_T___T_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC6listenySi4port_ys5Error_pcSg12errorHandlertF"></a>
                     <a name="//apple_ref/swift/Method/listen(port:errorHandler:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer6listenFT4portSi12errorHandlerGSqFPs5Error_T___T_">listen(port:errorHandler:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC6listenySi4port_ys5Error_pcSg12errorHandlertF">listen(port:errorHandler:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -471,19 +549,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Listens for connections on a socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter port: port number for new connections (eg. 8080)
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter errorHandler: optional callback for error handling
-
-</div>
+                        <p>Listen for connections on a socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="n">server</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -507,7 +576,6 @@
                               <td>
                                 <div>
                                   <p>port number for new connections (eg. 8080)</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -520,7 +588,6 @@
                               <td>
                                 <div>
                                   <p>optional callback for error handling</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -533,9 +600,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet10HTTPServer6listenFT4portSi8delegatePS_14ServerDelegate_12errorHandlerGSqFPs5Error_T___S0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC6listenACSi4port_AA14ServerDelegate_p8delegateys5Error_pcSg12errorHandlertFZ"></a>
                     <a name="//apple_ref/swift/Method/listen(port:delegate:errorHandler:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet10HTTPServer6listenFT4portSi8delegatePS_14ServerDelegate_12errorHandlerGSqFPs5Error_T___S0_">listen(port:delegate:errorHandler:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC6listenACSi4port_AA14ServerDelegate_p8delegateys5Error_pcSg12errorHandlertFZ">listen(port:delegate:errorHandler:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -544,30 +611,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Static method to create a new HTTPServer and have it listen for connections.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter port: port number for accepting new connections
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter delegate: the delegate handler for HTTP connections
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter errorHandler: optional callback for error handling</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a new <code>HTTPServer</code> instance</p>
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTPServer</span><span class="p">(</span><span class="nv">port</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span> <span class="nv">errorHandler</span><span class="p">:</span> <span class="n">errorHandler</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -590,8 +636,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>port number for accepting new connections</p>
-
+                                  <p>port number for new connections (eg. 8080)</p>
                                 </div>
                               </td>
                             </tr>
@@ -603,8 +648,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>the delegate handler for HTTP connections</p>
-
+                                  <p>The delegate handler for HTTP connections.</p>
                                 </div>
                               </td>
                             </tr>
@@ -617,7 +661,6 @@
                               <td>
                                 <div>
                                   <p>optional callback for error handling</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -626,8 +669,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a new <code>HTTPServer</code> instance</p>
-
+                        <p>A new <code>HTTPServer</code> instance.</p>
                       </div>
                     </section>
                   </div>
@@ -635,9 +677,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer4stopFT_T_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC4stopyyF"></a>
                     <a name="//apple_ref/swift/Method/stop()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer4stopFT_T_">stop()</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC4stopyyF">stop()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -646,6 +688,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Stop listening for new connections.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -662,9 +707,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer7startedFT8callbackFT_T__DS0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC7startedACXDyyc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/started(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer7startedFT8callbackFT_T__DS0_">started(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC7startedACXDyyc8callback_tF">started(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -672,19 +717,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a new listener for server beeing started</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter callback: The listener callback that will run on server successfull start-up</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a <code>HTTPServer</code> instance</p>
-
-</div>
+                        <p>Add a new listener for a server being started.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">started</span><span class="p">(</span><span class="nv">callback</span><span class="p">:</span> <span class="n">callBack</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -707,8 +743,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The listener callback that will run on server successfull start-up</p>
-
+                                  <p>The listener callback that will run after a successfull start-up.</p>
                                 </div>
                               </td>
                             </tr>
@@ -717,8 +752,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a <code>HTTPServer</code> instance</p>
-
+                        <p>A <code>HTTPServer</code> instance.</p>
                       </div>
                     </section>
                   </div>
@@ -726,9 +760,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer7stoppedFT8callbackFT_T__DS0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC7stoppedACXDyyc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/stopped(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer7stoppedFT8callbackFT_T__DS0_">stopped(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC7stoppedACXDyyc8callback_tF">stopped(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -736,19 +770,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a new listener for server beeing stopped</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter callback: The listener callback that will run when server stops</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a <code>HTTPServer</code> instance</p>
-
-</div>
+                        <p>Add a new listener for a server being stopped.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">stopped</span><span class="p">(</span><span class="nv">callback</span><span class="p">:</span> <span class="n">callBack</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -771,8 +796,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The listener callback that will run when server stops</p>
-
+                                  <p>The listener callback that will run when the server stops.</p>
                                 </div>
                               </td>
                             </tr>
@@ -781,8 +805,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a <code>HTTPServer</code> instance</p>
-
+                        <p>A <code>HTTPServer</code> instance.</p>
                       </div>
                     </section>
                   </div>
@@ -790,9 +813,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer6failedFT8callbackFPs5Error_T__DS0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC6failedACXDys5Error_pc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/failed(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer6failedFT8callbackFPs5Error_T__DS0_">failed(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC6failedACXDys5Error_pc8callback_tF">failed(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -800,19 +823,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a new listener for server throwing an error</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter callback: The listener callback that will run when server throws an error</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a <code>HTTPServer</code> instance</p>
-
-</div>
+                        <p>Add a new listener for a server throwing an error.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">started</span><span class="p">(</span><span class="nv">callback</span><span class="p">:</span> <span class="n">callBack</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -835,8 +849,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The listener callback that will run when server throws an error</p>
-
+                                  <p>The listener callback that will run when the server throws an error.</p>
                                 </div>
                               </td>
                             </tr>
@@ -845,8 +858,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a <code>HTTPServer</code> instance</p>
-
+                        <p>A <code>HTTPServer</code> instance.</p>
                       </div>
                     </section>
                   </div>
@@ -854,9 +866,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet10HTTPServer22clientConnectionFailedFT8callbackFPs5Error_T__DS0_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC22clientConnectionFailedACXDys5Error_pc8callback_tF"></a>
                     <a name="//apple_ref/swift/Method/clientConnectionFailed(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet10HTTPServer22clientConnectionFailedFT8callbackFPs5Error_T__DS0_">clientConnectionFailed(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC22clientConnectionFailedACXDys5Error_pc8callback_tF">clientConnectionFailed(callback:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -864,19 +876,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a new listener for when listenSocket.acceptClientConnection throws an error</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter callback: The listener callback that will run</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>a Server instance</p>
-
-</div>
+                        <p>Add a new listener for when <code>listenSocket.acceptClientConnection</code> throws an error.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">clientConnectionFailed</span><span class="p">(</span><span class="nv">callback</span><span class="p">:</span> <span class="n">callBack</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -899,8 +902,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The listener callback that will run</p>
-
+                                  <p>The listener callback that will run on server after successfull start-up.</p>
                                 </div>
                               </td>
                             </tr>
@@ -909,8 +911,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>a Server instance</p>
-
+                        <p>A <code>HTTPServer</code> instance.</p>
                       </div>
                     </section>
                   </div>
@@ -918,9 +919,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet10HTTPServer16waitForListenersFT_T_"></a>
+                    <a name="/s:9KituraNet10HTTPServerC16waitForListenersyyFZ"></a>
                     <a name="//apple_ref/swift/Method/waitForListeners()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet10HTTPServer16waitForListenersFT_T_">waitForListeners()</a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC16waitForListenersyyFZ">waitForListeners()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -929,12 +930,12 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Wait for all of the listeners to stop.</p>
-
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+</code></pre>
 <div class="aside aside-todo">
     <p class="aside-title">Todo</p>
-    Note that this calls the ListenerGroup object, and is left in for
-backwards compability reasons. Can be safely removed once IBM-Swift/Kitura/Kitura.swift
-is patched to directly talk to ListenerGroup.
+    This calls the ListenerGroup object, and is left in for backwards compatability. It can be safely removed once Kitura is patched to talk directly to ListenerGroup.
 
 </div>
 
@@ -950,6 +951,55 @@ is patched to directly talk to ListenerGroup.
                     </section>
                   </div>
                 </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet10HTTPServerC8registeryAA30IncomingSocketProcessorCreator_p08incomingfgH0_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/register(incomingSocketProcessorCreator:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC8registeryAA30IncomingSocketProcessorCreator_p08incomingfgH0_tFZ">register(incomingSocketProcessorCreator:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Register a class that creates <code>IncomingSockerProcessor</code>s for use with new incoming sockets.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">server</span><span class="o">.</span><span class="nf">register</span><span class="p">(</span><span class="nv">incomingSocketProcessorCreator</span><span class="p">:</span> <span class="n">creator</span><span class="p">)</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">register</span><span class="p">(</span><span class="n">incomingSocketProcessorCreator</span> <span class="nv">creator</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>incomingSocketProcessorCreator</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An implementation of the <code><a href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a></code> protocol which creates an implementation of the <code><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></code> protocol to process the data from a new incoming socket.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
@@ -958,8 +1008,8 @@ is patched to directly talk to ListenerGroup.
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-29)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

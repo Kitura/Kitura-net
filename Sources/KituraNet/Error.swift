@@ -18,16 +18,31 @@ import Foundation
 
 /// An error enum used when throwing errors within KituraNet.
 public enum Error: Swift.Error {
-    /// An error occurred in the `IncomingSocketManager`
-    ///
-    /// - Parameter errCode: The errno of the error
-    /// - Parameter reason: A textual description of the error (from strerror)
+    
+    /**
+    An error occurred in the `IncomingSocketManager`
+    
+    - Parameter errCode: The errno of the error
+    - Parameter reason: A textual description of the error (from strerror)
+    
+    ### Usage Example: ###
+    ````swift
+     let error = Error.incomingSocketManagerFailure(errorCode: errorCode, reason: reason)
+    ````
+    */
     case incomingSocketManagerFailure(errorCode: Int32, reason: String)
 }
 
 
 extension Error: CustomStringConvertible {
-    /// Generate a printable version of this enum.
+    /**
+     Generate a printable version of this enum.
+    
+    ### Usage Example: ###
+    ````swift
+    let error = Error.description
+    ````
+    */
     public var description: String {
         switch self {
             case .incomingSocketManagerFailure(let errorCode, let reason):
