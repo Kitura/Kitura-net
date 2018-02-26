@@ -29,7 +29,7 @@ public protocol IncomingSocketProcessor: class {
 
     /// A back reference to the `IncomingSocketHandler` processing the socket that
     /// this `IncomingDataProcessor` is processing.
-    weak var handler: IncomingSocketHandler? { get set }
+    var handler: IncomingSocketHandler? { get set }
 
     /// Process data read from the socket.
     ///
