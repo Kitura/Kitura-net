@@ -189,7 +189,7 @@
             <h1>IncomingSocketHandler</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketHandler</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketHandler</span></code></pre>
 
                 </div>
               </div>
@@ -205,10 +205,10 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
     <p>This class uses different underlying technologies depending on:</p>
 
 </div>
-<pre class="highlight plaintext"><code>1. On Linux, if no special compile time options are specified, epoll is used
-2. On OSX, DispatchSource is used
-3. On Linux, if the compile time option -Xswiftc -DGCD_ASYNCH is specified,
-   DispatchSource is used, as it is used on OSX.
+<pre class="highlight swift"><code><span class="mi">1</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">no</span> <span class="n">special</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">options</span> <span class="n">are</span> <span class="n">specified</span><span class="p">,</span> <span class="n">epoll</span> <span class="k">is</span> <span class="n">used</span>
+<span class="mi">2</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">OSX</span><span class="p">,</span> <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span>
+<span class="mi">3</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">option</span> <span class="o">-</span><span class="kt">Xswiftc</span> <span class="o">-</span><span class="kt">DGCD_ASYNCH</span> <span class="k">is</span> <span class="n">specified</span><span class="p">,</span>
+   <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span><span class="p">,</span> <span class="k">as</span> <span class="n">it</span> <span class="k">is</span> <span class="n">used</span> <span class="n">on</span> <span class="kt">OSX</span><span class="o">.</span>
 </code></pre>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">Data</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span> <span class="p">{</span>
@@ -251,7 +251,7 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -287,7 +287,7 @@ directly.
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">handleBufferedReadData</span><span class="p">()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">handleBufferedReadData</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -317,7 +317,7 @@ directly.
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">NSData</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">NSData</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -366,7 +366,7 @@ directly.
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">bytes</span><span class="p">:</span> <span class="kt">UnsafeRawPointer</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">bytes</span><span class="p">:</span> <span class="kt">UnsafeRawPointer</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -429,7 +429,7 @@ Otherwise, immediately close the socket.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prepareToClose</span><span class="p">()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prepareToClose</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -444,8 +444,8 @@ Otherwise, immediately close the socket.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-01-29)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.4</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-02-28)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

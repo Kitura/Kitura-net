@@ -24,9 +24,9 @@
 
 The Kitura-net module contains logic for sending and receiving HTTP requests. It also contains the structure for listening on a port and sending requests to a delegate for processing. It can be used to create HTTP/CGI Servers on specific ports, and provides HTTP functionality.
 
-If you require Routing, Templates or Middleware functionality, please see the [Kitura](https://github.com/IBM-Swift/Kitura) project.
+We expect most of our users to require higher level concepts such as routing, templates and middleware, these are not provided in Kitura-net, if you want to use those facilities you should be coding at the Kitura level, for this please see the [Kitura](https://github.com/IBM-Swift/Kitura) project. Kitura-net underpins Kitura which offers a higher abstraction level to users.
 
-Kitura-net utilises the [BlueSocket](https://github.com/IBM-Swift/BlueSocket) framework, the [BlueSSLService](https://github.com/IBM-Swift/BlueSSLService.git) framework and [CCurl](https://github.com/IBM-Swift/CCurl.git).
+Kitura-net utilises the [BlueSocket](https://github.com/IBM-Swift/BlueSocket) framework, the [BlueSSLService](https://github.com/IBM-Swift/BlueSSLService.git) framework and [CCurl](https://github.com/IBM-Swift/CCurl.git). 
 
 ## Features
 
@@ -51,3 +51,7 @@ All improvements to Kitura-net are very welcome! Here's how to get started with 
 `$ swift test`
 
 You can find more info on contributing to Kitura in our [contributing guidelines](https://github.com/IBM-Swift/Kitura/blob/master/.github/CONTRIBUTING.md).
+
+## Community
+
+We love to talk server-side Swift, and Kitura. Join our [Slack](http://swift-at-ibm-slack.mybluemix.net/) to meet the team!
