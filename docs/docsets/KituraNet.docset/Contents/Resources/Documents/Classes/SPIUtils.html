@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,11 +189,15 @@
             <h1>SPIUtils</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SPIUtils</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SPIUtils</span></code></pre>
 
                 </div>
               </div>
-            <p>A set of utility functions.</p>
+            <p>A set of utility functions. Includes formatting the given time and date for use in HTTP, where the default value is the current time.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Format the given date for use in HTTP</span>
+<span class="kt">SPIUtils</span><span class="o">.</span><span class="nf">httpDate</span><span class="p">()</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +209,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet8SPIUtils8httpDateFT4fromSi_SS"></a>
+                    <a name="/s:9KituraNet8SPIUtilsC8httpDateSSSi4from_tFZ"></a>
                     <a name="//apple_ref/swift/Method/httpDate(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet8SPIUtils8httpDateFT4fromSi_SS">httpDate(from:)</a>
+                    <a class="token" href="#/s:9KituraNet8SPIUtilsC8httpDateSSSi4from_tFZ">httpDate(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -201,25 +220,16 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Format the given time for use in HTTP, default value is current time.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter timestamp: the time ( default value is current timestamp )</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>string representation of timestamp</p>
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kt">SPIUtils</span><span class="o">.</span><span class="nf">httpDate</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">date</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">httpDate</span><span class="p">(</span><span class="n">from</span> <span class="nv">timestamp</span><span class="p">:</span> <span class="n">time_t</span> <span class="o">=</span> <span class="nf">time</span><span class="p">(</span><span class="kc">nil</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">httpDate</span><span class="p">(</span><span class="n">from</span> <span class="nv">timestamp</span><span class="p">:</span> <span class="n">time_t</span> <span class="o">=</span> <span class="nf">time</span><span class="p">(</span><span class="kc">nil</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -236,7 +246,6 @@
                               <td>
                                 <div>
                                   <p>the time ( default value is current timestamp )</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -246,7 +255,6 @@
                       <div>
                         <h4>Return Value</h4>
                         <p>string representation of timestamp</p>
-
                       </div>
                     </section>
                   </div>
@@ -254,9 +262,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:ZFC9KituraNet8SPIUtils8httpDateFV10Foundation4DateSS"></a>
+                    <a name="/s:9KituraNet8SPIUtilsC8httpDateSS10Foundation0E0VFZ"></a>
                     <a name="//apple_ref/swift/Method/httpDate(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:ZFC9KituraNet8SPIUtils8httpDateFV10Foundation4DateSS">httpDate(_:)</a>
+                    <a class="token" href="#/s:9KituraNet8SPIUtilsC8httpDateSS10Foundation0E0VFZ">httpDate(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -265,25 +273,16 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Format the given date for use in HTTP</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter date: the date</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>string representation of Date</p>
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">SPIUtils</span><span class="o">.</span><span class="nf">httpDate</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">httpDate</span><span class="p">(</span><span class="n">_</span> <span class="nv">date</span><span class="p">:</span> <span class="kt">Date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">httpDate</span><span class="p">(</span><span class="n">_</span> <span class="nv">date</span><span class="p">:</span> <span class="kt">Date</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -300,7 +299,6 @@
                               <td>
                                 <div>
                                   <p>the date</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -310,7 +308,6 @@
                       <div>
                         <h4>Return Value</h4>
                         <p>string representation of Date</p>
-
                       </div>
                     </section>
                   </div>
@@ -323,8 +320,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-02-28)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

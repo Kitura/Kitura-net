@@ -14,10 +14,44 @@
  * limitations under the License.
  */
 
+/**
+Enum defining possible request states.
+
+### Usage Example: ###
+````swift
+var keepAliveState: KeepAliveState = .unlimited
+````
+*/
 public enum KeepAliveState {
     
+    /**
+    Disables keeping requests alive.
+    
+    ### Usage Example: ###
+    ````swift
+    var keepAliveState: KeepAliveState = .disabled
+    ````
+    */
     case disabled
+    
+    /**
+    Allows unlimited requests.
+    
+    ### Usage Example: ###
+    ````swift
+    var keepAliveState: KeepAliveState = .unlimited
+    ````
+    */
     case unlimited
+    
+    /**
+    Allows a defined limited set of requests.
+    
+    ### Usage Example: ###
+    ````swift
+    var keepAliveState: KeepAliveState = .limited(maxRequests: 1)
+    ````
+    */
     case limited(maxRequests: UInt)
     
     /// Returns true if there are requests remaining, or unlimited requests are allowed

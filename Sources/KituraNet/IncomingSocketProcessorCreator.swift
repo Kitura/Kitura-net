@@ -17,17 +17,41 @@
 import Foundation
 
 import Socket
-
-/// Implementations of the `IncomingSocketProcessorCreator` protocol create
-/// an implementation of the `IncomingSocketProcessor` protocol to process
-/// the data from a new incoming socket.
+/**
+Implementations of the `IncomingSocketProcessorCreator` protocol create an implementation of the `IncomingSocketProcessor` protocol to process the data from a new incoming socket.
+### Usage Example: ###
+````swift
+ class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
+     ...
+ }
+````
+*/
 public protocol IncomingSocketProcessorCreator {
-    var name: String { get }
     
-    /// Create an instance of the  `IncomingSocketProcessor`s for use with new incoming sockets.
-    ///
-    /// - Parameter socket: The new incoming socket.
-    /// - Parameter using: The `ServerDelegate` the HTTPServer is working with, which should be used
-    ///                   by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
+    /**
+     The name of the protocol supported by this `IncomingSocketProcessorCreator`.
+    ### Usage Example: ###
+    ````swift
+    print(IncomingSocketProcessorCreator().name.lowercased())
+    ````
+    */
+    var name: String { get }
+    /**
+    Create an instance of the  `IncomingSocketProcessor`s for use with new incoming sockets.
+    
+    - Parameter socket: The new incoming socket.
+    - Parameter using: The `ServerDelegate` the HTTPServer is working with, which should be used
+                      by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
+     
+    ### Usage Example: ###
+    ````swift
+     switch incomingSocketProcessorCreator {
+     case let creator as HTTPIncomingSocketProcessorCreator:
+         incomingSocketProcessor = creator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate, keepalive: self.keepAliveState)
+     default:
+         incomingSocketProcessor = incomingSocketProcessorCreator.createIncomingSocketProcessor(socket: clientSocket, using: serverDelegate)
+     }
+    ````
+    */
     func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate) -> IncomingSocketProcessor
 }

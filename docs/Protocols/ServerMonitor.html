@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,7 +189,7 @@
             <h1>ServerMonitor</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerMonitor</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerMonitor</span></code></pre>
 
                 </div>
               </div>
@@ -190,9 +205,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet13ServerMonitor7startedFT7requestPS_13ServerRequest_8responsePS_14ServerResponse__T_"></a>
+                    <a name="/s:9KituraNet13ServerMonitorP7startedyAA0C7Request_p7request_AA0C8Response_p8responsetF"></a>
                     <a name="//apple_ref/swift/Method/started(request:response:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet13ServerMonitor7startedFT7requestPS_13ServerRequest_8responsePS_14ServerResponse__T_">started(request:response:)</a>
+                    <a class="token" href="#/s:9KituraNet13ServerMonitorP7startedyAA0C7Request_p7request_AA0C8Response_p8responsetF">started(request:response:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -201,26 +216,17 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An event fired when a HTTP request has finished being parsed and is about
-to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> for processing.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter request: The <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> class instance for the request starting.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter response: The <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> class instance for the request starting.
-
-</div>
+ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDelegate</a></code> for processing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">started</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">started</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">started</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -236,8 +242,7 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>ServerRequest</code> class instance for the request starting.</p>
-
+                                  <p>The <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> class instance for the request starting.</p>
                                 </div>
                               </td>
                             </tr>
@@ -249,8 +254,7 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>ServerResponse</code> class instance for the request starting.</p>
-
+                                  <p>The <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> class instance for the request starting.</p>
                                 </div>
                               </td>
                             </tr>
@@ -263,9 +267,9 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet13ServerMonitor8finishedFT7requestGSqPS_13ServerRequest__8responsePS_14ServerResponse__T_"></a>
+                    <a name="/s:9KituraNet13ServerMonitorP8finishedyAA0C7Request_pSg7request_AA0C8Response_p8responsetF"></a>
                     <a name="//apple_ref/swift/Method/finished(request:response:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet13ServerMonitor8finishedFT7requestGSqPS_13ServerRequest__8responsePS_14ServerResponse__T_">finished(request:response:)</a>
+                    <a class="token" href="#/s:9KituraNet13ServerMonitorP8finishedyAA0C7Request_pSg7request_AA0C8Response_p8responsetF">finished(request:response:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -274,25 +278,16 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An event fired when the processing of a HTTP request has finished.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter request: The <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> class instance for the request that finished.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter response: The <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> class instance for the request  that finished.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">Monitor</span><span class="o">.</span><span class="n">delegate</span><span class="p">?</span><span class="o">.</span><span class="nf">finished</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="k">self</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">finished</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">?,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">finished</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">?,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -308,8 +303,7 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>ServerRequest</code> class instance for the request that finished.</p>
-
+                                  <p>The <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> class instance for the request that finished.</p>
                                 </div>
                               </td>
                             </tr>
@@ -321,8 +315,7 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code>ServerResponse</code> class instance for the request  that finished.</p>
-
+                                  <p>The <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> class instance for the request  that finished.</p>
                                 </div>
                               </td>
                             </tr>
@@ -340,8 +333,8 @@ to be passed to the <code><a href="../Protocols/ServerDelegate.html">ServerDeleg
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-02-28)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

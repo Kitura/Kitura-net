@@ -25,7 +25,15 @@ import Foundation
 
 // MARK: SPIUtils
 
-/// A set of utility functions.
+/**
+A set of utility functions. Includes formatting the given time and date for use in HTTP, where the default value is the current time.
+
+### Usage Example: ###
+````swift
+//Format the given date for use in HTTP
+SPIUtils.httpDate()
+````
+*/
 public class SPIUtils {
     
     /// Abbreviations for month names
@@ -35,11 +43,18 @@ public class SPIUtils {
     /// Abbreviations for days of the week
     private static let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
-    /// Format the given time for use in HTTP, default value is current time.
-    ///
-    /// - Parameter timestamp: the time ( default value is current timestamp )
-    ///
-    /// - Returns: string representation of timestamp
+    /**
+    Format the given time for use in HTTP, default value is current time.
+    
+    - Parameter timestamp: the time ( default value is current timestamp )
+    
+    - Returns: string representation of timestamp
+    
+    ### Usage Example: ###
+    ````swift
+     SPIUtils.httpDate(from: date)
+    ````
+    */
     public static func httpDate(from timestamp: time_t = time(nil)) -> String {
         
         var theTime = timestamp
@@ -73,11 +88,18 @@ public class SPIUtils {
         
     }
     
-    /// Format the given date for use in HTTP
-    ///
-    /// - Parameter date: the date
-    ///
-    /// - Returns: string representation of Date
+    /**
+    Format the given date for use in HTTP
+    
+    - Parameter date: the date
+    
+    - Returns: string representation of Date
+    
+    ### Usage Example: ###
+    ````swift
+    SPIUtils.httpDate()
+    ````
+    */
     public static func httpDate(_ date: Date) -> String {
         return httpDate(from: time_t(date.timeIntervalSince1970))
     }

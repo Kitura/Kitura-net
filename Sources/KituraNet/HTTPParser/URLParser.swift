@@ -26,9 +26,18 @@ import Foundation
 
 // MARK: URLParser
 
-/// A parsing of HTTP URL according to the folowing format:
-///   
-/// scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
+/**
+A parsing of HTTP URL according to the folowing format:
+
+scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]
+
+### Usage Example: ###
+````swift
+ //Initialize a new URLParser instance, and check whether or not a connection has been established.
+ let url = "https://example.org/absolute/URI/with/absolute/path/to/resource.txt".data(using: .utf8)!
+ let urlParser = URLParser(url: url, isConnect: false)
+````
+*/
 public class URLParser : CustomStringConvertible {
 
     /// Schema.
@@ -52,10 +61,24 @@ public class URLParser : CustomStringConvertible {
     /// The port specified, if any, in the URL.
     public var port: UInt16?
     
-    /// The query parameters broken out.
+    /**
+    The query parameters broken out.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURLParameters = urlParser.queryParameters["key"]
+    ````
+    */
     public var queryParameters: [String:String] = [:]
     
-    /// Nicely formatted description of the parsed result.
+    /**
+    Nicely formatted description of the parsed result.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURLDescription = urlParser.description
+    ````
+    */
     public var description: String {
         var desc = ""
         
@@ -85,11 +108,17 @@ public class URLParser : CustomStringConvertible {
         return desc
     }
     
+    /**
+    Initialize a new URLParser instance.
     
-    /// Initialize a new URLParser instance.
-    ///
-    /// - Parameter url: URL to be parsed.
-    /// - Parameter isConnect: whether or not a connection has been established.
+    - Parameter url: URL to be parsed.
+    - Parameter isConnect: whether or not a connection has been established.
+    
+    ### Usage Example: ###
+    ````swift
+    let parsedURL = URLParser(url: someURL, isConnect: false)
+    ````
+    */
     public init (url: Data, isConnect: Bool) {
         
         var parsedURL = http_parser_url_url()

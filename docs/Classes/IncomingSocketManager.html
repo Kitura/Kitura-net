@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,19 +189,30 @@
             <h1>IncomingSocketManager</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
 
                 </div>
               </div>
             <p>The IncomingSocketManager class is in charge of managing all of the incoming sockets.
-In particular, it is in charge of:
-  1. On Linux when no special compile options are specified:
-      a. Creating the epoll handle
-      b. Adding new incoming sockets to the epoll descriptor for read events
-      c. Running the <q>thread</q> that does the epoll_wait
-  2. Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
-     (one pair per incomng socket)
-  3. Cleaning up idle sockets, when new incoming sockets arrive.</p>
+In particular, it is in charge of:</p>
+
+<ol>
+<li>On Linux when no special compile options are specified:
+  a. Creating the epoll handle
+  b. Adding new incoming sockets to the epoll descriptor for read events
+  c. Running the <q>thread</q> that does the epoll_wait</li>
+<li>Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
+ (one pair per incomng socket)</li>
+<li>Cleaning up idle sockets, when new incoming sockets arrive.</li>
+</ol>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a manager to manage all of the incoming sockets.</span>
+ <span class="k">var</span> <span class="nv">manager</span><span class="p">:</span> <span class="kt">IncomingSocketManager</span><span class="p">?</span>
+
+ <span class="k">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+     <span class="n">manager</span> <span class="o">=</span> <span class="kt">IncomingSocketManager</span><span class="p">()</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -194,13 +220,6 @@ In particular, it is in charge of:
         <section class="section">
           <div class="section-content">
             <div class="task-group">
-              <div class="task-name-container">
-                <a name="/TODO:%20this%20tuning%20parameter%20should%20be%20revisited%20as%20Kitura%20and%20libdispatch%20mature"></a>
-                <a name="//apple_ref/swift/Section/TODO: this tuning parameter should be revisited as Kitura and libdispatch mature" class="dashAnchor"></a>
-                <a href="#/TODO:%20this%20tuning%20parameter%20should%20be%20revisited%20as%20Kitura%20and%20libdispatch%20mature">
-                  <h3 class="section-name">TODO: this tuning parameter should be revisited as Kitura and libdispatch mature</h3>
-                </a>
-              </div>
               <ul class="item-container">
                 <li class="item">
                   <div>
@@ -215,16 +234,8 @@ In particular, it is in charge of:
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>IncomingSocketManager initializer</p>
 
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
-
-                        </div>
                       </div>
                     </section>
                   </div>
@@ -232,9 +243,9 @@ In particular, it is in charge of:
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketManagercFT_S0_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketManagerCACycfc"></a>
                     <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketManagercFT_S0_">init()</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketManagerCACycfc">init()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -242,14 +253,14 @@ In particular, it is in charge of:
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>IncomingSocketManager initializer</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -259,9 +270,9 @@ In particular, it is in charge of:
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketManager4stopFT_T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketManagerC4stopyyF"></a>
                     <a name="//apple_ref/swift/Method/stop()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketManager4stopFT_T_">stop()</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketManagerC4stopyyF">stop()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -271,13 +282,16 @@ In particular, it is in charge of:
                       <div class="abstract">
                         <p>Stop this socket manager instance and cleanup resources.
 If using epoll, it also ends the epoll process() task, closes the epoll fd and releases its thread.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">socketManager</span><span class="p">?</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -287,9 +301,9 @@ If using epoll, it also ends the epoll process() task, closes the epoll fd and r
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21IncomingSocketManager6handleFT6socketC6Socket6Socket9processorPS_23IncomingSocketProcessor__T_"></a>
+                    <a name="/s:9KituraNet21IncomingSocketManagerC6handley0D0AEC6socket_AA0cD9Processor_p9processortF"></a>
                     <a name="//apple_ref/swift/Method/handle(socket:processor:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21IncomingSocketManager6handleFT6socketC6Socket6Socket9processorPS_23IncomingSocketProcessor__T_">handle(socket:processor:)</a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketManagerC6handley0D0AEC6socket_AA0cD9Processor_p9processortF">handle(socket:processor:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -298,25 +312,16 @@ If using epoll, it also ends the epoll process() task, closes the epoll fd and r
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Handle a new incoming socket</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter socket: the incoming socket to handle
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter using: The ServerDelegate to actually handle the socket
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">processor</span><span class="p">?</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="kt">Socket</span><span class="p">,</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="kt">Socket</span><span class="p">,</span> <span class="nv">processor</span><span class="p">:</span> <span class="kt"><a href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -333,7 +338,6 @@ If using epoll, it also ends the epoll process() task, closes the epoll fd and r
                               <td>
                                 <div>
                                   <p>the incoming socket to handle</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -346,7 +350,6 @@ If using epoll, it also ends the epoll process() task, closes the epoll fd and r
                               <td>
                                 <div>
                                   <p>The ServerDelegate to actually handle the socket</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -364,8 +367,8 @@ If using epoll, it also ends the epoll process() task, closes the epoll fd and r
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-02-28)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

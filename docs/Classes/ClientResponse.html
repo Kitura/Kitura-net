@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (100% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,12 +189,15 @@
             <h1>ClientResponse</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientResponse</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientResponse</span></code></pre>
 
                 </div>
               </div>
-            <p>This class describes the response sent by the remote server to an HTTP request
-sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> class.</p>
+            <p>This class describes the response sent by the remote server to an HTTP request sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></code> class. Data or Strings can be read in, and URLs can be parsed.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//The `ClientResponse` object that describes the response that was received from the remote server is used in a callback.</span>
+<span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Callback</span> <span class="o">=</span> <span class="p">(</span><span class="kt">ClientResponse</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+</code></pre>
 
           </div>
         </section>
@@ -191,9 +209,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse14httpStatusCodeOS_14HTTPStatusCode"></a>
+                    <a name="/s:9KituraNet14ClientResponseC14httpStatusCodeAA010HTTPStatusG0Ov"></a>
                     <a name="//apple_ref/swift/Property/httpStatusCode" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse14httpStatusCodeOS_14HTTPStatusCode">httpStatusCode</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC14httpStatusCodeAA010HTTPStatusG0Ov">httpStatusCode</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -202,13 +220,18 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Status code</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">httpStatusCode</span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span>
+<span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">httpStatusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">httpStatusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">unknown</span></code></pre>
 
                         </div>
                       </div>
@@ -218,9 +241,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse6methodSS"></a>
+                    <a name="/s:9KituraNet14ClientResponseC6methodSSv"></a>
                     <a name="//apple_ref/swift/Property/method" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse6methodSS">method</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC6methodSSv">method</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -229,13 +252,18 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP Method of the incoming message.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+<span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -245,9 +273,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse16httpVersionMajorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet14ClientResponseC16httpVersionMajors6UInt16VSgv"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMajor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse16httpVersionMajorGSqVs6UInt16_">httpVersionMajor</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC16httpVersionMajors6UInt16VSgv">httpVersionMajor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -256,13 +284,16 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Major version of HTTP of the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMajor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -272,9 +303,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse16httpVersionMinorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet14ClientResponseC16httpVersionMinors6UInt16VSgv"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMinor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse16httpVersionMinorGSqVs6UInt16_">httpVersionMinor</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC16httpVersionMinors6UInt16VSgv">httpVersionMinor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -283,13 +314,16 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Minor version of HTTP of the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMinor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -299,9 +333,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse7headersCS_16HeadersContainer"></a>
+                    <a name="/s:9KituraNet14ClientResponseC7headersAA16HeadersContainerCv"></a>
                     <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse7headersCS_16HeadersContainer">headers</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC7headersAA16HeadersContainerCv">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -309,14 +343,17 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set of HTTP headers of the response.</p>
+                        <p>The set of HTTP headers received with the response</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span></code></pre>
 
                         </div>
                       </div>
@@ -326,9 +363,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet14ClientResponse4readFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet14ClientResponseC4readSi10Foundation4DataVz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/read(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet14ClientResponse4readFzT4intoRV10Foundation4Data_Si">read(into:)</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC4readSi10Foundation4DataVz4into_tKF">read(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -337,31 +374,21 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read a chunk of the body of the response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter into: An NSMutableData to hold the data in the response.
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     if an error occurs while reading the body.
 
 </div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    the number of bytes read.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">readData</span> <span class="o">=</span> <span class="k">try</span> <span class="k">self</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">read</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">read</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
 
                         </div>
                       </div>
@@ -378,7 +405,6 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                               <td>
                                 <div>
                                   <p>An NSMutableData to hold the data in the response.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -388,7 +414,6 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div>
                         <h4>Return Value</h4>
                         <p>the number of bytes read.</p>
-
                       </div>
                     </section>
                   </div>
@@ -396,9 +421,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet14ClientResponse11readAllDataFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet14ClientResponseC11readAllDataSi10Foundation0G0Vz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/readAllData(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet14ClientResponse11readAllDataFzT4intoRV10Foundation4Data_Si">readAllData(into:)</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC11readAllDataSi10Foundation0G0Vz4into_tKF">readAllData(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -407,31 +432,21 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read the whole body of the response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter into: An NSMutableData to hold the data in the response.
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     if an error occurs while reading the data.
 
 </div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    the number of bytes read.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">readAllData</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">readAllData</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
 
                         </div>
                       </div>
@@ -448,7 +463,6 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                               <td>
                                 <div>
                                   <p>An NSMutableData to hold the data in the response.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -458,7 +472,6 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div>
                         <h4>Return Value</h4>
                         <p>the number of bytes read.</p>
-
                       </div>
                     </section>
                   </div>
@@ -466,9 +479,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet14ClientResponse10readStringFzT_GSqSS_"></a>
+                    <a name="/s:9KituraNet14ClientResponseC10readStringSSSgyKF"></a>
                     <a name="//apple_ref/swift/Method/readString()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet14ClientResponse10readStringFzT_GSqSS_">readString()</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC10readStringSSSgyKF">readString()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -477,32 +490,27 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read a chunk of the body and return it as a String.</p>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     if an error occurs while reading the data.
 
 </div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    an Optional string.
-
-</div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">body</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readString</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">readString</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">readString</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
                       <div>
                         <h4>Return Value</h4>
                         <p>an Optional string.</p>
-
                       </div>
                     </section>
                   </div>
@@ -510,9 +518,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse6statusSi"></a>
+                    <a name="/s:9KituraNet14ClientResponseC6statusSiv"></a>
                     <a name="//apple_ref/swift/Property/status" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse6statusSi">status</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC6statusSiv">status</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -521,13 +529,16 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Status code, as an Int, sent in the response by the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="n">status</span><span class="p">)</span> <span class="p">??</span> <span class="o">.</span><span class="n">unknown</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></code></pre>
 
                         </div>
                       </div>
@@ -537,9 +548,9 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet14ClientResponse10statusCodeOS_14HTTPStatusCode"></a>
+                    <a name="/s:9KituraNet14ClientResponseC10statusCodeAA010HTTPStatusF0Ov"></a>
                     <a name="//apple_ref/swift/Property/statusCode" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet14ClientResponse10statusCodeOS_14HTTPStatusCode">statusCode</a>
+                    <a class="token" href="#/s:9KituraNet14ClientResponseC10statusCodeAA010HTTPStatusF0Ov">statusCode</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -548,13 +559,16 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Status code, as an <code><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></code>, sent in the response by the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="o">.</span><span class="n">badRequest</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">statusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span> <span class="o">=</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="o">.</span><span class="n">unknown</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">statusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span> <span class="o">=</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="o">.</span><span class="n">unknown</span></code></pre>
 
                         </div>
                       </div>
@@ -569,8 +583,8 @@ sent using the <code><a href="../Classes/ClientRequest.html">ClientRequest</a></
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-02-28)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
