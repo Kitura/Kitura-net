@@ -8,6 +8,9 @@
     <script src="js/jquery.min.js" defer></script>
     <script src="js/jazzy.js" defer></script>
     
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -19,7 +22,13 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -106,13 +115,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/ServerState.html">ServerState</a>
@@ -137,6 +149,9 @@
                 <a class="nav-group-task-link" href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -154,7 +169,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -171,17 +186,63 @@
         <section class="section">
           <div class="section-content">
             
-            <a href='#kitura-net' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h1 id='kitura-net'>Kitura-net</h1>
+            <p align="center">
+<a href="http://kitura.io/">
+<img src="https://raw.githubusercontent.com/IBM-Swift/Kitura/master/Sources/Kitura/resources/kitura-bird.svg?sanitize=true" height="100" alt="Kitura">
+</a>
+</p>
 
-<p><a href="https://travis-ci.org/IBM-Swift/Kitura-net"><img src="https://travis-ci.org/IBM-Swift/Kitura-net.svg?branch=master" alt="Build Status - Master"></a>
-<a href="https://codecov.io/gh/IBM-Swift/Kitura-net"><img src="https://codecov.io/gh/IBM-Swift/Kitura-net/branch/master/graph/badge.svg" alt="codecov"></a>
+<p align="center">
+<a href="http://www.kitura.io/">
+<img src="https://img.shields.io/badge/docs-kitura.io-1FBCE4.svg" alt="Docs">
+</a>
+<a href="https://travis-ci.org/IBM-Swift/Kitura-net">
+<img src="https://travis-ci.org/IBM-Swift/Kitura-net.svg?branch=master" alt="Build Status - Master">
+</a>
 <img src="https://img.shields.io/badge/os-macOS-green.svg?style=flat" alt="macOS">
 <img src="https://img.shields.io/badge/os-linux-green.svg?style=flat" alt="Linux">
-<img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2"></p>
+<img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2">
+<a href="http://swift-at-ibm-slack.mybluemix.net/">
+<img src="http://swift-at-ibm-slack.mybluemix.net/badge.svg" alt="Slack Status">
+</a>
+</p>
+<h1 id='kitura-net' class='heading'>Kitura-Net</h1>
 
-<p>This is the KituraNet module for the Kitura project. Full details on the project can be found in the <a href="https://github.com/IBM-Swift/Kitura">main repo</a>.</p>
+<p>The Kitura-net module contains logic for sending and receiving HTTP requests. It also contains the structure for listening on a port and sending requests to a delegate for processing. It can be used to create HTTP/CGI servers on specific ports, and provides HTTP functionality.</p>
 
-<p>The KituraNet module contains logic for sending and receiving HTTP requests. It also contains the structure for listening on a port and sending requests to a delegate for processing.</p>
+<p>We expect most of our users to require higher level concepts such as routing, templates and middleware, these are not provided in Kitura-net, if you want to use those facilities you should be coding at the Kitura level, for this please see the <a href="https://github.com/IBM-Swift/Kitura">Kitura</a> project. Kitura-net underpins Kitura which offers a higher abstraction level to users.</p>
+
+<p>Kitura-net utilises the <a href="https://github.com/IBM-Swift/BlueSocket">BlueSocket</a> framework, the <a href="https://github.com/IBM-Swift/BlueSSLService.git">BlueSSLService</a> framework and <a href="https://github.com/IBM-Swift/CCurl.git">CCurl</a>. </p>
+<h2 id='features' class='heading'>Features</h2>
+
+<ul>
+<li>Port Listening</li>
+<li>FastCGI Server support</li>
+<li>HTTP Server support (request and response)</li>
+</ul>
+<h2 id='getting-started' class='heading'>Getting Started</h2>
+
+<p>Visit <a href="http://www.kitura.io/">www.kitura.io</a> for reference documentation.</p>
+<h2 id='contributing-to-kitura-net' class='heading'>Contributing to Kitura-net</h2>
+
+<p>All improvements to Kitura-net are very welcome! Here&rsquo;s how to get started with developing Kitura-net itself.</p>
+
+<ol>
+<li>Clone this repository.</li>
+</ol>
+
+<p><code>$ git clone https://github.com/IBM-Swift/Kitura-net &amp;&amp; cd Kitura-net</code></p>
+
+<ol>
+<li>Build and run tests.</li>
+</ol>
+
+<p><code>$ swift test</code></p>
+
+<p>You can find more info on contributing to Kitura in our <a href="https://github.com/IBM-Swift/Kitura/blob/master/.github/CONTRIBUTING.md">contributing guidelines</a>.</p>
+<h2 id='community' class='heading'>Community</h2>
+
+<p>We love to talk server-side Swift, and Kitura. Join our <a href="http://swift-at-ibm-slack.mybluemix.net/">Slack</a> to meet the team!</p>
 
           </div>
         </section>
@@ -190,8 +251,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-06)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

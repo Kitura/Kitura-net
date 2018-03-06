@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,7 +189,7 @@
             <h1>ServerDelegate</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
 
                 </div>
               </div>
@@ -191,9 +206,9 @@ The delegate&rsquo;s handle function is invoked when new requests arrive at the 
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet14ServerDelegate6handleFT7requestPS_13ServerRequest_8responsePS_14ServerResponse__T_"></a>
+                    <a name="/s:9KituraNet14ServerDelegateP6handleyAA0C7Request_p7request_AA0C8Response_p8responsetF"></a>
                     <a name="//apple_ref/swift/Method/handle(request:response:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet14ServerDelegate6handleFT7requestPS_13ServerRequest_8responsePS_14ServerResponse__T_">handle(request:response:)</a>
+                    <a class="token" href="#/s:9KituraNet14ServerDelegateP6handleyAA0C7Request_p7request_AA0C8Response_p8responsetF">handle(request:response:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -203,28 +218,12 @@ The delegate&rsquo;s handle function is invoked when new requests arrive at the 
                       <div class="abstract">
                         <p>Handle new incoming requests to the server</p>
 
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter request: The ServerRequest class instance for working with this request.
-                The ServerRequest object enables you to get the query parameters, headers, and body amongst other
-                information about the incoming request.
-
-</div>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter response: The ServerResponse class instance for working with this request.
-                The ServerResponse object enables you to build and send your response to the client who sent
-                the request. This includes headers, the body, and the response code.
-
-</div>
-
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerRequest.html">ServerRequest</a></span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -240,8 +239,9 @@ The delegate&rsquo;s handle function is invoked when new requests arrive at the 
                               </td>
                               <td>
                                 <div>
-                                  <p>The ServerRequest class instance for working with this request. The ServerRequest object enables you to get the query parameters, headers, and body amongst other information about the incoming request.</p>
-
+                                  <p>The ServerRequest class instance for working with this request.
+                The ServerRequest object enables you to get the query parameters, headers, and body amongst other
+                information about the incoming request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -253,8 +253,9 @@ The delegate&rsquo;s handle function is invoked when new requests arrive at the 
                               </td>
                               <td>
                                 <div>
-                                  <p>The ServerResponse class instance for working with this request. The ServerResponse object enables you to build and send your response to the client who sent the request. This includes headers, the body, and the response code.</p>
-
+                                  <p>The ServerResponse class instance for working with this request.
+                The ServerResponse object enables you to build and send your response to the client who sent
+                the request. This includes headers, the body, and the response code.</p>
                                 </div>
                               </td>
                             </tr>
@@ -272,8 +273,8 @@ The delegate&rsquo;s handle function is invoked when new requests arrive at the 
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-06)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
