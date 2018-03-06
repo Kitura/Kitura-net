@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (79% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,16 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +150,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +170,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,7 +189,7 @@
             <h1>FastCGIServerResponse</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerResponse</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerResponse</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
 
                 </div>
               </div>
@@ -191,9 +206,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet21FastCGIServerResponse7headersCS_16HeadersContainer"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC7headersAA16HeadersContainerCv"></a>
                     <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet21FastCGIServerResponse7headersCS_16HeadersContainer">headers</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC7headersAA16HeadersContainerCv">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -208,7 +223,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span><span class="p">()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -218,9 +233,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vC9KituraNet21FastCGIServerResponse10statusCodeGSqOS_14HTTPStatusCode_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC10statusCodeAA010HTTPStatusG0OSgv"></a>
                     <a name="//apple_ref/swift/Property/statusCode" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vC9KituraNet21FastCGIServerResponse10statusCodeGSqOS_14HTTPStatusCode_">statusCode</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC10statusCodeAA010HTTPStatusG0OSgv">statusCode</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -235,7 +250,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">statusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">statusCode</span><span class="p">:</span> <span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -245,9 +260,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse3endFzT4textSS_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC3endySS4text_tKF"></a>
                     <a name="//apple_ref/swift/Method/end(text:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse3endFzT4textSS_T_">end(text:)</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC3endySS4text_tKF">end(text:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -256,13 +271,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a string to the body of the HTTP response and complete sending the HTTP response</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter text: The String to add to the body of the HTTP response.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while writing to the socket</p>
@@ -274,7 +282,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -291,7 +299,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                               <td>
                                 <div>
                                   <p>The String to add to the body of the HTTP response.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -304,9 +311,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse5writeFzT4fromSS_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC5writeySS4from_tKF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse5writeFzT4fromSS_T_">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC5writeySS4from_tKF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -315,13 +322,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add a string to the body of the HTTP response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter string: The String data to be added.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while writing to the socket</p>
@@ -333,7 +333,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">string</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">string</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -350,7 +350,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                               <td>
                                 <div>
                                   <p>The String data to be added.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -363,9 +362,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse5writeFzT4fromV10Foundation4Data_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC5writey10Foundation4DataV4from_tKF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse5writeFzT4fromV10Foundation4Data_T_">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC5writey10Foundation4DataV4from_tKF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -374,13 +373,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Add bytes to the body of the HTTP response.</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: The Data struct that contains the bytes to be added.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while writing to the socket</p>
@@ -392,7 +384,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="n">from</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -409,7 +401,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                               <td>
                                 <div>
                                   <p>The Data struct that contains the bytes to be added.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -422,9 +413,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse3endFzT_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC3endyyKF"></a>
                     <a name="//apple_ref/swift/Method/end()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse3endFzT_T_">end()</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC3endyyKF">end()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -433,7 +424,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Complete sending the HTTP response</p>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     Socket.error if an error occurred while writing to a socket
@@ -445,7 +435,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">()</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">end</span><span class="p">()</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -455,9 +445,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse24rejectMultiplexConnectonFzT9requestIdVs6UInt16_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC24rejectMultiplexConnectonys6UInt16V9requestId_tKF"></a>
                     <a name="//apple_ref/swift/Method/rejectMultiplexConnecton(requestId:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse24rejectMultiplexConnectonFzT9requestIdVs6UInt16_T_">rejectMultiplexConnecton(requestId:)</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC24rejectMultiplexConnectonys6UInt16V9requestId_tKF">rejectMultiplexConnecton(requestId:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -467,18 +457,12 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="abstract">
                         <p>External message write for multiplex rejection</p>
 
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    Parameter requestId: The id of the request to reject.
-
-</div>
-
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">rejectMultiplexConnecton</span><span class="p">(</span><span class="nv">requestId</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">)</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">rejectMultiplexConnecton</span><span class="p">(</span><span class="nv">requestId</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">)</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -495,7 +479,6 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                               <td>
                                 <div>
                                   <p>The id of the request to reject.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -508,9 +491,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse21rejectUnsupportedRoleFzT_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC21rejectUnsupportedRoleyyKF"></a>
                     <a name="//apple_ref/swift/Method/rejectUnsupportedRole()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse21rejectUnsupportedRoleFzT_T_">rejectUnsupportedRole()</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC21rejectUnsupportedRoleyyKF">rejectUnsupportedRole()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -525,7 +508,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">rejectUnsupportedRole</span><span class="p">()</span> <span class="k">throws</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">rejectUnsupportedRole</span><span class="p">()</span> <span class="k">throws</span></code></pre>
 
                         </div>
                       </div>
@@ -535,9 +518,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FC9KituraNet21FastCGIServerResponse5resetFT_T_"></a>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC5resetyyF"></a>
                     <a name="//apple_ref/swift/Method/reset()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FC9KituraNet21FastCGIServerResponse5resetFT_T_">reset()</a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC5resetyyF">reset()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -552,7 +535,7 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">reset</span><span class="p">()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">reset</span><span class="p">()</span></code></pre>
 
                         </div>
                       </div>
@@ -567,8 +550,8 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-06)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
