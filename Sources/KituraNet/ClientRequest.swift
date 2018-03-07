@@ -52,6 +52,9 @@ public class ClientRequest {
     /// If true, the "Connection: close" header will be added to the request that is sent.
     public private(set) var closeConnection = false
 
+    /// Set maximum time the request is allowed to take
+    private var timeout: Int?
+	
     /// Handle for working with libCurl
     private var handle: UnsafeMutableRawPointer?
     
@@ -374,6 +377,13 @@ public class ClientRequest {
         
         self.callback(self.response)
     }
+	
+    /// Set maximum time the request is allowed to take
+    ///
+    /// Parameter using: number of seconds. (nil for default)
+    public func setTimeout(time: Int?) {
+        self.timeout = time;
+    }
 
     /// Prepare the handle 
     ///
@@ -387,7 +397,12 @@ public class ClientRequest {
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
+	}
+
+        if let time = self.timeout {
+            curlHelperSetOptInt(handle!, CURLOPT_TIMEOUT, time)
         }
+    
         setMethodAndContentLength()
         setupHeaders()
         curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
