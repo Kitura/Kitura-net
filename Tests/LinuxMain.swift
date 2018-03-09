@@ -55,5 +55,6 @@ XCTMain([
     testCase(ParserTests.allTests.shuffled()),
     testCase(SocketManagerTests.allTests.shuffled()),
     testCase(UpgradeTests.allTests.shuffled()),
-    testCase(RegressionTests.allTests.shuffled())
+    testCase(RegressionTests.allTests.shuffled()),
+    testCase(HTTPStatusCodeTests.allTests.shuffled())
     ].shuffled())
