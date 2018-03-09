@@ -127,6 +127,19 @@ extension HTTPStatusCode: Comparable {
 
 extension HTTPStatusCode {
 
+    /// The range of HTTP status codes that represent informational responses (1xx)
+    public static var informationalRange: Range<HTTPStatusCode> { return .`continue` ..< .OK }
+
+    /// The range of HTTP status codes that represent success (2xx)
     public static var successRange: Range<HTTPStatusCode> { return .OK ..< .multipleChoices }
+
+    /// The range of HTTP status codes that represent redirection (3xx)
+    public static var redirectionRange: Range<HTTPStatusCode> { return .multipleChoices ..< .badRequest }
+
+    /// The range of HTTP status codes that represent client errors (4xx)
+    public static var clientErrorRange: Range<HTTPStatusCode> { return .badRequest ..< .internalServerError }
+
+    /// The range of HTTP status codes that represent server errors (5xx)
+    public static var serverErrorRange: ClosedRange<HTTPStatusCode> { return .internalServerError ... .networkAuthenticationRequired }
 
 }
