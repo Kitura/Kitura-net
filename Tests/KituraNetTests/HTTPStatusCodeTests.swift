@@ -20,51 +20,29 @@ import XCTest
 @testable import KituraNet
 
 class HTTPStatusCodeTests: KituraNetTest {
-  
-  func testSuccessRange() {
-    let rawOK = HTTPStatusCode(rawValue: 200)
-    XCTAssertNotNil(rawOK)
-    if let rawOK = rawOK {
-        XCTAssertTrue(HTTPStatusCode.successRange.contains(rawOK))
+ 
+  // Test that a valid status code can be created, and is correctly mapped to its status class. 
+  func testStatusCodeCreation() {
+    let myOK = HTTPStatusCode(rawValue: 200)
+    XCTAssertNotNil(myOK)
+    if let myOK = myOK {
+        XCTAssertTrue(myOK.class == .successful)
     }
-    XCTAssertTrue(HTTPStatusCode.successRange.contains(.OK))
-
-    let rawContinue = HTTPStatusCode(rawValue: 100)
-    XCTAssertNotNil(rawContinue)
-    if let rawContinue = rawContinue {
-        XCTAssertFalse(HTTPStatusCode.successRange.contains(rawContinue))
-    }
-    XCTAssertFalse(HTTPStatusCode.successRange.contains(.`continue`))
-
-    let rawMultipleChoices = HTTPStatusCode(rawValue: 300)
-    XCTAssertNotNil(rawMultipleChoices)
-    if let rawMultipleChoices = rawMultipleChoices {
-        XCTAssertFalse(HTTPStatusCode.successRange.contains(rawMultipleChoices))
-    }
-    XCTAssertFalse(HTTPStatusCode.successRange.contains(.multipleChoices))
   }
 
-  func testServerErrorRange() {
-    let rawInternalError = HTTPStatusCode(rawValue: 500)
-    XCTAssertNotNil(rawInternalError)
-    if let rawInternalError = rawInternalError {
-        XCTAssertTrue(HTTPStatusCode.serverErrorRange.contains(rawInternalError))
-    }
-    XCTAssertTrue(HTTPStatusCode.serverErrorRange.contains(.internalServerError))
+  // Test that an undefined status code cannot be created
+  func testInvalidStatusCode() {
+    let invalidStatus = HTTPStatusCode(rawValue: 418)
+    XCTAssertNil(invalidStatus)
+  }
 
-    let rawNetAuthReqd = HTTPStatusCode(rawValue: 511)
-    XCTAssertNotNil(rawNetAuthReqd)
-    if let rawNetAuthReqd = rawNetAuthReqd {
-        XCTAssertTrue(HTTPStatusCode.serverErrorRange.contains(rawNetAuthReqd))
-    }
-    XCTAssertTrue(HTTPStatusCode.serverErrorRange.contains(.networkAuthenticationRequired))
-
-    let rawBadRequest = HTTPStatusCode(rawValue: 400)
-    XCTAssertNotNil(rawBadRequest)
-    if let rawBadRequest = rawBadRequest {
-        XCTAssertFalse(HTTPStatusCode.serverErrorRange.contains(rawBadRequest))
-    }
-    XCTAssertFalse(HTTPStatusCode.serverErrorRange.contains(.badRequest))
+  // Test that a status code in each category is correctly mapped to its status class.
+  func testClassOfStatusCode() {
+    XCTAssertTrue(HTTPStatusCode.OK.class == .successful)
+    XCTAssertTrue(HTTPStatusCode.`continue`.class == .informational)
+    XCTAssertTrue(HTTPStatusCode.multipleChoices.class == .redirection)
+    XCTAssertTrue(HTTPStatusCode.badRequest.class == .clientError)
+    XCTAssertTrue(HTTPStatusCode.internalServerError.class == .serverError)
   }
 
 }
@@ -72,8 +50,9 @@ class HTTPStatusCodeTests: KituraNetTest {
 extension HTTPStatusCodeTests {
   static var allTests : [(String, (HTTPStatusCodeTests) -> () throws -> Void)] {
     return [
-             ("testSuccessRange", testSuccessRange),
-             ("testServerErrorRange", testServerErrorRange),
+             ("testStatusCodeCreation", testStatusCodeCreation),
+             ("testInvalidStatusCode", testInvalidStatusCode),
+             ("testClassOfStatusCode", testClassOfStatusCode),
     ]
   }
 }
