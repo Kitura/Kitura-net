@@ -43,6 +43,25 @@ class HTTPStatusCodeTests: KituraNetTest {
     XCTAssertTrue(HTTPStatusCode.multipleChoices.class == .redirection)
     XCTAssertTrue(HTTPStatusCode.badRequest.class == .clientError)
     XCTAssertTrue(HTTPStatusCode.internalServerError.class == .serverError)
+    XCTAssertTrue(HTTPStatusCode.unknown.class == .invalidStatus)
+  }
+
+  // Test that every code that can be instantiated maps to its expected status class.
+  func testClassOfEveryValidCode() {
+
+    func verifyClass(range: CountableRange<Int>, expectedClass: HTTPStatusCode.Class) {
+      for code in range {
+        let statusCode = HTTPStatusCode(rawValue: code)
+        if let statusCode = statusCode {
+          XCTAssertTrue(statusCode.class == expectedClass, "\(statusCode) should be within \(expectedClass)")
+        }
+      }
+    }
+    verifyClass(range: 100 ..< 200, expectedClass: .informational)
+    verifyClass(range: 200 ..< 300, expectedClass: .successful)
+    verifyClass(range: 300 ..< 400, expectedClass: .redirection)
+    verifyClass(range: 400 ..< 500, expectedClass: .clientError)
+    verifyClass(range: 500 ..< 600, expectedClass: .serverError)
   }
 
 }
@@ -53,6 +72,7 @@ extension HTTPStatusCodeTests {
              ("testStatusCodeCreation", testStatusCodeCreation),
              ("testInvalidStatusCode", testInvalidStatusCode),
              ("testClassOfStatusCode", testClassOfStatusCode),
+             ("testClassOfEveryValidCode", testClassOfEveryValidCode),
     ]
   }
 }
