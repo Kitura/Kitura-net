@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+/* 
+ * This source file includes content derived from the Swift.org Server APIs open source project
+ * (http://github.com/swift-server/http)
+ *
+ * Copyright (c) 2017 Swift Server API project authors
+ * Licensed under Apache License v2.0 with Runtime Library Exception
+ *
+ * See http://swift.org/LICENSE.txt for license information
+ */
+
 import Foundation
 
 // MARK: HTTP
@@ -119,14 +129,39 @@ public enum HTTPStatusCode: Int {
     
 }
 
-extension HTTPStatusCode: Comparable {
-
-    public static func <(lhs: HTTPStatusCode, rhs: HTTPStatusCode) -> Bool { return lhs.rawValue < rhs.rawValue }
-
-}
-
 extension HTTPStatusCode {
 
-    public static var successRange: Range<HTTPStatusCode> { return .OK ..< .multipleChoices }
+    /// The class of a `HTTPStatusCode` code
+    /// - See: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml for more information
+    public enum Class {
+        /// Informational: the request was received, and is continuing to be processed
+        case informational
+        /// Success: the action was successfully received, understood, and accepted
+        case successful
+        /// Redirection: further action must be taken in order to complete the request
+        case redirection
+        /// Client Error: the request contains bad syntax or cannot be fulfilled
+        case clientError
+        /// Server Error: the server failed to fulfill an apparently valid request
+        case serverError
+        /// Invalid: the code does not map to a well known status code class
+        case invalidStatus
+
+        init(code: Int) {
+            switch code {
+                case 100..<200: self = .informational
+                case 200..<300: self = .successful
+                case 300..<400: self = .redirection
+                case 400..<500: self = .clientError
+                case 500..<600: self = .serverError
+                default: self = .invalidStatus
+            }
+        }
+    }
+
+    /// The `Class` representing the class of status code for this response status
+    public var `class`: Class {
+        return Class(code: self.rawValue)
+    }
 
 }
