@@ -22,7 +22,7 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (79% documented)
+         (80% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -122,6 +122,9 @@
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/HTTPStatusCode/Class.html">– Class</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/KeepAliveState.html">KeepAliveState</a>
@@ -231,6 +234,40 @@ when an <q>upgrade</q> HTTP request comes to the server for a particular protoco
                 <li class="item">
                   <div>
                     <code>
+                    <a name="/s:9KituraNet23IncomingSocketProcessorP"></a>
+                    <a name="//apple_ref/swift/Protocol/IncomingSocketProcessor" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP">IncomingSocketProcessor</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This protocol defines the API of the classes used to process the data that
+comes in from a client&rsquo;s request. There should be one <code>IncomingSocketProcessor</code>
+instance per incoming request.</p>
+
+                        <a href="Protocols/IncomingSocketProcessor.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">IncomingSocketProcessor</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
                     <a name="/s:9KituraNet30IncomingSocketProcessorCreatorP"></a>
                     <a name="//apple_ref/swift/Protocol/IncomingSocketProcessorCreator" class="dashAnchor"></a>
                     <a class="token" href="#/s:9KituraNet30IncomingSocketProcessorCreatorP">IncomingSocketProcessorCreator</a>
@@ -252,6 +289,103 @@ the data from a new incoming socket.</p>
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">IncomingSocketProcessorCreator</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet6ServerP"></a>
+                    <a name="//apple_ref/swift/Protocol/Server" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet6ServerP">Server</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A common protocol for Kitura-net Servers</p>
+
+                        <a href="Protocols/Server.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">Server</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet14ServerDelegateP"></a>
+                    <a name="//apple_ref/swift/Protocol/ServerDelegate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet14ServerDelegateP">ServerDelegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
+The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
+
+                        <a href="Protocols/ServerDelegate.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerMonitorP"></a>
+                    <a name="//apple_ref/swift/Protocol/ServerMonitor" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerMonitorP">ServerMonitor</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A protocol for implementing a delegate to receive monitoring events from KituraNet.</p>
+
+                        <a href="Protocols/ServerMonitor.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerMonitor</span></code></pre>
 
                         </div>
                       </div>
@@ -328,144 +462,13 @@ Kitura project Router.</p>
                 </li>
               </ul>
             </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet23IncomingSocketProcessorP"></a>
-                    <a name="//apple_ref/swift/Protocol/IncomingSocketProcessor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet23IncomingSocketProcessorP">IncomingSocketProcessor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>This protocol defines the API of the classes used to process the data that
-comes in from a client&rsquo;s request. There should be one <code>IncomingSocketProcessor</code>
-instance per incoming request.</p>
-
-                        <a href="Protocols/IncomingSocketProcessor.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">IncomingSocketProcessor</span><span class="p">:</span> <span class="kd">class</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet13ServerMonitorP"></a>
-                    <a name="//apple_ref/swift/Protocol/ServerMonitor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ServerMonitorP">ServerMonitor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A protocol for implementing a delegate to receive monitoring events from KituraNet.</p>
-
-                        <a href="Protocols/ServerMonitor.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerMonitor</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet6ServerP"></a>
-                    <a name="//apple_ref/swift/Protocol/Server" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet6ServerP">Server</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A common protocol for Kitura-net Servers</p>
-
-                        <a href="Protocols/Server.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">Server</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet14ServerDelegateP"></a>
-                    <a name="//apple_ref/swift/Protocol/ServerDelegate" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet14ServerDelegateP">ServerDelegate</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
-The delegate&rsquo;s handle function is invoked when new requests arrive at the server for processing.</p>
-
-                        <a href="Protocols/ServerDelegate.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerDelegate</span><span class="p">:</span> <span class="kd">class</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
           </div>
         </section>
 
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-06)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-16)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
