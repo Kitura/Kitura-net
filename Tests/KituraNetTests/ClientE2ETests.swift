@@ -118,7 +118,7 @@ class ClientE2ETests: KituraNetTest {
         let secondBuffer = "80\r\nContent-Length: 6\r\n\r\nabcdefPO"
         let thirdBuffer = "ST / HTTP/1.1\r\nHost: localhost:8080\r\nContent-Length: 6\r\n\r\nabcdef"
         let expectedResponse = "Read 6 bytes"
-        let totalRequests = 2
+        let totalRequests = 3
         doPipelineTest(expecting: expectedResponse, totalRequests: totalRequests) {
             socket in
             // Disable Nagle's algorithm on this socket to flush first write
