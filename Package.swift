@@ -21,7 +21,7 @@ import PackageDescription
 
 var dependencies: [Package.Dependency] = [
     .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", .upToNextMinor(from: "1.7.0")),
-    .package(url: "https://github.com/IBM-Swift/BlueSocket.git", .from: "1.0.0"),
+    .package(url: "https://github.com/IBM-Swift/BlueSocket.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/CCurl.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0")
 ]
