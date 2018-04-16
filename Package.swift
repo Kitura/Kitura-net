@@ -20,7 +20,7 @@
 import PackageDescription
 
 var dependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", .upToNextMinor(from: "1.7.0")),
+    .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", from: "1.7.3"),
     .package(url: "https://github.com/IBM-Swift/BlueSocket.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/CCurl.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0")
@@ -36,8 +36,8 @@ var kituraNetDependencies: [Target.Dependency] = [
 
 #if os(Linux)
 dependencies.append(contentsOf: [
-    .package(url: "https://github.com/IBM-Swift/CEpoll.git", .upToNextMinor(from: "0.1.0")),
-    .package(url: "https://github.com/IBM-Swift/BlueSignals.git", .upToNextMinor(from: "1.0.0"))
+    .package(url: "https://github.com/IBM-Swift/CEpoll.git", from: "1.0.0"),
+    .package(url: "https://github.com/IBM-Swift/BlueSignals.git", from: "1.0.0")
     ])
 
 kituraNetDependencies.append(contentsOf: [
