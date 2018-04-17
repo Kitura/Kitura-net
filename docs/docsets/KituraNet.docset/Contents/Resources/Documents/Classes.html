@@ -22,7 +22,7 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (79% documented)
+         (80% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -124,6 +124,9 @@
                 <a class="nav-group-task-link" href="Enums/HTTPStatusCode.html">HTTPStatusCode</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/HTTPStatusCode/Class.html">– Class</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
@@ -193,49 +196,6 @@
 
         <section class="section">
           <div class="section-content">
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet21IncomingSocketManagerC"></a>
-                    <a name="//apple_ref/swift/Class/IncomingSocketManager" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet21IncomingSocketManagerC">IncomingSocketManager</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The IncomingSocketManager class is in charge of managing all of the incoming sockets.
-In particular, it is in charge of:</p>
-
-<ol>
-<li>On Linux when no special compile options are specified:
-  a. Creating the epoll handle
-  b. Adding new incoming sockets to the epoll descriptor for read events
-  c. Running the <q>thread</q> that does the epoll_wait</li>
-<li>Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
- (one pair per incomng socket)</li>
-<li>Cleaning up idle sockets, when new incoming sockets arrive.</li>
-</ol>
-
-                        <a href="Classes/IncomingSocketManager.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
             <div class="task-group">
               <div class="task-name-container">
                 <a name="/BufferList%20"></a>
@@ -349,159 +309,6 @@ In particular, it is in charge of:</p>
               </ul>
             </div>
             <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet21IncomingSocketHandlerC"></a>
-                    <a name="//apple_ref/swift/Class/IncomingSocketHandler" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC">IncomingSocketHandler</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>This class handles incoming sockets to the HTTPServer. The data sent by the client
-is read and passed to the current <code>IncomingDataProcessor</code>.</p>
-<div class="aside aside-note">
-    <p class="aside-title">Note</p>
-    <p>The IncomingDataProcessor can change due to an Upgrade request.</p>
-
-</div>
-<div class="aside aside-note">
-    <p class="aside-title">Note</p>
-    <p>This class uses different underlying technologies depending on:</p>
-
-</div>
-<pre class="highlight swift"><code><span class="mi">1</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">no</span> <span class="n">special</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">options</span> <span class="n">are</span> <span class="n">specified</span><span class="p">,</span> <span class="n">epoll</span> <span class="k">is</span> <span class="n">used</span>
-<span class="mi">2</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">OSX</span><span class="p">,</span> <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span>
-<span class="mi">3</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">option</span> <span class="o">-</span><span class="kt">Xswiftc</span> <span class="o">-</span><span class="kt">DGCD_ASYNCH</span> <span class="k">is</span> <span class="n">specified</span><span class="p">,</span>
-   <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span><span class="p">,</span> <span class="k">as</span> <span class="n">it</span> <span class="k">is</span> <span class="n">used</span> <span class="n">on</span> <span class="kt">OSX</span><span class="o">.</span>
-</code></pre>
-
-                        <a href="Classes/IncomingSocketHandler.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketHandler</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet16HeadersContainerC"></a>
-                    <a name="//apple_ref/swift/Class/HeadersContainer" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet16HeadersContainerC">HeadersContainer</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A class that abstracts out the HTTP header APIs of the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> and
-<code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
-
-                        <a href="Classes/HeadersContainer.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HeadersContainer</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/SPIUtils"></a>
-                <a name="//apple_ref/swift/Section/SPIUtils" class="dashAnchor"></a>
-                <a href="#/SPIUtils">
-                  <h3 class="section-name">SPIUtils</h3>
-                </a>
-              </div>
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet8SPIUtilsC"></a>
-                    <a name="//apple_ref/swift/Class/SPIUtils" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet8SPIUtilsC">SPIUtils</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A set of utility functions.</p>
-
-                        <a href="Classes/SPIUtils.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SPIUtils</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet13ListenerGroupC"></a>
-                    <a name="//apple_ref/swift/Class/ListenerGroup" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ListenerGroupC">ListenerGroup</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A class that provides a set of helper functions that enables a caller to wait
-for a group of listener blocks to finish executing.</p>
-
-                        <a href="Classes/ListenerGroup.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ListenerGroup</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
               <div class="task-name-container">
                 <a name="/ClientResponse"></a>
                 <a name="//apple_ref/swift/Section/ClientResponse" class="dashAnchor"></a>
@@ -533,6 +340,329 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                         <div class="language">
                           <p class="aside-title">Swift</p>
                           <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ClientResponse</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet7FastCGIC"></a>
+                    <a name="//apple_ref/swift/Class/FastCGI" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet7FastCGIC">FastCGI</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The <q>root</q> class for the FastCGI server implementation.</p>
+
+                        <a href="Classes/FastCGI.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGI</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13FastCGIServerC"></a>
+                    <a name="//apple_ref/swift/Class/FastCGIServer" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC">FastCGIServer</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A server that listens for incoming HTTP requests that are sent using the FastCGI
+protocol.</p>
+
+                        <a href="Classes/FastCGIServer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC"></a>
+                    <a name="//apple_ref/swift/Class/FastCGIServerRequest" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC">FastCGIServerRequest</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol
+for incoming HTTP requests that come in over a FastCGI connection.</p>
+
+                        <a href="Classes/FastCGIServerRequest.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerRequest</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet21FastCGIServerResponseC"></a>
+                    <a name="//apple_ref/swift/Class/FastCGIServerResponse" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC">FastCGIServerResponse</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol
+for incoming HTTP requests that come in over a FastCGI connection.</p>
+
+                        <a href="Classes/FastCGIServerResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/HTTP"></a>
+                <a name="//apple_ref/swift/Section/HTTP" class="dashAnchor"></a>
+                <a href="#/HTTP">
+                  <h3 class="section-name">HTTP</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet4HTTPC"></a>
+                    <a name="//apple_ref/swift/Class/HTTP" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet4HTTPC">HTTP</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
+
+                        <a href="Classes/HTTP.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTP</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/HTTPServer"></a>
+                <a name="//apple_ref/swift/Section/HTTPServer" class="dashAnchor"></a>
+                <a href="#/HTTPServer">
+                  <h3 class="section-name">HTTPServer</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet10HTTPServerC"></a>
+                    <a name="//apple_ref/swift/Class/HTTPServer" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet10HTTPServerC">HTTPServer</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An HTTP server that listens for connections on a socket.</p>
+
+                        <a href="Classes/HTTPServer.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/HTTPServerRequest"></a>
+                <a name="//apple_ref/swift/Section/HTTPServerRequest" class="dashAnchor"></a>
+                <a href="#/HTTPServerRequest">
+                  <h3 class="section-name">HTTPServerRequest</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet17HTTPServerRequestC"></a>
+                    <a name="//apple_ref/swift/Class/HTTPServerRequest" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet17HTTPServerRequestC">HTTPServerRequest</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
+are communicating via the HTTP protocol.</p>
+
+                        <a href="Classes/HTTPServerRequest.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerRequest</span><span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/HTTPServerResponse"></a>
+                <a name="//apple_ref/swift/Section/HTTPServerResponse" class="dashAnchor"></a>
+                <a href="#/HTTPServerResponse">
+                  <h3 class="section-name">HTTPServerResponse</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet18HTTPServerResponseC"></a>
+                    <a name="//apple_ref/swift/Class/HTTPServerResponse" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet18HTTPServerResponseC">HTTPServerResponse</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
+responses via the HTTP protocol.</p>
+
+                        <a href="Classes/HTTPServerResponse.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet27IncomingHTTPSocketProcessorC"></a>
+                    <a name="//apple_ref/swift/Class/IncomingHTTPSocketProcessor" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet27IncomingHTTPSocketProcessorC">IncomingHTTPSocketProcessor</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>This class processes the data sent by the client after the data was read. The data
+is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServerRequest</a></code> object. When the parsing is complete, the
+<code><a href="Protocols/ServerDelegate.html">ServerDelegate</a></code> is invoked.</p>
+
+                        <a href="Classes/IncomingHTTPSocketProcessor.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingHTTPSocketProcessor</span><span class="p">:</span> <span class="kt"><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span></code></pre>
 
                         </div>
                       </div>
@@ -587,9 +717,9 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet21FastCGIServerResponseC"></a>
-                    <a name="//apple_ref/swift/Class/FastCGIServerResponse" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet21FastCGIServerResponseC">FastCGIServerResponse</a>
+                    <a name="/s:9KituraNet16HeadersContainerC"></a>
+                    <a name="//apple_ref/swift/Class/HeadersContainer" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet16HeadersContainerC">HeadersContainer</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -597,16 +727,16 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+                        <p>A class that abstracts out the HTTP header APIs of the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> and
+<code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
 
-                        <a href="Classes/FastCGIServerResponse.html" class="slightly-smaller">See more</a>
+                        <a href="Classes/HeadersContainer.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HeadersContainer</span></code></pre>
 
                         </div>
                       </div>
@@ -620,9 +750,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13FastCGIServerC"></a>
-                    <a name="//apple_ref/swift/Class/FastCGIServer" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC">FastCGIServer</a>
+                    <a name="/s:9KituraNet21IncomingSocketHandlerC"></a>
+                    <a name="//apple_ref/swift/Class/IncomingSocketHandler" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketHandlerC">IncomingSocketHandler</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -630,16 +760,31 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A server that listens for incoming HTTP requests that are sent using the FastCGI
-protocol.</p>
+                        <p>This class handles incoming sockets to the HTTPServer. The data sent by the client
+is read and passed to the current <code>IncomingDataProcessor</code>.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>The IncomingDataProcessor can change due to an Upgrade request.</p>
 
-                        <a href="Classes/FastCGIServer.html" class="slightly-smaller">See more</a>
+</div>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This class uses different underlying technologies depending on:</p>
+
+</div>
+<pre class="highlight swift"><code><span class="mi">1</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">no</span> <span class="n">special</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">options</span> <span class="n">are</span> <span class="n">specified</span><span class="p">,</span> <span class="n">epoll</span> <span class="k">is</span> <span class="n">used</span>
+<span class="mi">2</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">OSX</span><span class="p">,</span> <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span>
+<span class="mi">3</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">option</span> <span class="o">-</span><span class="kt">Xswiftc</span> <span class="o">-</span><span class="kt">DGCD_ASYNCH</span> <span class="k">is</span> <span class="n">specified</span><span class="p">,</span>
+   <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span><span class="p">,</span> <span class="k">as</span> <span class="n">it</span> <span class="k">is</span> <span class="n">used</span> <span class="n">on</span> <span class="kt">OSX</span><span class="o">.</span>
+</code></pre>
+
+                        <a href="Classes/IncomingSocketHandler.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketHandler</span></code></pre>
 
                         </div>
                       </div>
@@ -653,9 +798,9 @@ protocol.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet7FastCGIC"></a>
-                    <a name="//apple_ref/swift/Class/FastCGI" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet7FastCGIC">FastCGI</a>
+                    <a name="/s:9KituraNet21IncomingSocketManagerC"></a>
+                    <a name="//apple_ref/swift/Class/IncomingSocketManager" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet21IncomingSocketManagerC">IncomingSocketManager</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -663,15 +808,26 @@ protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The <q>root</q> class for the FastCGI server implementation.</p>
+                        <p>The IncomingSocketManager class is in charge of managing all of the incoming sockets.
+In particular, it is in charge of:</p>
 
-                        <a href="Classes/FastCGI.html" class="slightly-smaller">See more</a>
+<ol>
+<li>On Linux when no special compile options are specified:
+  a. Creating the epoll handle
+  b. Adding new incoming sockets to the epoll descriptor for read events
+  c. Running the <q>thread</q> that does the epoll_wait</li>
+<li>Creating and managing the IncomingSocketHandlers and IncomingHTTPDataProcessors
+ (one pair per incomng socket)</li>
+<li>Cleaning up idle sockets, when new incoming sockets arrive.</li>
+</ol>
+
+                        <a href="Classes/IncomingSocketManager.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGI</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingSocketManager</span></code></pre>
 
                         </div>
                       </div>
@@ -685,9 +841,9 @@ protocol.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet20FastCGIServerRequestC"></a>
-                    <a name="//apple_ref/swift/Class/FastCGIServerRequest" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC">FastCGIServerRequest</a>
+                    <a name="/s:9KituraNet13ListenerGroupC"></a>
+                    <a name="//apple_ref/swift/Class/ListenerGroup" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ListenerGroupC">ListenerGroup</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -695,89 +851,16 @@ protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+                        <p>A class that provides a set of helper functions that enables a caller to wait
+for a group of listener blocks to finish executing.</p>
 
-                        <a href="Classes/FastCGIServerRequest.html" class="slightly-smaller">See more</a>
+                        <a href="Classes/ListenerGroup.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServerRequest</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet27IncomingHTTPSocketProcessorC"></a>
-                    <a name="//apple_ref/swift/Class/IncomingHTTPSocketProcessor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet27IncomingHTTPSocketProcessorC">IncomingHTTPSocketProcessor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>This class processes the data sent by the client after the data was read. The data
-is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServerRequest</a></code> object. When the parsing is complete, the
-<code><a href="Protocols/ServerDelegate.html">ServerDelegate</a></code> is invoked.</p>
-
-                        <a href="Classes/IncomingHTTPSocketProcessor.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingHTTPSocketProcessor</span><span class="p">:</span> <span class="kt"><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/HTTPServer"></a>
-                <a name="//apple_ref/swift/Section/HTTPServer" class="dashAnchor"></a>
-                <a href="#/HTTPServer">
-                  <h3 class="section-name">HTTPServer</h3>
-                </a>
-              </div>
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet10HTTPServerC"></a>
-                    <a name="//apple_ref/swift/Class/HTTPServer" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet10HTTPServerC">HTTPServer</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>An HTTP server that listens for connections on a socket.</p>
-
-                        <a href="Classes/HTTPServer.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ListenerGroup</span></code></pre>
 
                         </div>
                       </div>
@@ -788,19 +871,19 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
             </div>
             <div class="task-group">
               <div class="task-name-container">
-                <a name="/HTTPServerResponse"></a>
-                <a name="//apple_ref/swift/Section/HTTPServerResponse" class="dashAnchor"></a>
-                <a href="#/HTTPServerResponse">
-                  <h3 class="section-name">HTTPServerResponse</h3>
+                <a name="/SPIUtils"></a>
+                <a name="//apple_ref/swift/Section/SPIUtils" class="dashAnchor"></a>
+                <a href="#/SPIUtils">
+                  <h3 class="section-name">SPIUtils</h3>
                 </a>
               </div>
               <ul class="item-container">
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet18HTTPServerResponseC"></a>
-                    <a name="//apple_ref/swift/Class/HTTPServerResponse" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet18HTTPServerResponseC">HTTPServerResponse</a>
+                    <a name="/s:9KituraNet8SPIUtilsC"></a>
+                    <a name="//apple_ref/swift/Class/SPIUtils" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet8SPIUtilsC">SPIUtils</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -808,95 +891,15 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
-responses via the HTTP protocol.</p>
+                        <p>A set of utility functions.</p>
 
-                        <a href="Classes/HTTPServerResponse.html" class="slightly-smaller">See more</a>
+                        <a href="Classes/SPIUtils.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerResponse</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerResponse.html">ServerResponse</a></span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/HTTP"></a>
-                <a name="//apple_ref/swift/Section/HTTP" class="dashAnchor"></a>
-                <a href="#/HTTP">
-                  <h3 class="section-name">HTTP</h3>
-                </a>
-              </div>
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet4HTTPC"></a>
-                    <a name="//apple_ref/swift/Class/HTTP" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet4HTTPC">HTTP</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
-
-                        <a href="Classes/HTTP.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTP</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <div class="task-name-container">
-                <a name="/HTTPServerRequest"></a>
-                <a name="//apple_ref/swift/Section/HTTPServerRequest" class="dashAnchor"></a>
-                <a href="#/HTTPServerRequest">
-                  <h3 class="section-name">HTTPServerRequest</h3>
-                </a>
-              </div>
-              <ul class="item-container">
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:9KituraNet17HTTPServerRequestC"></a>
-                    <a name="//apple_ref/swift/Class/HTTPServerRequest" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet17HTTPServerRequestC">HTTPServerRequest</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>This class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
-are communicating via the HTTP protocol.</p>
-
-                        <a href="Classes/HTTPServerRequest.html" class="slightly-smaller">See more</a>
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerRequest</span><span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SPIUtils</span></code></pre>
 
                         </div>
                       </div>
@@ -911,7 +914,7 @@ are communicating via the HTTP protocol.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-03-06)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
