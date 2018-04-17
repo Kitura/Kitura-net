@@ -4,12 +4,12 @@ branches:
     - develop
     - /^issue.*$/
 
-notifications:
-  slack:
-    secure: "P0r4xHJ1C6siPNtB0HM8kcRDGrD7PX0iY3UrDwRN41isiw1IpjNjNOvtzEzATyIkkpMlMXEq3QBdEsxZCwIKYUZHCy99CSkoY/brUdIJgaC92XZzP7BucQAhbweilVX4YcB8CmfKJ9b5I/+7o7bbnOlcVDUkd29QuMb0nUy2rXl6xZVLJ/9BmFSsffAquPjfdQKq/xh/hIbaBtHLDVxxQ4Q/DeDJ+FLkG16tFAvEj9EMDgeFcKZF9pOpFrCdpwj1Bg8NLB5vZqizxgr9xK4lBBr7LBrwhwfzvxs8DAjwWSUZkZEhPfoRzSBZ0tYeqH2V3dL8B9eEPVyfDawq8DXQcjMVIn5wpVQqNzzjuAXNlqhjT7PzjDccnU821uNs9nYDY5aug8pqC+ZaB1GSnt4Y0jH4NjSnEQIGeYwn3D4CiTwAGjO/OFJT5VV/DcKpdtzcuEbhCJyaPPfk4obgiUOOBEH6Ut932fqYfd70h7gupofFcctzsei3egAv9bff/PTIzhYsf5Vacj4i/hx+AaBK63BctKu8okcPne40OKms15dO/BB5AfFZYsN+sSOhzOpTzZpxS2tEqVJsVna0DcFX5cWzIMr0MonQYLr/uVB7mgE/VT8wETbVaEkSq/yqScOQRLM/ja/o273e3bv1EoRxYJPQSHQR/Du1le1E2dQS+Qc="
-# Testing Darwin, Ubuntu 14.04, Ubuntu 16.04
 matrix:
   include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: SWIFT_SNAPSHOT=4.0.3
     - os: linux
       dist: trusty
       sudo: required
@@ -22,15 +22,10 @@ matrix:
       osx_image: xcode9.2
       sudo: required
       env: SWIFT_SNAPSHOT=4.0.3
-      env: JAZZY_ELIGIBLE=true
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: SWIFT_SNAPSHOT=swift-4.1-DEVELOPMENT-SNAPSHOT-2018-02-06-a
     - os: osx
-      osx_image: xcode9.2
+      osx_image: xcode9.3
       sudo: required
-      env: SWIFT_SNAPSHOT=swift-4.1-DEVELOPMENT-SNAPSHOT-2018-02-06-a
+      env: JAZZY_ELIGIBLE=true
 
 script:
   - ./build.sh
