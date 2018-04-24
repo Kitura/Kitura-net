@@ -23,19 +23,47 @@ import LoggerAPI
   import Signals
 #endif
 
-/// A server that listens for incoming HTTP requests that are sent using the FastCGI
-/// protocol.
+/**
+A server that listens for incoming HTTP requests that are sent using the FastCGI protocol. This can be used to create a new `FastCGIServer` and have it listen for conenctions and handle a new client FastCGI request.
+
+### Usage Example: ###
+````swift
+//Create a `FastCGI` server on a specified port.
+let server = try FastCGIServer.listen(on: port, delegate: delegate)
+````
+*/
 public class FastCGIServer: Server {
 
     public typealias ServerType = FastCGIServer
 
-    /// The `ServerDelegate` to handle incoming requests.
+    /**
+     The `ServerDelegate` to handle incoming requests.
+     
+     ### Usage Example: ###
+     ````swift
+     server.delegate = delegate
+     ````
+     */
     public var delegate: ServerDelegate?
 
-    /// Port number for listening for new connections
+    /**
+     Port number for listening for new connections
+     
+     ### Usage Example: ###
+     ````swift
+     self.port = port
+     ````
+     */
     public private(set) var port: Int?
 
-    /// A server state.
+    /**
+     A server state.
+     
+     ### Usage Example: ###
+     ````swift
+     self.state = .started
+     ````
+     */
     public private(set) var state: ServerState = .unknown
 
     /// Retrieve an appropriate connection backlog value for our listen socket.
@@ -51,11 +79,19 @@ public class FastCGIServer: Server {
     /// TCP socket used for listening for new connections
     private var listenSocket: Socket?
     
-    /// Whether or not this server allows port reuse (default: disallowed)
+    /**
+     Whether or not this server allows port reuse (default: disallowed)
+     
+     ### Usage Example: ###
+     ````swift
+     server.allowPortReuse = allowPortReuse
+     ````
+     */
     public var allowPortReuse: Bool = false
 
     fileprivate let lifecycleListener = ServerLifecycleListener()
 
+    /// Creates a FastCGI server instance.
     public init() {
         #if os(Linux)
             // On Linux, it is not possible to set SO_NOSIGPIPE on the socket, nor is it possible
@@ -68,9 +104,16 @@ public class FastCGIServer: Server {
         #endif
     }
 
-    /// Listens for connections on a socket
-    ///
-    /// - Parameter on: port number for new connections
+    /**
+     Listens for connections on a socket
+     
+     - Parameter on: port number for new connections
+     
+     ### Usage Example: ###
+     ````swift
+     try server.listen(on: port)
+     ````
+     */
     public func listen(on port: Int) throws {
         self.port = port
         do {
@@ -99,23 +142,37 @@ public class FastCGIServer: Server {
         }
     }
 
-    /// Static method to create a new `FastCGIServer` and have it listen for conenctions
-    ///
-    /// - Parameter on: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
-    ///
-    /// - Returns: a new `FastCGIServer` instance
+    /**
+     Static method to create a new `FastCGIServer` and have it listen for conenctions
+     
+     - Parameter on: port number for accepting new connections
+     - Parameter delegate: the delegate handler for FastCGI/HTTP connections
+     
+     - Returns: a new `FastCGIServer` instance
+     
+     ### Usage Example: ###
+     ````swift
+     let server = try FastCGIServer.listen(on: port, delegate: delegate)
+     ````
+     */
     public static func listen(on port: Int, delegate: ServerDelegate?) throws -> FastCGIServer {
         let server = FastCGI.createServer()
         server.delegate = delegate
         try server.listen(on: port)
         return server
     }
-
-    /// Listens for connections on a socket
-    ///
-    /// - Parameter port: port number for new connections (ex. 9000)
-    /// - Parameter errorHandler: optional callback for error handling
+    
+    /**
+     Listens for connections on a socket
+     
+     - Parameter port: port number for new connections (ex. 9000)
+     - Parameter errorHandler: optional callback for error handling
+     
+     ### Usage Example: ###
+     ````swift
+     server.listen(port: port, errorHandler: errorHandler)
+     ````
+     */
     @available(*, deprecated, message: "use 'listen(on:) throws' with 'server.failed(callback:)' instead")
     public func listen(port: Int, errorHandler: ((Swift.Error) -> Void)? = nil) {
         do {
@@ -129,14 +186,21 @@ public class FastCGIServer: Server {
             }
         }
     }
-
-    /// Static method to create a new `FastCGIServer` and have it listen for conenctions
-    ///
-    /// - Parameter port: port number for accepting new connections
-    /// - Parameter delegate: the delegate handler for FastCGI/HTTP connections
-    /// - Parameter errorHandler: optional callback for error handling
-    ///
-    /// - Returns: a new `FastCGIServer` instance
+    
+    /**
+     Static method to create a new `FastCGIServer` and have it listen for conenctions
+     
+     - Parameter port: port number for accepting new connections
+     - Parameter delegate: the delegate handler for FastCGI/HTTP connections
+     - Parameter errorHandler: optional callback for error handling
+     
+     - Returns: a new `FastCGIServer` instance
+     
+     ### Usage Example: ###
+     ````swift
+     let server = FastCGIServer.listen(port: port, delegate: delegate, errorHandler: errorHandler)
+     ````
+     */
     @available(*, deprecated, message: "use 'listen(on:delegate:) throws' with 'server.failed(callback:)' instead")
     public static func listen(port: Int, delegate: ServerDelegate, errorHandler: ((Swift.Error) -> Void)? = nil) -> FastCGIServer {
         let server = FastCGI.createServer()
@@ -223,51 +287,88 @@ public class FastCGIServer: Server {
         }
     }
 
-    /// Stop listening for new connections.
+    /**
+     Stop listening for new connections.
+     
+     ### Usage Example: ###
+     ````swift
+     server.stop()
+     ````
+     */
     public func stop() {
         self.state = .stopped
         listenSocket?.close()
         listenSocket = nil
     }
 
-    /// Add a new listener for server being started
-    ///
-    /// - Parameter callback: The listener callback that will run on server successfull start-up
-    ///
-    /// - Returns: a `FastCGIServer` instance
+    /**
+     Add a new listener for server being started
+     
+     - Parameter callback: The listener callback that will run on server successfull start-up
+     
+     - Returns: a `FastCGIServer` instance
+     
+     ### Usage Example: ###
+     ````swift
+     server.started(request: request, response: response)
+     ````
+     */
     @discardableResult
     public func started(callback: @escaping () -> Void) -> Self {
         self.lifecycleListener.addStartCallback(perform: self.state == .started, callback)
         return self
     }
 
-    /// Add a new listener for server being stopped
-    ///
-    /// - Parameter callback: The listener callback that will run when server stops
-    ///
-    /// - Returns: a `FastCGIServer` instance
+    /**
+     Add a new listener for server being stopped
+     
+     - Parameter callback: The listener callback that will run when server stops
+     
+     - Returns: a `FastCGIServer` instance
+     
+     ### Usage Example: ###
+     ````swift
+     server.stopped(request: request, response: response)
+     ````
+     */
     @discardableResult
     public func stopped(callback: @escaping () -> Void) -> Self {
         self.lifecycleListener.addStopCallback(perform: self.state == .stopped, callback)
         return self
     }
 
-    /// Add a new listener for server throwing an error
-    ///
-    /// - Parameter callback: The listener callback that will run when server throws an error
-    ///
-    /// - Returns: a `FastCGIServer` instance
+    /**
+     Add a new listener for server throwing an error
+     
+     - Parameter callback: The listener callback that will run when server throws an error
+     
+     - Returns: a `FastCGIServer` instance
+     
+     ### Usage Example: ###
+     ````swift
+     server.failed(request: request, response: response)
+     ````
+     */
     @discardableResult
     public func failed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addFailCallback(callback)
         return self
     }
 
-    /// Add a new listener for when listenSocket.acceptClientConnection throws an error
-    ///
-    /// - Parameter callback: The listener callback that will run
-    ///
-    /// - Returns: a Server instance
+    /**
+     Add a new listener for when listenSocket.acceptClientConnection throws an error
+     
+     - Parameter callback: The listener callback that will run
+     
+     - Returns: a Server instance
+     
+     ### Usage Example: ###
+     ````swift
+     server.clientConnectionFailed() { error in
+         ...
+     }
+     ````
+     */
     @discardableResult
     public func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self {
         self.lifecycleListener.addClientConnectionFailCallback(callback)
