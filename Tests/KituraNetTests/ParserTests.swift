@@ -49,6 +49,19 @@ class ParserTests: KituraNetTest {
         XCTAssertEqual(urlParser.queryParameters["key1"], "value1", "Incorrect query")
     }
     
+    func testEmptyStringQueryParameter() {
+        let url = "abc://username:password@example.com:123/path/data?key=value&key1=#fragid1".data(using: .utf8)!
+        let urlParser = URLParser(url: url, isConnect: false)
+        XCTAssertEqual(urlParser.schema, "abc", "Incorrect schema")
+        XCTAssertEqual(urlParser.host, "example.com", "Incorrect host")
+        XCTAssertEqual(urlParser.path, "/path/data", "Incorrect path")
+        XCTAssertEqual(urlParser.port, 123, "Incorrect port")
+        XCTAssertEqual(urlParser.fragment, "fragid1", "Incorrect fragment")
+        XCTAssertEqual(urlParser.userinfo, "username:password", "Incorrect userinfo")
+        XCTAssertEqual(urlParser.queryParameters["key"], "value", "Incorrect query")
+        XCTAssertEqual(urlParser.queryParameters["key1"], nil, "Incorrect query")
+    }
+    
     func testParserDescription() {
         let url = "abc://username:password@example.com:123/path/data?key=value#fragid1".data(using: .utf8)!
         let urlParser = URLParser(url: url, isConnect: false)

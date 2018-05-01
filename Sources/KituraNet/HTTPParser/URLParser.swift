@@ -149,7 +149,7 @@ public class URLParser : CustomStringConvertible {
             for pair in pairs {
                     
                 let pairArray = pair.components(separatedBy: "=")
-                if pairArray.count == 2 {
+                if pairArray.count == 2 && pairArray[1] != "" {
                     queryParameters[pairArray[0]] = pairArray[1]
                 }
             }
