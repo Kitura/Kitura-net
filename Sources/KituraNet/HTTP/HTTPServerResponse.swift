@@ -21,6 +21,8 @@ import Foundation
 /**
 This class implements the `ServerResponse` protocol for outgoing server
 responses via the HTTP protocol. Data and Strings can be written.
+ 
+The example below uses this in its `response` parameter, with the example requesting a connection be upgraded and catch any errors that occur.
 
 ### Usage Example: ###
 ````swift
@@ -140,7 +142,7 @@ public class HTTPServerResponse : ServerResponse {
     }
 
     /**
-    Write a string and end sending the response.
+    Write a String to the body of a HTTP response and complete sending the HTTP response.
     
     - Parameter text: String to write to a socket.
     - Throws: Socket.error if an error occurred while writing to a socket.
@@ -156,7 +158,7 @@ public class HTTPServerResponse : ServerResponse {
     }
     
     /**
-    End sending the response.
+    Complete sending the HTTP response.
     
     - Throws: Socket.error if an error occurred while writing to a socket.
     
@@ -267,7 +269,7 @@ public class HTTPServerResponse : ServerResponse {
     }
     
     /**
-    Reset this response object back to its initial state
+    Reset this response object back to its initial state.
     
     ### Usage Example: ###
     ````swift
