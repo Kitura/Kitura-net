@@ -546,7 +546,7 @@ private class CurlInvoker {
                     }
                 }
 
-            } while  rc == CURLE_OK  &&  redirected  &&  redirectCount < maxRedirects
+            } while  rc == CURLE_OK  &&  redirected  &&  redirectCount <= maxRedirects
         }
 
         return rc
