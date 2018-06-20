@@ -536,6 +536,15 @@ private class CurlInvoker {
                     if  infoRc == CURLE_OK {
                         if  redirectUrl != nil  {
                             curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
+                            var status: Int = -1
+                            let codeRc = curlHelperGetInfoLong(handle, CURLINFO_RESPONSE_CODE, &status)
+                            // If the status code was 303 See Other, ensure that
+                            // the redirect is done with a GET query rather than
+                            // whatever might have just been used.
+                            if codeRc == CURLE_OK && status == 303 {
+                                var yes: Int8 = 1
+                                _ = curlHelperSetOptString(handle, CURLOPT_HTTPGET, &yes)
+                            }
                             redirected = true
                             delegate?.prepareForRedirect()
                             redirectCount+=1
