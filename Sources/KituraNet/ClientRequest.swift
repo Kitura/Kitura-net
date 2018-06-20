@@ -534,20 +534,26 @@ private class CurlInvoker {
                     var redirectUrl: UnsafeMutablePointer<Int8>? = nil
                     let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
                     if  infoRc == CURLE_OK {
-                        if  redirectUrl != nil  {
-                            curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
-                            var status: Int = -1
-                            let codeRc = curlHelperGetInfoLong(handle, CURLINFO_RESPONSE_CODE, &status)
-                            // If the status code was 303 See Other, ensure that
-                            // the redirect is done with a GET query rather than
-                            // whatever might have just been used.
-                            if codeRc == CURLE_OK && status == 303 {
-                                var yes: Int8 = 1
-                                _ = curlHelperSetOptString(handle, CURLOPT_HTTPGET, &yes)
+                        if  redirectUrl != nil {
+                            redirectCount += 1
+                            if redirectCount <= maxRedirects {
+                                // Prepare to do a redirect
+                                curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
+                                var status: Int = -1
+                                let codeRc = curlHelperGetInfoLong(handle, CURLINFO_RESPONSE_CODE, &status)
+                                // If the status code was 303 See Other, ensure that
+                                // the redirect is done with a GET query rather than
+                                // whatever might have just been used.
+                                if codeRc == CURLE_OK && status == 303 {
+                                    var yes: Int8 = 1
+                                    _ = curlHelperSetOptString(handle, CURLOPT_HTTPGET, &yes)
+                                }
+                                redirected = true
+                                delegate?.prepareForRedirect()
                             }
-                            redirected = true
-                            delegate?.prepareForRedirect()
-                            redirectCount+=1
+                            else {
+                                redirected = false
+                            }
                         }
                         else {
                             redirected = false
@@ -555,7 +561,7 @@ private class CurlInvoker {
                     }
                 }
 
-            } while  rc == CURLE_OK  &&  redirected  &&  redirectCount <= maxRedirects
+            } while  rc == CURLE_OK  &&  redirected
         }
 
         return rc
