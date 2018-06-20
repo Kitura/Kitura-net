@@ -16,6 +16,7 @@
 
 import Foundation
 import Dispatch
+import LoggerAPI
 
 import XCTest
 
@@ -36,7 +37,8 @@ class ClientE2ETests: KituraNetTest {
             ("testPipelining", testPipelining),
             ("testPipeliningSpanningPackets", testPipeliningSpanningPackets),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
-            ("testUrlURL", testUrlURL)
+            ("testUrlURL", testUrlURL),
+            ("testRedirection", testRedirection)
         ]
     }
 
@@ -381,6 +383,47 @@ class ClientE2ETests: KituraNetTest {
         }
     }
 
+    func testRedirection() {
+        performServerTest(TestRedirectDeletate()) { expectation in
+            let redirLimitZero: ((ClientRequest) -> Void) = {request in
+                request.set(.maxRedirects(0))
+            }
+            let redirLimitOne: ((ClientRequest) -> Void) = {request in
+                request.set(.maxRedirects(1))
+            }
+            let redirLimitTwo: ((ClientRequest) -> Void) = {request in
+                request.set(.maxRedirects(2))
+            }
+            self.performRequest("get", path: "/redir301", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .Ok was \(String(describing: response?.statusCode))")
+            })
+            self.performRequest("post", path: "/redir303", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
+                XCTAssertEqual(try? response?.readString() ?? "", "GET", "Method after 303 redirection was \(String(describing: try? response?.readString())) instead of GET")
+            })
+            self.performRequest("post", path: "/redir307", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
+                XCTAssertEqual(try? response?.readString() ?? "", "POST", "Method after 307 redirection was \(String(describing: try? response?.readString())) instead of POST")
+            })
+            // Test no redirection
+            self.performRequest("get", path: "/redir303", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.seeOther, "Status code wasn't .seeOther was \(String(describing: response?.statusCode))")
+            }, requestModifier: redirLimitZero)
+            // Test one redirect limit
+            self.performRequest("get", path: "/redir303", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
+            }, requestModifier: redirLimitOne)
+            self.performRequest("get", path: "/redir303Twice", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.seeOther, "Status code wasn't .seeOther was \(String(describing: response?.statusCode))")
+            }, requestModifier: redirLimitOne)
+            // Test two redirect limit
+            self.performRequest("get", path: "/redir303Twice", callback: {response in
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
+            }, requestModifier: redirLimitTwo)
+            expectation.fulfill()
+        }
+    }
+
     class TestServerDelegate: ServerDelegate {
 
         func handle(request: ServerRequest, response: ServerResponse) {
@@ -424,6 +467,32 @@ class ClientE2ETests: KituraNetTest {
             catch {
                 print("Error writing response")
             }
+        }
+    }
+
+    class TestRedirectDeletate: ServerDelegate {
+
+        func handle(request: ServerRequest, response: ServerResponse) {
+            switch request.urlURL.path {
+            case "/target":
+                response.statusCode = .OK
+                try! response.write(from: request.method.uppercased())
+            case "/redir301":
+                response.statusCode = .movedPermanently
+                response.headers["Location"] = ["/target"]
+            case "/redir303":
+                response.statusCode = .seeOther
+                response.headers["Location"] = ["/target"]
+            case "/redir307":
+                response.statusCode = .temporaryRedirect
+                response.headers["Location"] = ["/target"]
+            case "/redir303Twice":
+                response.statusCode = .seeOther
+                response.headers["Location"] = ["/redir303"]
+            default:
+                XCTFail("Unexpected request path in TestRedirectDelegate.handle()")
+            }
+            try! response.end()
         }
     }
 
