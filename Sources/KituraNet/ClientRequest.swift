@@ -545,8 +545,7 @@ private class CurlInvoker {
                                 // the redirect is done with a GET query rather than
                                 // whatever might have just been used.
                                 if codeRc == CURLE_OK && status == 303 {
-                                    var yes: Int8 = 1
-                                    _ = curlHelperSetOptString(handle, CURLOPT_HTTPGET, &yes)
+                                    _ = curlHelperSetOptInt(handle, CURLOPT_HTTPGET, 1)
                                 }
                                 redirected = true
                                 delegate?.prepareForRedirect()
