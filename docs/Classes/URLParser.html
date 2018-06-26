@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -196,9 +196,14 @@
 
                 </div>
               </div>
-            <p>A parsing of HTTP URL according to the folowing format:</p>
+            <p>Splits and parses URLs into components - scheme, host, port, path, query string etc. according to the following format:</p>
 
-<p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
+<p><strong>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</strong></p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">// Initialize a new URLParser instance, and check whether or not a connection has been established.</span>
+ <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="s">"http://user:password@sample.host.com:8080/a/b/c?query=somestring#hash"</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span>
+ <span class="k">let</span> <span class="nv">urlParser</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+</code></pre>
 
           </div>
         </section>
@@ -220,7 +225,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Schema.</p>
+                        <p>The schema of the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -247,7 +252,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Hostname.</p>
+                        <p>The host component of the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -301,7 +306,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The entire query portion of the URL.</p>
+                        <p>The query component of the URL.</p>
 
                       </div>
                       <div class="declaration">
@@ -409,7 +414,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The query parameters broken out.</p>
+                        <p>The value of the query component of the URL name/value pair, for the passed in query name.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">parsedURLParameters</span> <span class="o">=</span> <span class="n">urlParser</span><span class="o">.</span><span class="n">queryParameters</span><span class="p">[</span><span class="s">"query"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -437,6 +445,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Nicely formatted description of the parsed result.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">parsedURLDescription</span> <span class="o">=</span> <span class="n">urlParser</span><span class="o">.</span><span class="n">description</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -463,7 +474,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Initialize a new URLParser instance.</p>
+                        <p>Initialize a new <code>URLParser</code> instance.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">parsedURL</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">someURL</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -486,7 +500,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>URL to be parsed.</p>
+                                  <p>The URL to be parsed.</p>
                                 </div>
                               </td>
                             </tr>
@@ -498,7 +512,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>whether or not a connection has been established.</p>
+                                  <p>A boolean, indicating whether or not a connection has been established.</p>
                                 </div>
                               </td>
                             </tr>
@@ -516,7 +530,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

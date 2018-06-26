@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -196,7 +196,18 @@
 
                 </div>
               </div>
-            <p>This class provides a set of low level APIs for issuing HTTP requests to another server.</p>
+            <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects cab be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Function to create a new `ClientRequest` using a URL.</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">ClientRequest</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="kt">ClientRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="n">callback</span><span class="p">)</span>
+ <span class="p">}</span>
+
+ <span class="c1">//Create a new `ClientRequest` using a URL.</span>
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -219,6 +230,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The set of HTTP headers to be sent with the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -245,7 +259,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The URL for the request</p>
+                        <p>The URL for the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">"https://localhost:8080"</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -272,7 +289,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The HTTP method (i.e. GET, POST, PUT, DELETE) for the request</p>
+                        <p>The HTTP method (i.e. GET, POST, PUT, DELETE) for the request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s">"post"</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -299,7 +319,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The username to be used if using Basic Auth authentication</p>
+                        <p>The username to be used if using Basic Auth authentication.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">userName</span> <span class="o">=</span> <span class="s">"user1"</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -327,6 +350,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The password to be used if using Basic Auth authentication.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="s">"sUpeR_seCurE_paSsw0rd"</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -356,10 +382,12 @@
                         <p>The maximum number of redirects before failure.</p>
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
-    The <code>ClientRequest</code> class will automatically follow redirect responses. To
-   avoid redirect loops, it will at maximum follow <code>maxRedirects</code> redirects.
+    The <code>ClientRequest</code> class will automatically follow redirect responses. To avoid redirect loops, it will at maximum follow <code>maxRedirects</code> redirects.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="n">maxRedirects</span> <span class="o">=</span> <span class="mi">10</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -387,6 +415,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>If true, the <q>Connection: close</q> header will be added to the request that is sent.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ClientRequest</span><span class="o">.</span><span class="n">closeConnection</span> <span class="o">=</span> <span class="kc">false</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -413,7 +444,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Client request option enum</p>
+                        <p>Client request options enum. This allows the client to specify certain parameteres such as HTTP headers, HTTP methods, host names, and SSL credentials.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//If present in the options provided, the client will try to use HTTP/2 protocol for the connection.</span>
+<span class="kt">Options</span><span class="o">.</span><span class="n">useHTTP2</span>
+</code></pre>
 
                         <a href="../Classes/ClientRequest/Options.html" class="slightly-smaller">See more</a>
                       </div>
@@ -441,7 +476,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Response callback closure type</p>
+                        <p>Response callback closure type.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">ClientRequest</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -464,8 +502,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code> object that describes the response
-                       that was received from the remote server.</p>
+                                  <p>The <code><a href="../Classes/ClientResponse.html">ClientResponse</a></code> object that describes the response that was received from the remote server.</p>
                                 </div>
                               </td>
                             </tr>
@@ -488,7 +525,12 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Set a single option in the request.  URL parameters must be set in init()</p>
+                        <p>Set a single option in the request. URL parameters must be set in init().</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">var</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[</span><span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Options</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">options</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="o">.</span><span class="nf">port</span><span class="p">(</span><span class="kt">Int16</span><span class="p">(</span><span class="n">port</span><span class="p">)))</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -511,7 +553,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>an <code><a href="../Classes/ClientRequest/Options.html">Options</a></code> instance describing the change to be made to the request</p>
+                                  <p>An <code><a href="../Classes/ClientRequest/Options.html">Options</a></code> instance describing the change to be made to the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -534,7 +576,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Parse an URL String into options</p>
+                        <p>Parse an URL (String) into an array of ClientRequest.Options.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"http://www.website.com"</span>
+<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="n">clientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -557,7 +603,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>URL of a String type</p>
+                                  <p>A String object referencing a URL.</p>
                                 </div>
                               </td>
                             </tr>
@@ -566,7 +612,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
+                        <p>An array of <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code></p>
                       </div>
                     </section>
                   </div>
@@ -584,7 +630,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Parse an URL class into options</p>
+                        <p>Parse an URL Foudation object into an array of ClientRequest.Options.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"http://www.website.com"</span><span class="p">)</span><span class="o">!</span>
+<span class="k">let</span> <span class="nv">parsedOptions</span> <span class="o">=</span> <span class="n">clientRequest</span><span class="o">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -607,7 +657,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>Foundation URL class</p>
+                                  <p>Foundation URL object.</p>
                                 </div>
                               </td>
                             </tr>
@@ -616,7 +666,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>A <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code> array</p>
+                        <p>An array of <code><a href="../Classes/ClientRequest/Options.html">ClientRequest.Options</a></code></p>
                       </div>
                     </section>
                   </div>
@@ -634,7 +684,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a string to the body of the request to be sent</p>
+                        <p>Add a String to the body of the request to be sent.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">stringToSend</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"send something"</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">stringToSend</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -657,7 +711,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The String to be added</p>
+                                  <p>The String to be added to the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -680,7 +734,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add the bytes in a Data struct to the body of the request to be sent</p>
+                        <p>Add the bytes in a Data struct to the body of the request to be sent.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">string</span> <span class="o">=</span> <span class="s">"some some more stuff"</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">clientRequest</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -703,7 +764,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The Data Struct containing the bytes to be added</p>
+                                  <p>The Data Struct containing the bytes to be added to the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -726,8 +787,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add a string to the body of the request to be sent and send the request
-to the remote server</p>
+                        <p>Add a String to the body of the request to be sent and then send the request to the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"send something"</span>
+<span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -745,12 +809,12 @@ to the remote server</p>
                             <tr>
                               <td>
                                 <code>
-                                <em>from</em>
+                                <em>data</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The String to be added</p>
+                                  <p>The String to be added to the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -762,8 +826,7 @@ to the remote server</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>If true, add the <q>Connection: close</q> header to the set
-              of headers sent with the request</p>
+                                  <p>If true, add the <q>Connection: close</q> header to the set of headers sent with the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -786,8 +849,13 @@ to the remote server</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Add the bytes in a Data struct to the body of the request to be sent
-and send the request to the remote server</p>
+                        <p>Add the bytes in a Data struct to the body of the request to be sent and then send the request to the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">stringToSend</span> <span class="o">=</span> <span class="s">"send this"</span>
+<span class="k">let</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span> <span class="o">=</span> <span class="n">stringToSend</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">{</span>
+   <span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">close</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -805,12 +873,12 @@ and send the request to the remote server</p>
                             <tr>
                               <td>
                                 <code>
-                                <em>from</em>
+                                <em>data</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The Data Struct containing the bytes to be added</p>
+                                  <p>The Data struct containing the bytes to be added to the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -822,8 +890,7 @@ and send the request to the remote server</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>If true, add the <q>Connection: close</q> header to the set
-              of headers sent with the request</p>
+                                  <p>If true, add the <q>Connection: close</q> header to the set of headers sent with the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -846,7 +913,10 @@ and send the request to the remote server</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Send the request to the remote server</p>
+                        <p>Send the request to the remote server.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">clientRequest</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -869,8 +939,7 @@ and send the request to the remote server</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>If true, add the <q>Connection: close</q> header to the set
-              of headers sent with the request</p>
+                                  <p>If true, add the <q>Connection: close</q> header to the set of headers sent with the request.</p>
                                 </div>
                               </td>
                             </tr>
@@ -888,7 +957,7 @@ and send the request to the remote server</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
