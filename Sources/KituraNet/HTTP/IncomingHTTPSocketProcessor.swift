@@ -20,40 +20,84 @@ import Dispatch
 import LoggerAPI
 import Socket
 
-/// This class processes the data sent by the client after the data was read. The data
-/// is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the
-/// `ServerDelegate` is invoked.
+
+/**
+This class processes the data sent by the client after the data was read. The data is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the `ServerDelegate` is invoked.
+ 
+### Usage Example: ###
+````swift
+ //Create an `IncomingHTTPSocketProcessor` object.
+ var processor : IncomingHTTPSocketProcessor?
+ 
+ //Write from an NSMutableData buffer.
+ processor.write(from: NSMutableData)
+ 
+ //Write from a data object.
+ processor.write(from: utf8, length: utf8Length)
+ ````
+ */
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
-    /// A back reference to the `IncomingSocketHandler` processing the socket that
-    /// this `IncomingDataProcessor` is processing.
+    /**
+     A back reference to the `IncomingSocketHandler` processing the socket that
+     this `IncomingDataProcessor` is processing.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.handler = handler
+     ````
+     */
     public weak var handler: IncomingSocketHandler?
         
     private weak var delegate: ServerDelegate?
     
-    /// Keep alive timeout for idle sockets in seconds
+    /**
+     Keep alive timeout for idle sockets in seconds
+     
+     ### Usage Example: ###
+     ````swift
+     print("timeout=\(Int(IncomingHTTPSocketProcessor.keepAliveTimeout))")
+     ````
+     */
     static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kept alive
     private(set) var clientRequestedKeepAlive = false
     
-    /// The socket if idle will be kep alive until...
+    /**
+     The socket if idle will be kep alive until...
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.keepAliveUntil = 0.0
+     ````
+     */
     public var keepAliveUntil: TimeInterval = 0.0
     
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
     
-    /// A flag that indicates that there is a request in progress
+    /**
+     A flag that indicates that there is a request in progress
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.inProgress = false
+     ````
+     */
     public var inProgress = true
     
     ///HTTP Parser
     private let httpParser: HTTPParser
     
-    /// The number of remaining requests that will be allowed on the socket being handled by this handler
-    private(set) var numberOfRequests = 100
+    /// Indicates whether the HTTP parser has encountered a parsing error
+    private var parserErrored = false
+    
+    /// Controls the number of requests that may be sent on this connection.
+    private(set) var keepAliveState: KeepAliveState
     
     /// Should this socket actually be kept alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && numberOfRequests > 0 }
+    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() && !parserErrored }
     
     let socket: Socket
     
@@ -68,18 +112,26 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
     
-    init(socket: Socket, using: ServerDelegate) {
+    init(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) {
         delegate = using
         self.httpParser = HTTPParser(isRequest: true)
         self.socket = socket
+        self.keepAliveState = keepalive
     }
     
-    /// Process data read from the socket. It is either passed to the HTTP parser or
-    /// it is saved in the Pseudo synchronous reader to be read later on.
-    ///
-    /// - Parameter buffer: An NSData object that contains the data read from the socket.
-    ///
-    /// - Returns: true if the data was processed, false if it needs to be processed later.
+    /**
+     Process data read from the socket. It is either passed to the HTTP parser or
+     it is saved in the Pseudo synchronous reader to be read later on.
+     
+     - Parameter buffer: An NSData object that contains the data read from the socket.
+     
+     - Returns: true if the data was processed, false if it needs to be processed later.
+     
+     ### Usage Example: ###
+     ````swift
+     let processed = processor.process(readBuffer)
+     ````
+     */
     public func process(_ buffer: NSData) -> Bool {
         let result: Bool
         
@@ -102,22 +154,43 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         return result
     }
     
-    /// Write data to the socket
-    ///
-    /// - Parameter data: An NSData object containing the bytes to be written to the socket.
+    /**
+     Write data to the socket
+     
+     - Parameter data: An NSData object containing the bytes to be written to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor.write(from: buffer)
+     ````
+     */
     public func write(from data: NSData) {
         handler?.write(from: data)
     }
     
-    /// Write a sequence of bytes in an array to the socket
-    ///
-    /// - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
-    /// - Parameter length: The number of bytes to write to the socket.
+    /**
+     Write a sequence of bytes in an array to the socket
+     
+     - Parameter from: An UnsafeRawPointer to the sequence of bytes to be written to the socket.
+     - Parameter length: The number of bytes to write to the socket.
+     
+     ### Usage Example: ###
+     ````swift
+     processor.write(from: utf8, length: utf8Length)
+     ````
+     */
     public func write(from bytes: UnsafeRawPointer, length: Int) {
         handler?.write(from: bytes, length: length)
     }
     
-    /// Close the socket and mark this handler as no longer in progress.
+    /**
+     Close the socket and mark this handler as no longer in progress.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.close()
+     ````
+     */
     public func close() {
         keepAliveUntil=0.0
         inProgress = false
@@ -125,8 +198,15 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         handler?.prepareToClose()
     }
     
-    /// Called by the `IncomingSocketHandler` to tell us that the socket has been closed
-    /// by the remote side. 
+    /**
+     Called by the `IncomingSocketHandler` to tell us that the socket has been closed
+     by the remote side.
+     
+     ### Usage Example: ###
+     ````swift
+     processor?.socketClosed()
+     ````
+     */
     public func socketClosed() {
         keepAliveUntil=0.0
         inProgress = false
@@ -198,6 +278,9 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             Log.error("Failed to parse a request. \(parsingStatus.error!)")
             let response = HTTPServerResponse(processor: self, request: nil)
             response.statusCode = .badRequest
+            // We must avoid any further attempts to process data from this client
+            // after a parser error has occurred. (see Kitura-net#228)
+            parserErrored = true
             do {
                 try response.end()
             }
@@ -252,7 +335,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// A socket can be kept alive for future requests. Set it up for future requests and mark how long it can be idle.
     func keepAlive() {
         state = .reset
-        numberOfRequests -= 1
+        keepAliveState.decrement()
         inProgress = false
         keepAliveUntil = Date(timeIntervalSinceNow: IncomingHTTPSocketProcessor.keepAliveTimeout).timeIntervalSinceReferenceDate
         handler?.handleBufferedReadData()
@@ -263,6 +346,16 @@ class HTTPIncomingSocketProcessorCreator: IncomingSocketProcessorCreator {
     public let name = "http/1.1"
     
     public func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate) -> IncomingSocketProcessor {
-        return IncomingHTTPSocketProcessor(socket: socket, using: using)
+        return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: .unlimited)
+    }
+    
+    /// Create an instance of `IncomingHTTPSocketProcessor` for use with new incoming sockets.
+    ///
+    /// - Parameter socket: The new incoming socket.
+    /// - Parameter using: The `ServerDelegate` the HTTPServer is working with, which should be used
+    ///                   by the created `IncomingSocketProcessor`, if it works with `ServerDelegate`s.
+    /// - Parameter keepalive: The `KeepAliveState` for this connection (limited, unlimited or disabled)
+    func createIncomingSocketProcessor(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) -> IncomingSocketProcessor {
+        return IncomingHTTPSocketProcessor(socket: socket, using: using, keepalive: keepalive)
     }
 }

@@ -74,6 +74,7 @@ public class PrintLogger: Logger {
         guard let range = path.range(of: "/", options: .backwards) else {
             return path
         }
-        return path.substring(from: range.upperBound)
+
+        return String(path[range.upperBound...])
     }
 }

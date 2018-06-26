@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Options Enum Reference</title>
+    <title>Options Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
     <meta charset="utf-8">
     <script src="../../js/jquery.min.js" defer></script>
     <script src="../../js/jazzy.js" defer></script>
     
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
     <a name="//apple_ref/swift/Enum/Options" class="dashAnchor"></a>
 
-    <a title="Options Enum Reference"></a>
+    <a title="Options Enumeration Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
         <a class="header-link" href="../../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -35,7 +44,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../../index.html">KituraNet Reference</a>
       <img class="carat" src="../../img/carat.png" />
-      Options Enum Reference
+      Options Enumeration Reference
     </p>
 
     <div class="content-wrapper">
@@ -107,13 +116,19 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Enums/HTTPStatusCode/Class.html">– Class</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/ServerState.html">ServerState</a>
@@ -138,6 +153,9 @@
                 <a class="nav-group-task-link" href="../../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +173,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,11 +192,15 @@
             <h1>Options</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Options</span></code></pre>
 
                 </div>
               </div>
-            <p>Client request option enum</p>
+            <p>Client request options enum. This allows the client to specify certain parameteres such as HTTP headers, HTTP methods, host names, and SSL credentials.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//If present in the options provided, the client will try to use HTTP/2 protocol for the connection.</span>
+<span class="kt">Options</span><span class="o">.</span><span class="n">useHTTP2</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +212,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options6methodFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO6methodAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/method" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options6methodFMS1_FSSS1_">method</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO6methodAESScAEmF">method</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -207,7 +229,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">method</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">method</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -221,9 +243,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options6schemaFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO6schemaAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/schema" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options6schemaFMS1_FSSS1_">schema</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO6schemaAESScAEmF">schema</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -238,7 +260,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">schema</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">schema</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -252,9 +274,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options8hostnameFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO8hostnameAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/hostname" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options8hostnameFMS1_FSSS1_">hostname</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO8hostnameAESScAEmF">hostname</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -269,7 +291,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">hostname</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">hostname</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -283,9 +305,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options4portFMS1_FVs5Int16S1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO4portAEs5Int16VcAEmF"></a>
                     <a name="//apple_ref/swift/Element/port" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options4portFMS1_FVs5Int16S1_">port</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO4portAEs5Int16VcAEmF">port</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -300,7 +322,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">port</span><span class="p">(</span><span class="kt">Int16</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">port</span><span class="p">(</span><span class="kt">Int16</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -314,9 +336,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options4pathFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO4pathAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/path" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options4pathFMS1_FSSS1_">path</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO4pathAESScAEmF">path</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -331,7 +353,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">path</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">path</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -345,9 +367,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options7headersFMS1_FGVs10DictionarySSSS_S1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO7headersAEs10DictionaryVyS2SGcAEmF"></a>
                     <a name="//apple_ref/swift/Element/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options7headersFMS1_FGVs10DictionarySSSS_S1_">headers</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO7headersAEs10DictionaryVyS2SGcAEmF">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -362,7 +384,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">headers</span><span class="p">([</span><span class="kt">String</span><span class="p">:</span> <span class="kt">String</span><span class="p">])</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">headers</span><span class="p">([</span><span class="kt">String</span><span class="p">:</span> <span class="kt">String</span><span class="p">])</span></code></pre>
 
                         </div>
                       </div>
@@ -376,9 +398,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options8usernameFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO8usernameAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/username" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options8usernameFMS1_FSSS1_">username</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO8usernameAESScAEmF">username</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -393,7 +415,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">username</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">username</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -407,9 +429,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options8passwordFMS1_FSSS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO8passwordAESScAEmF"></a>
                     <a name="//apple_ref/swift/Element/password" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options8passwordFMS1_FSSS1_">password</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO8passwordAESScAEmF">password</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -424,7 +446,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">password</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">password</span><span class="p">(</span><span class="kt">String</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -438,9 +460,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options12maxRedirectsFMS1_FSiS1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO12maxRedirectsAESicAEmF"></a>
                     <a name="//apple_ref/swift/Element/maxRedirects" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options12maxRedirectsFMS1_FSiS1_">maxRedirects</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO12maxRedirectsAESicAEmF">maxRedirects</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -456,7 +478,7 @@ request to the location received in the redirect response)</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="nf">maxRedirects</span><span class="p">(</span><span class="kt">Int</span><span class="p">)</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">maxRedirects</span><span class="p">(</span><span class="kt">Int</span><span class="p">)</span></code></pre>
 
                         </div>
                       </div>
@@ -470,9 +492,9 @@ request to the location received in the redirect response)</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet13ClientRequest7Options22disableSSLVerificationFMS1_S1_"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO22disableSSLVerificationA2EmF"></a>
                     <a name="//apple_ref/swift/Element/disableSSLVerification" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet13ClientRequest7Options22disableSSLVerificationFMS1_S1_">disableSSLVerification</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO22disableSSLVerificationA2EmF">disableSSLVerification</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -481,7 +503,6 @@ request to the location received in the redirect response)</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>If present, the SSL credentials of the remote server will not be verified.</p>
-
 <div class="aside aside-note">
     <p class="aside-title">Note</p>
     This is very useful when working with self signed certificates.
@@ -493,7 +514,38 @@ request to the location received in the redirect response)</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">case</span> <span class="n">disableSSLVerification</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">disableSSLVerification</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ClientRequestC7OptionsO8useHTTP2A2EmF"></a>
+                    <a name="//apple_ref/swift/Element/useHTTP2" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7OptionsO8useHTTP2A2EmF">useHTTP2</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>If present, the client will try to use HTTP/2 protocol for the connection.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">useHTTP2</span></code></pre>
 
                         </div>
                       </div>
@@ -508,8 +560,8 @@ request to the location received in the redirect response)</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

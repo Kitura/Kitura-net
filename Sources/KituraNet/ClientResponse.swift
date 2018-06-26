@@ -20,25 +20,71 @@ import LoggerAPI
 
 // MARK: ClientResponse
 
-/// This class describes the response sent by the remote server to an HTTP request
-/// sent using the `ClientRequest` class.
+/**
+This class describes the response sent by the remote server to an HTTP request sent using the `ClientRequest` class. Data or Strings can be read in, and URLs can be parsed.
+
+### Usage Example: ###
+````swift
+//The `ClientResponse` object that describes the response that was received from the remote server is used in a callback.
+public typealias Callback = (ClientResponse?) -> Void
+````
+*/
 public class ClientResponse {
     
-    /// HTTP Status code
+    /**
+     HTTP Status code
+     
+     ### Usage Example: ###
+     ````swift
+     var httpStatusCode = .unknown
+     ...
+     }
+     ````
+     */
     public private(set) var httpStatusCode: HTTPStatusCode = .unknown
     
-    /// HTTP Method of the incoming message.
+    /**
+     HTTP Method of the incoming message.
+     
+     ### Usage Example: ###
+     ````swift
+     self.method = method
+     ...
+     }
+     ````
+     */
     @available(*, deprecated, message:
     "This method never worked on Client Responses and was inherited incorrectly from a super class")
     public var method: String { return httpParser.method }
     
-    /// Major version of HTTP of the response
+    /**
+     Major version of HTTP of the response
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMajor))
+     ````
+     */
     public var httpVersionMajor: UInt16? { return httpParser.httpVersionMajor }
     
-    /// Minor version of HTTP of the response
+    /**
+     Minor version of HTTP of the response
+     
+     ### Usage Example: ###
+     ````swift
+     print(String(describing: request.httpVersionMinor))
+     ````
+     */
     public var httpVersionMinor: UInt16? { return httpParser.httpVersionMinor }
     
-    /// Set of HTTP headers of the response.
+    /**
+     The set of HTTP headers received with the response
+     
+     ### Usage Example: ###
+     ````swift
+     let protocols = request.headers["Upgrade"]
+     ````
+     */
     public var headers: HeadersContainer { return httpParser.headers }
     
     // Private
@@ -47,7 +93,7 @@ public class ClientResponse {
     private static let bufferSize = 2000
     
     /// The http_parser Swift wrapper
-    private var httpParser = HTTPParser(isRequest: false)
+    private var httpParser: HTTPParser
     
     /// State of response parsing
     private var parserStatus = HTTPParserStatus()
@@ -71,7 +117,7 @@ public class ClientResponse {
         if  parserStatus.state == .reset  {
             reset()
         }
-        
+
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
         let (numberParsed, _) = httpParser.execute(bytes, length: length)
         
@@ -93,21 +139,35 @@ public class ClientResponse {
         return parserStatus
     }
     
-    /// Read a chunk of the body of the response.
-    ///
-    /// - Parameter into: An NSMutableData to hold the data in the response.
-    /// - Throws: if an error occurs while reading the body.
-    /// - Returns: the number of bytes read.
+    /**
+     Read a chunk of the body of the response.
+     
+     - Parameter into: An NSMutableData to hold the data in the response.
+     - Throws: if an error occurs while reading the body.
+     - Returns: the number of bytes read.
+     
+     ### Usage Example: ###
+     ````swift
+     let readData = try self.read(into: data)
+     ````
+     */
     public func read(into data: inout Data) throws -> Int {
         let count = httpParser.bodyChunk.fill(data: &data)
         return count
     }
     
-    /// Read the whole body of the response.
-    ///
-    /// - Parameter into: An NSMutableData to hold the data in the response.
-    /// - Throws: if an error occurs while reading the data.
-    /// - Returns: the number of bytes read.
+    /**
+     Read the whole body of the response.
+     
+     - Parameter into: An NSMutableData to hold the data in the response.
+     - Throws: if an error occurs while reading the data.
+     - Returns: the number of bytes read.
+     
+     ### Usage Example: ###
+     ````swift
+     let length = try request.readAllData(into: &body)
+     ````
+     */
     @discardableResult
     public func readAllData(into data: inout Data) throws -> Int {
         var length = try read(into: &data)
@@ -119,10 +179,17 @@ public class ClientResponse {
         return bytesRead
     }
     
-    /// Read a chunk of the body and return it as a String.
-    ///
-    /// - Throws: if an error occurs while reading the data.
-    /// - Returns: an Optional string.
+    /**
+     Read a chunk of the body and return it as a String.
+     
+     - Throws: if an error occurs while reading the data.
+     - Returns: an Optional string.
+     
+     ### Usage Example: ###
+     ````swift
+     let body = try request.readString()
+     ````
+     */
     public func readString() throws -> String? {
         buffer.count = 0
         let length = try read(into: &buffer)
@@ -155,10 +222,18 @@ public class ClientResponse {
     }
 
     /// Initializes a `ClientResponse` instance
-    init() {
+    init(skipBody: Bool = false) {
+        httpParser = HTTPParser(isRequest: false, skipBody: skipBody)
     }
     
-    /// The HTTP Status code, as an Int, sent in the response by the remote server.
+    /**
+     The HTTP Status code, as an Int, sent in the response by the remote server.
+     
+     ### Usage Example: ###
+     ````swift
+     statusCode = HTTPStatusCode(rawValue: status) ?? .unknown
+     ````
+     */
     public internal(set) var status = -1 {
         
         didSet {
@@ -166,8 +241,15 @@ public class ClientResponse {
         }
         
     }
- 
-    /// The HTTP Status code, as an `HTTPStatusCode`, sent in the response by the remote server.
+    
+    /**
+     The HTTP Status code, as an `HTTPStatusCode`, sent in the response by the remote server.
+     
+     ### Usage Example: ###
+     ````swift
+     response.statusCode = .badRequest
+     ````
+     */
     public internal(set) var statusCode: HTTPStatusCode = HTTPStatusCode.unknown
     
     /// BufferList instance for storing the response 
@@ -195,3 +277,4 @@ public class ClientResponse {
         return parseStatus
     }
 }
+

@@ -319,7 +319,7 @@ class FastCGIRequestTests: KituraNetTest {
                 response.statusCode = .OK
                 let result = "OK"
                 response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = ["\(result.characters.count)"]
+                response.headers["Content-Length"] = ["\(result.count)"]
                 
                 try response.end(text: result)
             }

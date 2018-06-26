@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016, 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import Glibc
 @testable import KituraNetTests
 
 // http://stackoverflow.com/questions/24026510/how-do-i-shuffle-an-array-in-swift
-extension MutableCollection where Indices.Iterator.Element == Index {
+extension MutableCollection {
     mutating func shuffle() {
         let c = count
         guard c > 1 else { return }
-        
+
         srand(UInt32(time(nil)))
         for (firstUnshuffled , unshuffledCount) in zip(indices, stride(from: c, to: 1, by: -1)) {
             let d: IndexDistance = numericCast(random() % numericCast(unshuffledCount))
             guard d != 0 else { continue }
             let i = index(firstUnshuffled, offsetBy: d)
-            swap(&self[firstUnshuffled], &self[i])
+            swapAt(firstUnshuffled, i)
         }
     }
 }
@@ -43,16 +43,18 @@ extension Sequence {
 }
 
 XCTMain([
-       testCase(ClientE2ETests.allTests.shuffled()),
-       testCase(ClientRequestTests.allTests.shuffled()),
-       testCase(FastCGIProtocolTests.allTests.shuffled()),
-       testCase(FastCGIRequestTests.allTests.shuffled()),
-       testCase(HTTPResponseTests.allTests.shuffled()),
-       testCase(LargePayloadTests.allTests.shuffled()),
-       testCase(LifecycleListenerTests.allTests.shuffled()),
-       testCase(MiscellaneousTests.allTests.shuffled()),
-       testCase(MonitoringTests.allTests.shuffled()),
-       testCase(ParserTests.allTests.shuffled()),
-       testCase(SocketManagerTests.allTests.shuffled()),
-       testCase(UpgradeTests.allTests.shuffled())
-].shuffled())
+    testCase(ClientE2ETests.allTests.shuffled()),
+    testCase(ClientRequestTests.allTests.shuffled()),
+    testCase(FastCGIProtocolTests.allTests.shuffled()),
+    testCase(FastCGIRequestTests.allTests.shuffled()),
+    testCase(HTTPResponseTests.allTests.shuffled()),
+    testCase(LargePayloadTests.allTests.shuffled()),
+    testCase(LifecycleListenerTests.allTests.shuffled()),
+    testCase(MiscellaneousTests.allTests.shuffled()),
+    testCase(MonitoringTests.allTests.shuffled()),
+    testCase(ParserTests.allTests.shuffled()),
+    testCase(SocketManagerTests.allTests.shuffled()),
+    testCase(UpgradeTests.allTests.shuffled()),
+    testCase(RegressionTests.allTests.shuffled()),
+    testCase(HTTPStatusCodeTests.allTests.shuffled())
+    ].shuffled())

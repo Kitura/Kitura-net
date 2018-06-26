@@ -8,6 +8,9 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
@@ -20,7 +23,13 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -107,13 +116,19 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/HTTPStatusCode/Class.html">– Class</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
@@ -138,6 +153,9 @@
                 <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +173,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,7 +192,7 @@
             <h1>ServerRequest</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerRequest</span><span class="p">:</span> <span class="kd">class</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ServerRequest</span><span class="p">:</span> <span class="kd">class</span></code></pre>
 
                 </div>
               </div>
@@ -192,9 +210,9 @@ Kitura project Router.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest7headersCS_16HeadersContainer"></a>
+                    <a name="/s:9KituraNet13ServerRequestP7headersAA16HeadersContainerCvp"></a>
                     <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest7headersCS_16HeadersContainer">headers</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP7headersAA16HeadersContainerCvp">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -209,7 +227,7 @@ Kitura project Router.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">headers</span> <span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">headers</span> <span class="p">:</span> <span class="kt"><a href="../Classes/HeadersContainer.html">HeadersContainer</a></span></code></pre>
 
                         </div>
                       </div>
@@ -219,9 +237,9 @@ Kitura project Router.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest9urlStringSS"></a>
+                    <a name="/s:9KituraNet13ServerRequestP9urlStringSSvp"></a>
                     <a name="//apple_ref/swift/Property/urlString" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest9urlStringSS">urlString</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP9urlStringSSvp">urlString</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -238,7 +256,7 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">urlString</span> <span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">urlString</span> <span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -248,9 +266,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest3urlV10Foundation4Data"></a>
+                    <a name="/s:9KituraNet13ServerRequestP3url10Foundation4DataVvp"></a>
                     <a name="//apple_ref/swift/Property/url" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest3urlV10Foundation4Data">url</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP3url10Foundation4DataVvp">url</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -267,7 +285,7 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">url</span> <span class="p">:</span> <span class="kt">Data</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">url</span> <span class="p">:</span> <span class="kt">Data</span></code></pre>
 
                         </div>
                       </div>
@@ -277,9 +295,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest13urlComponentsV10Foundation13URLComponents"></a>
+                    <a name="/s:9KituraNet13ServerRequestP13urlComponents10Foundation13URLComponentsVvp"></a>
                     <a name="//apple_ref/swift/Property/urlComponents" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest13urlComponentsV10Foundation13URLComponents">urlComponents</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP13urlComponents10Foundation13URLComponentsVvp">urlComponents</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -295,7 +313,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">urlComponents</span> <span class="p">:</span> <span class="kt">URLComponents</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">urlComponents</span> <span class="p">:</span> <span class="kt">URLComponents</span></code></pre>
 
                         </div>
                       </div>
@@ -305,9 +323,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest6urlURLV10Foundation3URL"></a>
+                    <a name="/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vvp"></a>
                     <a name="//apple_ref/swift/Property/urlURL" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest6urlURLV10Foundation3URL">urlURL</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vvp">urlURL</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -322,7 +340,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">urlURL</span> <span class="p">:</span> <span class="kt">URL</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">urlURL</span> <span class="p">:</span> <span class="kt">URL</span></code></pre>
 
                         </div>
                       </div>
@@ -332,9 +350,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest13remoteAddressSS"></a>
+                    <a name="/s:9KituraNet13ServerRequestP13remoteAddressSSvp"></a>
                     <a name="//apple_ref/swift/Property/remoteAddress" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest13remoteAddressSS">remoteAddress</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP13remoteAddressSSvp">remoteAddress</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -349,7 +367,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">remoteAddress</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">remoteAddress</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -359,9 +377,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest16httpVersionMajorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet13ServerRequestP16httpVersionMajors6UInt16VSgvp"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMajor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest16httpVersionMajorGSqVs6UInt16_">httpVersionMajor</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP16httpVersionMajors6UInt16VSgvp">httpVersionMajor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -376,7 +394,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">httpVersionMajor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -386,9 +404,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest16httpVersionMinorGSqVs6UInt16_"></a>
+                    <a name="/s:9KituraNet13ServerRequestP16httpVersionMinors6UInt16VSgvp"></a>
                     <a name="//apple_ref/swift/Property/httpVersionMinor" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest16httpVersionMinorGSqVs6UInt16_">httpVersionMinor</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP16httpVersionMinors6UInt16VSgvp">httpVersionMinor</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -403,7 +421,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">httpVersionMinor</span><span class="p">:</span> <span class="kt">UInt16</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -413,9 +431,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:vP9KituraNet13ServerRequest6methodSS"></a>
+                    <a name="/s:9KituraNet13ServerRequestP6methodSSvp"></a>
                     <a name="//apple_ref/swift/Property/method" class="dashAnchor"></a>
-                    <a class="token" href="#/s:vP9KituraNet13ServerRequest6methodSS">method</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP6methodSSvp">method</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -430,7 +448,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -440,9 +458,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet13ServerRequest4readFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet13ServerRequestP4readSi10Foundation4DataVz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/read(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet13ServerRequest4readFzT4intoRV10Foundation4Data_Si">read(into:)</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP4readSi10Foundation4DataVz4into_tKF">read(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -451,22 +469,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read data from the body of the request</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data read in.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while reading from the socket</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes read</p>
 
 </div>
 
@@ -475,7 +480,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">read</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">read</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
 
                         </div>
                       </div>
@@ -492,7 +497,6 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                               <td>
                                 <div>
                                   <p>A Data struct to hold the data read in.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -502,7 +506,6 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div>
                         <h4>Return Value</h4>
                         <p>The number of bytes read</p>
-
                       </div>
                     </section>
                   </div>
@@ -510,9 +513,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet13ServerRequest10readStringFzT_GSqSS_"></a>
+                    <a name="/s:9KituraNet13ServerRequestP10readStringSSSgyKF"></a>
                     <a name="//apple_ref/swift/Method/readString()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet13ServerRequest10readStringFzT_GSqSS_">readString()</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP10readStringSSSgyKF">readString()</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -521,16 +524,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read a string from the body of the request.</p>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     Socket.error if an error occurred while reading from the socket
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    An Optional string
 
 </div>
 
@@ -539,14 +535,13 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">readString</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">readString</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
                       <div>
                         <h4>Return Value</h4>
                         <p>An Optional string</p>
-
                       </div>
                     </section>
                   </div>
@@ -554,9 +549,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FP9KituraNet13ServerRequest11readAllDataFzT4intoRV10Foundation4Data_Si"></a>
+                    <a name="/s:9KituraNet13ServerRequestP11readAllDataSi10Foundation0G0Vz4into_tKF"></a>
                     <a name="//apple_ref/swift/Method/readAllData(into:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FP9KituraNet13ServerRequest11readAllDataFzT4intoRV10Foundation4Data_Si">readAllData(into:)</a>
+                    <a class="token" href="#/s:9KituraNet13ServerRequestP11readAllDataSi10Foundation0G0Vz4into_tKF">readAllData(into:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -565,22 +560,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Read all of the data in the body of the request</p>
-
-<div class="aside aside-parameter">
-    <p class="aside-title">Parameter</p>
-    <p>Parameter data: A Data struct to hold the data read in.</p>
-
-</div>
-
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     <p>Socket.error if an error occurred while reading from the socket</p>
-
-</div>
-
-<div class="aside aside-returns">
-    <p class="aside-title">Returns</p>
-    <p>The number of bytes read</p>
 
 </div>
 
@@ -589,7 +571,7 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">readAllData</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">readAllData</span><span class="p">(</span><span class="n">into</span> <span class="nv">data</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Data</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
 
                         </div>
                       </div>
@@ -606,7 +588,6 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                               <td>
                                 <div>
                                   <p>A Data struct to hold the data read in.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -616,7 +597,6 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div>
                         <h4>Return Value</h4>
                         <p>The number of bytes read</p>
-
                       </div>
                     </section>
                   </div>
@@ -629,8 +609,8 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>FastCGIParserErrorType Enum Reference</title>
+    <title>FastCGIParserErrorType Enumeration Reference</title>
     <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
     <meta charset="utf-8">
     <script src="../../js/jquery.min.js" defer></script>
     <script src="../../js/jazzy.js" defer></script>
     
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
   </head>
   <body>
 
     <a name="//apple_ref/swift/Enum/FastCGIParserErrorType" class="dashAnchor"></a>
 
-    <a title="FastCGIParserErrorType Enum Reference"></a>
+    <a title="FastCGIParserErrorType Enumeration Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
         <a class="header-link" href="../../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
       </p>
     
         <p class="header-col header-col--secondary">
@@ -35,7 +44,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../../index.html">KituraNet Reference</a>
       <img class="carat" src="../../img/carat.png" />
-      FastCGIParserErrorType Enum Reference
+      FastCGIParserErrorType Enumeration Reference
     </p>
 
     <div class="content-wrapper">
@@ -107,13 +116,19 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../../Enums.html">Enums</a>
+            <a class="nav-group-name-link" href="../../Enums.html">Enumerations</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/Error.html">Error</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Enums/HTTPStatusCode/Class.html">– Class</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Enums/KeepAliveState.html">KeepAliveState</a>
               </li>
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Enums/ServerState.html">ServerState</a>
@@ -138,6 +153,9 @@
                 <a class="nav-group-task-link" href="../../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Protocols/Server.html">Server</a>
               </li>
               <li class="nav-group-task">
@@ -155,7 +173,7 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../../Structs.html">Structs</a>
+            <a class="nav-group-name-link" href="../../Structs.html">Structures</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
@@ -174,11 +192,17 @@
             <h1>FastCGIParserErrorType</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
 
                 </div>
               </div>
-            <p>HTTP parser error types</p>
+            <p>HTTP parser error type. Used when parsing requests from a FastCGI server instance.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Parse the request from FastCGI and pass back an error type.</span>
+ <span class="kd">func</span> <span class="nf">parse</span> <span class="p">(</span><span class="n">_</span> <span class="nv">callback</span><span class="p">:</span> <span class="p">(</span><span class="kt">FastCGIParserErrorType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="p">{</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -190,9 +214,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType7successFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO7successA2EmF"></a>
                     <a name="//apple_ref/swift/Element/success" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType7successFMS1_S1_">success</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO7successA2EmF">success</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -200,14 +224,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Parser was successful.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">success</span></code></pre>
 
                         </div>
                       </div>
@@ -221,9 +245,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType13protocolErrorFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO08protocolG0A2EmF"></a>
                     <a name="//apple_ref/swift/Element/protocolError" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType13protocolErrorFMS1_S1_">protocolError</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO08protocolG0A2EmF">protocolError</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -231,14 +255,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Error with the protocol when parsing.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">protocolError</span></code></pre>
 
                         </div>
                       </div>
@@ -252,9 +276,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType11invalidTypeFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO07invalidH0A2EmF"></a>
                     <a name="//apple_ref/swift/Element/invalidType" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType11invalidTypeFMS1_S1_">invalidType</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO07invalidH0A2EmF">invalidType</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -262,14 +286,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Error with invalid types when parsing.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">invalidType</span></code></pre>
 
                         </div>
                       </div>
@@ -283,9 +307,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType16clientDisconnectFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO16clientDisconnectA2EmF"></a>
                     <a name="//apple_ref/swift/Element/clientDisconnect" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType16clientDisconnectFMS1_S1_">clientDisconnect</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO16clientDisconnectA2EmF">clientDisconnect</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -293,14 +317,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Error with client disconnecting when parsing.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">clientDisconnect</span></code></pre>
 
                         </div>
                       </div>
@@ -314,9 +338,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType15unsupportedRoleFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO15unsupportedRoleA2EmF"></a>
                     <a name="//apple_ref/swift/Element/unsupportedRole" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType15unsupportedRoleFMS1_S1_">unsupportedRole</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO15unsupportedRoleA2EmF">unsupportedRole</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -324,14 +348,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Error with an unsupported role when parsing.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">unsupportedRole</span></code></pre>
 
                         </div>
                       </div>
@@ -345,9 +369,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType13internalErrorFMS1_S1_"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO08internalG0A2EmF"></a>
                     <a name="//apple_ref/swift/Element/internalError" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FOC9KituraNet20FastCGIServerRequest22FastCGIParserErrorType13internalErrorFMS1_S1_">internalError</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC0C18CGIParserErrorTypeO08internalG0A2EmF">internalError</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -355,14 +379,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>An internal error.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">FastCGIParserErrorType</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">internalError</span></code></pre>
 
                         </div>
                       </div>
@@ -377,8 +401,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2017 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2017-04-17)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

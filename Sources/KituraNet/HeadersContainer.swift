@@ -18,22 +18,43 @@ import Foundation
 
 import LoggerAPI
 
-/// A class that abstracts out the HTTP header APIs of the `ServerRequest` and
-/// `ServerResponse` protocols.
+/**
+A class that abstracts out the HTTP header APIs of the `ServerRequest` and
+`ServerResponse` protocols.
+
+### Usage Example: ###
+````swift
+ public var headers: HeadersContainer { return httpParser?.headers ?? HeadersContainer() }
+````
+*/
 public class HeadersContainer {
     
     /// The header storage
     internal var headers: [String: (key: String, value: [String])] = [:]
     
-    /// Create an instance of `HeadersContainer`
+    /**
+     Creates an instance of `HeadersContainer`.
+     
+     ### Usage Example: ###
+     ````swift
+     let headers = HeaderContainer()
+     ````
+     
+     */
     public init() {}
 
-    /// Access the value of a HTTP header using subscript syntax.
-    ///
-    /// - Parameter key: The HTTP header key
-    ///
-    /// - Returns: An array of strings representing the set of values for the HTTP
-    ///           header key. If the HTTP header is not found, nil will be returned.
+
+    /**
+     Access the value of a HTTP header using subscript syntax.
+     
+     ### Usage Example: ###
+     ````swift
+     let subscript: [String]? = headers.subscript(key: "key")
+     ````
+     - Parameter key: The HTTP header key.
+     
+     - Returns: An array of strings representing the set of values for the HTTP header key. If the HTTP header is not found, nil will be returned.
+     */
     public subscript(key: String) -> [String]? {
         get {
             return get(key)
@@ -49,10 +70,16 @@ public class HeadersContainer {
         }
     }
     
-    /// Append values to an HTTP header
-    ///
-    /// - Parameter key: The HTTP header key
-    /// - Parameter value: An array of strings to add as values of the HTTP header
+    /**
+     Append values to an HTTP header.
+     
+     ### Usage Example: ###
+     ````swift
+     header.append(key, value: arrayOfvalues)
+     ````
+     - Parameter key: The HTTP header key
+     - Parameter value: An array of Strings to add as values of the HTTP header.
+     */
     public func append(_ key: String, value: [String]) {
         
         let lowerCaseKey = key.lowercased()
@@ -93,10 +120,16 @@ public class HeadersContainer {
         }
     }
     
-    /// Append values to an HTTP header
-    ///
-    /// - Parameter key: The HTTP header key
-    /// - Parameter value: A string to be appended to the value of the HTTP header
+    /**
+     Append values to an HTTP header.
+     
+     ### Usage Example: ###
+     ````swift
+     header.append(key, value: value)
+     ````
+     - Parameter key: The HTTP header key
+     - Parameter value: An String to br appended to the value of the HTTP header.
+     */
     public func append(_ key: String, value: String) {
 
         append(key, value: [value])
@@ -107,11 +140,29 @@ public class HeadersContainer {
     /// - Parameter key: the key
     ///
     /// - Returns: the value for the key
+    /**
+     Append values to an HTTP header.
+     
+     ### Usage Example: ###
+     ````swift
+     header.get(key)
+     ````
+     - Parameter key: The HTTP header key.
+     - Returns : The value for the key.
+     */
     private func get(_ key: String) -> [String]? {
         return headers[key.lowercased()]?.value
     }
     
     /// Remove all of the headers
+    /**
+     Remove all of the headers.
+     
+     ### Usage Example: ###
+     ````swift
+     header.removeAll()
+     ````
+     */
     public func removeAll() {
         headers.removeAll(keepingCapacity: true)
     }
@@ -151,23 +202,34 @@ extension HeadersContainer: Collection {
     /// The ending index of the `HeadersContainer` collection
     public var endIndex:Index { return headers.endIndex }
 
-    /// Get a (key value) tuple from the `HeadersContainer` collection at the specified position.
-    ///
-    /// - Parameter position: The position in the `HeadersContainer` collection of the
-    ///                      (key, value) tuple to return.
-    ///
-    /// - Returns: A (key, value) tuple.
+    /**
+     Get a (key value) tuple from the `HeadersContainer` collection at the specified position.
+     
+     ### Usage Example: ###
+     ````swift
+     header.subscript(position: index)
+     ````
+     - Parameter position: The position in the `HeadersContainer` collection of the (key, value) tuple to return.
+     
+     - Returns: A (key, value) tuple.
+     */
     public subscript(position: Index) -> (key: String, value: [String]) {
         get {
             return headers[position].value
         }
     }
 
-    /// Get the next Index in the `HeadersContainer` collection after the one specified.
-    ///
-    /// - Parameter after: The Index whose successor is to be returned.
-    ///
-    /// - Returns: The Index in the `HeadersContainer` collection after the one specified.
+    /**
+     Get the next index in the `HeadersContainer` collection after the one specified.
+     
+     ### Usage Example: ###
+     ````swift
+     header.index(after: index)
+     ````
+     - Parameter after: The Index whose successor is to be returned.
+     
+     - Returns: The Index in the `HeadersContainer` collection after the one specified.
+     */
     public func index(after i: Index) -> Index {
         return headers.index(after: i)
     }
