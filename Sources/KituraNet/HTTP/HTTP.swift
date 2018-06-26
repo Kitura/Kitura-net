@@ -12,11 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * This source file includes content derived from the Swift.org Server APIs open source project
  */
 
-
+/* 
+ * This source file includes content derived from the Swift.org Server APIs open source project
+ * (http://github.com/swift-server/http)
+ *
+ * Copyright (c) 2017 Swift Server API project authors
+ * Licensed under Apache License v2.0 with Runtime Library Exception
+ *
+ * See http://swift.org/LICENSE.txt for license information
+ */
 
 import Foundation
 
