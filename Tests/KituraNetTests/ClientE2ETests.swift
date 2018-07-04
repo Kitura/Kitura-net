@@ -384,7 +384,7 @@ class ClientE2ETests: KituraNetTest {
     }
 
     func testRedirection() {
-        performServerTest(TestRedirectDeletate()) { expectation in
+        performServerTest(TestRedirectDelegate()) { expectation in
             let redirLimitZero: ((ClientRequest) -> Void) = {request in
                 request.set(.maxRedirects(0))
             }
@@ -470,7 +470,7 @@ class ClientE2ETests: KituraNetTest {
         }
     }
 
-    class TestRedirectDeletate: ServerDelegate {
+    class TestRedirectDelegate: ServerDelegate {
 
         func handle(request: ServerRequest, response: ServerResponse) {
             switch request.urlURL.path {
