@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -198,6 +198,9 @@
               </div>
             <p>A class that abstracts out the HTTP header APIs of the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> and
 <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt">HeadersContainer</span> <span class="p">{</span> <span class="k">return</span> <span class="n">httpParser</span><span class="p">?</span><span class="o">.</span><span class="n">headers</span> <span class="p">??</span> <span class="kt">HeadersContainer</span><span class="p">()</span> <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -219,7 +222,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Create an instance of <code>HeadersContainer</code></p>
+                        <p>Creates an instance of <code>HeadersContainer</code>.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">headers</span> <span class="o">=</span> <span class="kt">HeaderContainer</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -247,6 +253,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Access the value of a HTTP header using subscript syntax.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">subscript</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]?</span> <span class="err"></span><span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="nf">subscript</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"key"</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -269,7 +278,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The HTTP header key</p>
+                                  <p>The HTTP header key.</p>
                                 </div>
                               </td>
                             </tr>
@@ -278,8 +287,7 @@
                       </div>
                       <div>
                         <h4>Return Value</h4>
-                        <p>An array of strings representing the set of values for the HTTP
-      header key. If the HTTP header is not found, nil will be returned.</p>
+                        <p>An array of strings representing the set of values for the HTTP header key. If the HTTP header is not found, nil will be returned.</p>
                       </div>
                     </section>
                   </div>
@@ -297,7 +305,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Append values to an HTTP header</p>
+                        <p>Append values to an HTTP header.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">header</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="n">arrayOfvalues</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -332,7 +343,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>An array of strings to add as values of the HTTP header</p>
+                                  <p>An array of Strings to add as values of the HTTP header.</p>
                                 </div>
                               </td>
                             </tr>
@@ -355,7 +366,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Append values to an HTTP header</p>
+                        <p>Append values to an HTTP header.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">header</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="n">value</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -390,7 +404,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>A string to be appended to the value of the HTTP header</p>
+                                  <p>An String to br appended to the value of the HTTP header.</p>
                                 </div>
                               </td>
                             </tr>
@@ -413,7 +427,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Remove all of the headers</p>
+                        <p>Remove all of the headers.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">header</span><span class="o">.</span><span class="nf">removeAll</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -525,6 +542,9 @@
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Get a (key value) tuple from the <code>HeadersContainer</code> collection at the specified position.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">header</span><span class="o">.</span><span class="nf">subscript</span><span class="p">(</span><span class="nv">position</span><span class="p">:</span> <span class="n">index</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -547,8 +567,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>The position in the <code>HeadersContainer</code> collection of the
-                 (key, value) tuple to return.</p>
+                                  <p>The position in the <code>HeadersContainer</code> collection of the (key, value) tuple to return.</p>
                                 </div>
                               </td>
                             </tr>
@@ -575,7 +594,10 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Get the next Index in the <code>HeadersContainer</code> collection after the one specified.</p>
+                        <p>Get the next index in the <code>HeadersContainer</code> collection after the one specified.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">header</span><span class="o">.</span><span class="nf">index</span><span class="p">(</span><span class="nv">after</span><span class="p">:</span> <span class="n">index</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -620,7 +642,7 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

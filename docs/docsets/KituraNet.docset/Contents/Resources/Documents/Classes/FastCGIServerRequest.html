@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -196,8 +196,26 @@
 
                 </div>
               </div>
-            <p>The FastCGIServerRequest class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+            <p>The FastCGIServerRequest class implements the <code><a href="../Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming HTTP requests that come in over a FastCGI connection. This can be used to read data from the body of the request and process the original request URI.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a `FastCGIServerRequest` to handle a new client FastCGI request.</span>
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">FastCGIServerRequest</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="n">clientSocket</span><span class="p">)</span>
+
+ <span class="c1">//Handle a new client FastCGI request.</span>
+ <span class="n">request</span><span class="o">.</span><span class="nf">parse</span><span class="p">()</span> <span class="p">{</span> <span class="n">status</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">status</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">success</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">unsupportedRole</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">default</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -220,6 +238,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The IP address of the client</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">remoteAddress</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -247,6 +268,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Major version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMajor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -274,6 +298,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>Minor version of HTTP of the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">describing</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">httpVersionMinor</span><span class="p">))</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -301,6 +328,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The set of HTTP headers received with the incoming request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -328,6 +358,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The set of non-HTTP headers received with the incoming request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">fastCGIHeaders</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -355,6 +388,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP Method specified in the request</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="nf">lowercased</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -371,9 +407,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vvp"></a>
+                    <a name="/s:9KituraNet20FastCGIServerRequestC6urlURL10Foundation0G0Vvp"></a>
                     <a name="//apple_ref/swift/Property/urlURL" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ServerRequestP6urlURL10Foundation0F0Vvp">urlURL</a>
+                    <a class="token" href="#/s:9KituraNet20FastCGIServerRequestC6urlURL10Foundation0G0Vvp">urlURL</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -381,7 +417,11 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Create and validate the full URL.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlURL</span><span class="p">)</span>
+</code></pre>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -410,6 +450,9 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                         <p>The URL from the request in string form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlString</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -439,6 +482,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                         <p>The URL from the request in UTF-8 form
 This contains just the path and query parameters starting with &lsquo;/&rsquo;
 Use &lsquo;urlURL&rsquo; for the full URL</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -467,6 +513,9 @@ Use &lsquo;urlURL&rsquo; for the full URL</p>
                       <div class="abstract">
                         <p>The URL from the request as URLComponents
 URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rsquo; instead</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="nf">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">urlComponents</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -494,6 +543,9 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The request ID established by the FastCGI client.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="n">requestId</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">requestId</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -523,6 +575,11 @@ URLComponents has a memory leak on linux as of swift 3.0.1. Use &lsquo;urlURL&rs
                         <p>An array of request ID&rsquo;s that are not our primary one.
 When the main request is done, the FastCGIServer can reject the
 extra requests as being unusable.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">extraRequestIds</span><span class="o">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -549,7 +606,13 @@ extra requests as being unusable.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>HTTP parser error types</p>
+                        <p>HTTP parser error type. Used when parsing requests from a FastCGI server instance.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Parse the request from FastCGI and pass back an error type.</span>
+ <span class="kd">func</span> <span class="nf">parse</span> <span class="p">(</span><span class="n">_</span> <span class="nv">callback</span><span class="p">:</span> <span class="p">(</span><span class="kt">FastCGIParserErrorType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="p">{</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="../Classes/FastCGIServerRequest/FastCGIParserErrorType.html" class="slightly-smaller">See more</a>
                       </div>
@@ -629,6 +692,9 @@ extra requests as being unusable.</p>
     <p>Socket.error if an error occurred while reading from the socket.</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">readData</span> <span class="o">=</span> <span class="k">try</span> <span class="k">self</span><span class="o">.</span><span class="nf">read</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -684,6 +750,9 @@ extra requests as being unusable.</p>
     <p>Socket.error if an error occurred while reading from the socket.</p>
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -739,6 +808,9 @@ extra requests as being unusable.</p>
     Socket.error if an error occurred while reading from the socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">body</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readString</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -764,7 +836,7 @@ extra requests as being unusable.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
