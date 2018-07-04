@@ -675,11 +675,25 @@ private class CurlInvoker {
                     var redirectUrl: UnsafeMutablePointer<Int8>? = nil
                     let infoRc = curlHelperGetInfoCString(handle, CURLINFO_REDIRECT_URL, &redirectUrl)
                     if  infoRc == CURLE_OK {
-                        if  redirectUrl != nil  {
-                            curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
-                            redirected = true
-                            delegate?.prepareForRedirect()
-                            redirectCount+=1
+                        if  redirectUrl != nil {
+                            redirectCount += 1
+                            if redirectCount <= maxRedirects {
+                                // Prepare to do a redirect
+                                curlHelperSetOptString(handle, CURLOPT_URL, redirectUrl)
+                                var status: Int = -1
+                                let codeRc = curlHelperGetInfoLong(handle, CURLINFO_RESPONSE_CODE, &status)
+                                // If the status code was 303 See Other, ensure that
+                                // the redirect is done with a GET query rather than
+                                // whatever might have just been used.
+                                if codeRc == CURLE_OK && status == 303 {
+                                    _ = curlHelperSetOptInt(handle, CURLOPT_HTTPGET, 1)
+                                }
+                                redirected = true
+                                delegate?.prepareForRedirect()
+                            }
+                            else {
+                                redirected = false
+                            }
                         }
                         else {
                             redirected = false
@@ -687,7 +701,7 @@ private class CurlInvoker {
                     }
                 }
 
-            } while  rc == CURLE_OK  &&  redirected  &&  redirectCount < maxRedirects
+            } while  rc == CURLE_OK  &&  redirected
         }
 
         return rc
