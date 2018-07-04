@@ -22,7 +22,7 @@
         <a class="header-link" href="index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -291,7 +291,18 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class provides a set of low level APIs for issuing HTTP requests to another server.</p>
+                        <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects cab be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Function to create a new `ClientRequest` using a URL.</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">ClientRequest</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="kt">ClientRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="n">callback</span><span class="p">)</span>
+ <span class="p">}</span>
+
+ <span class="c1">//Create a new `ClientRequest` using a URL.</span>
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+     <span class="o">...</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/ClientRequest.html" class="slightly-smaller">See more</a>
                       </div>
@@ -330,8 +341,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class describes the response sent by the remote server to an HTTP request
-sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></code> class.</p>
+                        <p>This class describes the response sent by the remote server to an HTTP request sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></code> class. Data or Strings can be read in, and URLs can be parsed.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//The `ClientResponse` object that describes the response that was received from the remote server is used in a callback.</span>
+<span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">Callback</span> <span class="o">=</span> <span class="p">(</span><span class="kt">ClientResponse</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+</code></pre>
 
                         <a href="Classes/ClientResponse.html" class="slightly-smaller">See more</a>
                       </div>
@@ -363,7 +377,11 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The <q>root</q> class for the FastCGI server implementation.</p>
+                        <p>The <q>root</q> class for the FastCGI server implementation. A <code><a href="Classes/FastCGIServer.html">FastCGIServer</a></code> instance can be created.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Implement a `FastCGI` server.</span>
+<span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">FastCGI</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/FastCGI.html" class="slightly-smaller">See more</a>
                       </div>
@@ -395,8 +413,11 @@ sent using the <code><a href="Classes/ClientRequest.html">ClientRequest</a></cod
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A server that listens for incoming HTTP requests that are sent using the FastCGI
-protocol.</p>
+                        <p>A server that listens for incoming HTTP requests that are sent using the FastCGI protocol. This can be used to create a new <code>FastCGIServer</code> and have it listen for conenctions and handle a new client FastCGI request.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Create a `FastCGI` server on a specified port.</span>
+<span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">FastCGIServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="n">port</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/FastCGIServer.html" class="slightly-smaller">See more</a>
                       </div>
@@ -428,8 +449,26 @@ protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming HTTP requests that come in over a FastCGI connection. This can be used to read data from the body of the request and process the original request URI.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a `FastCGIServerRequest` to handle a new client FastCGI request.</span>
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">FastCGIServerRequest</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="n">clientSocket</span><span class="p">)</span>
+
+ <span class="c1">//Handle a new client FastCGI request.</span>
+ <span class="n">request</span><span class="o">.</span><span class="nf">parse</span><span class="p">()</span> <span class="p">{</span> <span class="n">status</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">status</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">success</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">unsupportedRole</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="k">default</span><span class="p">:</span>
+         <span class="o">...</span>
+     <span class="k">break</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/FastCGIServerRequest.html" class="slightly-smaller">See more</a>
                       </div>
@@ -461,8 +500,20 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol
-for incoming HTTP requests that come in over a FastCGI connection.</p>
+                        <p>The FastCGIServerRequest class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol for incoming HTTP requests that come in over a FastCGI connection.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a `FastCGIServerResponse` object with socket and request parameters.</span>
+ <span class="k">let</span> <span class="nv">response</span> <span class="o">=</span> <span class="kt">FastCGIServerResponse</span><span class="p">(</span><span class="nv">socket</span><span class="p">:</span> <span class="n">clientSocket</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">)</span>
+ <span class="o">...</span>
+ <span class="c1">//Set the status code.</span>
+ <span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="n">badRequest</span>
+ <span class="o">...</span>
+ <span class="c1">//Write a String to the `FastCGIServerResponse` object.</span>
+ <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="s">"Some String"</span><span class="p">)</span>
+ <span class="o">...</span>
+ <span class="c1">//Stop the `FastCGIServerResponse` object.</span>
+ <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/FastCGIServerResponse.html" class="slightly-smaller">See more</a>
                       </div>
@@ -502,6 +553,22 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>A set of helpers for HTTP: status codes mapping, server and client request creation.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a HTTP server.</span>
+ <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+
+ <span class="c1">//Create a new a `ClientRequest` instance using a URL.</span>
+ <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span><span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="c1">//Get a `ClientRequest` instance from a URL.</span>
+ <span class="k">let</span> <span class="nv">getHTTP</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">get</span><span class="p">(</span><span class="s">"http://localhost/8080"</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="k">in</span>
+ <span class="o">...</span>
+ <span class="p">}</span>
+
+ <span class="kt">HTTP</span><span class="o">.</span><span class="nf">escape</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">testString</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/HTTP.html" class="slightly-smaller">See more</a>
                       </div>
@@ -541,6 +608,13 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>An HTTP server that listens for connections on a socket.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a server that listens for connections on a specified socket.</span>
+ <span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">HTTPServer</span><span class="o">.</span><span class="nf">listen</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="nv">delegate</span><span class="p">:</span> <span class="n">delegate</span><span class="p">)</span>
+ <span class="o">...</span>
+ <span class="c1">//Stop the server.</span>
+ <span class="n">server</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/HTTPServer.html" class="slightly-smaller">See more</a>
                       </div>
@@ -579,8 +653,23 @@ for incoming HTTP requests that come in over a FastCGI connection.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that
-are communicating via the HTTP protocol.</p>
+                        <p>This class implements the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> protocol for incoming sockets that are communicating via the HTTP protocol. Data and Strings can be read in.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">handlePost</span><span class="p">(</span><span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">var</span> <span class="nv">body</span> <span class="o">=</span> <span class="kt">Data</span><span class="p">()</span>
+     <span class="k">do</span> <span class="p">{</span>
+         <span class="k">let</span> <span class="nv">length</span> <span class="o">=</span> <span class="k">try</span> <span class="n">request</span><span class="o">.</span><span class="nf">readAllData</span><span class="p">(</span><span class="nv">into</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">body</span><span class="p">)</span>
+         <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="s">"Read </span><span class="se">\(</span><span class="n">length</span><span class="se">)</span><span class="s"> bytes"</span>
+         <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+         <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Length"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"</span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">]</span>
+
+         <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+     <span class="p">}</span>
+     <span class="k">catch</span> <span class="p">{</span>
+         <span class="nf">print</span><span class="p">(</span><span class="s">"Error reading body or writing response"</span><span class="p">)</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/HTTPServerRequest.html" class="slightly-smaller">See more</a>
                       </div>
@@ -620,7 +709,24 @@ are communicating via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>This class implements the <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
-responses via the HTTP protocol.</p>
+responses via the HTTP protocol. Data and Strings can be written.</p>
+
+<p>The example below uses this in its <code>response</code> parameter, with the example requesting a connection be upgraded and catch any errors that occur.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgradeConnection</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">guard</span> <span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
+         <span class="k">do</span> <span class="p">{</span>
+             <span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="n">badRequest</span>
+             <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="s">"No protocol specified in the Upgrade header"</span><span class="p">)</span>
+             <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+         <span class="p">}</span>
+         <span class="k">catch</span> <span class="p">{</span>
+             <span class="kt">Log</span><span class="o">.</span><span class="nf">error</span><span class="p">(</span><span class="s">"Failed to send error response to Upgrade request"</span><span class="p">)</span>
+         <span class="p">}</span>
+         <span class="k">return</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/HTTPServerResponse.html" class="slightly-smaller">See more</a>
                       </div>
@@ -652,9 +758,17 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class processes the data sent by the client after the data was read. The data
-is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServerRequest</a></code> object. When the parsing is complete, the
-<code><a href="Protocols/ServerDelegate.html">ServerDelegate</a></code> is invoked.</p>
+                        <p>This class processes the data sent by the client after the data was read. The data is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServerRequest</a></code> object. When the parsing is complete, the <code><a href="Protocols/ServerDelegate.html">ServerDelegate</a></code> is invoked.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create an `IncomingHTTPSocketProcessor` object.</span>
+ <span class="k">var</span> <span class="nv">processor</span> <span class="p">:</span> <span class="kt">IncomingHTTPSocketProcessor</span><span class="p">?</span>
+
+ <span class="c1">//Write from an NSMutableData buffer.</span>
+ <span class="n">processor</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="kt">NSMutableData</span><span class="p">)</span>
+
+ <span class="c1">//Write from a data object.</span>
+ <span class="n">processor</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">utf8</span><span class="p">,</span> <span class="nv">length</span><span class="p">:</span> <span class="n">utf8Length</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/IncomingHTTPSocketProcessor.html" class="slightly-smaller">See more</a>
                       </div>
@@ -693,9 +807,14 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A parsing of HTTP URL according to the folowing format:</p>
+                        <p>Splits and parses URLs into components - scheme, host, port, path, query string etc. according to the following format:</p>
 
-<p>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</p>
+<p><strong>scheme:[//[user:password@]host[:port]][/]path[?query][#fragment]</strong></p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">// Initialize a new URLParser instance, and check whether or not a connection has been established.</span>
+ <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="s">"http://user:password@sample.host.com:8080/a/b/c?query=somestring#hash"</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span>
+ <span class="k">let</span> <span class="nv">urlParser</span> <span class="o">=</span> <span class="kt">URLParser</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="nv">isConnect</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/URLParser.html" class="slightly-smaller">See more</a>
                       </div>
@@ -729,6 +848,9 @@ is parsed, filling in a <code><a href="Classes/HTTPServerRequest.html">HTTPServe
                       <div class="abstract">
                         <p>A class that abstracts out the HTTP header APIs of the <code><a href="Protocols/ServerRequest.html">ServerRequest</a></code> and
 <code><a href="Protocols/ServerResponse.html">ServerResponse</a></code> protocols.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="kt">HeadersContainer</span> <span class="p">{</span> <span class="k">return</span> <span class="n">httpParser</span><span class="p">?</span><span class="o">.</span><span class="n">headers</span> <span class="p">??</span> <span class="kt">HeadersContainer</span><span class="p">()</span> <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/HeadersContainer.html" class="slightly-smaller">See more</a>
                       </div>
@@ -777,6 +899,16 @@ is read and passed to the current <code>IncomingDataProcessor</code>.</p>
 <span class="mi">3</span><span class="o">.</span> <span class="kt">On</span> <span class="kt">Linux</span><span class="p">,</span> <span class="k">if</span> <span class="n">the</span> <span class="n">compile</span> <span class="n">time</span> <span class="n">option</span> <span class="o">-</span><span class="kt">Xswiftc</span> <span class="o">-</span><span class="kt">DGCD_ASYNCH</span> <span class="k">is</span> <span class="n">specified</span><span class="p">,</span>
    <span class="kt">DispatchSource</span> <span class="k">is</span> <span class="n">used</span><span class="p">,</span> <span class="k">as</span> <span class="n">it</span> <span class="k">is</span> <span class="n">used</span> <span class="n">on</span> <span class="kt">OSX</span><span class="o">.</span>
 </code></pre>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">IncomingSocketProcessor</span><span class="p">?,</span> <span class="kt">Data</span><span class="p">?,</span> <span class="kt">String</span><span class="p">?)</span> <span class="p">{</span>
+     <span class="k">let</span> <span class="p">(</span><span class="nv">processor</span><span class="p">,</span> <span class="nv">responseText</span><span class="p">)</span> <span class="o">=</span> <span class="nf">upgrade</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="n">handler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="n">response</span><span class="p">)</span>
+
+     <span class="k">if</span> <span class="k">let</span> <span class="nv">responseText</span> <span class="o">=</span> <span class="n">responseText</span> <span class="p">{</span>
+         <span class="nf">return</span> <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">responseText</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">),</span> <span class="s">"text/plain"</span><span class="p">)</span>
+     <span class="p">}</span>
+     <span class="nf">return</span> <span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/IncomingSocketHandler.html" class="slightly-smaller">See more</a>
                       </div>
@@ -820,6 +952,14 @@ In particular, it is in charge of:</p>
  (one pair per incomng socket)</li>
 <li>Cleaning up idle sockets, when new incoming sockets arrive.</li>
 </ol>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Create a manager to manage all of the incoming sockets.</span>
+ <span class="k">var</span> <span class="nv">manager</span><span class="p">:</span> <span class="kt">IncomingSocketManager</span><span class="p">?</span>
+
+ <span class="k">override</span> <span class="kd">func</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+     <span class="n">manager</span> <span class="o">=</span> <span class="kt">IncomingSocketManager</span><span class="p">()</span>
+ <span class="p">}</span>
+</code></pre>
 
                         <a href="Classes/IncomingSocketManager.html" class="slightly-smaller">See more</a>
                       </div>
@@ -851,8 +991,14 @@ In particular, it is in charge of:</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A class that provides a set of helper functions that enables a caller to wait
-for a group of listener blocks to finish executing.</p>
+                        <p>A class that provides a set of helper functions that enables a caller to wait for a group of listener blocks to finish executing.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="c1">//Wait for all of the listeners to stop.</span>
+ <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">waitForListeners</span><span class="p">()</span>
+
+ <span class="c1">//Enqueue a block of code on a given queue, assigning it to the listener group in the process (so we can wait on it later).</span>
+ <span class="kt">ListenerGroup</span><span class="o">.</span><span class="nf">enqueueAsynchronously</span><span class="p">(</span><span class="nv">on</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span> <span class="nv">block</span><span class="p">:</span> <span class="n">queuedBlock</span><span class="p">)</span>
+</code></pre>
 
                         <a href="Classes/ListenerGroup.html" class="slightly-smaller">See more</a>
                       </div>
@@ -891,7 +1037,11 @@ for a group of listener blocks to finish executing.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A set of utility functions.</p>
+                        <p>A set of utility functions. Includes formatting the given time and date for use in HTTP, where the default value is the current time.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="c1">//Format the given date for use in HTTP</span>
+<span class="kt">SPIUtils</span><span class="o">.</span><span class="nf">httpDate</span><span class="p">()</span>
+</code></pre>
 
                         <a href="Classes/SPIUtils.html" class="slightly-smaller">See more</a>
                       </div>
@@ -914,7 +1064,7 @@ for a group of listener blocks to finish executing.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

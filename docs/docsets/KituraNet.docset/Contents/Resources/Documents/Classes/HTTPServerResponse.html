@@ -23,7 +23,7 @@
         <a class="header-link" href="../index.html">
           KituraNet Docs
         </a>
-         (80% documented)
+         (98% documented)
       </p>
     
       <p class="header-col--secondary">
@@ -197,7 +197,24 @@
                 </div>
               </div>
             <p>This class implements the <code><a href="../Protocols/ServerResponse.html">ServerResponse</a></code> protocol for outgoing server
-responses via the HTTP protocol.</p>
+responses via the HTTP protocol. Data and Strings can be written.</p>
+
+<p>The example below uses this in its <code>response</code> parameter, with the example requesting a connection be upgraded and catch any errors that occur.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="kd">func</span> <span class="nf">upgradeConnection</span><span class="p">(</span><span class="nv">handler</span><span class="p">:</span> <span class="kt">IncomingSocketHandler</span><span class="p">,</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">ServerRequest</span><span class="p">,</span> <span class="nv">response</span><span class="p">:</span> <span class="kt">ServerResponse</span><span class="p">)</span> <span class="p">{</span>
+     <span class="k">guard</span> <span class="k">let</span> <span class="nv">protocols</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Upgrade"</span><span class="p">]</span> <span class="k">else</span> <span class="p">{</span>
+         <span class="k">do</span> <span class="p">{</span>
+             <span class="n">response</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="n">badRequest</span>
+             <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="s">"No protocol specified in the Upgrade header"</span><span class="p">)</span>
+             <span class="k">try</span> <span class="n">response</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+         <span class="p">}</span>
+         <span class="k">catch</span> <span class="p">{</span>
+             <span class="kt">Log</span><span class="o">.</span><span class="nf">error</span><span class="p">(</span><span class="s">"Failed to send error response to Upgrade request"</span><span class="p">)</span>
+         <span class="p">}</span>
+         <span class="k">return</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre>
 
           </div>
         </section>
@@ -220,6 +237,9 @@ responses via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>The HTTP headers to be sent to the client as part of the response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ServerResponse</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">"Content-Type"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">"text/plain"</span><span class="p">]</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -247,6 +267,9 @@ responses via the HTTP protocol.</p>
                       <div class="pointer"></div>
                       <div class="abstract">
                         <p>HTTP status code of the response.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="kt">ServerResponse</span><span class="o">.</span><span class="n">statusCode</span> <span class="o">=</span> <span class="kt">HTTPStatusCode</span><span class="o">.</span><span class="n">badRequest</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -279,6 +302,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code> <span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="s">"Some string"</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -330,6 +356,9 @@ responses via the HTTP protocol.</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">someData</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -375,12 +404,15 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Write a string and end sending the response.</p>
+                        <p>Write a String to the body of a HTTP response and complete sending the HTTP response.</p>
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">end</span><span class="p">(</span><span class="s">"Some string"</span><span class="p">)</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -426,12 +458,15 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>End sending the response.</p>
+                        <p>Complete sending the HTTP response.</p>
 <div class="aside aside-throws">
     <p class="aside-title">Throws</p>
     Socket.error if an error occurred while writing to a socket.
 
 </div>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">end</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -458,7 +493,10 @@ responses via the HTTP protocol.</p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Reset this response object back to its initial state</p>
+                        <p>Reset this response object back to its initial state.</p>
+<h3 id='usage-example' class='heading'>Usage Example:</h3>
+<pre class="highlight swift"><code><span class="k">try</span> <span class="kt">ServerResponse</span><span class="o">.</span><span class="nf">reset</span><span class="p">()</span>
+</code></pre>
 
                       </div>
                       <div class="declaration">
@@ -480,7 +518,7 @@ responses via the HTTP protocol.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-04-17)</p>
+      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
