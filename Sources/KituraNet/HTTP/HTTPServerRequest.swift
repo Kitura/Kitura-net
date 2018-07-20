@@ -236,7 +236,7 @@ public class HTTPServerRequest: ServerRequest {
     /// - Parameter httpParser: The `HTTPParser` object used to parse the incoming request
     ///
     /// - Returns: an HTTPServerRequest instance
-    init (socket: Socket, httpParser: HTTPParser?) {
+    public init (socket: Socket, httpParser: HTTPParser?) {
         self.socket = socket
         self.httpParser = httpParser
     }
@@ -308,7 +308,7 @@ public class HTTPServerRequest: ServerRequest {
     }
     
     /// Extra handling performed when a message is completely parsed
-    func parsingCompleted() {
+    public func parsingCompleted() {
         
         guard let httpParser = httpParser else {
             Log.error("Parser nil")
