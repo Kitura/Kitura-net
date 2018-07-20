@@ -19,7 +19,7 @@ import Foundation
 
 // MARK: HTTPParser
 
-class HTTPParser {
+public class HTTPParser {
 
     /// HTTP Method of the incoming message.
     var method: String { return parseResults.method }
@@ -43,7 +43,7 @@ class HTTPParser {
     var bodyChunk: BufferList { return parseResults.bodyChunk }
     
     /// Parsing of message completed
-    var completed: Bool { return parseResults.completed }
+    public var completed: Bool { return parseResults.completed }
     
     /// A Handle to the HTTPParser C-library
     var parser: http_parser
@@ -66,7 +66,7 @@ class HTTPParser {
     /// - Parameter skipBody: whether parser should skip body content (ie when parsing the response to a HEAD request)
     ///
     /// - Returns: an HTTPParser instance
-    init(isRequest: Bool, skipBody: Bool = false) {
+    public init(isRequest: Bool, skipBody: Bool = false) {
 
         self.isRequest = isRequest
 
@@ -139,14 +139,14 @@ class HTTPParser {
     /// - Parameter length: length of the byte array
     ///
     /// - Returns: ???
-    func execute (_ data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
+    public func execute (_ data: UnsafePointer<Int8>, length: Int) -> (Int, UInt32) {
         let nparsed = http_parser_execute(&parser, &settings, data, length)
         let upgrade = get_upgrade_value(&parser)
         return (nparsed, upgrade)
     }    
 
     /// Reset the http_parser context structure.
-    func reset() {
+    public func reset() {
         http_parser_init(&parser, isRequest ? HTTP_REQUEST : HTTP_RESPONSE)
         parseResults.reset()
     }
