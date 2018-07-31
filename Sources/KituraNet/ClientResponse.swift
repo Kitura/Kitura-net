@@ -201,6 +201,28 @@ public class ClientResponse {
         }
     }
     
+    /**
+     Read a chunk of the body and return it as a String.
+     
+     - Throws: if an error occurs while reading the data.
+     - Returns: an Optional string.
+     
+     ### Usage Example: ###
+     ````swift
+     let body = try request.readOptionalString()
+     ````
+     */
+    public func readOptionalString() throws -> String? {
+        buffer.count = 0
+        let length = try read(into: &buffer)
+        if length > 0 {
+            return String(data: buffer, encoding: .utf8)
+        }
+        else {
+            return ""
+        }
+    }
+    
     /// Extra handling performed when a message is completely parsed
     func parsingCompleted() {
         
