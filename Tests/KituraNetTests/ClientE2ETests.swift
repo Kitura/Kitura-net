@@ -38,7 +38,8 @@ class ClientE2ETests: KituraNetTest {
             ("testPipeliningSpanningPackets", testPipeliningSpanningPackets),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testUrlURL", testUrlURL),
-            ("testRedirection", testRedirection)
+            ("testRedirection", testRedirection),
+            ("testCookieJar", testCookieJar),
         ]
     }
 
@@ -424,6 +425,40 @@ class ClientE2ETests: KituraNetTest {
         }
     }
 
+    func testCookieJar() {
+        performServerTest(TestCookieJarDelegate()) { expectation in
+            let cookieFilePath = "/tmp/kitura-net-test-cookies.txt"
+            let enableCookies: ((ClientRequest) -> Void) = { request in
+                request.set(.cookieJar(cookieFilePath))
+            }
+            var uuid1: String?
+
+            // First request should fetch and save cookies
+            self.performRequest("get", path: "/", callback: { response in
+                // If we got a "uuid1" cookie, make note of it.
+                for cookie in response?.headers["Set-Cookie"] ?? [] {
+                    if cookie.starts(with: "uuid1=") {
+                        uuid1 = cookie
+                        break
+                    }
+                }
+            }, requestModifier: enableCookies)
+            XCTAssertNotNil(uuid1, "Expected cookie not found in response")
+
+            // Second request should send cookies; the "server" should write all
+            // cookies it recieves back to the response body, so check if we
+            // see it there.
+            self.performRequest("get", path: "/", callback: { response in
+                let responseBody = try? response?.readString()
+                XCTAssertEqual(responseBody, uuid1, "Could not find expected cookies")
+            }, requestModifier: enableCookies)
+
+            // Delete the cookie jar file
+            try? FileManager().removeItem(atPath: cookieFilePath)
+            expectation.fulfill()
+        }
+    }
+
     class TestServerDelegate: ServerDelegate {
 
         func handle(request: ServerRequest, response: ServerResponse) {
@@ -517,6 +552,31 @@ class ClientE2ETests: KituraNetTest {
             catch {
                 print("Error reading body or writing response")
             }
+        }
+    }
+
+    class TestCookieJarDelegate: ServerDelegate {
+
+        // Send two cookies, one of which should expire immediately
+        let uuid1 = UUID().uuidString
+        let uuid2 = UUID().uuidString
+
+        func handle(request: ServerRequest, response: ServerResponse) {
+            // Send two cookies, one of which the client should expire
+            // immediately.
+            response.headers["Set-Cookie"] = ["uuid1=\(uuid1)",
+                "uuid2=\(uuid2); Max-Age=0"]
+            // If there were any incoming cookies, echo them in the response
+            // body.
+            if let cookie = request.headers["Cookie"] {
+                do {
+                    try response.write(from: cookie.joined(separator: ":"))
+                }
+                catch {
+                    print("Error echoing cookie values")
+                }
+            }
+            try? response.end()
         }
     }
 }
