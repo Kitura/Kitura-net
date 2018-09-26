@@ -449,7 +449,7 @@ class ClientE2ETests: KituraNetTest {
             // cookies it recieves back to the response body, so check if we
             // see it there.
             self.performRequest("get", path: "/", callback: { response in
-                let responseBody = try? response?.readString()
+                let responseBody = try? response?.readString() ?? ""
                 XCTAssertEqual(responseBody, uuid1, "Could not find expected cookies")
             }, requestModifier: enableCookies)
 
