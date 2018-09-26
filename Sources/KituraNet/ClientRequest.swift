@@ -114,6 +114,17 @@ public class ClientRequest {
      */
     public private(set) var closeConnection = false
 
+    /**
+     The location of the cookie jar file from which cookies will be read and to
+     which cookies will be written. Set to nil to not use a cookie jar.
+
+     ### Usage Example: ###
+     ````swift
+     ClientRequest.cookieJar = "/tmp/my-cookies.txt"
+     ````
+     */
+    public private(set) var cookieJar: String?
+
     /// Handle for working with libCurl
     private var handle: UnsafeMutableRawPointer?
     
@@ -187,6 +198,9 @@ public class ClientRequest {
         
         /// If present, the client will try to use HTTP/2 protocol for the connection.
         case useHTTP2
+
+        /// Specifies location of cooke jar file. To not read or write cookies, set to nil
+        case cookieJar(String?)
         
     }
 
@@ -251,6 +265,8 @@ public class ClientRequest {
                     self.userName = userName
                 case .password(let password):
                     self.password = password
+                case .cookieJar(let file):
+                    self.cookieJar = file
             }
         }
 
@@ -297,6 +313,8 @@ public class ClientRequest {
             self.disableSSLVerification = true
         case .useHTTP2:
             self.useHTTP2 = true
+        case .cookieJar(let file):
+            self.cookieJar = file
         }
     }
 
@@ -531,7 +549,8 @@ public class ClientRequest {
         }
         setMethodAndContentLength()
         setupHeaders()
-        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, "")
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEFILE, cookieJar ?? "")
+        curlHelperSetOptString(handle!, CURLOPT_COOKIEJAR, cookieJar ?? "")
 
         // To see the messages sent by libCurl, uncomment the next line of code
         //curlHelperSetOptInt(handle, CURLOPT_VERBOSE, 1)
