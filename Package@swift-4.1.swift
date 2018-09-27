@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:4.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 /**
@@ -22,49 +22,28 @@ import PackageDescription
 var dependencies: [Package.Dependency] = [
     .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", from: "1.7.3"),
     .package(url: "https://github.com/IBM-Swift/BlueSocket.git", from: "1.0.0"),
+    .package(url: "https://github.com/IBM-Swift/CCurl.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0")
 ]
 
 var kituraNetDependencies: [Target.Dependency] = [
-    .byName(name: "CHTTPParser"),
-    .byName(name: "LoggerAPI"),
-    .byName(name: "Socket"),
-    .target(name: "CCurl"),
-    .byName(name: "SSLService")
+    .byNameItem(name: "CHTTPParser"),
+    .byNameItem(name: "LoggerAPI"),
+    .byNameItem(name: "Socket"),
+    .byNameItem(name: "CCurl"),
+    .byNameItem(name: "SSLService")
 ]
 
 #if os(Linux)
 dependencies.append(contentsOf: [
+    .package(url: "https://github.com/IBM-Swift/CEpoll.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/BlueSignals.git", from: "1.0.0")
     ])
 
 kituraNetDependencies.append(contentsOf: [
-    .target(name: "CEpoll"),
-    .byName(name: "Signals")
+    .byNameItem(name: "CEpoll"),
+    .byNameItem(name: "Signals")
     ])
-#endif
-
-var targets: [Target] = [
-    .target(
-        name: "CHTTPParser"
-    ),
-    .systemLibrary(
-        name: "CCurl"
-    ),
-    .target(
-        name: "KituraNet",
-        dependencies: kituraNetDependencies
-    ),
-    .testTarget(
-        name: "KituraNetTests",
-        dependencies: ["KituraNet"]
-    )
-]
-
-#if os(Linux)
-targets.append(
-    .systemLibrary(name: "CEpoll")
-)
 #endif
 
 let package = Package(
@@ -77,5 +56,19 @@ let package = Package(
         )
     ],
     dependencies: dependencies,
-    targets: targets
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+        .target(
+            name: "CHTTPParser"
+        ),
+        .target(
+            name: "KituraNet",
+            dependencies: kituraNetDependencies
+        ),
+        .testTarget(
+            name: "KituraNetTests",
+            dependencies: ["KituraNet"]
+        )
+    ]
 )
