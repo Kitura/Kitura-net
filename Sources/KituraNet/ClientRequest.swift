@@ -659,11 +659,11 @@ private class CurlInvoker {
     fileprivate func invoke() -> CURLcode {
 
         var rc: CURLcode = CURLE_FAILED_INIT
-        if delegate == nil {
+        guard let delegate = self.delegate else {
             return rc
         }
 
-        withUnsafeMutablePointer(to: &delegate) {ptr in
+        withUnsafeMutablePointer(to: &self.delegate) {ptr in
             self.prepareHandle(ptr)
 
             var redirected = false
@@ -689,7 +689,7 @@ private class CurlInvoker {
                                     _ = curlHelperSetOptInt(handle, CURLOPT_HTTPGET, 1)
                                 }
                                 redirected = true
-                                delegate?.prepareForRedirect()
+                                delegate.prepareForRedirect()
                             }
                             else {
                                 redirected = false
