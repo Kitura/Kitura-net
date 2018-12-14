@@ -50,7 +50,8 @@ In particular, it is in charge of:
 public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
-    var socketHandlers = [Int32: IncomingSocketHandler]()
+    private var socketHandlers = [Int32: IncomingSocketHandler]()
+    private let shLock = NSLock()
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 5.0
@@ -150,8 +151,10 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
+            shLock.lock()
             let handler = IncomingSocketHandler(socket: socket, using: processor)
             socketHandlers[socket.socketfd] = handler
+            shLock.unlock()
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -205,6 +208,7 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
+                        shLock.lock()
                         if  let handler = socketHandlers[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
@@ -221,6 +225,7 @@ public class IncomingSocketManager  {
                         else {
                             Log.error("No handler for file descriptor \(event.data.fd)")
                         }
+                        shLock.unlock()
                     }
                 }
     
@@ -269,7 +274,7 @@ public class IncomingSocketManager  {
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        
+        shLock.lock()
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
             if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
@@ -290,6 +295,7 @@ public class IncomingSocketManager  {
             handler.prepareToClose()
         }
         keepAliveIdleLastTimeChecked = Date()
+        shLock.unlock()
     }
     
     /// Private method to return the last error based on the value of errno.
