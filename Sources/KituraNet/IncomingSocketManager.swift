@@ -49,9 +49,18 @@ In particular, it is in charge of:
 */
 public class IncomingSocketManager  {
     
-    /// A mapping from socket file descriptor to IncomingSocketHandler
-    private var socketHandlers = [Int32: IncomingSocketHandler]()
-    private let shLock = NSLock()
+    /// A number of mappings from socket file descriptor to IncomingSocketHandler.
+    /// On Linux with epoll, there is one dictionary per epoll thread. Otherwise,
+    /// there is a single dictionary at index 0.
+    private var socketHandlers: [Int32: [Int32: IncomingSocketHandler]]
+
+    /// The sum total of handlers across all epoll threads.
+    /// Used by SocketManagerTests to check number of registered handlers.
+    var socketHandlerCount: Int {
+        return socketHandlers.reduce(0, { i, handlerTuple in
+            i + handlerTuple.1.count
+        })
+    }
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 5.0
@@ -76,29 +85,31 @@ public class IncomingSocketManager  {
             return epollDescriptors[Int(fd) % numberOfEpollTasks];
         }
 
-    
     /**
      IncomingSocketManager initializer
      */
         public init() {
-            var t1 = [Int32]()
-            var t2 = [DispatchQueue]()
+            var epollDescriptors = [Int32]()
+            var queues = [DispatchQueue]()
+            var socketHandlers = [Int32: [Int32: IncomingSocketHandler]]()
             for i in 0 ..< numberOfEpollTasks {
                 // Note: The parameter to epoll_create is ignored on modern Linux's
-                t1 += [epoll_create(100)]
-                t2 += [DispatchQueue(label: "IncomingSocketManager\(i)")]
+                let epollFd = epoll_create(100)
+                epollDescriptors.append(epollFd)
+                queues.append(DispatchQueue(label: "IncomingSocketManager\(i)"))
+                // socketHandlers is split into a separate dictionary for each epoll thread.
+                socketHandlers[epollFd] = [Int32: IncomingSocketHandler]()
             }
-            epollDescriptors = t1
-            queues = t2
+            self.epollDescriptors = epollDescriptors
+            self.queues = queues
+            self.socketHandlers = socketHandlers
 
             for i in 0 ..< numberOfEpollTasks {
-                // Only run removeIdleSockets in the first instance of process.
-                let runRemoveIdleSockets = (i == 0)
                 let epollDescriptor = epollDescriptors[i]
 
                 queues[i].async() { [weak self] in
                     // server could be stopped and socketManager deallocated before this is run.
-                    self?.process(epollDescriptor: epollDescriptor, runRemoveIdleSockets: runRemoveIdleSockets)
+                    self?.process(epollDescriptor: epollDescriptor)
                 }
             }
         }
@@ -107,7 +118,9 @@ public class IncomingSocketManager  {
      IncomingSocketManager initializer
      */
         public init() {
-            
+           // socketHandlers is not split across threads.
+           self.socketHandlers = [Int32: [Int32: IncomingSocketHandler]]() 
+           self.socketHandlers[0] = [Int32: IncomingSocketHandler]()
         }
     #endif
 
@@ -127,7 +140,9 @@ public class IncomingSocketManager  {
     public func stop() {
         stopped = true
         #if GCD_ASYNCH || !os(Linux)
-            removeIdleSockets(removeAll: true)
+            for index in socketHandlers.keys {
+                removeIdleSockets(socketHandlerIndex: index, removeAll: true)
+            }
         #endif
     }
     
@@ -147,14 +162,23 @@ public class IncomingSocketManager  {
             Log.warning("Cannot handle socket as socket manager has been stopped")
             return
         }
+        // With epoll, we must split the socket handler dictionary so that each
+        // epoll thread has a separate dictionary.
+        #if !GCD_ASYNCH && os(Linux)
+            let socketHandlerIndex: Int32 = epollDescriptor(fd: socket.socketfd)
+        #else
+            let socketHandlerIndex: Int32 = 0
+        #endif
+        guard socketHandlers[socketHandlerIndex] != nil else {
+            Log.error("Unable to locate socketHandlers index \(socketHandlerIndex) (socketfd: \(socket.socketfd))")
+            return
+        }
 
         do {
             try socket.setBlocking(mode: false)
             
-            shLock.lock()
             let handler = IncomingSocketHandler(socket: socket, using: processor)
-            socketHandlers[socket.socketfd] = handler
-            shLock.unlock()
+            socketHandlers[socketHandlerIndex]?[socket.socketfd] = handler
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -170,15 +194,19 @@ public class IncomingSocketManager  {
             Log.error("Failed to make incoming socket (File Descriptor=\(socket.socketfd)) non-blocking. Error = \(error)")
         }
         
-        removeIdleSockets()
+        removeIdleSockets(socketHandlerIndex: socketHandlerIndex)
     }
     
     #if !GCD_ASYNCH && os(Linux)
         /// Wait and process the ready events by invoking the IncomingHTTPSocketHandler's hndleRead function
-    private func process(epollDescriptor:Int32, runRemoveIdleSockets: Bool) {
+    private func process(epollDescriptor:Int32) {
             var pollingEvents = [epoll_event](repeating: epoll_event(), count: maximumNumberOfEvents)
             var deferredHandlers = [Int32: IncomingSocketHandler]()
             var deferredHandlingNeeded = false
+            guard socketHandlers[epollDescriptor] != nil else {
+                Log.error("Unable to locate socketHandlers for epollfd \(epollDescriptor)")
+                return
+            }
         
             while !stopped {
                 let count = Int(epoll_wait(epollDescriptor, &pollingEvents, Int32(maximumNumberOfEvents), epollTimeout))
@@ -208,8 +236,7 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
-                        shLock.lock()
-                        if  let handler = socketHandlers[event.data.fd] {
+                        if  let handler = socketHandlers[epollDescriptor]?[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
                                 handler.handleWrite()
@@ -225,7 +252,6 @@ public class IncomingSocketManager  {
                         else {
                             Log.error("No handler for file descriptor \(event.data.fd)")
                         }
-                        shLock.unlock()
                     }
                 }
     
@@ -236,9 +262,7 @@ public class IncomingSocketManager  {
             }
 
             // cleanup after manager stopped
-            if runRemoveIdleSockets {
-                removeIdleSockets(removeAll: true)
-            }
+            removeIdleSockets(socketHandlerIndex: epollDescriptor, removeAll: true)
             close(epollDescriptor)
         }
 
@@ -271,31 +295,34 @@ public class IncomingSocketManager  {
     /// we leave a round some idle sockets.
     ///
     /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
-    private func removeIdleSockets(removeAll: Bool = false) {
+    private func removeIdleSockets(socketHandlerIndex: Int32, removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        shLock.lock()
+        guard socketHandlers[socketHandlerIndex] != nil else {
+            Log.error("Unable to locate socketHandlers for index \(socketHandlerIndex)")
+            return
+        }
         let maxInterval = now.timeIntervalSinceReferenceDate
-        for (fileDescriptor, handler) in socketHandlers {
+        socketHandlers[socketHandlerIndex]?.forEach { (fileDescriptor, handler) in 
             if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
-                continue
-            }
-            socketHandlers.removeValue(forKey: fileDescriptor)
+                //continue
+            } else {
+                socketHandlers[socketHandlerIndex]?.removeValue(forKey: fileDescriptor)
 
-            #if !GCD_ASYNCH && os(Linux)
-                let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-                if result == -1 {
-                    if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
-                           errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
-                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                #if !GCD_ASYNCH && os(Linux)
+                    let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
+                    if result == -1 {
+                        if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
+                               errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
+                            Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                        }
                     }
-                }
-            #endif
+                #endif
             
-            handler.prepareToClose()
+                handler.prepareToClose()
+            }
         }
         keepAliveIdleLastTimeChecked = Date()
-        shLock.unlock()
     }
     
     /// Private method to return the last error based on the value of errno.
