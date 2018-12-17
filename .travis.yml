@@ -32,6 +32,12 @@ matrix:
       sudo: required
       services: docker
       env: DOCKER_IMAGE=ubuntu:16.04 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT
+      # Test GCD_ASYNCH codepath on Linux
+    - os: linux
+      dist: trusty
+      sudo: required
+      services: docker
+      env: DOCKER_IMAGE=ubuntu:16.04 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT CUSTOM_TEST_SCRIPT=testWithGCD.sh
     - os: linux
       dist: trusty
       sudo: required
