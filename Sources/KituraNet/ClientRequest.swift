@@ -162,7 +162,7 @@ public class ClientRequest {
         case hostname(String)
         
         /// Specifies the port to be used in the URL of request
-        case port(Int16)
+        case port(UInt16)
         
         /// Specifies the path to be used in the URL of request
         case path(String)
@@ -351,7 +351,7 @@ public class ClientRequest {
         }
         options.append(.path(fullPath))
         if let port = url.port {
-            options.append(.port(Int16(port)))
+            options.append(.port(UInt16(port)))
         }
         if let username = url.user {
             options.append(.username(username))

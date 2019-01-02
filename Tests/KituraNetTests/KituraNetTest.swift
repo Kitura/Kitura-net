@@ -158,7 +158,7 @@ class KituraNetTest: XCTestCase {
 
         let schema = self.useSSL ? "https" : "http"
         var options: [ClientRequest.Options] =
-            [.method(method), .schema(schema), .hostname("localhost"), .port(Int16(self.port)), .path(path), .headers(allHeaders)]
+            [.method(method), .schema(schema), .hostname("localhost"), .port(UInt16(self.port)), .path(path), .headers(allHeaders)]
         if self.useSSL {
             options.append(.disableSSLVerification)
         }
