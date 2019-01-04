@@ -20,6 +20,20 @@ import Socket
 
 import Foundation
 
+// The public API for ClientRequest erroneously defines the port as an Int16, which is
+// insufficient to hold all possible port values. To avoid a breaking change, we allow
+// UInt16 bit patterns to be passed in, under the guises of an Int16, which we will
+// then convert back to UInt16.
+//
+// User code must perform the equivalent conversion in order to pass in a value that
+// is greater than Int16.max.
+//
+fileprivate extension Int16 {
+    func toUInt16() -> UInt16 {
+        return UInt16(bitPattern: self)
+    }
+}
+
 // MARK: ClientRequest
 /**
 This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. `Data` and `String` objects cab be added to a `ClientRequest` too, and URLs can be parsed.
@@ -161,8 +175,16 @@ public class ClientRequest {
         /// Specifies the host name to be used in the URL of request
         case hostname(String)
         
-        /// Specifies the port to be used in the URL of request
-        case port(UInt16)
+        /// Specifies the port to be used in the URL of request.
+        ///
+        /// Note that an Int16 is incapable of representing all possible port values, however
+        /// it forms part of the Kitura-net 2.0 API. In order to pass a port number greater
+        /// than 32,767 (Int16.max), use the following code:
+        /// ```
+        /// let portNumber: UInt16 = 65535
+        /// let portOption: ClientRequest.Options = .port(Int16(bitPattern: portNumber))
+        /// ```
+        case port(Int16)
         
         /// Specifies the path to be used in the URL of request
         case path(String)
@@ -241,7 +263,8 @@ public class ClientRequest {
                 case .hostname(let host):
                     hostName = host
                 case .port(let thePort):
-                    port = ":\(thePort)"
+                    let portNumber = thePort.toUInt16()
+                    port = ":\(portNumber)"
                 case .path(var thePath):
                     if thePath.first != "/" {
                       thePath = "/" + thePath
@@ -351,7 +374,7 @@ public class ClientRequest {
         }
         options.append(.path(fullPath))
         if let port = url.port {
-            options.append(.port(UInt16(port)))
+            options.append(.port(Int16(bitPattern: UInt16(port))))
         }
         if let username = url.user {
             options.append(.username(username))
