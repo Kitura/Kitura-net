@@ -51,12 +51,12 @@ public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
     private var socketHandlers = [Int32: IncomingSocketHandler]()
-    private let shSema = DispatchSemaphore(value: 1)
+    private var shLock = pthread_rwlock_t()
 
     internal var socketHandlerCount: Int {
-        shSema.wait()
+        pthread_rwlock_rdlock(&shLock)
         defer {
-            shSema.signal()
+            pthread_rwlock_unlock(&shLock)
         }
         return socketHandlers.count
     }
@@ -89,6 +89,7 @@ public class IncomingSocketManager  {
      IncomingSocketManager initializer
      */
         public init() {
+            pthread_rwlock_init(&shLock, nil)
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -121,6 +122,7 @@ public class IncomingSocketManager  {
 
     deinit {
         stop()
+        pthread_rwlock_destroy(&shLock)
     }
 
     /**
@@ -159,10 +161,10 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            shSema.wait()
+            pthread_rwlock_wrlock(&shLock)
             let handler = IncomingSocketHandler(socket: socket, using: processor)
             socketHandlers[socket.socketfd] = handler
-            shSema.signal()
+            pthread_rwlock_unlock(&shLock)
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -216,7 +218,7 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
-                        shSema.wait()
+                        pthread_rwlock_rdlock(&shLock)
                         if  let handler = socketHandlers[event.data.fd] {
     
                             if  (event.events & EPOLLOUT.rawValue) != 0 {
@@ -233,7 +235,7 @@ public class IncomingSocketManager  {
                         else {
                             Log.error("No handler for file descriptor \(event.data.fd)")
                         }
-                        shSema.signal()
+                        pthread_rwlock_unlock(&shLock)
                     }
                 }
     
@@ -282,7 +284,7 @@ public class IncomingSocketManager  {
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        shSema.wait()
+        pthread_rwlock_wrlock(&shLock)
         let maxInterval = now.timeIntervalSinceReferenceDate
         for (fileDescriptor, handler) in socketHandlers {
             if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
@@ -303,7 +305,7 @@ public class IncomingSocketManager  {
             handler.prepareToClose()
         }
         keepAliveIdleLastTimeChecked = Date()
-        shSema.signal()
+        pthread_rwlock_unlock(&shLock)
     }
     
     /// Private method to return the last error based on the value of errno.
