@@ -270,13 +270,6 @@ public class IncomingSocketManager  {
     ///   2. Removing the reference to the IncomingHTTPSocketHandler
     ///   3. Have the IncomingHTTPSocketHandler close the socket
     ///
-    /// **Note:** In order to safely update the socketHandlers Dictionary the removal
-    /// of idle sockets is done in the thread that is accepting new incoming sockets
-    /// after a socket was accepted. Had this been done in a timer, there would be a
-    /// to have a lock around the access to the socketHandlers Dictionary. The other
-    /// idea here is that if sockets aren't coming in, it doesn't matter too much if
-    /// we leave a round some idle sockets.
-    ///
     /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
