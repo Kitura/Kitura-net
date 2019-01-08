@@ -50,7 +50,16 @@ In particular, it is in charge of:
 public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
-    var socketHandlers = [Int32: IncomingSocketHandler]()
+    private var socketHandlers = [Int32: IncomingSocketHandler]()
+    private var shQueue = DispatchQueue(label: "socketHandlers.queue", attributes: .concurrent)
+
+    internal var socketHandlerCount: Int {
+        var result: Int = 0
+        shQueue.sync {
+            result = socketHandlers.count
+        }
+        return result
+    }
     
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 5.0
@@ -151,7 +160,9 @@ public class IncomingSocketManager  {
             try socket.setBlocking(mode: false)
             
             let handler = IncomingSocketHandler(socket: socket, using: processor)
-            socketHandlers[socket.socketfd] = handler
+            shQueue.sync(flags: .barrier) {
+                socketHandlers[socket.socketfd] = handler
+            }
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -205,21 +216,22 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
-                        if  let handler = socketHandlers[event.data.fd] {
-    
-                            if  (event.events & EPOLLOUT.rawValue) != 0 {
-                                handler.handleWrite()
-                            }
-                            if  (event.events & EPOLLIN.rawValue) != 0 {
-                                let processed = handler.handleRead()
-                                if !processed {
-                                    deferredHandlingNeeded = true
-                                    deferredHandlers[event.data.fd] = handler
+                        shQueue.sync {
+                            if  let handler = socketHandlers[event.data.fd] {
+                                if  (event.events & EPOLLOUT.rawValue) != 0 {
+                                    handler.handleWrite()
+                                }
+                                if  (event.events & EPOLLIN.rawValue) != 0 {
+                                    let processed = handler.handleRead()
+                                    if !processed {
+                                        deferredHandlingNeeded = true
+                                        deferredHandlers[event.data.fd] = handler
+                                    }
                                 }
                             }
-                        }
-                        else {
-                            Log.error("No handler for file descriptor \(event.data.fd)")
+                            else {
+                                Log.error("No handler for file descriptor \(event.data.fd)")
+                            }
                         }
                     }
                 }
@@ -258,38 +270,32 @@ public class IncomingSocketManager  {
     ///   2. Removing the reference to the IncomingHTTPSocketHandler
     ///   3. Have the IncomingHTTPSocketHandler close the socket
     ///
-    /// **Note:** In order to safely update the socketHandlers Dictionary the removal
-    /// of idle sockets is done in the thread that is accepting new incoming sockets
-    /// after a socket was accepted. Had this been done in a timer, there would be a
-    /// to have a lock around the access to the socketHandlers Dictionary. The other
-    /// idea here is that if sockets aren't coming in, it doesn't matter too much if
-    /// we leave a round some idle sockets.
-    ///
     /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        
-        let maxInterval = now.timeIntervalSinceReferenceDate
-        for (fileDescriptor, handler) in socketHandlers {
-            if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
-                continue
-            }
-            socketHandlers.removeValue(forKey: fileDescriptor)
-
-            #if !GCD_ASYNCH && os(Linux)
-                let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-                if result == -1 {
-                    if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
-                           errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
-                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-                    }
+        shQueue.sync(flags: .barrier) {
+            let maxInterval = now.timeIntervalSinceReferenceDate
+            for (fileDescriptor, handler) in socketHandlers {
+                if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
+                    continue
                 }
-            #endif
-            
-            handler.prepareToClose()
+                socketHandlers.removeValue(forKey: fileDescriptor)
+
+                #if !GCD_ASYNCH && os(Linux)
+                    let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
+                    if result == -1 {
+                        if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
+                               errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
+                            Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                        }
+                    }
+                #endif
+
+                handler.prepareToClose()
+            }
+            keepAliveIdleLastTimeChecked = Date()
         }
-        keepAliveIdleLastTimeChecked = Date()
     }
     
     /// Private method to return the last error based on the value of errno.

@@ -53,7 +53,7 @@ class SocketManagerTests: KituraNetTest {
             let socket1 = try Socket.create()
             let processor1 = TestIncomingSocketProcessor()
             manager.handle(socket: socket1, processor: processor1)
-            XCTAssertEqual(manager.socketHandlers.count, 1, "There should be 1 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
+            XCTAssertEqual(manager.socketHandlerCount, 1, "There should be 1 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
             
             // The check for idle sockets to clean up happens when new sockets arrive.
             // However the check is done at most once a minute. To avoid waiting a minute
@@ -64,7 +64,7 @@ class SocketManagerTests: KituraNetTest {
             let socket2 = try Socket.create()
             let processor2 = TestIncomingSocketProcessor()
             manager.handle(socket: socket2, processor: processor2)
-            XCTAssertEqual(manager.socketHandlers.count, 2, "There should be 2 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
+            XCTAssertEqual(manager.socketHandlerCount, 2, "There should be 2 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
 
             // Enable cleanup the next time there is a "new incoming socket" (see description above)
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
@@ -75,7 +75,7 @@ class SocketManagerTests: KituraNetTest {
             let socket3 = try Socket.create()
             let processor3 = TestIncomingSocketProcessor()
             manager.handle(socket: socket3, processor: processor3)
-            XCTAssertEqual(manager.socketHandlers.count, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
+            XCTAssertEqual(manager.socketHandlerCount, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
             
             // Enable cleanup the next time there is a "new incoming socket" (see description above)
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
@@ -85,7 +85,7 @@ class SocketManagerTests: KituraNetTest {
             let socket4 = try Socket.create()
             let processor4 = TestIncomingSocketProcessor()
             manager.handle(socket: socket4, processor: processor4)
-            XCTAssertEqual(manager.socketHandlers.count, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlers.count)")
+            XCTAssertEqual(manager.socketHandlerCount, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
         }
         catch let error {
             XCTFail("Failed to create a socket. Error=\(error)")
