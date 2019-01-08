@@ -51,14 +51,14 @@ public class IncomingSocketManager  {
     
     /// A mapping from socket file descriptor to IncomingSocketHandler
     private var socketHandlers = [Int32: IncomingSocketHandler]()
-    private var shLock = pthread_rwlock_t()
+    private var shQueue = DispatchQueue(label: "socketHandlers.queue", attributes: .concurrent)
 
     internal var socketHandlerCount: Int {
-        pthread_rwlock_rdlock(&shLock)
-        defer {
-            pthread_rwlock_unlock(&shLock)
+        var result: Int = 0
+        shQueue.sync {
+            result = socketHandlers.count
         }
-        return socketHandlers.count
+        return result
     }
     
     /// Interval at which to check for idle sockets to close
@@ -89,7 +89,6 @@ public class IncomingSocketManager  {
      IncomingSocketManager initializer
      */
         public init() {
-            pthread_rwlock_init(&shLock, nil)
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -122,7 +121,6 @@ public class IncomingSocketManager  {
 
     deinit {
         stop()
-        pthread_rwlock_destroy(&shLock)
     }
 
     /**
@@ -161,10 +159,10 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            pthread_rwlock_wrlock(&shLock)
             let handler = IncomingSocketHandler(socket: socket, using: processor)
-            socketHandlers[socket.socketfd] = handler
-            pthread_rwlock_unlock(&shLock)
+            shQueue.sync(flags: .barrier) {
+                socketHandlers[socket.socketfd] = handler
+            }
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
@@ -218,24 +216,23 @@ public class IncomingSocketManager  {
                     
                         Log.error("Error occurred on a file descriptor of an epool wait")
                     } else {
-                        pthread_rwlock_rdlock(&shLock)
-                        if  let handler = socketHandlers[event.data.fd] {
-    
-                            if  (event.events & EPOLLOUT.rawValue) != 0 {
-                                handler.handleWrite()
-                            }
-                            if  (event.events & EPOLLIN.rawValue) != 0 {
-                                let processed = handler.handleRead()
-                                if !processed {
-                                    deferredHandlingNeeded = true
-                                    deferredHandlers[event.data.fd] = handler
+                        shQueue.sync {
+                            if  let handler = socketHandlers[event.data.fd] {
+                                if  (event.events & EPOLLOUT.rawValue) != 0 {
+                                    handler.handleWrite()
+                                }
+                                if  (event.events & EPOLLIN.rawValue) != 0 {
+                                    let processed = handler.handleRead()
+                                    if !processed {
+                                        deferredHandlingNeeded = true
+                                        deferredHandlers[event.data.fd] = handler
+                                    }
                                 }
                             }
+                            else {
+                                Log.error("No handler for file descriptor \(event.data.fd)")
+                            }
                         }
-                        else {
-                            Log.error("No handler for file descriptor \(event.data.fd)")
-                        }
-                        pthread_rwlock_unlock(&shLock)
                     }
                 }
     
@@ -284,28 +281,28 @@ public class IncomingSocketManager  {
     private func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
-        pthread_rwlock_wrlock(&shLock)
-        let maxInterval = now.timeIntervalSinceReferenceDate
-        for (fileDescriptor, handler) in socketHandlers {
-            if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
-                continue
-            }
-            socketHandlers.removeValue(forKey: fileDescriptor)
-
-            #if !GCD_ASYNCH && os(Linux)
-                let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
-                if result == -1 {
-                    if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
-                           errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
-                        Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
-                    }
+        shQueue.sync(flags: .barrier) {
+            let maxInterval = now.timeIntervalSinceReferenceDate
+            for (fileDescriptor, handler) in socketHandlers {
+                if !removeAll && handler.processor != nil  &&  (handler.processor?.inProgress ?? false  ||  maxInterval < handler.processor?.keepAliveUntil ?? maxInterval) {
+                    continue
                 }
-            #endif
-            
-            handler.prepareToClose()
+                socketHandlers.removeValue(forKey: fileDescriptor)
+
+                #if !GCD_ASYNCH && os(Linux)
+                    let result = epoll_ctl(epollDescriptor(fd: fileDescriptor), EPOLL_CTL_DEL, fileDescriptor, nil)
+                    if result == -1 {
+                        if errno != EBADF &&     // Ignore EBADF error (bad file descriptor), probably got closed.
+                               errno != ENOENT { // Ignore ENOENT error (No such file or directory), probably got closed.
+                            Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
+                        }
+                    }
+                #endif
+
+                handler.prepareToClose()
+            }
+            keepAliveIdleLastTimeChecked = Date()
         }
-        keepAliveIdleLastTimeChecked = Date()
-        pthread_rwlock_unlock(&shLock)
     }
     
     /// Private method to return the last error based on the value of errno.
