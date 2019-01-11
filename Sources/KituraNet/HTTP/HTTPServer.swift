@@ -106,11 +106,15 @@ public class HTTPServer: Server {
      */
     public var keepAliveState: KeepAliveState = .unlimited
     
+    /// Controls policies relating to incoming connections and requests.
+    public var connectionPolicy: IncomingSocketOptions = IncomingSocketOptions() {
+        didSet {
+            self.socketManager?.connectionPolicy = connectionPolicy
+        }
+    }
+
     /// Incoming socket handler
     private var socketManager: IncomingSocketManager?
-
-    /// Incoming socket options
-    private var socketOptions: IncomingSocketOptions
 
     /**
      SSL cert configuration for handling client requests.
@@ -140,8 +144,7 @@ public class HTTPServer: Server {
      server.listen(on: 8080)
      ````
      */
-    public init(socketOptions: IncomingSocketOptions = IncomingSocketOptions()) {
-        self.socketOptions = socketOptions
+    public init() {
         #if os(Linux)
             // On Linux, it is not possible to set SO_NOSIGPIPE on the socket, nor is it possible
             // to pass MSG_NOSIGNAL when writing via SSL_write(). Instead, we will receive it but
@@ -224,7 +227,8 @@ public class HTTPServer: Server {
                 listenerDescription = "path \(path)"
             }
 
-            let socketManager = IncomingSocketManager(requestOptions: self.socketOptions)
+            let socketManager = IncomingSocketManager()
+            socketManager.connectionPolicy = self.connectionPolicy
             self.socketManager = socketManager
 
             if let delegate = socket.delegate {
@@ -353,11 +357,13 @@ public class HTTPServer: Server {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection(invokeDelegate: false)
                 let clientSource = "\(clientSocket.remoteHostname):\(clientSocket.remotePort)"
-                if let connectionLimit = self.socketOptions.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
-                    socketManager.removeIdleSockets()
+                if let connectionLimit = self.connectionPolicy.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                    // See if any idle sockets can be removed before rejecting this connection
+                    socketManager.removeIdleSockets(runNow: true)
                 }
-                if let connectionLimit = self.socketOptions.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
-                    _ = try? clientSocket.write(from: "HTTP 1.1/503 Service Unavailable\nContent-Length: 0\n\n")
+                if let connectionLimit = self.connectionPolicy.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                    // Connections still at limit, this connection must be rejected
+                    _ = try? clientSocket.write(from: "HTTP/1.1 503 Service Unavailable\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
                     clientSocket.close()
                     Log.debug("Rejected connection from \(clientSource): Maximum connection limit of \(connectionLimit) reached")
                     continue

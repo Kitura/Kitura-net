@@ -67,8 +67,8 @@ public class IncomingSocketManager  {
     /// The last time we checked for an idle socket
     var keepAliveIdleLastTimeChecked = Date()
 
-    /// The limit on the size of requests, in bytes
-    private let requestOptions: IncomingSocketOptions
+    /// Defines the limit on the size of requests. This may be modified by the user at runtime.
+    var connectionPolicy: IncomingSocketOptions = IncomingSocketOptions()
 
     /// Flag indicating when we are done using this socket manager, so we can clean up
     private var stopped = false
@@ -91,8 +91,7 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init(requestOptions: IncomingSocketOptions = IncomingSocketOptions()) {
-            self.requestOptions = requestOptions
+        public init() {
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -118,8 +117,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init(requestOptions: IncomingSocketOptions = IncomingSocketOptions()) {
-            self.requestOptions = requestOptions
+        public init(connectionPolicy: IncomingSocketOptions = IncomingSocketOptions()) {
+            self.connectionPolicy = connectionPolicy
         }
     #endif
 
@@ -163,7 +162,7 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let handler = IncomingSocketHandler(socket: socket, using: processor, requestSizeLimit: self.requestOptions.requestSizeLimit)
+            let handler = IncomingSocketHandler(socket: socket, using: processor, requestSizeLimit: self.connectionPolicy.requestSizeLimit)
             shQueue.sync(flags: .barrier) {
                 socketHandlers[socket.socketfd] = handler
             }
@@ -274,10 +273,11 @@ public class IncomingSocketManager  {
     ///   2. Removing the reference to the IncomingHTTPSocketHandler
     ///   3. Have the IncomingHTTPSocketHandler close the socket
     ///
-    /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
-    internal func removeIdleSockets(removeAll: Bool = false) {
+    /// - Parameter removeAll: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
+    /// - Parameter runNow: indicates that the removal should be performed immediately, rather than at the next scheduled interval
+    internal func removeIdleSockets(removeAll: Bool = false, runNow: Bool = false) {
         let now = Date()
-        guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
+        guard removeAll || runNow || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         shQueue.sync(flags: .barrier) {
             let maxInterval = now.timeIntervalSinceReferenceDate
             for (fileDescriptor, handler) in socketHandlers {
