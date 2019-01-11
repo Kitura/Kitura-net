@@ -363,7 +363,9 @@ public class HTTPServer: Server {
                 }
                 if let connectionLimit = self.connectionPolicy.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
                     // Connections still at limit, this connection must be rejected
-                    _ = try? clientSocket.write(from: "HTTP/1.1 503 Service Unavailable\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
+                    let statusCode = HTTPStatusCode.serviceUnavailable.rawValue
+                    let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+                    _ = try? clientSocket.write(from: "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
                     clientSocket.close()
                     Log.debug("Rejected connection from \(clientSource): Maximum connection limit of \(connectionLimit) reached")
                     continue
