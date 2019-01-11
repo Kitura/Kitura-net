@@ -161,6 +161,9 @@ public class IncomingSocketHandler {
             while  length > 0  {
                 if let readBufferLimit = readBufferLimit, readBuffer.length > readBufferLimit {
                     Log.debug("Request on socketfd \(socket.socketfd) exceeds size limit of \(readBufferLimit) bytes. Connection will be closed.")
+                    let statusCode = HTTPStatusCode.requestTooLong.rawValue
+                    let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+                    _ = try? socket.write(from: "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
                     preparingToClose = true
                     return true
                 }
