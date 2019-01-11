@@ -16,6 +16,18 @@
 
 import Foundation
 
+/**
+ IncomingSocketOptions allows customization of default connection policies, including:
+
+ - `requestSizeLimit`: Defines the maximum size of an incoming request, in bytes. If requests are received that are larger than this limit, they will be rejected and the connection will be closed. A value of `nil` means no limit.
+ - `connectionLimit`: Defines the maximum number of concurrent connections that a server should accept. Clients attempting to connect when this limit has been reached will be rejected. A value of `nil` means no limit.
+
+ Example usage:
+ ```
+ let server = HTTP.createServer()
+ server.connectionPolicy = IncomingSocketOptions(requestSizeLimit: 1000, connectionLimit: 10)
+ ```
+ */
 public struct IncomingSocketOptions {
 
     /// A default limit of 1mb on the size of requests that Kitura should accept.
