@@ -60,12 +60,15 @@ public class IncomingSocketManager  {
         }
         return result
     }
-    
+
     /// Interval at which to check for idle sockets to close
     let keepAliveIdleCheckingInterval: TimeInterval = 5.0
     
     /// The last time we checked for an idle socket
     var keepAliveIdleLastTimeChecked = Date()
+
+    /// The limit on the size of requests, in bytes
+    private let requestOptions: IncomingSocketOptions
 
     /// Flag indicating when we are done using this socket manager, so we can clean up
     private var stopped = false
@@ -88,7 +91,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init() {
+        public init(requestOptions: IncomingSocketOptions = IncomingSocketOptions()) {
+            self.requestOptions = requestOptions
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -114,8 +118,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init() {
-            
+        public init(requestOptions: IncomingSocketOptions = IncomingSocketOptions()) {
+            self.requestOptions = requestOptions
         }
     #endif
 
@@ -159,7 +163,7 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let handler = IncomingSocketHandler(socket: socket, using: processor)
+            let handler = IncomingSocketHandler(socket: socket, using: processor, requestSizeLimit: self.requestOptions.requestSizeLimit)
             shQueue.sync(flags: .barrier) {
                 socketHandlers[socket.socketfd] = handler
             }
@@ -271,7 +275,7 @@ public class IncomingSocketManager  {
     ///   3. Have the IncomingHTTPSocketHandler close the socket
     ///
     /// - Parameter allSockets: flag indicating if the manager is shutting down, and we should cleanup all sockets, not just idle ones
-    private func removeIdleSockets(removeAll: Bool = false) {
+    internal func removeIdleSockets(removeAll: Bool = false) {
         let now = Date()
         guard removeAll || now.timeIntervalSince(keepAliveIdleLastTimeChecked) > keepAliveIdleCheckingInterval  else { return }
         shQueue.sync(flags: .barrier) {

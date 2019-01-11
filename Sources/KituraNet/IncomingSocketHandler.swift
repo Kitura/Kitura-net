@@ -83,6 +83,10 @@ public class IncomingSocketHandler {
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
 
+    /// Option to limit the maximum amount of data that can be read from a socket before rejecting a request and closing the connection.
+    /// This is to protect against accidental or malicious requests from exhausting available memory.
+    private let readBufferLimit: Int?
+
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
     private var preparingToClose = false
@@ -108,7 +112,7 @@ public class IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor) {
+    init(socket: Socket, using: IncomingSocketProcessor, requestSizeLimit: Int?) {
         self.socket = socket
         processor = using
         
@@ -118,7 +122,8 @@ public class IncomingSocketHandler {
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: socketReaderQueue)
         #endif
-        
+
+        self.readBufferLimit = requestSizeLimit
         processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -154,7 +159,13 @@ public class IncomingSocketHandler {
         do {
             var length = 1
             while  length > 0  {
+                if let readBufferLimit = readBufferLimit, readBuffer.length > readBufferLimit {
+                    Log.debug("Request on socketfd \(socket.socketfd) exceeds size limit of \(readBufferLimit) bytes. Connection will be closed.")
+                    preparingToClose = true
+                    return true
+                }
                 length = try socket.read(into: readBuffer)
+                //Log.debug("Read \(length) bytes from socket \(socket.socketfd), readBuffer size: \(readBuffer.length)")
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
