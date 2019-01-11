@@ -18,8 +18,11 @@ import Foundation
 
 public struct IncomingSocketOptions {
 
-    public static let defaultRequestSizeLimit = 100000
-    public static let defaultConnectionLimit = 100
+    /// A default limit of 1mb on the size of requests that Kitura should accept.
+    public static let defaultRequestSizeLimit = 1048576
+
+    /// A default limit of 10,000 on the number of concurrent connections that Kitura should accept.
+    public static let defaultConnectionLimit = 10000
 
     /// Defines the maximum size of an incoming request, in bytes. If requests are received that are larger
     /// than this limit, they will be rejected and the connection will be closed.
