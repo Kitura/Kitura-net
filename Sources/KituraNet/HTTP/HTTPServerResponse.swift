@@ -250,7 +250,7 @@ public class HTTPServerResponse : ServerResponse {
             return
         }
         
-        let utf8Length = text.lengthOfBytes(using: .utf8)
+        let utf8Length = text.utf8.count
         var utf8: [CChar] = Array<CChar>(repeating: 0, count: utf8Length + 10) // A little bit of padding
         guard text.getCString(&utf8, maxLength: utf8Length + 10, encoding: .utf8)  else {
             return
