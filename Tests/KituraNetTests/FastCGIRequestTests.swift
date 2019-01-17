@@ -261,8 +261,8 @@ class FastCGIRequestTests: KituraNetTest {
     private func addNameValuePair(to: NSMutableData, name: String, value: String) {
         var bytes: [UInt8] = [0,0,0,0]
         
-        let nameCount = name.lengthOfBytes(using: .utf8)
-        let valueCount = value.lengthOfBytes(using: .utf8)
+        let nameCount = name.utf8.count
+        let valueCount = value.utf8.count
         
         // Copy length of name into the buffer
         bytes[0] = UInt8(nameCount)
