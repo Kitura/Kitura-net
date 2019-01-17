@@ -492,7 +492,7 @@ public class HTTPServer: Server {
                 response.statusCode = .notFound
                 let theBody = "Path not found"
                 response.headers["Content-Type"] = ["text/plain"]
-                response.headers["Content-Length"] = [String(theBody.lengthOfBytes(using: .utf8))]
+                response.headers["Content-Length"] = [String(theBody.utf8.count)]
                 try response.write(from: theBody)
                 try response.end()
             }
