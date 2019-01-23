@@ -107,9 +107,9 @@ public class HTTPServer: Server {
     public var keepAliveState: KeepAliveState = .unlimited
     
     /// Controls policies relating to incoming connections and requests.
-    public var connectionPolicy: IncomingSocketOptions = IncomingSocketOptions() {
+    public var options: ServerOptions = ServerOptions() {
         didSet {
-            self.socketManager?.connectionPolicy = connectionPolicy
+            self.socketManager?.serverOptions = options
         }
     }
 
@@ -228,7 +228,7 @@ public class HTTPServer: Server {
             }
 
             let socketManager = IncomingSocketManager()
-            socketManager.connectionPolicy = self.connectionPolicy
+            socketManager.serverOptions = self.options
             self.socketManager = socketManager
 
             if let delegate = socket.delegate {
@@ -357,17 +357,20 @@ public class HTTPServer: Server {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection(invokeDelegate: false)
                 let clientSource = "\(clientSocket.remoteHostname):\(clientSocket.remotePort)"
-                if let connectionLimit = self.connectionPolicy.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                if let connectionLimit = self.options.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
                     // See if any idle sockets can be removed before rejecting this connection
                     socketManager.removeIdleSockets(runNow: true)
                 }
-                if let connectionLimit = self.connectionPolicy.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                if let connectionLimit = self.options.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
                     // Connections still at limit, this connection must be rejected
-                    let statusCode = HTTPStatusCode.serviceUnavailable.rawValue
-                    let statusDescription = HTTP.statusCodes[statusCode] ?? ""
-                    _ = try? clientSocket.write(from: "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
+                    if let (httpStatus, response) = self.options.connectionResponseGenerator(connectionLimit, clientSource) {
+                        let statusCode = httpStatus.rawValue
+                        let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+                        let contentLength = response.utf8.count
+                        let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
+                        _ = try? clientSocket.write(from: httpResponse)
+                    }
                     clientSocket.close()
-                    Log.debug("Rejected connection from \(clientSource): Maximum connection limit of \(connectionLimit) reached")
                     continue
                 } else {
                     Log.debug("Accepted HTTP connection from: \(clientSource)")

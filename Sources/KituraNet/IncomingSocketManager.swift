@@ -68,7 +68,7 @@ public class IncomingSocketManager  {
     var keepAliveIdleLastTimeChecked = Date()
 
     /// Defines the limit on the size of requests. This may be modified by the user at runtime.
-    var connectionPolicy: IncomingSocketOptions = IncomingSocketOptions()
+    var serverOptions: ServerOptions = ServerOptions()
 
     /// Flag indicating when we are done using this socket manager, so we can clean up
     private var stopped = false
@@ -117,8 +117,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init(connectionPolicy: IncomingSocketOptions = IncomingSocketOptions()) {
-            self.connectionPolicy = connectionPolicy
+        public init(connectionPolicy: ServerOptions = ServerOptions()) {
+            self.serverOptions = connectionPolicy
         }
     #endif
 
@@ -162,7 +162,7 @@ public class IncomingSocketManager  {
         do {
             try socket.setBlocking(mode: false)
             
-            let handler = IncomingSocketHandler(socket: socket, using: processor, requestSizeLimit: self.connectionPolicy.requestSizeLimit)
+            let handler = IncomingSocketHandler(socket: socket, using: processor, options: self.serverOptions)
             shQueue.sync(flags: .barrier) {
                 socketHandlers[socket.socketfd] = handler
             }

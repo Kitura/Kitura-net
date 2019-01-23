@@ -83,9 +83,10 @@ public class IncomingSocketHandler {
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
 
-    /// Option to limit the maximum amount of data that can be read from a socket before rejecting a request and closing the connection.
+    /// Provides an ability to limit the maximum amount of data that can be read from a socket before rejecting a request and closing
+    /// the connection.
     /// This is to protect against accidental or malicious requests from exhausting available memory.
-    private let readBufferLimit: Int?
+    private let options: ServerOptions
 
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
@@ -112,7 +113,7 @@ public class IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor, requestSizeLimit: Int?) {
+    init(socket: Socket, using: IncomingSocketProcessor, options: ServerOptions) {
         self.socket = socket
         processor = using
         
@@ -123,7 +124,7 @@ public class IncomingSocketHandler {
                                                          queue: socketReaderQueue)
         #endif
 
-        self.readBufferLimit = requestSizeLimit
+        self.options = options
         processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -159,11 +160,15 @@ public class IncomingSocketHandler {
         do {
             var length = 1
             while  length > 0  {
-                if let readBufferLimit = readBufferLimit, readBuffer.length > readBufferLimit {
-                    Log.debug("Request on socketfd \(socket.socketfd) exceeds size limit of \(readBufferLimit) bytes. Connection will be closed.")
-                    let statusCode = HTTPStatusCode.requestTooLong.rawValue
-                    let statusDescription = HTTP.statusCodes[statusCode] ?? ""
-                    _ = try? socket.write(from: "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: 0\r\n\r\n")
+                if let readBufferLimit = self.options.requestSizeLimit, readBuffer.length > readBufferLimit {
+                    let clientSource = "\(socket.remoteHostname):\(socket.remotePort)"
+                    if let (httpStatus, response) = self.options.requestSizeResponseGenerator(readBufferLimit, clientSource) {
+                        let statusCode = httpStatus.rawValue
+                        let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+                        let contentLength = response.utf8.count
+                        let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
+                        _ = try? socket.write(from: httpResponse)
+                    }
                     preparingToClose = true
                     return true
                 }
