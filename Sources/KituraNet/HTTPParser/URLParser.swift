@@ -135,7 +135,7 @@ public class URLParser : CustomStringConvertible {
         schema = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_SCHEMA.rawValue), fieldData: s)
         host = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_HOST.rawValue), fieldData: h)
         let portString = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PORT.rawValue), fieldData: ps)
-        path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)
+        path = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_PATH.rawValue), fieldData: p)!.removingPercentEncoding
         query = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_QUERY.rawValue), fieldData: q)
         fragment = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_FRAGMENT.rawValue), fieldData: f)
         userinfo = getValueFromURL(url, fieldSet: parsedURL.field_set, fieldIndex: UInt16(UF_USERINFO.rawValue), fieldData: u)
