@@ -145,12 +145,11 @@ public class URLParser : CustomStringConvertible {
         }
             
         if let query = query {
-            let pairs = query.components(separatedBy: "&")
+            let pairs = query.split(separator: "&")
             for pair in pairs {
-                    
-                let pairArray = pair.components(separatedBy: "=")
+                let pairArray = pair.split(separator: "=")
                 if pairArray.count == 2 {
-                    queryParameters[pairArray[0]] = pairArray[1]
+                    queryParameters[String(pairArray[0])] = String(pairArray[1])
                 }
             }
         }
