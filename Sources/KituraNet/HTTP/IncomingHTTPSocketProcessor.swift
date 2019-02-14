@@ -37,7 +37,10 @@ This class processes the data sent by the client after the data was read. The da
  ````
  */
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
-    
+
+    // A queue for ensuring thread-safe access to the properties of this class.
+    private let stateQueue = DispatchQueue(label: "stateQueue", attributes: .concurrent)
+
     /**
      A back reference to the `IncomingSocketHandler` processing the socket that
      this `IncomingDataProcessor` is processing.
@@ -62,8 +65,22 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kept alive
-    private(set) var clientRequestedKeepAlive = false
-    
+    private var _clientRequestedKeepAlive = false
+    private(set) var clientRequestedKeepAlive: Bool {
+        get {
+            return stateQueue.sync {
+                return _clientRequestedKeepAlive
+            }
+        }
+        set {
+            stateQueue.sync(flags: .barrier) {
+                _clientRequestedKeepAlive = newValue
+            }
+        }
+    }
+
+    private var _keepAliveUntil: TimeInterval = 0.0
+
     /**
      The socket if idle will be kep alive until...
      
@@ -72,11 +89,24 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      processor?.keepAliveUntil = 0.0
      ````
      */
-    public var keepAliveUntil: TimeInterval = 0.0
-    
+    public var keepAliveUntil: TimeInterval {
+        get {
+            return stateQueue.sync {
+                return _keepAliveUntil
+            }
+        }
+        set {
+            stateQueue.sync(flags: .barrier) {
+                _keepAliveUntil = newValue
+            }
+        }
+    }
+
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
-    
+
+    private var _inProgress: Bool = true
+
     /**
      A flag that indicates that there is a request in progress
      
@@ -85,7 +115,18 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      processor?.inProgress = false
      ````
      */
-    public var inProgress = true
+    public var inProgress: Bool {
+        get {
+            return stateQueue.sync {
+                return _inProgress
+            }
+        }
+        set {
+            stateQueue.sync(flags: .barrier) {
+                _inProgress = newValue
+            }
+        }
+    }
     
     ///HTTP Parser
     private let httpParser: HTTPParser
@@ -107,8 +148,20 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     }
     
     /// The state of this handler
-    private(set) var state = State.readingMessage
-    
+    private var _state = State.readingMessage
+    private(set) var state: State {
+        get {
+            return stateQueue.sync {
+                return _state
+            }
+        }
+        set {
+            stateQueue.sync(flags: .barrier) {
+                _state = newValue
+            }
+        }
+    }
+
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
     
