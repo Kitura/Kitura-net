@@ -50,9 +50,6 @@ public class IncomingSocketHandler {
     
     static let socketWriterQueue = DispatchQueue(label: "Socket Writer")
    
-    // A queue for ensuring thread-safe access to the properties of this class.
-    private let stateQueue = DispatchQueue(label: "stateQueue", attributes: .concurrent)
-
     #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
         static let socketReaderQueues = [DispatchQueue(label: "Socket Reader A"), DispatchQueue(label: "Socket Reader B")]
     
@@ -68,6 +65,9 @@ public class IncomingSocketHandler {
     let socket: Socket
 
     private var _processor: IncomingSocketProcessor?
+    // A queue for ensuring thread-safe access to the properties of this class.
+    private let processorQueue = DispatchQueue(label: "processorQueue", attributes: .concurrent)
+
 
     /**
      The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
@@ -79,12 +79,12 @@ public class IncomingSocketHandler {
      */
     public var processor: IncomingSocketProcessor? {
         get {
-            return stateQueue.sync {
+            return processorQueue.sync {
                 return _processor
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            processorQueue.sync(flags: .barrier) {
                 _processor = newValue
             }
         }
@@ -97,14 +97,15 @@ public class IncomingSocketHandler {
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
     private var _preparingToClose = false
+    private let pTCQueue = DispatchQueue(label: "pTCQueue", attributes: .concurrent)
     private(set) var preparingToClose: Bool {
         get {
-            return stateQueue.sync {
+            return pTCQueue.sync {
                 return _preparingToClose
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            pTCQueue.sync(flags: .barrier) {
                 _preparingToClose = newValue
             }
         }
@@ -115,14 +116,15 @@ public class IncomingSocketHandler {
     ///   - it is safe to close the socket (there is no data waiting to be written and a socket read/write is not in progress).
     /// This lets other threads know to not start reads/writes on this socket anymore, which could cause a crash.
     private var _isOpen = true
+    private let isOpenQueue = DispatchQueue(label: "isOpenQueue", attributes: .concurrent)
     private var isOpen: Bool {
         get {
-            return stateQueue.sync {
+            return isOpenQueue.sync {
                 return _isOpen
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            isOpenQueue.sync(flags: .barrier) {
                 _isOpen = newValue
             }
         }
@@ -131,14 +133,15 @@ public class IncomingSocketHandler {
     /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
     private var _writeInProgress = false
+    private let wIPQueue = DispatchQueue(label: "wIPQueue", attributes: .concurrent)
     private var writeInProgress: Bool {
         get {
-            return stateQueue.sync {
+            return wIPQueue.sync {
                 return _writeInProgress
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            wIPQueue.sync(flags: .barrier) {
                 _writeInProgress = newValue
             }
         }
@@ -147,14 +150,15 @@ public class IncomingSocketHandler {
     /// handleWrite() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleWrite() re-attempts close when it's done
     private var _handleWriteInProgress = false
+    private let hWIPQueue = DispatchQueue(label: "hWIPQueue", attributes: .concurrent)
     private var handleWriteInProgress: Bool {
         get {
-            return stateQueue.sync {
+            return hWIPQueue.sync {
                 return _handleWriteInProgress
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            hWIPQueue.sync(flags: .barrier) {
                 _handleWriteInProgress = newValue
             }
         }
@@ -163,14 +167,15 @@ public class IncomingSocketHandler {
     /// handleRead() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleRead() re-attempts close when it's done
     private var _handleReadInProgress = false
+    private let hRIPQueue = DispatchQueue(label: "hRIPQueue", attributes: .concurrent)
     private var handleReadInProgress: Bool {
         get {
-            return stateQueue.sync {
+            return hRIPQueue.sync {
                 return _handleReadInProgress
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            hRIPQueue.sync(flags: .barrier) {
                 _handleReadInProgress = newValue
             }
         }

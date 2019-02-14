@@ -38,9 +38,6 @@ This class processes the data sent by the client after the data was read. The da
  */
 public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
 
-    // A queue for ensuring thread-safe access to the properties of this class.
-    private let stateQueue = DispatchQueue(label: "stateQueue", attributes: .concurrent)
-
     /**
      A back reference to the `IncomingSocketHandler` processing the socket that
      this `IncomingDataProcessor` is processing.
@@ -66,20 +63,22 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// A flag indicating that the client has requested that the socket be kept alive
     private var _clientRequestedKeepAlive = false
+    private let cRKAQueue = DispatchQueue(label: "cRKAQueue", attributes: .concurrent)
     private(set) var clientRequestedKeepAlive: Bool {
         get {
-            return stateQueue.sync {
+            return cRKAQueue.sync {
                 return _clientRequestedKeepAlive
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            cRKAQueue.sync(flags: .barrier) {
                 _clientRequestedKeepAlive = newValue
             }
         }
     }
 
     private var _keepAliveUntil: TimeInterval = 0.0
+    private let kAUQueue = DispatchQueue(label: "kAUQueue", attributes: .concurrent)
 
     /**
      The socket if idle will be kep alive until...
@@ -91,12 +90,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      */
     public var keepAliveUntil: TimeInterval {
         get {
-            return stateQueue.sync {
+            return kAUQueue.sync {
                 return _keepAliveUntil
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            kAUQueue.sync(flags: .barrier) {
                 _keepAliveUntil = newValue
             }
         }
@@ -106,6 +105,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private(set) var isUpgrade = false
 
     private var _inProgress: Bool = true
+    private let inProgressQueue = DispatchQueue(label: "inProgressQueue", attributes: .concurrent)
 
     /**
      A flag that indicates that there is a request in progress
@@ -117,12 +117,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      */
     public var inProgress: Bool {
         get {
-            return stateQueue.sync {
+            return inProgressQueue.sync {
                 return _inProgress
             }
         }
         set {
-            stateQueue.sync(flags: .barrier) {
+            inProgressQueue.sync(flags: .barrier) {
                 _inProgress = newValue
             }
         }
@@ -149,6 +149,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// The state of this handler
     private var _state = State.readingMessage
+    private let stateQueue = DispatchQueue(label: "stateQueue", attributes: .concurrent)
     private(set) var state: State {
         get {
             return stateQueue.sync {
