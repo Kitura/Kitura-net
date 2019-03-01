@@ -602,6 +602,7 @@ public class ClientRequest {
                 headersList = curl_slist_append(headersList, UnsafePointer(headerString))
             }
         }
+        headersList = curl_slist_append(headersList, UnsafePointer("Expect:".cString(using: .utf8)!))
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
     }
 
