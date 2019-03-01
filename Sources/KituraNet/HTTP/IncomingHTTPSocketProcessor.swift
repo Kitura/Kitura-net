@@ -134,7 +134,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      */
     public func process(_ buffer: NSData) -> Bool {
         let result: Bool
-        
+        Log.debug("Processing buffer of size \(buffer.length) for socket \(self.socket.socketfd)")
+
         switch(state) {
         case .reset:
             httpParser.reset()
@@ -237,6 +238,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
         let (numberParsed, upgrade) = httpParser.execute(bytes, length: length)
+        Log.debug("HTTP parser parsed \(numberParsed) out of \(length) bytes for socket \(self.socket.socketfd)")
+        Log.debug("Buffered bytes:\n\(String(data: buffer as Data, encoding: .utf8) ?? "")")
         
         if completeBuffer && numberParsed == length {
             // Tell parser we reached the end

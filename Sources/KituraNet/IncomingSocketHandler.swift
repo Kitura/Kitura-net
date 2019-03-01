@@ -111,7 +111,7 @@ public class IncomingSocketHandler {
     init(socket: Socket, using: IncomingSocketProcessor) {
         self.socket = socket
         processor = using
-        
+       Log.debug("Socket connection \(socket.socketfd) established") 
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
             
@@ -155,6 +155,7 @@ public class IncomingSocketHandler {
             var length = 1
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
+                Log.debug("Read \(length) bytes from socket \(socket.socketfd)")
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
@@ -333,6 +334,7 @@ public class IncomingSocketHandler {
      ````
      */
     public func write(from data: NSData) {
+        Log.debug("writing data")
         write(from: data.bytes, length: data.length)
     }
     
@@ -348,6 +350,7 @@ public class IncomingSocketHandler {
      ````
      */
     public func write(from bytes: UnsafeRawPointer, length: Int) {
+        Log.debug("writing bytes with length \(length)")
         writeInProgress = true
         defer {
             writeInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
