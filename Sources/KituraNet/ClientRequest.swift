@@ -596,7 +596,11 @@ public class ClientRequest {
         if closeConnection {
             headers["Connection"] = "close"
         }
-        
+        // Unless the user has provided an Expect header, set an empty one to disable
+        // curl's default Expect: 100-continue behaviour, since Kitura does not support it.
+        if !headers.keys.contains("Expect") {
+            headers["Expect"] = ""
+        }
         for (headerKey, headerValue) in headers {
             if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
                 headersList = curl_slist_append(headersList, UnsafePointer(headerString))
