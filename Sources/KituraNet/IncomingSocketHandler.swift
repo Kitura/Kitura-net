@@ -69,6 +69,11 @@ public class IncomingSocketHandler {
 
     let socket: Socket
 
+    /// Returns the socket file descriptor of the socket handled by this handler.
+    public var socketfd: Int32 {
+        return self.socket.socketfd
+    }
+
     /**
      The `IncomingSocketProcessor` instance that processes data read from the underlying socket.
      
