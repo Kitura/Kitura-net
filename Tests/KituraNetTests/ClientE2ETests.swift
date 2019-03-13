@@ -38,7 +38,8 @@ class ClientE2ETests: KituraNetTest {
             ("testPipeliningSpanningPackets", testPipeliningSpanningPackets),
             ("testSimpleHTTPClient", testSimpleHTTPClient),
             ("testUrlURL", testUrlURL),
-            ("testRedirection", testRedirection)
+            ("testRedirection", testRedirection),
+            ("testQueryParameters", testQueryParameters)
         ]
     }
 
@@ -421,6 +422,41 @@ class ClientE2ETests: KituraNetTest {
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
             }, requestModifier: redirLimitTwo)
             expectation.fulfill()
+        }
+    }
+
+    func testQueryParameters() {
+        class TestDelegate : ServerDelegate {
+            func toDictionary(_ queryItems: [URLQueryItem]?) -> [String : String] {
+                guard let queryItems = queryItems else { return [:] }
+                var queryParameters: [String : String] = [:]
+                for queryItem in queryItems {
+                    queryParameters[queryItem.name] = queryItem.value ?? ""
+                }
+                return queryParameters
+            }
+
+            func handle(request: ServerRequest, response: ServerResponse) {
+               do {
+                   let urlComponents = URLComponents(url: request.urlURL, resolvingAgainstBaseURL: false) ?? URLComponents()
+                   let queryParameters = toDictionary(urlComponents.queryItems)
+                   XCTAssertEqual(queryParameters.count, 3, "Expected 3 query parameters, received \(queryParameters.count)")
+                   XCTAssertEqual(queryParameters["key1"], "value1", "Value of key1 should have been value1, received \(queryParameters["key1"] ?? "nil")")
+                   XCTAssertEqual(queryParameters["key2"], "value2", "Value of key2 should have been value2, received \(queryParameters["key2"] ?? "nil")")
+                   XCTAssertEqual(queryParameters["key3"], "value3 value4", "Value of key3 should have been \"value3 value4\", received \(queryParameters["key3"] ?? "nil")")
+                   response.statusCode = .OK
+                   try response.end()
+                } catch {
+                    XCTFail("Error while writing a response")
+                }
+            }
+        }
+        let testDelegate = TestDelegate()
+        performServerTest(testDelegate) { expectation in
+            self.performRequest("get", path: "/zxcv/p?key1=value1&key2=value2&key3=value3%20value4", callback: { response in
+                XCTAssertEqual(response?.statusCode, .OK)
+                expectation.fulfill()
+            })
         }
     }
 
