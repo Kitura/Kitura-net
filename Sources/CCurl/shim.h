@@ -18,6 +18,7 @@
 #define CurlHelpers_h
 
 #import <curl/curl.h>
+#import <curl/multi.h>
 
 #define CURL_TRUE  1
 #define CURL_FALSE 0
@@ -79,6 +80,10 @@ static inline CURLcode curlHelperGetInfoCString(CURL *curl, CURLINFO info, char 
 
 static inline CURLcode curlHelperGetInfoLong(CURL *curl, CURLINFO info, long *data) {
     return curl_easy_getinfo(curl, info, data);
+}
+
+static inline CURLMcode curlHelperSetMultiOpt(CURLM *curlMulti, CURLMoption option, long data) {
+    return curl_multi_setopt(curlMulti, option, data);
 }
 
 static inline CURLcode curlHelperSetUnixSocketPath(CURL *curl, const char *data) {
