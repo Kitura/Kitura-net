@@ -81,5 +81,12 @@ static inline CURLcode curlHelperGetInfoLong(CURL *curl, CURLINFO info, long *da
     return curl_easy_getinfo(curl, info, data);
 }
 
+static inline CURLcode curlHelperSetUnixSocketPath(CURL *curl, const char *data) {
+#ifdef CURL_VERSION_UNIX_SOCKETS
+    return curl_easy_setopt(curl, CURLOPT_UNIX_SOCKET_PATH, data);
+#else
+    return CURLE_NOT_BUILT_IN;
+#endif
+}
 
 #endif /* CurlHelpers_h */
