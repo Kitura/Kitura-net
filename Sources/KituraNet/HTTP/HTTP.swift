@@ -115,6 +115,7 @@ public class HTTP {
     Create a new `ClientRequest` using a list of options.
     
     - Parameter options: a list of `ClientRequest.Options`.
+    - Parameter socketPath: a Unix socket path that this client should connect to (defaults to `nil`).
     - Parameter callback: closure to run after the request.
     - Returns: a `ClientRequest` instance
     
@@ -125,8 +126,8 @@ public class HTTP {
     }
     ````
     */
-    public static func request(_ options: [ClientRequest.Options], callback: @escaping ClientRequest.Callback) -> ClientRequest {
-        return ClientRequest(options: options, callback: callback)
+    public static func request(_ options: [ClientRequest.Options], socketPath: String? = nil, callback: @escaping ClientRequest.Callback) -> ClientRequest {
+        return ClientRequest(options: options, socketPath: socketPath, callback: callback)
     }
     
     /**

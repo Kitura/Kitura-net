@@ -213,10 +213,7 @@ public class ClientRequest {
         
         /// If present, the client will try to use HTTP/2 protocol for the connection.
         case useHTTP2
-        
-        /// If present, the client will connect using the Unix Socket
-        case socketPath(String)
-        
+
     }
 
     /**
@@ -245,9 +242,10 @@ public class ClientRequest {
 
     /// Initializes a `ClientRequest` instance
     ///
-    /// - Parameter options: An array of `Options' describing the request
+    /// - Parameter options: An array of `Options' describing the request.
+    /// - Parameter socketPath: Specifies a Unix socket that the client should connect to.
     /// - Parameter callback: The closure of type `Callback` to be used for the callback.
-    init(options: [Options], callback: @escaping Callback) {
+    init(options: [Options], socketPath: String? = nil, callback: @escaping Callback) {
 
         self.callback = callback
 
@@ -256,10 +254,14 @@ public class ClientRequest {
         var path = ""
         var port = ""
 
+        if let socketPath = socketPath {
+            self.socketPath = socketPath
+        }
+
         for option in options  {
             switch(option) {
 
-                case .method, .headers, .maxRedirects, .disableSSLVerification, .useHTTP2, .socketPath:
+                case .method, .headers, .maxRedirects, .disableSSLVerification, .useHTTP2:
                     // call set() for Options that do not construct the URL
                     set(option)
                 case .schema(var schema):
@@ -327,8 +329,6 @@ public class ClientRequest {
             self.disableSSLVerification = true
         case .useHTTP2:
             self.useHTTP2 = true
-        case .socketPath(let socketPath):
-            self.socketPath = socketPath
         }
     }
 
