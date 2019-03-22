@@ -34,6 +34,7 @@ class KituraNetTest: XCTestCase {
 
     var useSSL = useSSLDefault
     var port = portDefault
+    var socketPath: String? = nil
 
     static let sslConfig: SSLService.Configuration = {
         let sslConfigDir = URL(fileURLWithPath: #file).appendingPathComponent("../SSLConfig")
@@ -61,7 +62,15 @@ class KituraNetTest: XCTestCase {
     func doTearDown() {
     }
 
-    func startServer(_ delegate: ServerDelegate?, port: Int = portDefault, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> HTTPServer {
+    /// Start a server listening on a specified TCP port or Unix socket path.
+    /// - Parameter delegate: The ServerDelegate that will handle requests to this server
+    /// - Parameter port: The TCP port number to listen on
+    /// - Parameter socketPath: The Unix socket path to listen on
+    /// - Parameter useSSL: Whether to listen using SSL
+    /// - Parameter allowPortReuse: Whether to allow the TCP port to be reused by other listeners
+    /// - Returns: an HTTPServer instance.
+    /// - Throws: an error if the server fails to listen on the specified port or path.
+    func startServer(_ delegate: ServerDelegate?, port: Int = portDefault, socketPath: String? = nil, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> HTTPServer {
         
         let server = HTTP.createServer()
         server.delegate = delegate
@@ -69,10 +78,14 @@ class KituraNetTest: XCTestCase {
         if useSSL {
             server.sslConfig = KituraNetTest.sslConfig
         }
-        try server.listen(on: port)
+        if let socketPath = socketPath {
+            try server.listen(unixSocketPath: socketPath)
+        } else {
+            try server.listen(on: port)
+        }
         return server
     }
-    
+
     /// Convenience function for starting an HTTPServer on an ephemeral port,
     /// returning the a tuple containing the server and the port it is listening on.
     func startEphemeralServer(_ delegate: ServerDelegate?, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> (server: HTTPServer, port: Int) {
@@ -94,6 +107,35 @@ class KituraNetTest: XCTestCase {
             self.port = port
 
             let server: HTTPServer = try startServer(delegate, port: port, useSSL: useSSL, allowPortReuse: allowPortReuse)
+            defer {
+                server.stop()
+            }
+
+            let requestQueue = DispatchQueue(label: "Request queue")
+            for (index, asyncTask) in asyncTasks.enumerated() {
+                let expectation = self.expectation(line: line, index: index)
+                requestQueue.async() {
+                    asyncTask(expectation)
+                }
+            }
+
+            // wait for timeout or for all created expectations to be fulfilled
+            waitExpectation(timeout: 10) { error in
+                XCTAssertNil(error);
+            }
+        } catch {
+            XCTFail("Error: \(error)")
+        }
+    }
+
+    func performServerTest(_ delegate: ServerDelegate?, socketPath: String, useSSL: Bool = useSSLDefault,
+                           line: Int = #line, asyncTasks: (XCTestExpectation) -> Void...) {
+
+        do {
+            self.useSSL = useSSL
+            self.socketPath = socketPath
+
+            let server: HTTPServer = try startServer(delegate, socketPath: socketPath, useSSL: useSSL)
             defer {
                 server.stop()
             }
@@ -145,7 +187,7 @@ class KituraNetTest: XCTestCase {
         }
     }
 
-    func performRequest(_ method: String, path: String, close: Bool=true, callback: @escaping ClientRequest.Callback,
+    func performRequest(_ method: String, path: String, socketPath: String? = nil, close: Bool=true, callback: @escaping ClientRequest.Callback,
                         headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
 
         var allHeaders = [String: String]()
@@ -163,7 +205,7 @@ class KituraNetTest: XCTestCase {
             options.append(.disableSSLVerification)
         }
 
-        let req = HTTP.request(options, callback: callback)
+        let req = HTTP.request(options, socketPath: socketPath, callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
         }

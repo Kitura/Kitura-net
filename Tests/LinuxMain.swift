@@ -43,6 +43,7 @@ extension Sequence {
 }
 
 XCTMain([
+    testCase(UnixSocketTests.allTests.shuffled()),
     testCase(ClientE2ETests.allTests.shuffled()),
     testCase(ClientRequestTests.allTests.shuffled()),
     testCase(FastCGIProtocolTests.allTests.shuffled()),
