@@ -57,7 +57,10 @@ public class HTTPServerRequest: ServerRequest {
     
     /// Client connection socket
     private let socket: Socket
-    
+
+    /// Socket's signature (required by tests)
+    let socketSignature: Socket.Signature?
+
     /**
      Server IP address pulled from socket.
      
@@ -239,6 +242,7 @@ public class HTTPServerRequest: ServerRequest {
     init (socket: Socket, httpParser: HTTPParser?) {
         self.socket = socket
         self.httpParser = httpParser
+        self.socketSignature = socket.signature
     }
     
     /**

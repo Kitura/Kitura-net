@@ -52,15 +52,17 @@ public class HTTPServer: Server {
      */
     public var delegate: ServerDelegate?
 
-    /**
-     Port number for listening for new connections.
-     
-     ### Usage Example: ###
-     ````swift
-     httpServer.port = 8080
-     ````
-     */
+    /// The TCP port on which this server listens for new connections. If `nil`, this server does not listen on a TCP socket.
     public private(set) var port: Int?
+
+    /// The Unix socket path on which this server listens for new connections. If `nil`, this server does not listen on a Unix socket.
+    public private(set) var socketPath: String?
+
+    /// The types of listeners we currently support.
+    private enum ListenerType {
+        case inet(Int)
+        case unix(String)
+    }
 
     /**
      A server state
@@ -145,20 +147,45 @@ public class HTTPServer: Server {
     }
 
     /**
-     Listens for connections on a socket.
+     Listens for connections on a TCP socket.
      
      ### Usage Example: ###
      ````swift
      try server.listen(on: 8080)
      ````
      
-     - Parameter on: Port number for new connections, e.g. 8080
+     - Parameter port: Port number for new connections, e.g. 8080
      */
     public func listen(on port: Int) throws {
         self.port = port
+        try listen(.inet(port))
+    }
+
+    /**
+     Listens for connections on a Unix socket.
+
+     ### Usage Example: ###
+     ````swift
+     try server.listen(unixSocketPath: "/my/path")
+     ````
+
+     - Parameter unixSocketPath: Unix socket path for new connections, eg. "/my/path"
+     */
+    public func listen(unixSocketPath: String) throws {
+        self.socketPath = unixSocketPath
+        try listen(.unix(unixSocketPath))
+    }
+
+    private func listen(_ listener: ListenerType) throws {
         do {
-            let socket = try Socket.create()
-            self.listenSocket = socket
+            let socket: Socket
+            switch listener {
+            case .inet:
+                socket = try Socket.create(family: .inet)
+            case .unix:
+                socket = try Socket.create(family: .unix)
+            }
+           self.listenSocket = socket
 
             // If SSL config has been created,
             // create and attach the SSLService delegate to the socket
@@ -166,20 +193,27 @@ public class HTTPServer: Server {
                 socket.delegate = try SSLService(usingConfiguration: sslConfig);
             }
 
-            try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse)
+            let listenerDescription: String
+            switch listener {
+            case .inet(let port):
+                try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse)
+                // If a random (ephemeral) port number was requested, get the listening port
+                let listeningPort = Int(socket.listeningPort)
+                if listeningPort != port {
+                    self.port = listeningPort
+                    // We should only expect a different port if the requested port was zero.
+                    if port != 0 {
+                        Log.error("Listening port \(listeningPort) does not match requested port \(port)")
+                    }
+                }
+                listenerDescription = "port \(listeningPort)"
+            case .unix(let path):
+                try socket.listen(on: path, maxBacklogSize: maxPendingConnections)
+                listenerDescription = "path \(path)"
+            }
 
             let socketManager = IncomingSocketManager()
             self.socketManager = socketManager
-
-            // If a random (ephemeral) port number was requested, get the listening port
-            let listeningPort = Int(socket.listeningPort)
-            if listeningPort != port {
-                self.port = listeningPort
-                // We should only expect a different port if the requested port was zero.
-                if port != 0 {
-                    Log.error("Listening port \(listeningPort) does not match requested port \(port)")
-                }
-            }
 
             if let delegate = socket.delegate {
                 #if os(Linux)
@@ -189,11 +223,11 @@ public class HTTPServer: Server {
                     }
                 #endif
                 
-                Log.info("Listening on port \(self.port!) (delegate: \(delegate))")
-                Log.verbose("Options for port \(self.port!): delegate: \(delegate), maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
+                Log.info("Listening on \(listenerDescription) (delegate: \(delegate))")
+                Log.verbose("Options for \(listenerDescription): delegate: \(delegate), maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
             } else {
-                Log.info("Listening on port \(self.port!)")
-                Log.verbose("Options for port \(self.port!): maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
+                Log.info("Listening on \(listenerDescription)")
+                Log.verbose("Options for \(listenerDescription): maxPendingConnections: \(maxPendingConnections), allowPortReuse: \(self.allowPortReuse)")
             }
 
             // set synchronously to avoid contention in back to back server start/stop calls
@@ -231,6 +265,26 @@ public class HTTPServer: Server {
         let server = HTTP.createServer()
         server.delegate = delegate
         try server.listen(on: port)
+        return server
+    }
+
+    /**
+     Static method to create a new HTTP server and have it listen for connections on a Unix socket.
+
+     ### Usage Example: ###
+     ````swift
+     let server = HTTPServer.listen(unixSocketPath: "/my/path", delegate: self)
+     ````
+
+     - Parameter unixSocketPath: Path of the Unix socket that this server should listen on.
+     - Parameter delegate: The delegate handler for HTTP connections.
+
+     - Returns: A new instance of a `HTTPServer`.
+     */
+    public static func listen(unixSocketPath: String, delegate: ServerDelegate?) throws -> HTTPServer {
+        let server = HTTP.createServer()
+        server.delegate = delegate
+        try server.listen(unixSocketPath: unixSocketPath)
         return server
     }
 
