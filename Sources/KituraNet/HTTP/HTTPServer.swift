@@ -55,8 +55,8 @@ public class HTTPServer: Server {
     /// The TCP port on which this server listens for new connections. If `nil`, this server does not listen on a TCP socket.
     public private(set) var port: Int?
 
-    /// The Unix socket path on which this server listens for new connections. If `nil`, this server does not listen on a Unix socket.
-    public private(set) var socketPath: String?
+    /// The Unix domain socket path on which this server listens for new connections. If `nil`, this server does not listen on a Unix socket.
+    public private(set) var unixDomainSocketPath: String?
 
     /// The types of listeners we currently support.
     private enum ListenerType {
@@ -166,14 +166,14 @@ public class HTTPServer: Server {
 
      ### Usage Example: ###
      ````swift
-     try server.listen(unixSocketPath: "/my/path")
+     try server.listen(unixDomainSocketPath: "/my/path")
      ````
 
-     - Parameter unixSocketPath: Unix socket path for new connections, eg. "/my/path"
+     - Parameter unixDomainSocketPath: Unix socket path for new connections, eg. "/my/path"
      */
-    public func listen(unixSocketPath: String) throws {
-        self.socketPath = unixSocketPath
-        try listen(.unix(unixSocketPath))
+    public func listen(unixDomainSocketPath: String) throws {
+        self.unixDomainSocketPath = unixDomainSocketPath
+        try listen(.unix(unixDomainSocketPath))
     }
 
     private func listen(_ listener: ListenerType) throws {
@@ -269,22 +269,22 @@ public class HTTPServer: Server {
     }
 
     /**
-     Static method to create a new HTTP server and have it listen for connections on a Unix socket.
+     Static method to create a new HTTP server and have it listen for connections on a Unix domain socket.
 
      ### Usage Example: ###
      ````swift
-     let server = HTTPServer.listen(unixSocketPath: "/my/path", delegate: self)
+     let server = HTTPServer.listen(unixDomainSocketPath: "/my/path", delegate: self)
      ````
 
-     - Parameter unixSocketPath: Path of the Unix socket that this server should listen on.
+     - Parameter unixDomainSocketPath: The path of the Unix domain socket that this server should listen on.
      - Parameter delegate: The delegate handler for HTTP connections.
 
      - Returns: A new instance of a `HTTPServer`.
      */
-    public static func listen(unixSocketPath: String, delegate: ServerDelegate?) throws -> HTTPServer {
+    public static func listen(unixDomainSocketPath: String, delegate: ServerDelegate?) throws -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
-        try server.listen(unixSocketPath: unixSocketPath)
+        try server.listen(unixDomainSocketPath: unixDomainSocketPath)
         return server
     }
 

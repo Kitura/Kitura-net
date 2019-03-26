@@ -63,8 +63,8 @@ class UnixSocketTests: KituraNetTest {
     /// to that socket. The TestUnixSocketServerDelegate.handle() function will verify
     /// that the incoming request's socket is a unix socket.
     func testUnixSockets() {
-        performServerTest(unixDelegate, socketPath: socketFilePath) { expectation in
-            self.performRequest("get", path: "/banana", socketPath: self.socketFilePath, callback: { response in
+        performServerTest(unixDelegate, unixDomainSocketPath: socketFilePath) { expectation in
+            self.performRequest("get", path: "/banana", unixDomainSocketPath: self.socketFilePath, callback: { response in
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "Status code wasn't .OK was \(String(describing: response?.statusCode))")
                 expectation.fulfill()
             })

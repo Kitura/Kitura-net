@@ -34,7 +34,7 @@ class KituraNetTest: XCTestCase {
 
     var useSSL = useSSLDefault
     var port = portDefault
-    var socketPath: String? = nil
+    var unixDomainSocketPath: String? = nil
 
     static let sslConfig: SSLService.Configuration = {
         let sslConfigDir = URL(fileURLWithPath: #file).appendingPathComponent("../SSLConfig")
@@ -70,7 +70,7 @@ class KituraNetTest: XCTestCase {
     /// - Parameter allowPortReuse: Whether to allow the TCP port to be reused by other listeners
     /// - Returns: an HTTPServer instance.
     /// - Throws: an error if the server fails to listen on the specified port or path.
-    func startServer(_ delegate: ServerDelegate?, port: Int = portDefault, socketPath: String? = nil, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> HTTPServer {
+    func startServer(_ delegate: ServerDelegate?, port: Int = portDefault, unixDomainSocketPath: String? = nil, useSSL: Bool = useSSLDefault, allowPortReuse: Bool = portReuseDefault) throws -> HTTPServer {
         
         let server = HTTP.createServer()
         server.delegate = delegate
@@ -78,8 +78,8 @@ class KituraNetTest: XCTestCase {
         if useSSL {
             server.sslConfig = KituraNetTest.sslConfig
         }
-        if let socketPath = socketPath {
-            try server.listen(unixSocketPath: socketPath)
+        if let unixDomainSocketPath = unixDomainSocketPath {
+            try server.listen(unixDomainSocketPath: unixDomainSocketPath)
         } else {
             try server.listen(on: port)
         }
@@ -128,14 +128,14 @@ class KituraNetTest: XCTestCase {
         }
     }
 
-    func performServerTest(_ delegate: ServerDelegate?, socketPath: String, useSSL: Bool = useSSLDefault,
+    func performServerTest(_ delegate: ServerDelegate?, unixDomainSocketPath: String, useSSL: Bool = useSSLDefault,
                            line: Int = #line, asyncTasks: (XCTestExpectation) -> Void...) {
 
         do {
             self.useSSL = useSSL
-            self.socketPath = socketPath
+            self.unixDomainSocketPath = unixDomainSocketPath
 
-            let server: HTTPServer = try startServer(delegate, socketPath: socketPath, useSSL: useSSL)
+            let server: HTTPServer = try startServer(delegate, unixDomainSocketPath: unixDomainSocketPath, useSSL: useSSL)
             defer {
                 server.stop()
             }
@@ -187,7 +187,7 @@ class KituraNetTest: XCTestCase {
         }
     }
 
-    func performRequest(_ method: String, path: String, socketPath: String? = nil, close: Bool=true, callback: @escaping ClientRequest.Callback,
+    func performRequest(_ method: String, path: String, unixDomainSocketPath: String? = nil, close: Bool=true, callback: @escaping ClientRequest.Callback,
                         headers: [String: String]? = nil, requestModifier: ((ClientRequest) -> Void)? = nil) {
 
         var allHeaders = [String: String]()
@@ -205,7 +205,7 @@ class KituraNetTest: XCTestCase {
             options.append(.disableSSLVerification)
         }
 
-        let req = HTTP.request(options, socketPath: socketPath, callback: callback)
+        let req = HTTP.request(options, unixDomainSocketPath: unixDomainSocketPath, callback: callback)
         if let requestModifier = requestModifier {
             requestModifier(req)
         }

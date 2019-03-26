@@ -115,19 +115,20 @@ public class HTTP {
     Create a new `ClientRequest` using a list of options.
     
     - Parameter options: a list of `ClientRequest.Options`.
-    - Parameter socketPath: a Unix socket path that this client should connect to (defaults to `nil`).
-    - Parameter callback: closure to run after the request.
+    - Parameter unixDomainSocketPath: the path of a Unix domain socket that this client should connect to (defaults to `nil`).
+    - Parameter callback: The closure to run after the request completes. The `ClientResponse?` parameter allows access to the response from the server.
     - Returns: a `ClientRequest` instance
     
     ### Usage Example: ###
     ````swift
-    let request = HTTP.request([ClientRequest.Options]) {response in
-        ...
+     let myOptions: [ClientRequest.Options] = [.hostname("localhost"), .port("8080")]
+    let request = HTTP.request(myOptions) { response in
+        // Process the ClientResponse
     }
     ````
     */
-    public static func request(_ options: [ClientRequest.Options], socketPath: String? = nil, callback: @escaping ClientRequest.Callback) -> ClientRequest {
-        return ClientRequest(options: options, socketPath: socketPath, callback: callback)
+    public static func request(_ options: [ClientRequest.Options], unixDomainSocketPath: String? = nil, callback: @escaping ClientRequest.Callback) -> ClientRequest {
+        return ClientRequest(options: options, unixDomainSocketPath: unixDomainSocketPath, callback: callback)
     }
     
     /**

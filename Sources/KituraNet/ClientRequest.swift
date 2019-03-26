@@ -149,8 +149,8 @@ public class ClientRequest {
     /// Should HTTP/2 protocol be used
     private var useHTTP2 = false
     
-    /// The Unix socket path used for the request
-    private var socketPath: String? = nil
+    /// The Unix domain socket path used for the request
+    private var unixDomainSocketPath: String? = nil
 
 
     /// Data that represents the "HTTP/2 " header status line prefix
@@ -243,11 +243,11 @@ public class ClientRequest {
     /// Initializes a `ClientRequest` instance
     ///
     /// - Parameter options: An array of `Options' describing the request.
-    /// - Parameter socketPath: Specifies a Unix socket that the client should connect to.
+    /// - Parameter unixDomainSocketPath: Specifies the path of a Unix domain socket that the client should connect to.
     /// - Parameter callback: The closure of type `Callback` to be used for the callback.
-    init(options: [Options], socketPath: String? = nil, callback: @escaping Callback) {
+    init(options: [Options], unixDomainSocketPath: String? = nil, callback: @escaping Callback) {
 
-        self.socketPath = socketPath
+        self.unixDomainSocketPath = unixDomainSocketPath
         self.callback = callback
 
         var theSchema = "http://"
@@ -569,7 +569,7 @@ public class ClientRequest {
             curlHelperSetOptInt(handle!, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0)
         }
         
-        if let socketPath = socketPath?.cString(using: .utf8) {
+        if let socketPath = unixDomainSocketPath?.cString(using: .utf8) {
             curlHelperSetUnixSocketPath(handle!, UnsafePointer(socketPath))
         }
     }
