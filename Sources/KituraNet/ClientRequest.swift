@@ -247,16 +247,13 @@ public class ClientRequest {
     /// - Parameter callback: The closure of type `Callback` to be used for the callback.
     init(options: [Options], socketPath: String? = nil, callback: @escaping Callback) {
 
+        self.socketPath = socketPath
         self.callback = callback
 
         var theSchema = "http://"
         var hostName = "localhost"
         var path = ""
         var port = ""
-
-        if let socketPath = socketPath {
-            self.socketPath = socketPath
-        }
 
         for option in options  {
             switch(option) {

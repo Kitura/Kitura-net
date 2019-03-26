@@ -76,7 +76,7 @@ class UnixSocketTests: KituraNetTest {
             guard let request = request as? HTTPServerRequest else {
                 return XCTFail("Request was not an HTTPServerRequest")
             }
-            guard let socketSignature = request.socketSignature else {
+            guard let socketSignature = request.signature else {
                 return XCTFail("Socket signature missing")
             }
             XCTAssertEqual(socketSignature.protocolFamily, Socket.ProtocolFamily.unix, "Socket was not a Unix socket")
