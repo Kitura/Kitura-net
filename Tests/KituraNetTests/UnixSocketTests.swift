@@ -31,31 +31,48 @@ class UnixSocketTests: KituraNetTest {
         ]
     }
 
+    // Socket file path for Unix socket tests
+    private var socketFilePath: String = ""
+
     override func setUp() {
         doSetUp()
-        // Create a file for Unix socket tests
-        socketFilePath = "/tmp/KituraNetTests.testUnixSockets.\(UUID())"
-        print("Socket file path = \(socketFilePath)")
-        let fm = FileManager.default
-        if !fm.createFile(atPath: socketFilePath, contents: Data()) {
-            XCTFail("Failed to create file \(socketFilePath)")
-        }
+        // Create a path for Unix socket tests
+        socketFilePath = uniqueTemporaryFilePath()
     }
 
     override func tearDown() {
         doTearDown()
         // Clean up temporary file
-        let fileURL = URL(fileURLWithPath: socketFilePath)
+        removeTemporaryFilePath(socketFilePath)
+    }
+
+    // Generates a unique temporary file path suitable for use as a Unix domain socket.
+    // On Linux, a path is returned within /tmp
+    // On MacOS, a path is returned within /var/folders
+    func uniqueTemporaryFilePath() -> String {
+        #if os(Linux)
+        let temporaryDirectory = "/tmp"
+        #else
+        var temporaryDirectory: String
+        if #available(OSX 10.12, *) {
+            temporaryDirectory = FileManager.default.temporaryDirectory.path
+        } else {
+            temporaryDirectory = "/tmp"
+        }
+        #endif
+        return temporaryDirectory + "/" + String(ProcessInfo.processInfo.globallyUniqueString.prefix(20))
+    }
+
+    // Delete a temporary file path.
+    func removeTemporaryFilePath(_ path: String) {
+        let fileURL = URL(fileURLWithPath: path)
         let fm = FileManager.default
         do {
             try fm.removeItem(at: fileURL)
         } catch {
-            XCTFail(error.localizedDescription)
+            XCTFail("Unable to remove \(path): \(error.localizedDescription)")
         }
     }
-
-    // Socket file path for Unix socket tests
-    private var socketFilePath: String = ""
 
     let unixDelegate = TestUnixSocketServerDelegate()
 
