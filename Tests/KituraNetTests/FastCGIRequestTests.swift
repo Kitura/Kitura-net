@@ -294,7 +294,11 @@ class FastCGIRequestTests: KituraNetTest {
             valueNetworkByteOrder = CFSwapInt16HostToBig(value)
         #endif
         let asBytes = UnsafeMutablePointer(&valueNetworkByteOrder)
+#if swift(>=4.2)
+        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyMemory(from: asBytes, byteCount: 2)
+#else
         (UnsafeMutableRawPointer(mutating: bytes)+offset).copyBytes(from: asBytes, count: 2)
+#endif
     }
     
     private func copyUInt32IntoBuffer(_ bytes: inout [UInt8], offset: Int, value: UInt32) {
@@ -305,7 +309,11 @@ class FastCGIRequestTests: KituraNetTest {
             valueNetworkByteOrder = CFSwapInt32HostToBig(value)
         #endif
         let asBytes = UnsafeMutablePointer(&valueNetworkByteOrder)
+#if swift(>=4.2)
+        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyMemory(from: asBytes, byteCount: 4)
+#else
         (UnsafeMutableRawPointer(mutating: bytes)+offset).copyBytes(from: asBytes, count: 4)
+#endif
     }
 
     class TestDelegate : ServerDelegate {

@@ -644,6 +644,20 @@ extension ClientRequest: CurlInvokerDelegate {
     fileprivate func curlHeaderCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         // If the header status line begins with 'HTTP/2 ' we replace it with 'HTTP/2.0' because
         // otherwise the CHTTPParser will parse this line incorrectly and won't extract the status code
+#if swift(>=5.0)
+        ClientRequest.Http2StatusLineVersion.withUnsafeBytes() { (rawPtr: UnsafeRawBufferPointer) -> Void in
+            if memcmp(rawPtr.baseAddress!, buf, ClientRequest.Http2StatusLineVersion.count) == 0 {
+                ClientRequest.Http2StatusLineVersionWithMinor.withUnsafeBytes() { (p: UnsafeRawBufferPointer) -> Void in
+                    response?.responseBuffers.append(bytes: p.bindMemory(to: UInt8.self).baseAddress!, length: ClientRequest.Http2StatusLineVersionWithMinor.count)
+                    response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self) + ClientRequest.Http2StatusLineVersion.count,
+                                                     length: size - ClientRequest.Http2StatusLineVersion.count)
+                }
+            }
+            else {
+                response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+            }
+        }
+#else
         ClientRequest.Http2StatusLineVersion.withUnsafeBytes() { (ptr: UnsafePointer<UInt8>) -> Void in
             if memcmp(ptr, buf, ClientRequest.Http2StatusLineVersion.count) == 0 {
                 ClientRequest.Http2StatusLineVersionWithMinor.withUnsafeBytes() { (p: UnsafePointer<UInt8>) -> Void in
@@ -656,6 +670,7 @@ extension ClientRequest: CurlInvokerDelegate {
                 response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
             }
         }
+#endif
         
         return size
         
