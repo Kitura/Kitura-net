@@ -107,8 +107,12 @@ class FastCGIProtocolTests: KituraNetTest {
         #else
             Darwin.arc4random_buf(&bytes, numberOfBytes)
         #endif
-        
+       
+#if swift(>=5.0)
+        return Data(bytes)
+#else 
         return Data(bytes: bytes)
+#endif
     }
     
     // Test an FCGI_STDOUT or FCGI_STDIN exchange with overly large bundle.

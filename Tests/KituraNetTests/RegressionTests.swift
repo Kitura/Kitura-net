@@ -191,9 +191,7 @@ class RegressionTests: KituraNetTest {
             
             do {
                 let sharingServer: HTTPServer = try startServer(nil, port: serverPort, useSSL: false, allowPortReuse: true)
-                defer {
-                    sharingServer.stop()
-                }
+                sharingServer.stop()
             } catch {
                 XCTFail("Second server could not share listener port, received: \(error)")
             }

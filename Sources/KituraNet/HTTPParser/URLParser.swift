@@ -125,9 +125,15 @@ public class URLParser : CustomStringConvertible {
         memset(&parsedURL, 0, MemoryLayout<http_parser_url>.size)
         
         let cIsConnect: Int32 = (isConnect ? 1 : 0)
+#if swift(>=5.0)
+        let returnCode = url.withUnsafeBytes() { (bytes: UnsafeRawBufferPointer) -> Int32 in
+            return http_parser_parse_url_url(bytes.bindMemory(to: Int8.self).baseAddress, url.count, cIsConnect, &parsedURL)
+        }
+#else
         let returnCode = url.withUnsafeBytes() { (bytes: UnsafePointer<Int8>) -> Int32 in
             return http_parser_parse_url_url(bytes, url.count, cIsConnect, &parsedURL)
         }
+#endif
         
         guard returnCode == 0  else { return }
             
