@@ -36,7 +36,7 @@ fileprivate extension Int16 {
 
 // MARK: ClientRequest
 /**
-This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. `Data` and `String` objects cab be added to a `ClientRequest` too, and URLs can be parsed.
+This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. `Data` and `String` objects can be added to a `ClientRequest` too, and URLs can be parsed.
 
 ### Usage Example: ###
 ````swift
