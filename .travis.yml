@@ -31,18 +31,18 @@ matrix:
       sudo: required
       services: docker
       # Run Kitura tests in addition to Kitura-net tests
-      env: DOCKER_IMAGE=swift:5.0-xenial CUSTOM_TEST_SCRIPT=.kitura-test.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
+      env: DOCKER_IMAGE=swift:5.0.1-xenial CUSTOM_TEST_SCRIPT=.kitura-test.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
     - os: linux
       dist: xenial
       sudo: required
       services: docker
       # Test GCD_ASYNCH codepath on Linux
-      env: DOCKER_IMAGE=swift:5.0-xenial CUSTOM_TEST_SCRIPT=testWithGCD.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
+      env: DOCKER_IMAGE=swift:5.0.1-xenial CUSTOM_TEST_SCRIPT=testWithGCD.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
     - os: linux
       dist: xenial
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=swift:5.0 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT
+      env: DOCKER_IMAGE=swift:5.0.1 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT
     - os: osx
       osx_image: xcode9.2
       sudo: required
