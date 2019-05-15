@@ -55,12 +55,15 @@ public class HTTPServer: Server {
     /// The TCP port on which this server listens for new connections. If `nil`, this server does not listen on a TCP socket.
     public private(set) var port: Int?
 
+    /// Has the same meaning as in `getaddrinfo()`.
+    public private(set) var node: String?
+
     /// The Unix domain socket path on which this server listens for new connections. If `nil`, this server does not listen on a Unix socket.
     public private(set) var unixDomainSocketPath: String?
 
     /// The types of listeners we currently support.
     private enum ListenerType {
-        case inet(Int)
+        case inet(Int, String?) // port, node
         case unix(String)
     }
 
@@ -151,14 +154,21 @@ public class HTTPServer: Server {
      
      ### Usage Example: ###
      ````swift
-     try server.listen(on: 8080)
+     try server.listen(on: 8080, node: "localhost")
      ````
      
      - Parameter port: Port number for new connections, e.g. 8080
+     - Parameter node: has the same meaning as in `getaddrinfo()`
      */
-    public func listen(on port: Int) throws {
+    public func listen(on port: Int, node: String?) throws {
         self.port = port
-        try listen(.inet(port))
+        self.node = node
+        try listen(.inet(port, node))
+    }
+
+    @available(*, deprecated, message: "use 'listen(on:node) throws' instead")
+    public func listen(on port: Int) throws {
+        return try listen(on: port, node: nil)
     }
 
     /**
@@ -195,8 +205,9 @@ public class HTTPServer: Server {
 
             let listenerDescription: String
             switch listener {
-            case .inet(let port):
-                try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse)
+            case .inet(let port, let node):
+                try socket.listen(on: port, maxBacklogSize: maxPendingConnections, allowPortReuse: self.allowPortReuse,
+                                  node: node)
                 // If a random (ephemeral) port number was requested, get the listening port
                 let listeningPort = Int(socket.listeningPort)
                 if listeningPort != port {
@@ -253,19 +264,38 @@ public class HTTPServer: Server {
      
      ### Usage Example: ###
      ````swift
-     let server = HTTPServer.listen(on: 8080, delegate: self)
+     let server = HTTPServer.listen(on: 8080, node: "localhost", delegate: self)
      ````
      
      - Parameter on: Port number for accepting new connections.
+     - Parameter node: has the same meaning as in `getaddrinfo()`
      - Parameter delegate: The delegate handler for HTTP connections.
      
      - Returns: A new instance of a `HTTPServer`.
      */
-    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> HTTPServer {
+    public static func listen(on port: Int, node: String?, delegate: ServerDelegate?) throws -> HTTPServer {
         let server = HTTP.createServer()
         server.delegate = delegate
-        try server.listen(on: port)
+        try server.listen(on: port, node: node)
         return server
+    }
+
+    /**
+     Static method to create a new HTTP server and have it listen for connections.
+
+     ### Usage Example: ###
+     ````swift
+     let server = HTTPServer.listen(on: 8080, delegate: self)
+     ````
+
+     - Parameter on: Port number for accepting new connections.
+     - Parameter delegate: The delegate handler for HTTP connections.
+
+     - Returns: A new instance of a `HTTPServer`.
+     */
+    @available(*, deprecated, message: "use 'listen(on:node:delegate) throws' instead")
+    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> HTTPServer {
+        return try listen(on: port, node: nil, delegate: delegate)
     }
 
     /**

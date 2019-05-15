@@ -56,6 +56,9 @@ public class FastCGIServer: Server {
      */
     public private(set) var port: Int?
 
+    /// Has the same meaning as in `getaddrinfo()`.
+    public private(set) var node: String?
+
     /**
      A server state.
      
@@ -108,14 +111,16 @@ public class FastCGIServer: Server {
      Listens for connections on a socket
      
      - Parameter on: port number for new connections
-     
+     - Parameter node: has the same meaning as in `getaddrinfo()`
+
      ### Usage Example: ###
      ````swift
-     try server.listen(on: port)
+     try server.listen(on: port, node: "localhost")
      ````
      */
-    public func listen(on port: Int) throws {
+    public func listen(on port: Int, node: String? = nil) throws {
         self.port = port
+        self.node = node
         do {
             let socket = try Socket.create()
             self.listenSocket = socket
@@ -143,6 +148,36 @@ public class FastCGIServer: Server {
     }
 
     /**
+     Listens for connections on a socket
+     - Parameter on: port number for new connections
+     */
+    @available(*, deprecated, message: "use 'listen(on:node) throws' instead")
+    public func listen(on port: Int) throws {
+        return try listen(on: port, node: nil)
+    }
+
+    /**
+     Static method to create a new `FastCGIServer` and have it listen for conenctions
+
+     - Parameter on: port number for accepting new connections
+     - Parameter node: has the same meaning as in `getaddrinfo()`
+     - Parameter delegate: the delegate handler for FastCGI/HTTP connections
+
+     - Returns: a new `FastCGIServer` instance
+
+     ### Usage Example: ###
+     ````swift
+     let server = try FastCGIServer.listen(on: port, node: "localhost", delegate: delegate)
+     ````
+     */
+    public static func listen(on port: Int, node: String?, delegate: ServerDelegate?) throws -> FastCGIServer {
+        let server = FastCGI.createServer()
+        server.delegate = delegate
+        try server.listen(on: port, node: node)
+        return server
+    }
+
+    /**
      Static method to create a new `FastCGIServer` and have it listen for conenctions
      
      - Parameter on: port number for accepting new connections
@@ -155,11 +190,9 @@ public class FastCGIServer: Server {
      let server = try FastCGIServer.listen(on: port, delegate: delegate)
      ````
      */
+    @available(*, deprecated, message: "use 'listen(on:node:delegate) throws' instead")
     public static func listen(on port: Int, delegate: ServerDelegate?) throws -> FastCGIServer {
-        let server = FastCGI.createServer()
-        server.delegate = delegate
-        try server.listen(on: port)
-        return server
+        return try listen(on: port, node: nil, delegate: delegate)
     }
     
     /**

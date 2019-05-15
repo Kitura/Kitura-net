@@ -26,13 +26,32 @@ public protocol Server {
     /// Port number for listening for new connections.
     var port: Int? { get }
 
+    /// Has the same meaning as in `getaddrinfo()`.
+    var node: String? { get }
+
     /// A server state.
     var state: ServerState { get }
 
     /// Listen for connections on a socket.
     ///
     /// - Parameter on: port number for new connections (eg. 8080)
+    /// - Parameter node: has the same meaning as in `getaddrinfo()`
+    func listen(on port: Int, node: String?) throws
+
+    /// Listen for connections on a socket.
+    ///
+    /// - Parameter on: port number for new connections (eg. 8080)
+    @available(*, deprecated, message: "use 'listen(on:node) throws' with instead")
     func listen(on port: Int) throws
+
+    /// Static method to create a new Server and have it listen for connections.
+    ///
+    /// - Parameter on: port number for accepting new connections
+    /// - Parameter node: has the same meaning as in `getaddrinfo()`
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    ///
+    /// - Returns: a new Server instance
+    static func listen(on port: Int, node: String?, delegate: ServerDelegate?) throws -> ServerType
 
     /// Static method to create a new Server and have it listen for connections.
     ///
@@ -40,6 +59,7 @@ public protocol Server {
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new Server instance
+    @available(*, deprecated, message: "use 'listen(on:node:delegate) throws' with instead")
     static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
 
     /// Listen for connections on a socket.
