@@ -64,7 +64,7 @@ class MonitoringTests: KituraNetTest {
         }
         
         do {
-            try server.listen(on: self.port, node: nil)
+            try server.listen(on: self.port, address: nil)
         
             self.waitForExpectations(timeout: 10) { error in
                 server.stop()

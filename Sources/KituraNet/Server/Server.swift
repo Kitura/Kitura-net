@@ -26,8 +26,8 @@ public protocol Server {
     /// Port number for listening for new connections.
     var port: Int? { get }
 
-    /// Has the same meaning as in `getaddrinfo()`.
-    var node: String? { get }
+    /// Has the same meaning as node in `getaddrinfo()`.
+    var address: String? { get }
 
     /// A server state.
     var state: ServerState { get }
@@ -35,23 +35,22 @@ public protocol Server {
     /// Listen for connections on a socket.
     ///
     /// - Parameter on: port number for new connections (eg. 8080)
-    /// - Parameter node: has the same meaning as in `getaddrinfo()`
-    func listen(on port: Int, node: String?) throws
+    /// - Parameter address: has the same meaning as node in `getaddrinfo()`
+    func listen(on port: Int, address: String?) throws
 
     /// Listen for connections on a socket.
     ///
     /// - Parameter on: port number for new connections (eg. 8080)
-    @available(*, deprecated, message: "use 'listen(on:node) throws' with instead")
     func listen(on port: Int) throws
 
     /// Static method to create a new Server and have it listen for connections.
     ///
     /// - Parameter on: port number for accepting new connections
-    /// - Parameter node: has the same meaning as in `getaddrinfo()`
+    /// - Parameter address: has the same meaning as node in `getaddrinfo()`
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new Server instance
-    static func listen(on port: Int, node: String?, delegate: ServerDelegate?) throws -> ServerType
+    static func listen(on port: Int, address: String?, delegate: ServerDelegate?) throws -> ServerType
 
     /// Static method to create a new Server and have it listen for connections.
     ///
@@ -59,7 +58,6 @@ public protocol Server {
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new Server instance
-    @available(*, deprecated, message: "use 'listen(on:node:delegate) throws' with instead")
     static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType
 
     /// Listen for connections on a socket.
@@ -113,4 +111,13 @@ public protocol Server {
     /// - Returns: a Server instance
     @discardableResult
     func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self
+}
+
+extension Server {
+    public func listen(on port: Int) throws {
+        try listen(on: port, address: nil)
+    }
+    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType {
+        return try Self.listen(on: port, address: nil, delegate: delegate)
+    }
 }

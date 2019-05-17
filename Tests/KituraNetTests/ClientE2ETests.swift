@@ -202,7 +202,7 @@ class ClientE2ETests: KituraNetTest {
 
     func testEphemeralListeningPort() {
         do {
-            let server = try HTTPServer.listen(on: 0, node: "localhost", delegate: delegate)
+            let server = try HTTPServer.listen(on: 0, address: "localhost", delegate: delegate)
             _ = HTTP.get("http://localhost:\(server.port!)") { response in
                 XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
                 XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
