@@ -56,7 +56,8 @@ public class FastCGIServer: Server {
      */
     public private(set) var port: Int?
 
-    /// Has the same meaning as node in `getaddrinfo()`.
+    /// The address of the network interface to listen on. Defaults to nil, which means this server will listen on all
+    /// interfaces.
     public private(set) var address: String?
 
     /**
@@ -111,7 +112,8 @@ public class FastCGIServer: Server {
      Listens for connections on a socket
      
      - Parameter on: port number for new connections
-     - Parameter address: has the same meaning as node in `getaddrinfo()`
+     - Parameter address: The address of a network interface to listen on, for example "localhost". The default is nil,
+                 which listens for connections on all interfaces.
 
      ### Usage Example: ###
      ````swift
@@ -151,7 +153,8 @@ public class FastCGIServer: Server {
      Static method to create a new `FastCGIServer` and have it listen for conenctions
 
      - Parameter on: port number for accepting new connections
-     - Parameter address: has the same meaning as node in `getaddrinfo()`
+     - Parameter address: The address of a network interface to listen on, for example "localhost". The default is nil,
+                 which listens for connections on all interfaces.
      - Parameter delegate: the delegate handler for FastCGI/HTTP connections
 
      - Returns: a new `FastCGIServer` instance

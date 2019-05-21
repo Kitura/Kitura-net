@@ -26,7 +26,8 @@ public protocol Server {
     /// Port number for listening for new connections.
     var port: Int? { get }
 
-    /// Has the same meaning as node in `getaddrinfo()`.
+    /// The address of the network interface to listen on. Defaults to nil, which means this server will listen on all
+    /// interfaces.
     var address: String? { get }
 
     /// A server state.
@@ -35,7 +36,8 @@ public protocol Server {
     /// Listen for connections on a socket.
     ///
     /// - Parameter on: port number for new connections (eg. 8080)
-    /// - Parameter address: has the same meaning as node in `getaddrinfo()`
+    /// - Parameter address: The address of a network interface to listen on, for example "localhost". The default is
+    ///             nil, which listens for connections on all interfaces.
     func listen(on port: Int, address: String?) throws
 
     /// Listen for connections on a socket.
@@ -46,7 +48,8 @@ public protocol Server {
     /// Static method to create a new Server and have it listen for connections.
     ///
     /// - Parameter on: port number for accepting new connections
-    /// - Parameter address: has the same meaning as node in `getaddrinfo()`
+    /// - Parameter address: The address of a network interface to listen on, for example "localhost". The default is
+    ///             nil, which listens for connections on all interfaces.
     /// - Parameter delegate: the delegate handler for HTTP connections
     ///
     /// - Returns: a new Server instance
