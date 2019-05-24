@@ -81,7 +81,7 @@ class KituraNetTest: XCTestCase {
         if let unixDomainSocketPath = unixDomainSocketPath {
             try server.listen(unixDomainSocketPath: unixDomainSocketPath)
         } else {
-            try server.listen(on: port)
+            try server.listen(on: port, address: "localhost")
         }
         return server
     }
@@ -163,7 +163,7 @@ class KituraNetTest: XCTestCase {
         do {
             self.port = port
 
-            let server = try FastCGIServer.listen(on: port, delegate: delegate)
+            let server = try FastCGIServer.listen(on: port, address: "localhost", delegate: delegate)
             server.allowPortReuse = allowPortReuse
             defer {
                 server.stop()

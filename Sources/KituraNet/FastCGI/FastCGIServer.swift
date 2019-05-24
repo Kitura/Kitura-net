@@ -56,6 +56,10 @@ public class FastCGIServer: Server {
      */
     public private(set) var port: Int?
 
+    /// The address of the network interface to listen on. Defaults to nil, which means this server will listen on all
+    /// interfaces.
+    public private(set) var address: String?
+
     /**
      A server state.
      
@@ -108,14 +112,17 @@ public class FastCGIServer: Server {
      Listens for connections on a socket
      
      - Parameter on: port number for new connections
-     
+     - Parameter address: The address of a network interface to listen on, for example "localhost". The default is nil,
+                 which listens for connections on all interfaces.
+
      ### Usage Example: ###
      ````swift
-     try server.listen(on: port)
+     try server.listen(on: port, address: "localhost")
      ````
      */
-    public func listen(on port: Int) throws {
+    public func listen(on port: Int, address: String? = nil) throws {
         self.port = port
+        self.address = address
         do {
             let socket = try Socket.create()
             self.listenSocket = socket
@@ -144,24 +151,26 @@ public class FastCGIServer: Server {
 
     /**
      Static method to create a new `FastCGIServer` and have it listen for conenctions
-     
+
      - Parameter on: port number for accepting new connections
+     - Parameter address: The address of a network interface to listen on, for example "localhost". The default is nil,
+                 which listens for connections on all interfaces.
      - Parameter delegate: the delegate handler for FastCGI/HTTP connections
-     
+
      - Returns: a new `FastCGIServer` instance
-     
+
      ### Usage Example: ###
      ````swift
-     let server = try FastCGIServer.listen(on: port, delegate: delegate)
+     let server = try FastCGIServer.listen(on: port, address: "localhost", delegate: delegate)
      ````
      */
-    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> FastCGIServer {
+    public static func listen(on port: Int, address: String? = nil, delegate: ServerDelegate?) throws -> FastCGIServer {
         let server = FastCGI.createServer()
         server.delegate = delegate
-        try server.listen(on: port)
+        try server.listen(on: port, address: address)
         return server
     }
-    
+
     /**
      Listens for connections on a socket
      

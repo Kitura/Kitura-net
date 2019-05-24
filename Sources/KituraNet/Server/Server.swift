@@ -26,13 +26,34 @@ public protocol Server {
     /// Port number for listening for new connections.
     var port: Int? { get }
 
+    /// The address of the network interface to listen on. Defaults to nil, which means this server will listen on all
+    /// interfaces.
+    var address: String? { get }
+
     /// A server state.
     var state: ServerState { get }
 
     /// Listen for connections on a socket.
     ///
     /// - Parameter on: port number for new connections (eg. 8080)
+    /// - Parameter address: The address of a network interface to listen on, for example "localhost". The default is
+    ///             nil, which listens for connections on all interfaces.
+    func listen(on port: Int, address: String?) throws
+
+    /// Listen for connections on a socket.
+    ///
+    /// - Parameter on: port number for new connections (eg. 8080)
     func listen(on port: Int) throws
+
+    /// Static method to create a new Server and have it listen for connections.
+    ///
+    /// - Parameter on: port number for accepting new connections
+    /// - Parameter address: The address of a network interface to listen on, for example "localhost". The default is
+    ///             nil, which listens for connections on all interfaces.
+    /// - Parameter delegate: the delegate handler for HTTP connections
+    ///
+    /// - Returns: a new Server instance
+    static func listen(on port: Int, address: String?, delegate: ServerDelegate?) throws -> ServerType
 
     /// Static method to create a new Server and have it listen for connections.
     ///
@@ -93,4 +114,13 @@ public protocol Server {
     /// - Returns: a Server instance
     @discardableResult
     func clientConnectionFailed(callback: @escaping (Swift.Error) -> Void) -> Self
+}
+
+extension Server {
+    public func listen(on port: Int) throws {
+        try listen(on: port, address: nil)
+    }
+    public static func listen(on port: Int, delegate: ServerDelegate?) throws -> ServerType {
+        return try Self.listen(on: port, address: nil, delegate: delegate)
+    }
 }
