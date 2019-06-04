@@ -116,7 +116,10 @@ public class IncomingSocketHandler {
     init(socket: Socket, using: IncomingSocketProcessor) {
         self.socket = socket
         processor = using
-       Log.debug("Socket connection \(socket.socketfd) established") 
+        assert({
+            Log.debug("Socket connection \(socket.socketfd) established")
+            return true
+        }())
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
             
@@ -160,7 +163,10 @@ public class IncomingSocketHandler {
             var length = 1
             while  length > 0  {
                 length = try socket.read(into: readBuffer)
-                Log.debug("Read \(length) bytes from socket \(socket.socketfd)")
+                assert({
+                    Log.debug("Read \(length) bytes from socket \(socket.socketfd)")
+                    return true
+                }())
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
@@ -339,7 +345,11 @@ public class IncomingSocketHandler {
      ````
      */
     public func write(from data: NSData) {
-        Log.debug("writing data")
+        assert({
+            Log.debug("Write to socket \(socket.socketfd): NSData of length \(data.length)")
+            Log.debug("Buffered bytes:\n\(String(data: data as Data, encoding: .utf8) ?? "")")
+            return true
+        }())
         write(from: data.bytes, length: data.length)
     }
     
@@ -355,7 +365,10 @@ public class IncomingSocketHandler {
      ````
      */
     public func write(from bytes: UnsafeRawPointer, length: Int) {
-        Log.debug("writing bytes with length \(length)")
+        assert({
+            Log.debug("Write to socket \(socket.socketfd): \(length) bytes")
+            return true
+        }())
         writeInProgress = true
         defer {
             writeInProgress = false // needs to be unset before calling close() as it is part of the guard in close()
