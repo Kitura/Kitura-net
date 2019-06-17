@@ -571,6 +571,15 @@ public class ClientRequest {
         
         if let socketPath = unixDomainSocketPath?.cString(using: .utf8) {
             curlHelperSetUnixSocketPath(handle!, UnsafePointer(socketPath))
+            assert({
+                Log.debug(unixDomainSocketPath ?? "")
+                return true
+                }())
+        } else {
+            assert({
+                Log.debug(String(cString: urlBuffer))
+                return true
+                }())
         }
     }
 
@@ -597,7 +606,10 @@ public class ClientRequest {
             default:
                 curlHelperSetOptString(handle!, CURLOPT_CUSTOMREQUEST, methodUpperCase)
         }
-
+        assert({
+            Log.debug(methodUpperCase)
+            return true
+            }())
     }
 
     /// Sets the headers in libCurl to the ones in headers
@@ -614,6 +626,10 @@ public class ClientRequest {
         for (headerKey, headerValue) in headers {
             if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
                 headersList = curl_slist_append(headersList, UnsafePointer(headerString))
+                assert({
+                    Log.debug("\(headerKey): \(headerValue)")
+                    return true
+                    }())
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
@@ -628,6 +644,10 @@ extension ClientRequest: CurlInvokerDelegate {
     fileprivate func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
         response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+        assert({
+            Log.debug(String(cString: buf))
+            return true
+            }())
         return size
         
     }
@@ -636,6 +656,11 @@ extension ClientRequest: CurlInvokerDelegate {
     fileprivate func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int {
         
         let count = writeBuffers.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
+        assert({
+            Log.debug(String(cString: buf))
+            return true
+            }())
+
         return count
         
     }
@@ -671,7 +696,11 @@ extension ClientRequest: CurlInvokerDelegate {
             }
         }
 #endif
-        
+        assert({
+            Log.debug(String(cString: buf))
+            return true
+            }())
+
         return size
         
     }
