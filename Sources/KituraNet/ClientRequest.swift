@@ -645,7 +645,7 @@ extension ClientRequest: CurlInvokerDelegate {
         
         response?.responseBuffers.append(bytes: UnsafeRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         assert({
-            Log.debug(String(cString: buf))
+            Log.debug("Buffer: \(String(cString: buf)), size: \(size)")
             return true
             }())
         return size
@@ -657,7 +657,7 @@ extension ClientRequest: CurlInvokerDelegate {
         
         let count = writeBuffers.fill(buffer: UnsafeMutableRawPointer(buf).assumingMemoryBound(to: UInt8.self), length: size)
         assert({
-            Log.debug(String(cString: buf))
+            Log.debug("Buffer: \(String(cString: buf)), size: \(size)")
             return true
             }())
 
@@ -697,7 +697,7 @@ extension ClientRequest: CurlInvokerDelegate {
         }
 #endif
         assert({
-            Log.debug(String(cString: buf))
+            Log.debug("Buffer: \(String(cString: buf)), size: \(size)")
             return true
             }())
 
