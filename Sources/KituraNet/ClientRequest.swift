@@ -159,6 +159,14 @@ public class ClientRequest {
     /// Data that represents the "HTTP/2.0 " (with a minor) header status line prefix
     fileprivate static let Http2StatusLineVersionWithMinor = "HTTP/2.0 ".data(using: .utf8)!
 
+    /// The hostname of the remote server
+    var hostName: String?
+
+    /// The port number of the remote server
+    var port: Int?
+
+    private var path = ""
+
     /**
     Client request options enum. This allows the client to specify certain parameteres such as HTTP headers, HTTP methods, host names, and SSL credentials.
     
@@ -237,6 +245,34 @@ public class ClientRequest {
         
         self.url = url
         self.callback = callback
+        if let url = URL(string: url) {
+            setUrl(url)
+        }
+    }
+
+    private func setUrl(_ url: URL) {
+        if let host = url.host {
+            self.hostName = host
+        }
+
+        if let port = url.port {
+            self.port = port
+        }
+
+        var fullPath = url.path
+
+        // query strings and parameters need to be appended here
+        if let query = url.query {
+            fullPath += "?"
+            fullPath += query
+        }
+        self.path = fullPath
+
+        if let username = self.userName, let password = self.password {
+            self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
+        }
+
+        self.url = "\(url.scheme ?? "http")://\(self.hostName ?? "unknown")\(self.port.map { ":\($0)" } ?? "")/\(fullPath)"
         
     }
 
@@ -283,16 +319,10 @@ public class ClientRequest {
             }
         }
 
-        // Adding support for Basic HTTP authentication
-        let user = self.userName ?? ""
-        let pwd = self.password ?? ""
-        var authenticationClause = ""
-        // If either the userName or password are non-empty, add the authenticationClause
-        if (!user.isEmpty || !pwd.isEmpty) {
-          authenticationClause = "\(user):\(pwd)@"
+        if let username = self.userName, let password = self.password {
+            self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
         }
-
-        url = "\(theSchema)\(authenticationClause)\(hostName)\(port)\(path)"
+        url = "\(theSchema)\(hostName)\(port)\(path)"
 
     }
 
@@ -619,6 +649,11 @@ public class ClientRequest {
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
     }
 
+    private func createHTTPBasicAuthHeader(username: String, password: String) -> String {
+        let authHeader = "\(username):\(password)"
+        let data = Data(authHeader.utf8)
+        return "Basic \(data.base64EncodedString())"
+    }
 }
 
 // MARK: CurlInvokerDelegate extension
