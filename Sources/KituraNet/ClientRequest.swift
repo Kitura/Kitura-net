@@ -160,10 +160,10 @@ public class ClientRequest {
     fileprivate static let Http2StatusLineVersionWithMinor = "HTTP/2.0 ".data(using: .utf8)!
 
     /// The hostname of the remote server
-    var hostName: String?
+    private var hostName: String?
 
     /// The port number of the remote server
-    var port: Int?
+    private var port: Int?
 
     private var path = ""
 
@@ -251,6 +251,9 @@ public class ClientRequest {
     }
 
     private func setUrl(_ url: URL) {
+        guard let username = self.userName , let password = self.password else {
+            return
+        }
         if let host = url.host {
             self.hostName = host
         }
@@ -266,14 +269,11 @@ public class ClientRequest {
             fullPath += "?"
             fullPath += query
         }
+
         self.path = fullPath
-
-        if let username = self.userName, let password = self.password {
-            self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
-        }
-
         self.url = "\(url.scheme ?? "http")://\(self.hostName ?? "unknown")\(self.port.map { ":\($0)" } ?? "")/\(fullPath)"
-        
+        self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
+        return
     }
 
     /// Initializes a `ClientRequest` instance
