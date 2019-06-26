@@ -246,12 +246,12 @@ public class ClientRequest {
         self.url = url
         self.callback = callback
         if let url = URL(string: url) {
-            setUrl(url)
+            removeHttpCredentialsFromUrl(url)
         }
     }
 
-    private func setUrl(_ url: URL) {
-        guard let username = self.userName , let password = self.password else {
+    private func removeHttpCredentialsFromUrl(_ url: URL) {
+        guard let username = self.userName, let password = self.password else {
             return
         }
         if let host = url.host {
@@ -644,6 +644,7 @@ public class ClientRequest {
         for (headerKey, headerValue) in headers {
             if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
                 headersList = curl_slist_append(headersList, UnsafePointer(headerString))
+                //print("hello",headersList)
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
