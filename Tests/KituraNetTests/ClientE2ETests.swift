@@ -220,7 +220,7 @@ class ClientE2ETests: KituraNetTest {
             let contentType = response?.headers["Content-Type"]
             XCTAssertNotNil(contentType, "No ContentType header in response")
             if let contentType = contentType {
-                XCTAssertEqual(contentType, ["text/html"], "Content-Type header wasn't `text/html`")
+                XCTAssertEqual(contentType, ["text/html; charset=UTF-8"], "Content-Type header wasn't `text/html; charset=UTF-8`")
             }
         }
     }
