@@ -217,10 +217,11 @@ class ClientE2ETests: KituraNetTest {
         _ = HTTP.get("http://www.ibm.com") {response in
             XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
             XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
-            let contentType = response?.headers["Content-Type"]
-            XCTAssertNotNil(contentType, "No ContentType header in response")
-            if let contentType = contentType {
-                XCTAssertEqual(contentType, ["text/html; charset=UTF-8"], "Content-Type header wasn't `text/html; charset=UTF-8`")
+            let contentTypeValue = response?.headers["Content-Type"]
+            XCTAssertNotNil(contentTypeValue, "No ContentType header in response")
+            if let contentType = contentTypeValue?.first {
+                let contentType = contentType.split(separator: ";")
+                XCTAssertEqual(contentType[0], "text/html", "Content-Type header wasn't `text/html`")
             }
         }
     }
