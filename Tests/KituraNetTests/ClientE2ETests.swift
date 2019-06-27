@@ -214,17 +214,36 @@ class ClientE2ETests: KituraNetTest {
     }
 
     func testSimpleHTTPClient() {
-        _ = HTTP.get("http://www.ibm.com") {response in
-            XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
-            XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
-            let contentType = response?.headers["Content-Type"]
-            XCTAssertNotNil(contentType, "No ContentType header in response")
-            if let contentType = contentType {
-                XCTAssertEqual(contentType, ["text/html"], "Content-Type header wasn't `text/html`")
+        class TestDelegate : ServerDelegate {
+            func handle(request: ServerRequest, response: ServerResponse) {
+                do {
+                    response.statusCode = .OK
+                    let result = "OK"
+                    response.headers["Content-Type"] = ["text/plain"]
+                    let resultData = result.data(using: .utf8)!
+                    response.headers["Content-Length"] = ["\(resultData.count)"]
+
+                    try response.write(from: resultData)
+                    try response.end()
+                }
+                catch {
+                    print("Error reading body or writing response")
+                }
             }
         }
+        performServerTest(TestDelegate(), asyncTasks: { expectation in
+            self.performRequest("get", path: "/", callback: {response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response?.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(String(describing: response?.statusCode))")
+                let contentTypeValue = response?.headers["Content-Type"]
+                XCTAssertNotNil(contentTypeValue, "No ContentType header in response")
+                if let contentType = contentTypeValue {
+                    XCTAssertEqual(contentType, ["text/plain"], "Content-Type header wasn't `text/plain`")
+                }
+            })
+            expectation.fulfill()
+        })
     }
-
     func testPostRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
