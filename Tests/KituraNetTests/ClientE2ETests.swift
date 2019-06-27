@@ -242,8 +242,8 @@ class ClientE2ETests: KituraNetTest {
                 }
             })
             expectation.fulfill()
+        })
     }
-)}
     func testPostRequests() {
         performServerTest(delegate, asyncTasks: { expectation in
             self.performRequest("post", path: "/posttest", callback: {response in
