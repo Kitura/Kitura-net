@@ -75,7 +75,16 @@ public class IncomingSocketHandler {
      processor?.inProgress = false
      ````
      */
-    public var processor: IncomingSocketProcessor?
+    public var processor: IncomingSocketProcessor? {
+        get {
+            return _processorQueue.sync { _processor }
+        }
+        set {
+            _processorQueue.sync { _processor = newValue }
+        }
+    }
+    private var _processor: IncomingSocketProcessor?
+    private let _processorQueue = DispatchQueue(label: "IncomingSocketHandler_processor")
     
     private let readBuffer = NSMutableData()
     private let writeBuffer = NSMutableData()
@@ -111,7 +120,6 @@ public class IncomingSocketHandler {
 
     init(socket: Socket, using: IncomingSocketProcessor) {
         self._socket = socket
-        processor = using
 
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
@@ -120,6 +128,7 @@ public class IncomingSocketHandler {
                                                          queue: socketReaderQueue)
         #endif
         
+        processor = using
         processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
