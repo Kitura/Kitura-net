@@ -117,12 +117,17 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     let socket: Socket
     
     /// An enum for internal state
-    enum State {
+    private enum State: UInt8 {
         case reset, readingMessage, messageCompletelyRead
     }
     
+    private var _state: Atomic<UInt8> = Atomic<UInt8>(value: State.readingMessage.rawValue)
+
     /// The state of this handler
-    private(set) var state = State.readingMessage
+    private var state: State {
+        get { return State.init(rawValue: _state.load())! }
+        set { _state.store(newValue.rawValue) }
+    }
     
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
