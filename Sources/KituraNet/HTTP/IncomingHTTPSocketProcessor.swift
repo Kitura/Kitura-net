@@ -66,14 +66,19 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private(set) var clientRequestedKeepAlive: Atomic<Bool> = Atomic<Bool>(value: false)
     
     /**
-     The socket if idle will be kep alive until...
+     The number of seconds that socket, if idle, will be kept alive for.
+     Note that although this is declared as a floating point value, fractions will be ignored.
      
      ### Usage Example: ###
      ````swift
      processor?.keepAliveUntil = 0.0
      ````
      */
-    public var keepAliveUntil: TimeInterval = 0.0
+    public var keepAliveUntil: TimeInterval {
+        get { return Double(_keepAliveUntil.load()) }
+        set { _keepAliveUntil.store(Int(newValue)) }
+    }
+    private var _keepAliveUntil: Atomic<Int> = Atomic<Int>(value: 0)
     
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
