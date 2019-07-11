@@ -66,7 +66,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private(set) var clientRequestedKeepAlive: Atomic<Bool> = Atomic<Bool>(value: false)
     
     /**
-     The socket if idle will be kep alive until...
+     The number of seconds that socket, if idle, will be kept alive for.
+     Note that although this is declared as a floating point value, fractions will be ignored.
      
      ### Usage Example: ###
      ````swift
@@ -74,11 +75,10 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      ````
      */
     public var keepAliveUntil: TimeInterval {
-        get { _keepAliveUntilQueue.sync { _keepAliveUntil } }
-        set { _keepAliveUntilQueue.sync { _keepAliveUntil = newValue }}
+        get { Double(_keepAliveUntil.load()) }
+        set { _keepAliveUntil.store(Int(newValue)) }
     }
-    private var _keepAliveUntil: TimeInterval = 0.0
-    private let _keepAliveUntilQueue = DispatchQueue(label: "IncomingHTTPSocketProcessor_keepAliveUntil")
+    private var _keepAliveUntil: Atomic<Int> = Atomic<Int>(value: 0)
     
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
@@ -105,8 +105,8 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Controls the number of requests that may be sent on this connection.
     private(set) var keepAliveState: KeepAliveState {
-        get { _keepAliveUntilQueue.sync { _keepAliveState } }
-        set { _keepAliveUntilQueue.sync { _keepAliveState = newValue } }
+        get { _keepAliveStateQueue.sync { _keepAliveState } }
+        set { _keepAliveStateQueue.sync { _keepAliveState = newValue } }
     }
     private var _keepAliveState: KeepAliveState
     private let _keepAliveStateQueue = DispatchQueue(label: "IncomingHTTPSocketProcessor_keepAliveState")
