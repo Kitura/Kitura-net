@@ -91,7 +91,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      processor?.inProgress = false
      ````
      */
-    public var inProgress = true
+    public var inProgress: Bool {
+        get { return _inProgress.load() }
+        set { _inProgress.store(newValue) }
+    }
+    private var _inProgress: Atomic<Bool> = Atomic<Bool>(value: true)
     
     ///HTTP Parser
     private let httpParser: HTTPParser
