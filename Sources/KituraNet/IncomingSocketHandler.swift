@@ -105,7 +105,12 @@ public class IncomingSocketHandler {
     ///   - close() is invoked AND
     ///   - it is safe to close the socket (there is no data waiting to be written and a socket read/write is not in progress).
     /// This lets other threads know to not start reads/writes on this socket anymore, which could cause a crash.
-    private var isOpen = true
+    private var isOpen: Bool {
+        get { return _isOpen.load() }
+        set { _isOpen.store(newValue) }
+    }
+    private var _isOpen: Atomic<Bool> = Atomic<Bool>(value: true)
+
 
     /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
