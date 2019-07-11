@@ -130,7 +130,11 @@ public class IncomingSocketHandler {
 
     /// handleRead() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleRead() re-attempts close when it's done
-    private var handleReadInProgress = false
+    private var handleReadInProgress: Bool {
+        get { return _handleReadInProgress.load() }
+        set { _handleReadInProgress.store(newValue) }
+    }
+    private var _handleReadInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
 
     private var _socket: Socket
     private let _socketQueue = DispatchQueue(label: "IncomingSocketHandler_socket")
