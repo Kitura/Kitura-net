@@ -104,7 +104,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private var parserErrored = false
     
     /// Controls the number of requests that may be sent on this connection.
-    private(set) var keepAliveState: KeepAliveState
+    private(set) var keepAliveState: KeepAliveState {
+        get { return _keepAliveStateQueue.sync { _keepAliveState } }
+        set { _keepAliveStateQueue.sync { _keepAliveState = newValue } }
+    }
+    private var _keepAliveState: KeepAliveState
+    private let _keepAliveStateQueue = DispatchQueue(label: "IncomingHTTPSocketProcessor_keepAliveState")
     
     /// Should this socket actually be kept alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive.load() && keepAliveState.keepAlive() && !parserErrored }
@@ -126,7 +131,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         delegate = using
         self.httpParser = HTTPParser(isRequest: true)
         self.socket = socket
-        self.keepAliveState = keepalive
+        self._keepAliveState = keepalive
     }
     
     /**
