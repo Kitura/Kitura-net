@@ -23,7 +23,8 @@ var dependencies: [Package.Dependency] = [
     .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", from: "1.7.3"),
     .package(url: "https://github.com/IBM-Swift/BlueSocket.git", from: "1.0.0"),
     .package(url: "https://github.com/IBM-Swift/CCurl.git", from: "1.1.0"),
-    .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0")
+    .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-nio.git", from: "1.0.0"),
 ]
 
 var kituraNetDependencies: [Target.Dependency] = [
@@ -31,7 +32,8 @@ var kituraNetDependencies: [Target.Dependency] = [
     .byNameItem(name: "LoggerAPI"),
     .byNameItem(name: "Socket"),
     .byNameItem(name: "CCurl"),
-    .byNameItem(name: "SSLService")
+    .byNameItem(name: "SSLService"),
+    .byName(name: "NIOConcurrencyHelpers"),
 ]
 
 #if os(Linux)
