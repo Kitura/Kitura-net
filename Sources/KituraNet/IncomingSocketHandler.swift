@@ -21,6 +21,8 @@ import Foundation
 import LoggerAPI
 import Socket
 
+import NIOConcurrencyHelpers
+
 /**
 This class handles incoming sockets to the HTTPServer. The data sent by the client
 is read and passed to the current `IncomingDataProcessor`.
@@ -92,7 +94,12 @@ public class IncomingSocketHandler {
 
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
-    private var preparingToClose = false
+    private var preparingToClose: Bool {
+        get { return _preparingToClose.load() }
+        set { _preparingToClose.store(newValue) }
+    }
+    private var _preparingToClose: Atomic<Bool> = Atomic<Bool>(value: false)
+
 
     /// isOpen is set to false when:
     ///   - close() is invoked AND
