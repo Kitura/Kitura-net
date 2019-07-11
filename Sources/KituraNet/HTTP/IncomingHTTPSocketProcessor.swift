@@ -20,6 +20,7 @@ import Dispatch
 import LoggerAPI
 import Socket
 
+import NIOConcurrencyHelpers
 
 /**
 This class processes the data sent by the client after the data was read. The data is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the `ServerDelegate` is invoked.
@@ -62,7 +63,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kept alive
-    private(set) var clientRequestedKeepAlive = false
+    private(set) var clientRequestedKeepAlive: Atomic<Bool> = Atomic<Bool>(value: false)
     
     /**
      The socket if idle will be kep alive until...
@@ -72,7 +73,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      processor?.keepAliveUntil = 0.0
      ````
      */
-    public var keepAliveUntil: TimeInterval = 0.0
+    public var keepAliveUntil: TimeInterval {
+        get { _keepAliveUntilQueue.sync { _keepAliveUntil } }
+        set { _keepAliveUntilQueue.sync { _keepAliveUntil = newValue }}
+    }
+    private var _keepAliveUntil: TimeInterval = 0.0
+    private let _keepAliveUntilQueue = DispatchQueue(label: "IncomingHTTPSocketProcessor_keepAliveUntil")
     
     /// A flag indicating that the client has requested that the prtocol be upgraded
     private(set) var isUpgrade = false
@@ -85,7 +91,11 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      processor?.inProgress = false
      ````
      */
-    public var inProgress = true
+    public var inProgress: Bool {
+        get { _inProgress.load() }
+        set { _inProgress.store(newValue) }
+    }
+    private var _inProgress: Atomic<Bool> = Atomic<Bool>(value: true)
     
     ///HTTP Parser
     private let httpParser: HTTPParser
@@ -94,20 +104,30 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private var parserErrored = false
     
     /// Controls the number of requests that may be sent on this connection.
-    private(set) var keepAliveState: KeepAliveState
+    private(set) var keepAliveState: KeepAliveState {
+        get { _keepAliveUntilQueue.sync { _keepAliveState } }
+        set { _keepAliveUntilQueue.sync { _keepAliveState = newValue } }
+    }
+    private var _keepAliveState: KeepAliveState
+    private let _keepAliveStateQueue = DispatchQueue(label: "IncomingHTTPSocketProcessor_keepAliveState")
     
     /// Should this socket actually be kept alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() && !parserErrored }
+    var isKeepAlive: Bool { return clientRequestedKeepAlive.load() && keepAliveState.keepAlive() && !parserErrored }
     
     let socket: Socket
     
     /// An enum for internal state
-    enum State {
+    private enum State: UInt8 {
         case reset, readingMessage, messageCompletelyRead
     }
-    
+    //private var _state: Atomic<State> = Atomic<State>(value: State.readingMessage)
+
+    private var _state: Atomic<UInt8> = Atomic<UInt8>(value: State.readingMessage.rawValue)
     /// The state of this handler
-    private(set) var state = State.readingMessage
+    private var state: State {
+        get { return State.init(rawValue: _state.load())! }
+        set { _state.store(newValue.rawValue) }
+    }
     
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
@@ -116,7 +136,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         delegate = using
         self.httpParser = HTTPParser(isRequest: true)
         self.socket = socket
-        self.keepAliveState = keepalive
+        self._keepAliveState = keepalive
     }
     
     /**
@@ -194,7 +214,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public func close() {
         keepAliveUntil=0.0
         inProgress = false
-        clientRequestedKeepAlive = false
+        clientRequestedKeepAlive.store(false)
         handler?.prepareToClose()
     }
     
@@ -210,7 +230,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public func socketClosed() {
         keepAliveUntil=0.0
         inProgress = false
-        clientRequestedKeepAlive = false
+        clientRequestedKeepAlive.store(false)
     }
     
     /// Parse the message
@@ -294,7 +314,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             break
         case .messageComplete:
             isUpgrade = parsingStatus.upgrade
-            clientRequestedKeepAlive = parsingStatus.keepAlive && !isUpgrade
+            clientRequestedKeepAlive.store(parsingStatus.keepAlive && !isUpgrade)
             parsingComplete()
         case .reset:
             state = .reset

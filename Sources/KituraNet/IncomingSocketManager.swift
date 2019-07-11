@@ -161,14 +161,14 @@ public class IncomingSocketManager  {
             
             let handler = IncomingSocketHandler(socket: socket, using: processor)
             shQueue.sync(flags: .barrier) {
-                socketHandlers[socket.socketfd] = handler
+                socketHandlers[handler.fileDescriptor] = handler
             }
             
             #if !GCD_ASYNCH && os(Linux)
                 var event = epoll_event()
                 event.events = EPOLLIN.rawValue | EPOLLOUT.rawValue | EPOLLET.rawValue
-                event.data.fd = socket.socketfd
-                let result = epoll_ctl(epollDescriptor(fd: socket.socketfd), EPOLL_CTL_ADD, socket.socketfd, &event)
+                event.data.fd = handler.fileDescriptor
+                let result = epoll_ctl(epollDescriptor(fd: handler.fileDescriptor), EPOLL_CTL_ADD, handler.fileDescriptor, &event)
                 if  result == -1  {
                     Log.error("epoll_ctl failure. Error code=\(errno). Reason=\(lastError())")
                 }
