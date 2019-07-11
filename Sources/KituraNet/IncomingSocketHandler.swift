@@ -114,7 +114,11 @@ public class IncomingSocketHandler {
 
     /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
-    private var writeInProgress = false
+    private var writeInProgress: Bool {
+        get { return _writeInProgress.load() }
+        set { _writeInProgress.store(newValue) }
+    }
+    private var _writeInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
 
     /// handleWrite() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleWrite() re-attempts close when it's done
