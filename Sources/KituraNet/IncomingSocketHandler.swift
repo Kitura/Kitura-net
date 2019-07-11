@@ -95,7 +95,7 @@ public class IncomingSocketHandler {
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
     private var preparingToClose: Bool {
-        get { _preparingToClose.load() }
+        get { return _preparingToClose.load() }
         set { _preparingToClose.store(newValue) }
     }
     private var _preparingToClose: Atomic<Bool> = Atomic<Bool>(value: false)
@@ -105,7 +105,7 @@ public class IncomingSocketHandler {
     ///   - it is safe to close the socket (there is no data waiting to be written and a socket read/write is not in progress).
     /// This lets other threads know to not start reads/writes on this socket anymore, which could cause a crash.
     private var isOpen: Bool {
-        get { _isOpen.load() }
+        get { return _isOpen.load() }
         set { _isOpen.store(newValue) }
     }
     private var _isOpen: Atomic<Bool> = Atomic<Bool>(value: true)
@@ -113,7 +113,7 @@ public class IncomingSocketHandler {
     /// write() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, write() re-attempts close when it's done
     private var writeInProgress: Bool {
-        get { _writeInProgress.load() }
+        get { return _writeInProgress.load() }
         set { _writeInProgress.store(newValue) }
     }
     private var _writeInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
@@ -121,7 +121,7 @@ public class IncomingSocketHandler {
     /// handleWrite() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleWrite() re-attempts close when it's done
     private var handleWriteInProgress: Bool {
-        get { _handleWriteInProgress.load() }
+        get { return _handleWriteInProgress.load() }
         set { _handleWriteInProgress.store(newValue) }
     }
     private var _handleWriteInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
@@ -129,7 +129,7 @@ public class IncomingSocketHandler {
     /// handleRead() sets this when it starts and unsets it when finished so other threads do not close `socket` during that time,
     /// which could cause a crash. If any other threads tried to close during that time, handleRead() re-attempts close when it's done
     private var handleReadInProgress: Bool {
-        get { _handleReadInProgress.load() }
+        get { return _handleReadInProgress.load() }
         set { _handleReadInProgress.store(newValue) }
     }
     private var _handleReadInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
@@ -138,7 +138,7 @@ public class IncomingSocketHandler {
     private let _socketQueue = DispatchQueue(label: "IncomingSocketHandler_socket")
 
     /// The file descriptor of the incoming socket
-    var fileDescriptor: Int32 { _socketQueue.sync { _socket.socketfd } }
+    var fileDescriptor: Int32 { return _socketQueue.sync { _socket.socketfd } }
 
     init(socket: Socket, using: IncomingSocketProcessor) {
         self._socket = socket

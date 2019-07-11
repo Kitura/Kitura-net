@@ -75,7 +75,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      ````
      */
     public var keepAliveUntil: TimeInterval {
-        get { Double(_keepAliveUntil.load()) }
+        get { return Double(_keepAliveUntil.load()) }
         set { _keepAliveUntil.store(Int(newValue)) }
     }
     private var _keepAliveUntil: Atomic<Int> = Atomic<Int>(value: 0)
@@ -92,7 +92,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
      ````
      */
     public var inProgress: Bool {
-        get { _inProgress.load() }
+        get { return _inProgress.load() }
         set { _inProgress.store(newValue) }
     }
     private var _inProgress: Atomic<Bool> = Atomic<Bool>(value: true)
@@ -105,7 +105,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Controls the number of requests that may be sent on this connection.
     private(set) var keepAliveState: KeepAliveState {
-        get { _keepAliveStateQueue.sync { _keepAliveState } }
+        get { return _keepAliveStateQueue.sync { _keepAliveState } }
         set { _keepAliveStateQueue.sync { _keepAliveState = newValue } }
     }
     private var _keepAliveState: KeepAliveState
