@@ -20,6 +20,7 @@ import Dispatch
 import LoggerAPI
 import Socket
 
+import NIOConcurrencyHelpers
 
 /**
 This class processes the data sent by the client after the data was read. The data is parsed, filling in a `HTTPServerRequest` object. When the parsing is complete, the `ServerDelegate` is invoked.
@@ -62,7 +63,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     static let keepAliveTimeout: TimeInterval = 60
     
     /// A flag indicating that the client has requested that the socket be kept alive
-    private(set) var clientRequestedKeepAlive = false
+    private(set) var clientRequestedKeepAlive: Atomic<Bool> = Atomic<Bool>(value: false)
     
     /**
      The socket if idle will be kep alive until...
@@ -97,7 +98,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     private(set) var keepAliveState: KeepAliveState
     
     /// Should this socket actually be kept alive?
-    var isKeepAlive: Bool { return clientRequestedKeepAlive && keepAliveState.keepAlive() && !parserErrored }
+    var isKeepAlive: Bool { return clientRequestedKeepAlive.load() && keepAliveState.keepAlive() && !parserErrored }
     
     let socket: Socket
     
@@ -194,7 +195,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public func close() {
         keepAliveUntil=0.0
         inProgress = false
-        clientRequestedKeepAlive = false
+        clientRequestedKeepAlive.store(false)
         handler?.prepareToClose()
     }
     
@@ -210,7 +211,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     public func socketClosed() {
         keepAliveUntil=0.0
         inProgress = false
-        clientRequestedKeepAlive = false
+        clientRequestedKeepAlive.store(false)
     }
     
     /// Parse the message
@@ -294,7 +295,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
             break
         case .messageComplete:
             isUpgrade = parsingStatus.upgrade
-            clientRequestedKeepAlive = parsingStatus.keepAlive && !isUpgrade
+            clientRequestedKeepAlive.store(parsingStatus.keepAlive && !isUpgrade)
             parsingComplete()
         case .reset:
             state = .reset
