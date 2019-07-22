@@ -251,15 +251,20 @@ public class ClientRequest {
     }
 
     private func removeHttpCredentialsFromUrl(_ url: URL) {
-        guard let username = self.userName, let password = self.password else {
-            return
-        }
         if let host = url.host {
             self.hostName = host
         }
 
         if let port = url.port {
             self.port = port
+        }
+
+        if let username = url.user {
+            self.userName = username
+        }
+
+        if let password = url.password {
+            self.password = password
         }
 
         var fullPath = url.path
@@ -271,8 +276,10 @@ public class ClientRequest {
         }
 
         self.path = fullPath
-        self.url = "\(url.scheme ?? "http")://\(self.hostName ?? "unknown")\(self.port.map { ":\($0)" } ?? "")/\(fullPath)"
-        self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
+        self.url = "\(url.scheme ?? "http")://\(self.hostName ?? "unknown")\(self.port.map { ":\($0)" } ?? "")\(fullPath)"
+        if let username = self.userName, let password = self.password {
+            self.headers["Authorization"] = createHTTPBasicAuthHeader(username: username, password: password)
+        }
         return
     }
 
