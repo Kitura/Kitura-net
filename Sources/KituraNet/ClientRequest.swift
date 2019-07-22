@@ -651,7 +651,6 @@ public class ClientRequest {
         for (headerKey, headerValue) in headers {
             if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
                 headersList = curl_slist_append(headersList, UnsafePointer(headerString))
-                //print("hello",headersList)
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
