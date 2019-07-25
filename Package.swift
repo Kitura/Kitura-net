@@ -18,6 +18,7 @@
  **/
 
 import PackageDescription
+import Foundation
 
 var dependencies: [Package.Dependency] = [
     .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", from: "1.7.3"),
