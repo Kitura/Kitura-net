@@ -114,7 +114,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     /// Should this socket actually be kept alive?
     var isKeepAlive: Bool { return clientRequestedKeepAlive.load() && keepAliveState.keepAlive() && !parserErrored }
     
-    let socket: Socket
+    private let socket: Socket
     
     /// An enum for internal state
     private enum State: UInt8 {

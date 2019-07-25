@@ -136,14 +136,14 @@ public class IncomingSocketHandler {
     }
     private var _handleReadInProgress: Atomic<Bool> = Atomic<Bool>(value: false)
 
-    private var _socket: Socket
-    private let _socketQueue = DispatchQueue(label: "IncomingSocketHandler_socket")
+    private let socket: Socket
 
-    /// The file descriptor of the incoming socket
-    var fileDescriptor: Int32 { return _socketQueue.sync { _socket.socketfd } }
+    /// The file descriptor of the incoming socket. This is valid only while the socket is open (`isOpen == true`).
+    let fileDescriptor: Int32
 
     init(socket: Socket, using: IncomingSocketProcessor) {
-        self._socket = socket
+        self.socket = socket
+        self.fileDescriptor = socket.socketfd
 
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
             socketReaderQueue = IncomingSocketHandler.socketReaderQueues[Int(socket.socketfd) % numberOfSocketReaderQueues]
@@ -178,7 +178,7 @@ public class IncomingSocketHandler {
 
         // Set handleReadInProgress flag to true before the guard below to avoid another thread
         // invoking close() in between us clearing the guard and setting the flag.
-        guard isOpen && fileDescriptor > -1 else {
+        guard isOpen else {
             preparingToClose = true // flag the function defer clause to cleanup if needed
             return true
         }
@@ -188,13 +188,13 @@ public class IncomingSocketHandler {
         do {
             var length = 1
             while  length > 0  {
-                length = try _socketQueue.sync { try _socket.read(into: readBuffer) }
+                length = try socket.read(into: readBuffer)
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
             }
             else {
-                if _socketQueue.sync(execute: { _socket.remoteConnectionClosed }) {
+                if socket.remoteConnectionClosed {
                     Log.debug("socket remoteConnectionClosed in handleRead()")
                     processor?.socketClosed()
                     preparingToClose = true
@@ -253,7 +253,7 @@ public class IncomingSocketHandler {
      */
     public func handleBufferedReadData() {
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
-            if fileDescriptor != Socket.SOCKET_INVALID_DESCRIPTOR {
+            if isOpen {
                 socketReaderQueue.sync() { [weak self] in
                     if let strongSelf = self {
                         _ = strongSelf.handleBufferedReadDataHelper()
@@ -294,7 +294,7 @@ public class IncomingSocketHandler {
 
             // Set handleWriteInProgress flag to true before the guard below to avoid another thread
             // invoking close() in between us clearing the guard and setting the flag.
-            guard isOpen && fileDescriptor > -1 else {
+            guard isOpen else {
                 Log.warning("Socket closed with \(writeBuffer.length - writeBufferPosition) bytes still to be written")
                 writeBuffer.length = 0
                 writeBufferPosition = 0
@@ -308,8 +308,8 @@ public class IncomingSocketHandler {
                 let written: Int
                     
                 if amountToWrite > 0 {
-                    written = try _socketQueue.sync { try _socket.write(from: writeBuffer.bytes + writeBufferPosition,
-                                                                    bufSize: amountToWrite) }
+                    written = try socket.write(from: writeBuffer.bytes + writeBufferPosition,
+                                                                    bufSize: amountToWrite)
                 }
                 else {
                     if amountToWrite < 0 {
@@ -392,7 +392,7 @@ public class IncomingSocketHandler {
 
         // Set writeInProgress flag to true before the guard below to avoid another thread
         // invoking close() in between us clearing the guard and setting the flag.
-        guard isOpen && fileDescriptor > -1 else {
+        guard isOpen else {
             Log.warning("IncomingSocketHandler write() called after socket \(fileDescriptor) closed")
             preparingToClose = true // flag the function defer clause to cleanup if needed
             return
@@ -402,7 +402,7 @@ public class IncomingSocketHandler {
             let written: Int
             
             if  writeBuffer.length == 0 {
-                written = try _socketQueue.sync { try _socket.write(from: bytes, bufSize: length) }
+                written = try socket.write(from: bytes, bufSize: length)
             }
             else {
                 written = 0
@@ -474,10 +474,8 @@ public class IncomingSocketHandler {
     /// DispatchSource cancel handler
     private func handleCancel() {
         isOpen = false // just in case something besides close() calls handleCancel()
-        _socketQueue.sync {
-            if _socket.socketfd > -1 {
-                _socket.close()
-            }
+        if socket.isConnected {
+            socket.close()
         }
 
         processor?.inProgress = false

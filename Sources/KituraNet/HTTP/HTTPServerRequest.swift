@@ -328,9 +328,9 @@ public class HTTPServerRequest: ServerRequest {
             }
             
             if let forwardedFor = headers["X-Forwarded-For"]?[0] {
-                Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(socket.remoteHostname );")
+                Log.verbose("HTTP request forwarded for=\(forwardedFor); proto=\(headers["X-Forwarded-Proto"]?[0] ?? "N.A."); by=\(remoteAddress);")
             } else {
-                Log.verbose("HTTP request from=\(socket.remoteHostname); proto=\(proto ?? "N.A.");")
+                Log.verbose("HTTP request from=\(remoteAddress); proto=\(proto ?? "N.A.");")
             }
         }
         
