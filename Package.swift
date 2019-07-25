@@ -29,9 +29,12 @@ var kituraNetDependencies: [Target.Dependency] = [
     .byName(name: "CHTTPParser"),
     .byName(name: "LoggerAPI"),
     .byName(name: "Socket"),
-    .target(name: "CCurl"),
     .byName(name: "SSLService")
 ]
+
+if ProcessInfo.processInfo.environment["KITURA_IOS"] == nil {
+    kituraNetDependencies.append(.target(name: "CCurl"))
+}
 
 #if os(Linux)
 dependencies.append(contentsOf: [
