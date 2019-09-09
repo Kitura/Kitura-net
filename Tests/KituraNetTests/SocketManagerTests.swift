@@ -51,6 +51,16 @@ class SocketManagerTests: KituraNetTest {
         
         do {
             let socket1 = try Socket.create()
+            let socket2 = try Socket.create()
+            let socket3 = try Socket.create()
+
+            // Sleep momentarily after creating sockets before creating any read events.
+            // For an unknown reason, with GCD_ASYNCH on Linux, a read event fires if a
+            // Dispatch reader source is set up on the socket's fd too soon, even though
+            // the socket is not connected, and this causes us to remove the socket and
+            // fail the test.
+            usleep(10000)
+
             let processor1 = TestIncomingSocketProcessor()
             manager.handle(socket: socket1, processor: processor1)
             XCTAssertEqual(manager.socketHandlerCount, 1, "There should be 1 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
@@ -61,7 +71,6 @@ class SocketManagerTests: KituraNetTest {
             // last time the check for idle sockets to two minutes in the past.
             manager.keepAliveIdleLastTimeChecked = Date().addingTimeInterval(-120.0)
             
-            let socket2 = try Socket.create()
             let processor2 = TestIncomingSocketProcessor()
             manager.handle(socket: socket2, processor: processor2)
             XCTAssertEqual(manager.socketHandlerCount, 2, "There should be 2 IncomingSocketHandler, there are \(manager.socketHandlerCount)")
@@ -72,7 +81,6 @@ class SocketManagerTests: KituraNetTest {
             processor1.inProgress = false
             processor1.keepAliveUntil = Date().timeIntervalSinceReferenceDate + 240.0
             
-            let socket3 = try Socket.create()
             let processor3 = TestIncomingSocketProcessor()
             manager.handle(socket: socket3, processor: processor3)
             XCTAssertEqual(manager.socketHandlerCount, 3, "There should be 3 IncomingSocketHandler, there are \(manager.socketHandlerCount)")

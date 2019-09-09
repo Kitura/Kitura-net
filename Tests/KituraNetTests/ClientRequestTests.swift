@@ -20,7 +20,13 @@ import XCTest
 @testable import KituraNet
 
 class ClientRequestTests: KituraNetTest {
-  let testCallback: ClientRequest.Callback = {_ in }
+    let testCallback: ClientRequest.Callback = {_ in }
+
+    private func httpBasicAuthHeader(username: String, password: String) -> String {
+        let authHeader = "\(username):\(password)"
+        let data = Data(authHeader.utf8)
+        return "Basic \(data.base64EncodedString())"
+    }
   
   // 1 test URL that is build when initializing with ClientRequestOptions
   func testClientRequestWhenInitializedWithValidURL() {
@@ -106,9 +112,9 @@ class ClientRequestTests: KituraNetTest {
 
   func testClientRequestParse() {
       
-    let options = ClientRequest.parse("https://username:password@66o.tech:8080/path?key=value")
+    let options = ClientRequest.parse("https://66o.tech:8080/path?key=value")
     let testRequest = ClientRequest(options: options, callback: testCallback)
-    XCTAssertEqual(testRequest.url, "https://username:password@66o.tech:8080/path?key=value")
+    XCTAssertEqual(testRequest.url, "https://66o.tech:8080/path?key=value")
   }
 
   func testClientRequestBasicAuthentcation() {
@@ -118,14 +124,18 @@ class ClientRequestTests: KituraNetTest {
                                              .hostname("66o.tech")
     ]
     var testRequest = ClientRequest(options: options, callback: testCallback)
-    XCTAssertEqual(testRequest.url, "http://myusername:@66o.tech")
+    XCTAssertNil(testRequest.headers["Authorization"])
+    XCTAssertEqual(testRequest.userName,"myusername")
+    XCTAssertEqual(testRequest.url, "http://66o.tech")
 
     // ensure an empty username works
     let options2: [ClientRequest.Options] = [ .password("mypassword"),
                                               .hostname("66o.tech")
     ]
     testRequest = ClientRequest(options: options2, callback: testCallback)
-    XCTAssertEqual(testRequest.url, "http://:mypassword@66o.tech")
+    XCTAssertNil(testRequest.headers["Authorization"])
+    XCTAssertEqual(testRequest.password, "mypassword")
+    XCTAssertEqual(testRequest.url, "http://66o.tech")
 
     // ensure username:password works
     let options3: [ClientRequest.Options] = [ .username("myusername"),
@@ -133,7 +143,9 @@ class ClientRequestTests: KituraNetTest {
                                               .hostname("66o.tech")
     ]
     testRequest = ClientRequest(options: options3, callback: testCallback)
-    XCTAssertEqual(testRequest.url, "http://myusername:mypassword@66o.tech")
+    let authHeaderValue = testRequest.headers["Authorization"] ?? ""
+    XCTAssertEqual(authHeaderValue, httpBasicAuthHeader(username: "myusername", password: "mypassword"))
+    XCTAssertEqual(testRequest.url, "http://66o.tech")
 }
 
 }
