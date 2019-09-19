@@ -86,7 +86,7 @@ public class IncomingSocketHandler {
     /// Provides an ability to limit the maximum amount of data that can be read from a socket before rejecting a request and closing
     /// the connection.
     /// This is to protect against accidental or malicious requests from exhausting available memory.
-    private let options: ServerOptions
+    let options: ServerOptions
 
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
@@ -160,20 +160,7 @@ public class IncomingSocketHandler {
         do {
             var length = 1
             while  length > 0  {
-                if let readBufferLimit = self.options.requestSizeLimit, readBuffer.length > readBufferLimit {
-                    let clientSource = "\(socket.remoteHostname):\(socket.remotePort)"
-                    if let (httpStatus, response) = self.options.requestSizeResponseGenerator(readBufferLimit, clientSource) {
-                        let statusCode = httpStatus.rawValue
-                        let statusDescription = HTTP.statusCodes[statusCode] ?? ""
-                        let contentLength = response.utf8.count
-                        let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
-                        _ = try? socket.write(from: httpResponse)
-                    }
-                    preparingToClose = true
-                    return true
-                }
                 length = try socket.read(into: readBuffer)
-                //Log.debug("Read \(length) bytes from socket \(socket.socketfd), readBuffer size: \(readBuffer.length)")
             }
             if  readBuffer.length > 0  {
                 result = handleReadHelper()
@@ -246,6 +233,19 @@ public class IncomingSocketHandler {
                 }
             }
         #endif
+    }
+
+    /// Handle the situation where we have received data that exceeds the configured requestSizeLimit.
+    func handleOversizedRead(_ limit: Int) {
+        let clientSource = "\(socket.remoteHostname):\(socket.remotePort)"
+        if let (httpStatus, response) = self.options.requestSizeResponseGenerator(limit, clientSource) {
+            let statusCode = httpStatus.rawValue
+            let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+            let contentLength = response.utf8.count
+            let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
+            _ = try? socket.write(from: httpResponse)
+        }
+        preparingToClose = true
     }
     
     /// Write out any buffered data now that the socket can accept more data
