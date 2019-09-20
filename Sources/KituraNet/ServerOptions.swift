@@ -20,7 +20,7 @@ import LoggerAPI
 /**
  ServerOptions allows customization of default server policies, including:
 
- - `requestSizeLimit`: Defines the maximum size of an incoming request, in bytes. If requests are received that are larger than this limit, they will be rejected and the connection will be closed. A value of `nil` means no limit.
+ - `requestSizeLimit`: Defines the maximum size for the body of an incoming request, in bytes. If a request body is larger than this limit, it will be rejected and the connection will be closed. A value of `nil` means no limit.
  - `connectionLimit`: Defines the maximum number of concurrent connections that a server should accept. Clients attempting to connect when this limit has been reached will be rejected. A value of `nil` means no limit.
 
  The server can optionally respond to the client with a message in either of these cases. This message can be customized by defining `requestSizeResponseGenerator` and `connectionResponseGenerator`.
@@ -33,7 +33,7 @@ import LoggerAPI
  */
 public struct ServerOptions {
 
-    /// A default limit of 100mb on the size of requests that a server should accept.
+    /// A default limit of 100mb on the size of the request body that a server should accept.
     public static let defaultRequestSizeLimit = 104857600
 
     /// A default limit of 10,000 on the number of concurrent connections that a server should accept.
@@ -53,8 +53,8 @@ public struct ServerOptions {
         return (.serviceUnavailable, "")
     }
 
-    /// Defines the maximum size of an incoming request, in bytes. If requests are received that are larger
-    /// than this limit, they will be rejected and the connection will be closed.
+    /// Defines the maximum size for the body of an incoming request, in bytes. If a request body is larger
+    /// than this limit, it will be rejected and the connection will be closed.
     ///
     /// A value of `nil` means no limit.
     public let requestSizeLimit: Int?
@@ -102,7 +102,7 @@ public struct ServerOptions {
 
     /// Create a `ServerOptions` to determine the behaviour of a `Server`.
     ///
-    /// - parameter requestSizeLimit: The maximum size of an incoming request. Defaults to `ServerOptions.defaultRequestSizeLimit`.
+    /// - parameter requestSizeLimit: The maximum size of an incoming request body. Defaults to `ServerOptions.defaultRequestSizeLimit`.
     /// - parameter connectionLimit: The maximum number of concurrent connections. Defaults to `ServerOptions.defaultConnectionLimit`.
     /// - parameter requestSizeResponseGenerator: A closure producing a response to send to a client when an over-sized request is rejected. Defaults to `ServerOptions.defaultRequestSizeResponseGenerator`.
     /// - parameter defaultConnectionResponseGenerator: A closure producing a response to send to a client when a the server is busy and new connections are not being accepted. Defaults to `ServerOptions.defaultConnectionResponseGenerator`.
