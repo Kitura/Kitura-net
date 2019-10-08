@@ -91,7 +91,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init() {
+        public init(options: ServerOptions = ServerOptions()) {
+            self.serverOptions = options
             var t1 = [Int32]()
             var t2 = [DispatchQueue]()
             for i in 0 ..< numberOfEpollTasks {
@@ -117,8 +118,8 @@ public class IncomingSocketManager  {
     /**
      IncomingSocketManager initializer
      */
-        public init(connectionPolicy: ServerOptions = ServerOptions()) {
-            self.serverOptions = connectionPolicy
+        public init(options: ServerOptions = ServerOptions()) {
+            self.serverOptions = options
         }
     #endif
 

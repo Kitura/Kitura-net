@@ -227,8 +227,7 @@ public class HTTPServer: Server {
                 listenerDescription = "path \(path)"
             }
 
-            let socketManager = IncomingSocketManager()
-            socketManager.serverOptions = self.options
+            let socketManager = IncomingSocketManager(options: self.options)
             self.socketManager = socketManager
 
             if let delegate = socket.delegate {
