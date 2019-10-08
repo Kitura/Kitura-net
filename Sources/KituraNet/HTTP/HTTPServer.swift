@@ -106,6 +106,13 @@ public class HTTPServer: Server {
      */
     public var keepAliveState: KeepAliveState = .unlimited
     
+    /// Controls policies relating to incoming connections and requests.
+    public var options: ServerOptions = ServerOptions() {
+        didSet {
+            self.socketManager?.serverOptions = options
+        }
+    }
+
     /// Incoming socket handler
     private var socketManager: IncomingSocketManager?
 
@@ -220,7 +227,7 @@ public class HTTPServer: Server {
                 listenerDescription = "path \(path)"
             }
 
-            let socketManager = IncomingSocketManager()
+            let socketManager = IncomingSocketManager(options: self.options)
             self.socketManager = socketManager
 
             if let delegate = socket.delegate {
@@ -349,7 +356,24 @@ public class HTTPServer: Server {
             do {
                 let clientSocket = try listenSocket.acceptClientConnection(invokeDelegate: false)
                 let clientSource = "\(clientSocket.remoteHostname):\(clientSocket.remotePort)"
-                Log.debug("Accepted HTTP connection from: \(clientSource)")
+                if let connectionLimit = self.options.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                    // See if any idle sockets can be removed before rejecting this connection
+                    socketManager.removeIdleSockets(runNow: true)
+                }
+                if let connectionLimit = self.options.connectionLimit, socketManager.socketHandlerCount >= connectionLimit {
+                    // Connections still at limit, this connection must be rejected
+                    if let (httpStatus, response) = self.options.connectionResponseGenerator(connectionLimit, clientSource) {
+                        let statusCode = httpStatus.rawValue
+                        let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+                        let contentLength = response.utf8.count
+                        let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
+                        _ = try? clientSocket.write(from: httpResponse)
+                    }
+                    clientSocket.close()
+                    continue
+                } else {
+                    Log.debug("Accepted HTTP connection from: \(clientSource)")
+                }
 				
                 if listenSocket.delegate != nil {
                     DispatchQueue.global().async { [weak self] in

@@ -41,9 +41,15 @@ class HTTPParser {
     
     /// Chunk of body read in by the http_parser
     var bodyChunk: BufferList { return parseResults.bodyChunk }
-    
+
     /// Parsing of message completed
     var completed: Bool { return parseResults.completed }
+
+    /// Parsing of headers completed
+    var headersComplete: Bool { return parseResults.headersComplete }
+
+    /// Length of headers section (in bytes)
+    var headersLength: Int { return parseResults.headersLength }
     
     /// A Handle to the HTTPParser C-library
     var parser: http_parser
@@ -169,7 +175,7 @@ fileprivate func onHeadersComplete(_ parser: UnsafeMutableRawPointer?) {
     let results = getResults(httpParser)
 
     results?.onHeadersComplete(method: method, versionMajor: (httpParser?.pointee.http_major)!,
-        versionMinor: (httpParser?.pointee.http_minor)!)
+                               versionMinor: (httpParser?.pointee.http_minor)!)
 }
 
 fileprivate func getResults(_ parser: UnsafeMutableRawPointer?) -> ParseResults? {

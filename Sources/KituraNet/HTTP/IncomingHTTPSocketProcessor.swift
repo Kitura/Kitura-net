@@ -111,6 +111,12 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
     
     /// Location in the buffer to start parsing from
     private var parseStartingFrom = 0
+
+    /// Running total of body data bytes that we have parsed. Used to determine
+    /// whether this request is within the defined request size limit.
+    /// This number is only meaningful once the HTTP parser has completed
+    /// parsing of headers.
+    private var bodyBytesParsed = 0
     
     init(socket: Socket, using: ServerDelegate, keepalive: KeepAliveState) {
         delegate = using
@@ -236,7 +242,29 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         }
         
         let bytes = buffer.bytes.assumingMemoryBound(to: Int8.self) + from
+        let headersAlreadyComplete = httpParser.headersComplete
         let (numberParsed, upgrade) = httpParser.execute(bytes, length: length)
+
+        // Count the number of body bytes parsed from the current buffer
+        if headersAlreadyComplete {
+            // Headers were completed while parsing a previous buffer. This entire buffer
+            // represents body data.
+            bodyBytesParsed += numberParsed
+        } else if httpParser.headersComplete {
+            // Headers complete while parsing current buffer. Subtract header length so that
+            // bodyBytesParsed is an accurate measure the number of bytes of body data.
+            bodyBytesParsed += (numberParsed - httpParser.headersLength)
+        } else {
+            // Entire buffer represents headers. We will subtract this later once headers
+            // are complete.
+            bodyBytesParsed += numberParsed
+        }
+
+        if httpParser.headersComplete, let handler = self.handler, let limit = handler.options.requestSizeLimit, bodyBytesParsed > limit {
+            handler.handleOversizedRead(limit)
+            status.error = .parsedLessThanRead
+            return status
+        }
         
         if completeBuffer && numberParsed == length {
             // Tell parser we reached the end
@@ -293,6 +321,7 @@ public class IncomingHTTPSocketProcessor: IncomingSocketProcessor {
         case .initial:
             break
         case .messageComplete:
+            bodyBytesParsed = 0
             isUpgrade = parsingStatus.upgrade
             clientRequestedKeepAlive = parsingStatus.keepAlive && !isUpgrade
             parsingComplete()

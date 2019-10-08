@@ -20,6 +20,12 @@ import Foundation
 class ParseResults {
     /// Have the parsing completed? (MessageComplete)
     var completed = false
+
+    /// Has the header parsing completed?
+    var headersComplete = false
+
+    /// The approximate size in bytes of the message headers.
+    var headersLength: Int = 0
     
     /// HTTP Method of the incoming message.
     private(set) var method = ""
@@ -69,6 +75,7 @@ class ParseResults {
     func onHeadersComplete(method: String, versionMajor: UInt16, versionMinor: UInt16) {
         httpVersionMajor = versionMajor
         httpVersionMinor = versionMinor
+        headersLength += method.count + 14  // length of method, HTTP version, spaces, newlines
         self.method = method
         if  lastHeaderWasAValue  {
             addHeader()
@@ -78,6 +85,7 @@ class ParseResults {
         url.append(&zero, length: 1)
         urlString = String(cString: url.bytes.assumingMemoryBound(to: CChar.self))
         url.length -= 1
+        headersComplete = true
     }
     
     /// Callback for when a piece of a header key was parsed
@@ -90,7 +98,7 @@ class ParseResults {
             addHeader()
         }
         lastHeaderField.append(bytes, length: count)
-        
+        headersLength += count + 2  // Extra bytes for colon and space
         lastHeaderWasAValue = false
         
     }
@@ -101,7 +109,7 @@ class ParseResults {
     /// - Parameter count: The number of bytes parsed
     func onHeaderValue (_ bytes: UnsafePointer<UInt8>, count: Int) {
         lastHeaderValue.append(bytes, length: count)
-        
+        headersLength += count + 2  // Extra bytes for newline
         lastHeaderWasAValue = true
     }
     
@@ -116,6 +124,7 @@ class ParseResults {
     /// - Parameter count: The number of bytes parsed
     func onURL(_ bytes: UnsafePointer<UInt8>, count: Int) {
         url.append(bytes, length: count)
+        headersLength += count
     }
     
     func reset() {

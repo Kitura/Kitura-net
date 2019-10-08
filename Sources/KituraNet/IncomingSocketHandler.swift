@@ -83,6 +83,11 @@ public class IncomingSocketHandler {
     private let writeBuffer = NSMutableData()
     private var writeBufferPosition = 0
 
+    /// Provides an ability to limit the maximum amount of data that can be read from a socket before rejecting a request and closing
+    /// the connection.
+    /// This is to protect against accidental or malicious requests from exhausting available memory.
+    let options: ServerOptions
+
     /// preparingToClose is set when prepareToClose() gets called or anytime we detect the socket has errored or was closed,
     /// so we try to close and cleanup as long as there is no data waiting to be written and a socket read/write is not in progress.
     private var preparingToClose = false
@@ -108,7 +113,7 @@ public class IncomingSocketHandler {
     /// The file descriptor of the incoming socket
     var fileDescriptor: Int32 { return socket.socketfd }
     
-    init(socket: Socket, using: IncomingSocketProcessor) {
+    init(socket: Socket, using: IncomingSocketProcessor, options: ServerOptions) {
         self.socket = socket
         processor = using
         
@@ -118,7 +123,8 @@ public class IncomingSocketHandler {
             readerSource = DispatchSource.makeReadSource(fileDescriptor: socket.socketfd,
                                                          queue: socketReaderQueue)
         #endif
-        
+
+        self.options = options
         processor?.handler = self
         
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS) || GCD_ASYNCH
@@ -227,6 +233,19 @@ public class IncomingSocketHandler {
                 }
             }
         #endif
+    }
+
+    /// Handle the situation where we have received data that exceeds the configured requestSizeLimit.
+    func handleOversizedRead(_ limit: Int) {
+        let clientSource = "\(socket.remoteHostname):\(socket.remotePort)"
+        if let (httpStatus, response) = self.options.requestSizeResponseGenerator(limit, clientSource) {
+            let statusCode = httpStatus.rawValue
+            let statusDescription = HTTP.statusCodes[statusCode] ?? ""
+            let contentLength = response.utf8.count
+            let httpResponse = "HTTP/1.1 \(statusCode) \(statusDescription)\r\nConnection: Close\r\nContent-Length: \(contentLength)\r\n\r\n".appending(response)
+            _ = try? socket.write(from: httpResponse)
+        }
+        preparingToClose = true
     }
     
     /// Write out any buffered data now that the socket can accept more data
