@@ -24,7 +24,7 @@
     {
       "file": "/Users/travis/build/IBM-Swift/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
       "line": 21,
-      "symbol": "KeepAliveState.limited",
+      "symbol": "KeepAliveState.limited(maxRequests:)",
       "symbol_kind": "source.lang.swift.decl.enumelement",
       "warning": "undocumented"
     },

@@ -181,6 +181,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/Monitor.html">Monitor</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/ServerOptions.html">ServerOptions</a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -196,7 +199,7 @@
 
                 </div>
               </div>
-            <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects cab be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
+            <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects can be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="c1">//Function to create a new `ClientRequest` using a URL.</span>
  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">ClientRequest</span> <span class="p">{</span>
@@ -219,9 +222,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC7headerss10DictionaryVyS2SGvp"></a>
+                    <a name="/s:9KituraNet13ClientRequestC7headersSDyS2SGvp"></a>
                     <a name="//apple_ref/swift/Property/headers" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC7headerss10DictionaryVyS2SGvp">headers</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC7headersSDyS2SGvp">headers</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -239,7 +242,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">String</span><span class="p">]()</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">headers</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span> <span class="p">:</span> <span class="kt">String</span><span class="p">]</span></code></pre>
 
                         </div>
                       </div>
@@ -269,7 +272,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">""</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -299,7 +302,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">"get"</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">method</span><span class="p">:</span> <span class="kt">String</span></code></pre>
 
                         </div>
                       </div>
@@ -394,7 +397,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">maxRedirects</span> <span class="o">=</span> <span class="mi">10</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">maxRedirects</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
 
                         </div>
                       </div>
@@ -424,7 +427,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">closeConnection</span> <span class="o">=</span> <span class="kc">false</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">closeConnection</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
 
                         </div>
                       </div>
@@ -515,9 +518,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC3setyAC7OptionsOF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC3setyyAC7OptionsOF"></a>
                     <a name="//apple_ref/swift/Method/set(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC3setyAC7OptionsOF">set(_:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC3setyyAC7OptionsOF">set(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -566,9 +569,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC5parseSayAC7OptionsOGSSFZ"></a>
+                    <a name="/s:9KituraNet13ClientRequestC5parseySayAC7OptionsOGSSFZ"></a>
                     <a name="//apple_ref/swift/Method/parse(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC5parseSayAC7OptionsOGSSFZ">parse(_:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC5parseySayAC7OptionsOGSSFZ">parse(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -620,9 +623,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC5parseSayAC7OptionsOG10Foundation3URLVFZ"></a>
+                    <a name="/s:9KituraNet13ClientRequestC5parseySayAC7OptionsOG10Foundation3URLVFZ"></a>
                     <a name="//apple_ref/swift/Method/parse(_:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC5parseSayAC7OptionsOG10Foundation3URLVFZ">parse(_:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC5parseySayAC7OptionsOG10Foundation3URLVFZ">parse(_:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -674,9 +677,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC5writeySS4from_tF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC5write4fromySS_tF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC5writeySS4from_tF">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC5write4fromySS_tF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -724,9 +727,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC5writey10Foundation4DataV4from_tF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC5write4fromy10Foundation4DataV_tF"></a>
                     <a name="//apple_ref/swift/Method/write(from:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC5writey10Foundation4DataV4from_tF">write(from:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC5write4fromy10Foundation4DataV_tF">write(from:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -777,9 +780,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC3endySS_Sb5closetF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC3end_5closeySS_SbtF"></a>
                     <a name="//apple_ref/swift/Method/end(_:close:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC3endySS_Sb5closetF">end(_:close:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC3end_5closeySS_SbtF">end(_:close:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -839,9 +842,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC3endy10Foundation4DataV_Sb5closetF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC3end_5closey10Foundation4DataV_SbtF"></a>
                     <a name="//apple_ref/swift/Method/end(_:close:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC3endy10Foundation4DataV_Sb5closetF">end(_:close:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC3end_5closey10Foundation4DataV_SbtF">end(_:close:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -903,9 +906,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:9KituraNet13ClientRequestC3endySb5close_tF"></a>
+                    <a name="/s:9KituraNet13ClientRequestC3end5closeySb_tF"></a>
                     <a name="//apple_ref/swift/Method/end(close:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13ClientRequestC3endySb5close_tF">end(close:)</a>
+                    <a class="token" href="#/s:9KituraNet13ClientRequestC3end5closeySb_tF">end(close:)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -957,8 +960,8 @@
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-10-09)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ServerOptions Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Struct/ServerOptions" class="dashAnchor"></a>
+
+    <a title="ServerOptions Structure Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          KituraNet Docs
+        </a>
+         (98% documented)
+      </p>
+    
+      <p class="header-col--secondary">
+        <form role="search" action="../search.json">
+          <input type="text" placeholder="Search documentation" data-typeahead>
+        </form>
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/IBM-Swift/Kitura-net/">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">KituraNet Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      ServerOptions Structure Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/BufferList.html">BufferList</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/ClientRequest.html">ClientRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/ClientRequest/Options.html">– Options</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/ClientResponse.html">ClientResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/FastCGI.html">FastCGI</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/FastCGIServer.html">FastCGIServer</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/FastCGIServerRequest.html">FastCGIServerRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/FastCGIServerRequest/FastCGIParserErrorType.html">– FastCGIParserErrorType</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/FastCGIServerResponse.html">FastCGIServerResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/HTTP.html">HTTP</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/HTTPServer.html">HTTPServer</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/HTTPServerRequest.html">HTTPServerRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/HTTPServerResponse.html">HTTPServerResponse</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/HeadersContainer.html">HeadersContainer</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/IncomingHTTPSocketProcessor.html">IncomingHTTPSocketProcessor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/IncomingSocketHandler.html">IncomingSocketHandler</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/IncomingSocketManager.html">IncomingSocketManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/ListenerGroup.html">ListenerGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/SPIUtils.html">SPIUtils</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/URLParser.html">URLParser</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/Error.html">Error</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/HTTPStatusCode/Class.html">– Class</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/KeepAliveState.html">KeepAliveState</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/ServerState.html">ServerState</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ConnectionUpgradeFactory.html">ConnectionUpgradeFactory</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/IncomingSocketProcessorCreator.html">IncomingSocketProcessorCreator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/Server.html">Server</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ServerDelegate.html">ServerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ServerMonitor.html">ServerMonitor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ServerRequest.html">ServerRequest</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Protocols/ServerResponse.html">ServerResponse</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/ConnectionUpgrader.html">ConnectionUpgrader</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Monitor.html">Monitor</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/ServerOptions.html">ServerOptions</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>ServerOptions</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">ServerOptions</span></code></pre>
+
+                </div>
+              </div>
+            <p>ServerOptions allows customization of default server policies, including:</p>
+
+<ul>
+<li><code>requestSizeLimit</code>: Defines the maximum size for the body of an incoming request, in bytes. If a request body is larger than this limit, it will be rejected and the connection will be closed. A value of <code>nil</code> means no limit.</li>
+<li><code>connectionLimit</code>: Defines the maximum number of concurrent connections that a server should accept. Clients attempting to connect when this limit has been reached will be rejected. A value of <code>nil</code> means no limit.</li>
+</ul>
+
+<p>The server can optionally respond to the client with a message in either of these cases. This message can be customized by defining <code>requestSizeResponseGenerator</code> and <code>connectionResponseGenerator</code>.</p>
+
+<p>Example usage:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">server</span> <span class="o">=</span> <span class="kt">HTTP</span><span class="o">.</span><span class="nf">createServer</span><span class="p">()</span>
+<span class="n">server</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="kt">ServerOptions</span><span class="p">(</span><span class="nv">requestSizeLimit</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="nv">connectionLimit</span><span class="p">:</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV23defaultRequestSizeLimitSivpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultRequestSizeLimit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV23defaultRequestSizeLimitSivpZ">defaultRequestSizeLimit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A default limit of 100mb on the size of the request body that a server should accept.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultRequestSizeLimit</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV22defaultConnectionLimitSivpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultConnectionLimit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV22defaultConnectionLimitSivpZ">defaultConnectionLimit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A default limit of 10,000 on the number of concurrent connections that a server should accept.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultConnectionLimit</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV35defaultRequestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultRequestSizeResponseGenerator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV35defaultRequestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">defaultRequestSizeResponseGenerator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines a default response to an over-sized request of HTTP 413: Request Too Long. A message is also
+logged at debug level.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultRequestSizeResponseGenerator</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV34defaultConnectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultConnectionResponseGenerator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV34defaultConnectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">defaultConnectionResponseGenerator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines a default response when refusing a new connection of HTTP 503: Service Unavailable. A message is
+also logged at debug level.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultConnectionResponseGenerator</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV16requestSizeLimitSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/requestSizeLimit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV16requestSizeLimitSiSgvp">requestSizeLimit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines the maximum size for the body of an incoming request, in bytes. If a request body is larger
+than this limit, it will be rejected and the connection will be closed.</p>
+
+<p>A value of <code>nil</code> means no limit.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">requestSizeLimit</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV15connectionLimitSiSgvp"></a>
+                    <a name="//apple_ref/swift/Property/connectionLimit" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV15connectionLimitSiSgvp">connectionLimit</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines the maximum number of concurrent connections that a server should accept. Clients attempting
+to connect when this limit has been reached will be rejected.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">connectionLimit</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV28requestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvp"></a>
+                    <a name="//apple_ref/swift/Property/requestSizeResponseGenerator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV28requestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvp">requestSizeResponseGenerator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Determines the response message and HTTP status code used to respond to clients whose request exceeds
+the <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV16requestSizeLimitSiSgvp">requestSizeLimit</a></code>. The current limit and client&rsquo;s address are provided as parameters to enable a
+message to be logged, and/or a response to be provided back to the client.</p>
+
+<p>The returned tuple indicates the HTTP status code and response body to send to the client. If <code>nil</code> is
+returned, then no response will be sent.</p>
+
+<p>Example usage:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">oversizeResponse</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">HTTPStatusCode</span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span> <span class="o">=</span> <span class="p">{</span> <span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span> <span class="k">in</span>
+    <span class="kt">Log</span><span class="o">.</span><span class="nf">debug</span><span class="p">(</span><span class="s">"Rejecting request from </span><span class="se">\(</span><span class="n">client</span><span class="se">)</span><span class="s">: Exceeds limit of </span><span class="se">\(</span><span class="n">limit</span><span class="se">)</span><span class="s"> bytes"</span><span class="p">)</span>
+    <span class="nf">return</span> <span class="p">(</span><span class="o">.</span><span class="n">requestTooLong</span><span class="p">,</span> <span class="s">"Your request exceeds the limit of </span><span class="se">\(</span><span class="n">limit</span><span class="se">)</span><span class="s"> bytes.</span><span class="se">\r\n</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">requestSizeResponseGenerator</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV27connectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvp"></a>
+                    <a name="//apple_ref/swift/Property/connectionResponseGenerator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV27connectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvp">connectionResponseGenerator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Determines the response message and HTTP status code used to respond to clients that attempt to connect
+while the server is already servicing the maximum number of connections, as defined by <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV15connectionLimitSiSgvp">connectionLimit</a></code>.
+The current limit and client&rsquo;s address are provided as parameters to enable a  message to be logged,
+and/or a response to be provided back to the client.</p>
+
+<p>The returned tuple indicates the HTTP status code and response body to send to the client. If <code>nil</code> is
+returned, then no response will be sent.</p>
+
+<p>Example usage:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">connectionResponse</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">HTTPStatusCode</span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span> <span class="o">=</span> <span class="p">{</span> <span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">client</span><span class="p">)</span> <span class="k">in</span>
+    <span class="kt">Log</span><span class="o">.</span><span class="nf">debug</span><span class="p">(</span><span class="s">"Rejecting request from </span><span class="se">\(</span><span class="n">client</span><span class="se">)</span><span class="s">: Connection limit </span><span class="se">\(</span><span class="n">limit</span><span class="se">)</span><span class="s"> reached"</span><span class="p">)</span>
+    <span class="nf">return</span> <span class="p">(</span><span class="o">.</span><span class="n">serviceUnavailable</span><span class="p">,</span> <span class="s">"Service busy - please try again later.</span><span class="se">\r\n</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">connectionResponseGenerator</span><span class="p">:</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:9KituraNet13ServerOptionsV16requestSizeLimit010connectionG00eF17ResponseGenerator0hiJ0ACSiSg_AhA14HTTPStatusCodeO_SStSgSi_SStcAKSi_SStctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(requestSizeLimit:connectionLimit:requestSizeResponseGenerator:connectionResponseGenerator:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:9KituraNet13ServerOptionsV16requestSizeLimit010connectionG00eF17ResponseGenerator0hiJ0ACSiSg_AhA14HTTPStatusCodeO_SStSgSi_SStcAKSi_SStctcfc">init(requestSizeLimit:connectionLimit:requestSizeResponseGenerator:connectionResponseGenerator:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a <code>ServerOptions</code> to determine the behaviour of a <code><a href="../Protocols/Server.html">Server</a></code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">requestSizeLimit</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kt">ServerOptions</span><span class="o">.</span><span class="n"><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV23defaultRequestSizeLimitSivpZ">defaultRequestSizeLimit</a></span><span class="p">,</span>
+            <span class="nv">connectionLimit</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="o">=</span> <span class="kt">ServerOptions</span><span class="o">.</span><span class="n"><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV22defaultConnectionLimitSivpZ">defaultConnectionLimit</a></span><span class="p">,</span>
+            <span class="nv">requestSizeResponseGenerator</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span> <span class="o">=</span> <span class="kt">ServerOptions</span><span class="o">.</span><span class="n"><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV35defaultRequestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">defaultRequestSizeResponseGenerator</a></span><span class="p">,</span>
+            <span class="nv">connectionResponseGenerator</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt"><a href="../Enums/HTTPStatusCode.html">HTTPStatusCode</a></span><span class="p">,</span> <span class="kt">String</span><span class="p">)?</span> <span class="o">=</span> <span class="kt">ServerOptions</span><span class="o">.</span><span class="n"><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV34defaultConnectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">defaultConnectionResponseGenerator</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>requestSizeLimit</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The maximum size of an incoming request body. Defaults to <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV23defaultRequestSizeLimitSivpZ">ServerOptions.defaultRequestSizeLimit</a></code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>connectionLimit</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The maximum number of concurrent connections. Defaults to <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV22defaultConnectionLimitSivpZ">ServerOptions.defaultConnectionLimit</a></code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>requestSizeResponseGenerator</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure producing a response to send to a client when an over-sized request is rejected. Defaults to <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV35defaultRequestSizeResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">ServerOptions.defaultRequestSizeResponseGenerator</a></code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>defaultConnectionResponseGenerator</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>A closure producing a response to send to a client when a the server is busy and new connections are not being accepted. Defaults to <code><a href="../Structs/ServerOptions.html#/s:9KituraNet13ServerOptionsV34defaultConnectionResponseGeneratoryAA14HTTPStatusCodeO_SStSgSi_SStcvpZ">ServerOptions.defaultConnectionResponseGenerator</a></code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-10-09)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>
