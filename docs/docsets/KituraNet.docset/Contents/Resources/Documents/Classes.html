@@ -14,6 +14,7 @@
   </head>
   <body>
 
+    <a name="//apple_ref/swift/Section/Classes" class="dashAnchor"></a>
 
     <a title="Classes  Reference"></a>
 
@@ -180,6 +181,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Structs/Monitor.html">Monitor</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/ServerOptions.html">ServerOptions</a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -218,9 +222,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class provides an implementation of a buffer that can be added to and taken from in chunks. Data is always added to the end of the buffer (using <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC6appendySPys5UInt8VG5bytes_Si6lengthtF">BufferList.append(...)</a></code> and taken out of the buffer (using <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC4fillSiSays5UInt8VGz5array_tF">BufferList.fill(...)</a></code>) from the beginning towards the end. The location indicating where the next chunk of data will be taken from is maintained, this location can then be reset to enable data to be taken out of the buffer from the beginning again.</p>
+                        <p>This class provides an implementation of a buffer that can be added to and taken from in chunks. Data is always added to the end of the buffer (using <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC6append5bytes6lengthySPys5UInt8VG_SitF">BufferList.append(...)</a></code> and taken out of the buffer (using <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC4fill5arraySiSays5UInt8VGz_tF">BufferList.fill(...)</a></code>) from the beginning towards the end. The location indicating where the next chunk of data will be taken from is maintained, this location can then be reset to enable data to be taken out of the buffer from the beginning again.</p>
 
-<p>In the below example, we create an empty <code>BufferList</code> instance. You can then append data to your <code>BufferList</code> instance, in our case <code>writeBuffer</code>. We then make two seperate appends. When <code>writeBuffer</code> contains the data which you wish to write out you can use <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC4fillSiSays5UInt8VGz5array_tF">BufferList.fill(...)</a></code> to write out the data from the buffer to your chosen location, which in this case is <code>finalArrayOfNumbers</code>.</p>
+<p>In the below example, we create an empty <code>BufferList</code> instance. You can then append data to your <code>BufferList</code> instance, in our case <code>writeBuffer</code>. We then make two seperate appends. When <code>writeBuffer</code> contains the data which you wish to write out you can use <code><a href="Classes/BufferList.html#/s:9KituraNet10BufferListC4fill5arraySiSays5UInt8VGz_tF">BufferList.fill(...)</a></code> to write out the data from the buffer to your chosen location, which in this case is <code>finalArrayOfNumbers</code>.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">writeBuffer</span> <span class="o">=</span> <span class="kt">BufferList</span><span class="p">()</span>
 
@@ -291,7 +295,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects cab be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
+                        <p>This class provides a set of low level APIs for issuing HTTP requests to another server. A new instance of the request can be created, along with options if the user would like to specify certain parameters such as HTTP headers, HTTP methods, host names, and SSL credentials. <code>Data</code> and <code>String</code> objects can be added to a <code>ClientRequest</code> too, and URLs can be parsed.</p>
 <h3 id='usage-example' class='heading'>Usage Example:</h3>
 <pre class="highlight swift"><code><span class="c1">//Function to create a new `ClientRequest` using a URL.</span>
  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">request</span><span class="p">(</span><span class="n">_</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt">ClientRequest</span><span class="o">.</span><span class="kt">Callback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">ClientRequest</span> <span class="p">{</span>
@@ -425,7 +429,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span> <span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
 
                         </div>
                       </div>
@@ -622,7 +626,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span><span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServer</span> <span class="p">:</span> <span class="kt"><a href="Protocols/Server.html">Server</a></span></code></pre>
 
                         </div>
                       </div>
@@ -677,7 +681,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerRequest</span><span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HTTPServerRequest</span> <span class="p">:</span> <span class="kt"><a href="Protocols/ServerRequest.html">ServerRequest</a></span></code></pre>
 
                         </div>
                       </div>
@@ -776,7 +780,7 @@ responses via the HTTP protocol. Data and Strings can be written.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingHTTPSocketProcessor</span><span class="p">:</span> <span class="kt"><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">IncomingHTTPSocketProcessor</span> <span class="p">:</span> <span class="kt"><a href="Protocols/IncomingSocketProcessor.html">IncomingSocketProcessor</a></span></code></pre>
 
                         </div>
                       </div>
@@ -1064,8 +1068,8 @@ In particular, it is in charge of:</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2018 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2018-06-26)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.1</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-10-09)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
