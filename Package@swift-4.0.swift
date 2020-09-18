@@ -2,7 +2,7 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 /**
- * Copyright IBM Corporation 2016, 2017
+ * Copyright IBM Corporation and the Kitura project authors 2016-2020
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 import PackageDescription
 
 var dependencies: [Package.Dependency] = [
-    .package(url: "https://github.com/IBM-Swift/LoggerAPI.git", from: "1.7.3"),
-    .package(url: "https://github.com/IBM-Swift/BlueSocket.git", from: "1.0.0"),
-    .package(url: "https://github.com/IBM-Swift/CCurl.git", from: "1.1.0"),
-    .package(url: "https://github.com/IBM-Swift/BlueSSLService.git", from: "1.0.0")
+    .package(url: "https://github.com/Kitura/LoggerAPI.git", from: "1.7.3"),
+    .package(url: "https://github.com/Kitura/BlueSocket.git", from: "1.0.0"),
+    .package(url: "https://github.com/Kitura/CCurl.git", from: "1.1.0"),
+    .package(url: "https://github.com/Kitura/BlueSSLService.git", from: "1.0.0")
 ]
 
 var kituraNetDependencies: [Target.Dependency] = [
@@ -36,8 +36,8 @@ var kituraNetDependencies: [Target.Dependency] = [
 
 #if os(Linux)
 dependencies.append(contentsOf: [
-    .package(url: "https://github.com/IBM-Swift/CEpoll.git", from: "1.0.0"),
-    .package(url: "https://github.com/IBM-Swift/BlueSignals.git", from: "1.0.0")
+    .package(url: "https://github.com/Kitura/CEpoll.git", from: "1.0.0"),
+    .package(url: "https://github.com/Kitura/BlueSignals.git", from: "1.0.0")
     ])
 
 kituraNetDependencies.append(contentsOf: [
