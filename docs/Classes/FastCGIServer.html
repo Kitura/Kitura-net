@@ -33,7 +33,7 @@
       </p>
     
         <p class="header-col header-col--secondary">
-          <a class="header-link" href="https://github.com/IBM-Swift/Kitura-net/">
+          <a class="header-link" href="https://github.com/Kitura/Kitura-net/">
             <img class="header-icon" src="../img/gh.png"/>
             View on GitHub
           </a>
@@ -136,14 +136,6 @@
             </ul>
           </li>
           <li class="nav-group-name">
-            <a class="nav-group-name-link" href="../Extensions.html">Extensions</a>
-            <ul class="nav-group-tasks">
-              <li class="nav-group-task">
-                <a class="nav-group-task-link" href="../Extensions/HTTPParserErrorType.html">HTTPParserErrorType</a>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-group-name">
             <a class="nav-group-name-link" href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
@@ -191,10 +183,11 @@
       <article class="main-content">
 
         <section class="section">
-          <div class="section-content">
+          <div class="section-content top-matter">
             <h1>FastCGIServer</h1>
               <div class="declaration">
                 <div class="language">
+                  
                   <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FastCGIServer</span> <span class="p">:</span> <span class="kt"><a href="../Protocols/Server.html">Server</a></span></code></pre>
 
                 </div>
@@ -291,7 +284,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">port</span><span class="p">:</span> <span class="kt">Int</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -319,7 +312,7 @@ interfaces.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">address</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">address</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -349,7 +342,7 @@ interfaces.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt"><a href="../Enums/ServerState.html">ServerState</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt"><a href="../Enums/ServerState.html">ServerState</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -418,7 +411,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC6listen2on7addressySi_SSSgtKF"></a>
                     <a name="//apple_ref/swift/Method/listen(on:address:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen2on7addressySi_SSSgtKF">listen(on:address:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen2on7addressySi_SSSgtKF">listen(on:<wbr>address:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -464,7 +457,7 @@ interfaces.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The address of a network interface to listen on, for example <q>localhost</q>. The default is nil,
+                                  <p>The address of a network interface to listen on, for example &ldquo;localhost&rdquo;. The default is nil,
         which listens for connections on all interfaces.</p>
                                 </div>
                               </td>
@@ -480,7 +473,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC6listen2on7address8delegateACSi_SSSgAA14ServerDelegate_pSgtKFZ"></a>
                     <a name="//apple_ref/swift/Method/listen(on:address:delegate:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen2on7address8delegateACSi_SSSgAA14ServerDelegate_pSgtKFZ">listen(on:address:delegate:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen2on7address8delegateACSi_SSSgAA14ServerDelegate_pSgtKFZ">listen(on:<wbr>address:<wbr>delegate:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -526,7 +519,7 @@ interfaces.</p>
                               </td>
                               <td>
                                 <div>
-                                  <p>The address of a network interface to listen on, for example <q>localhost</q>. The default is nil,
+                                  <p>The address of a network interface to listen on, for example &ldquo;localhost&rdquo;. The default is nil,
         which listens for connections on all interfaces.</p>
                                 </div>
                               </td>
@@ -558,7 +551,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC6listen4port12errorHandlerySi_ys5Error_pcSgtF"></a>
                     <a name="//apple_ref/swift/Method/listen(port:errorHandler:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen4port12errorHandlerySi_ys5Error_pcSgtF">listen(port:errorHandler:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen4port12errorHandlerySi_ys5Error_pcSgtF">listen(port:<wbr>errorHandler:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -620,7 +613,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC6listen4port8delegate12errorHandlerACSi_AA14ServerDelegate_pys5Error_pcSgtFZ"></a>
                     <a name="//apple_ref/swift/Method/listen(port:delegate:errorHandler:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen4port8delegate12errorHandlerACSi_AA14ServerDelegate_pys5Error_pcSgtFZ">listen(port:delegate:errorHandler:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6listen4port8delegate12errorHandlerACSi_AA14ServerDelegate_pys5Error_pcSgtFZ">listen(port:<wbr>delegate:<wbr>errorHandler:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -728,7 +721,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC7started8callbackACXDyyc_tF"></a>
                     <a name="//apple_ref/swift/Method/started(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC7started8callbackACXDyyc_tF">started(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC7started8callbackACXDyyc_tF">started(callback:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -782,7 +775,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC7stopped8callbackACXDyyc_tF"></a>
                     <a name="//apple_ref/swift/Method/stopped(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC7stopped8callbackACXDyyc_tF">stopped(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC7stopped8callbackACXDyyc_tF">stopped(callback:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -836,7 +829,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC6failed8callbackACXDys5Error_pc_tF"></a>
                     <a name="//apple_ref/swift/Method/failed(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6failed8callbackACXDys5Error_pc_tF">failed(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC6failed8callbackACXDys5Error_pc_tF">failed(callback:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -890,7 +883,7 @@ interfaces.</p>
                     <code>
                     <a name="/s:9KituraNet13FastCGIServerC22clientConnectionFailed8callbackACXDys5Error_pc_tF"></a>
                     <a name="//apple_ref/swift/Method/clientConnectionFailed(callback:)" class="dashAnchor"></a>
-                    <a class="token" href="#/s:9KituraNet13FastCGIServerC22clientConnectionFailed8callbackACXDys5Error_pc_tF">clientConnectionFailed(callback:)</a>
+                    <a class="token" href="#/s:9KituraNet13FastCGIServerC22clientConnectionFailed8callbackACXDys5Error_pc_tF">clientConnectionFailed(callback:<wbr>)</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -949,8 +942,8 @@ interfaces.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2019 <a class="link" href="" target="_blank" rel="external">IBM</a>. All rights reserved. (Last updated: 2019-10-09)</p>
-      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+      <p>&copy; 2020 <a class="link" href="" target="_blank" rel="external">IBM &amp; Kitura Project Authors</a>. All rights reserved. (Last updated: 2020-11-24)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
 </div>
