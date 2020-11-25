@@ -1,6 +1,6 @@
 module: KituraNet
-author: IBM
-github_url: https://github.com/IBM-Swift/Kitura-net/
+author: IBM & Kitura Project Authors
+github_url: https://github.com/Kitura/Kitura-net/
 
 theme: fullwidth
 clean: true
@@ -10,6 +10,4 @@ readme: README.md
 
 skip_undocumented: false
 hide_documentation_coverage: false
-
-xcodebuild_arguments: [-project, Kitura-net.xcodeproj, -target, KituraNet, LIBRARY_SEARCH_PATHS=.build/debug]
 
