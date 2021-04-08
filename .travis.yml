@@ -15,11 +15,6 @@ matrix:
       dist: xenial
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=swift:4.0.3 SWIFT_SNAPSHOT=4.0.3
-    - os: linux
-      dist: xenial
-      sudo: required
-      services: docker
       env: DOCKER_IMAGE=swift:4.1.3 SWIFT_SNAPSHOT=4.1.3
     - os: linux
       dist: xenial
@@ -30,28 +25,24 @@ matrix:
       dist: xenial
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=swift:5.0.3-xenial SWIFT_SNAPSHOT=5.0.3
+      env: DOCKER_IMAGE=docker.kitura.net/kitura/swift-ci:5.0.3 SWIFT_SNAPSHOT=5.0.3
     - os: linux
       dist: xenial
       sudo: required
       services: docker
       # Run Kitura tests in addition to Kitura-net tests
-      env: DOCKER_IMAGE=swift:5.1 CUSTOM_TEST_SCRIPT=.kitura-test.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
+      env: DOCKER_IMAGE=docker.kitura.net/kitura/swift-ci:5.1 CUSTOM_TEST_SCRIPT=.kitura-test.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
     - os: linux
       dist: xenial
       sudo: required
       services: docker
       # Test GCD_ASYNCH codepath on Linux
-      env: DOCKER_IMAGE=swift:5.1 CUSTOM_TEST_SCRIPT=testWithGCD.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
+      env: DOCKER_IMAGE=docker.kitura.net/kitura/swift-ci:5.1 CUSTOM_TEST_SCRIPT=testWithGCD.sh DOCKER_ENVIRONMENT=CUSTOM_TEST_SCRIPT
     - os: linux
       dist: xenial
       sudo: required
       services: docker
-      env: DOCKER_IMAGE=swift:5.1 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT
-    - os: osx
-      osx_image: xcode9.2
-      sudo: required
-      env: SWIFT_SNAPSHOT=4.0.3
+      env: DOCKER_IMAGE=docker.kitura.net/kitura/swift-ci:5.1 SWIFT_SNAPSHOT=$SWIFT_DEVELOPMENT_SNAPSHOT
     - os: osx
       osx_image: xcode9.4
       sudo: required
@@ -69,6 +60,10 @@ matrix:
       sudo: required
       # Run Kitura tests in addition to Kitura-net tests
       env: CUSTOM_TEST_SCRIPT=.kitura-test.sh
+    - os: osx
+      osx_image: xcode12.2
+      sudo: required
+      env: SWIFT_SNAPSHOT=5.3.1
     - os: osx
       osx_image: xcode11
       sudo: required
