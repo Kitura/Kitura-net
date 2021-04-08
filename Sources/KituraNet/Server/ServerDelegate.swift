@@ -16,7 +16,7 @@
 
 /// The protocol defining the delegate for the HTTPServer and the FastCGIServer classes.
 /// The delegate's handle function is invoked when new requests arrive at the server for processing.
-public protocol ServerDelegate: class {
+public protocol ServerDelegate: AnyObject {
     /// Handle new incoming requests to the server
     ///
     /// - Parameter request: The ServerRequest class instance for working with this request.

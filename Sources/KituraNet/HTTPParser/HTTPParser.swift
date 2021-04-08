@@ -79,63 +79,65 @@ class HTTPParser {
         parser = http_parser()
         settings = http_parser_settings()
         
-        parser.data = UnsafeMutableRawPointer(&parseResults)
-        
-        settings.on_url = { (parser, chunk, length) -> Int32 in
-            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getResults(parser)?.onURL(ptr, count: length)
-            return 0
-        }
-        
-        settings.on_header_field = { (parser, chunk, length) -> Int32 in
-            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getResults(parser)?.onHeaderField(ptr, count: length)
-            return 0
-        }
-        
-        settings.on_header_value = { (parser, chunk, length) -> Int32 in
-            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            getResults(parser)?.onHeaderValue(ptr, count: length)
-            return 0
-        }
-        
-        settings.on_body = { (parser, chunk, length) -> Int32 in
-            let delegate = getResults(parser)
-            let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
-            delegate?.onBody(ptr, count: length)
-            return 0
-        }
-        
-        // Callback should return 1 when instructing the C HTTP parser
-        // to skip body content. This closure is bound to a C function
-        // pointer and cannot capture values (including self.skipBody)
-        // so instead we choose which closure to assign outside the
-        // closure.
-        if skipBody {
-            settings.on_headers_complete = { (parser) -> Int32 in
-                onHeadersComplete(parser)
-                return 1
+        withUnsafeMutableBytes(of: &parseResults) { parseResultsPointer in
+            
+            parser.data = parseResultsPointer.baseAddress
+            
+            settings.on_url = { (parser, chunk, length) -> Int32 in
+                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+                getResults(parser)?.onURL(ptr, count: length)
+                return 0
             }
-        } else {
-            settings.on_headers_complete = { (parser) -> Int32 in
-                onHeadersComplete(parser)
+            
+            settings.on_header_field = { (parser, chunk, length) -> Int32 in
+                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+                getResults(parser)?.onHeaderField(ptr, count: length)
+                return 0
+            }
+            
+            settings.on_header_value = { (parser, chunk, length) -> Int32 in
+                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+                getResults(parser)?.onHeaderValue(ptr, count: length)
+                return 0
+            }
+            
+            settings.on_body = { (parser, chunk, length) -> Int32 in
+                let delegate = getResults(parser)
+                let ptr = UnsafeRawPointer(chunk!).assumingMemoryBound(to: UInt8.self)
+                delegate?.onBody(ptr, count: length)
+                return 0
+            }
+            
+            // Callback should return 1 when instructing the C HTTP parser
+            // to skip body content. This closure is bound to a C function
+            // pointer and cannot capture values (including self.skipBody)
+            // so instead we choose which closure to assign outside the
+            // closure.
+            if skipBody {
+                settings.on_headers_complete = { (parser) -> Int32 in
+                    onHeadersComplete(parser)
+                    return 1
+                }
+            } else {
+                settings.on_headers_complete = { (parser) -> Int32 in
+                    onHeadersComplete(parser)
+                    return 0
+                }
+            }
+            
+            // When the parser reaches the end of a message, we will pause
+            // so that execute() completes and the handler can be invoked.
+            // Any remaining data in the buffer will be consumed as follows:
+            // - if Keep-Alive is disabled, the data will be discarded.
+            // - if Keep-Alive is enabled, the keepAlive() call and the
+            //   subsequent handleBuffererdReadData() call will reset the
+            //   parser's state, and then resume parsing the buffer.
+            settings.on_message_complete = { (parser) -> Int32 in
+                getResults(parser)?.onMessageComplete()
+                http_parser_pause(parser, 1)
                 return 0
             }
         }
-        
-        // When the parser reaches the end of a message, we will pause
-        // so that execute() completes and the handler can be invoked.
-        // Any remaining data in the buffer will be consumed as follows:
-        // - if Keep-Alive is disabled, the data will be discarded.
-        // - if Keep-Alive is enabled, the keepAlive() call and the
-        //   subsequent handleBuffererdReadData() call will reset the
-        //   parser's state, and then resume parsing the buffer.
-        settings.on_message_complete = { (parser) -> Int32 in
-            getResults(parser)?.onMessageComplete()
-            http_parser_pause(parser, 1)
-            return 0
-        }
-        
         reset()	
     }
 

@@ -590,7 +590,9 @@ public class ClientRequest {
         handle = curl_easy_init()
         // HTTP parser does the decoding
         curlHelperSetOptInt(handle!, CURLOPT_HTTP_TRANSFER_DECODING, 0)
-        curlHelperSetOptString(self.handle!, CURLOPT_URL, UnsafePointer(urlBuffer))
+        urlBuffer.withUnsafeBufferPointer { bufferPointer in
+            _ = curlHelperSetOptString(self.handle!, CURLOPT_URL, bufferPointer.baseAddress!)
+        }
         if disableSSLVerification {
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYHOST, 0)
             curlHelperSetOptInt(handle!, CURLOPT_SSL_VERIFYPEER, 0)
@@ -607,7 +609,9 @@ public class ClientRequest {
         }
         
         if let socketPath = unixDomainSocketPath?.cString(using: .utf8) {
-            curlHelperSetUnixSocketPath(handle!, UnsafePointer(socketPath))
+            socketPath.withUnsafeBufferPointer { bufferPointer in
+                _ = curlHelperSetUnixSocketPath(handle!, bufferPointer.baseAddress!)
+            }
         }
     }
 
@@ -650,7 +654,11 @@ public class ClientRequest {
         }
         for (headerKey, headerValue) in headers {
             if let headerString = "\(headerKey): \(headerValue)".cString(using: .utf8) {
-                headersList = curl_slist_append(headersList, UnsafePointer(headerString))
+                
+                headerString.withUnsafeBufferPointer { bufferPointer in
+                    
+                    headersList = curl_slist_append(headersList, bufferPointer.baseAddress!)
+                }
             }
         }
         curlHelperSetOptList(handle!, CURLOPT_HTTPHEADER, headersList)
@@ -829,7 +837,7 @@ private class CurlInvoker {
 
 
 /// Delegate protocol for objects operated by CurlInvoker
-private protocol CurlInvokerDelegate: class {
+private protocol CurlInvokerDelegate: AnyObject {
     
     func curlWriteCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int
     func curlReadCallback(_ buf: UnsafeMutablePointer<Int8>, size: Int) -> Int

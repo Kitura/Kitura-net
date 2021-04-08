@@ -19,7 +19,7 @@ import Foundation
 /// This protocol defines the API of the classes used to process the data that
 /// comes in from a client's request. There should be one `IncomingSocketProcessor`
 /// instance per incoming request.
-public protocol IncomingSocketProcessor: class {
+public protocol IncomingSocketProcessor: AnyObject {
     
     /// The socket if idle will be kep alive until...
     var keepAliveUntil: TimeInterval { get set }

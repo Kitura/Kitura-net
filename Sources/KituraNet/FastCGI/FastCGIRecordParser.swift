@@ -88,13 +88,19 @@ class FastCGIRecordParser {
     // which is typically Big to Little.
     //
     private static func getLocalByteOrderSmall(from networkOrderedBytes: [UInt8]) -> UInt16 {
-        let networkOrderedUInt16 = UnsafeRawPointer(networkOrderedBytes).assumingMemoryBound(to: UInt16.self)[0]
-        
-        #if os(Linux)
+
+        let localInt16 = networkOrderedBytes.withUnsafeBytes { pointer -> UInt16 in
+            let uintPointer = pointer.bindMemory(to: UInt16.self)
+            let networkOrderedUInt16 = uintPointer[0]
+            
+            #if os(Linux)
             return Glibc.ntohs(networkOrderedUInt16)
-        #else
+            #else
             return CFSwapInt16BigToHost(networkOrderedUInt16)
-        #endif
+            #endif
+        }
+        
+        return localInt16
     }
     
     //
@@ -102,13 +108,19 @@ class FastCGIRecordParser {
     // which is typically Big to Little.
     //
     private static func getLocalByteOrderLarge(from networkOrderedBytes: [UInt8]) -> UInt32 {
-        let networkOrderedUInt32 = UnsafeRawPointer(networkOrderedBytes).assumingMemoryBound(to: UInt32.self)[0]
-        
-        #if os(Linux)
+
+        let localInt32 = networkOrderedBytes.withUnsafeBytes { pointer -> UInt32 in
+            let uintPointer = pointer.bindMemory(to: UInt32.self)
+            let networkOrderedUInt32 = uintPointer[0]
+            
+            #if os(Linux)
             return Glibc.ntohl(networkOrderedUInt32)
-        #else
+            #else
             return CFSwapInt32BigToHost(networkOrderedUInt32)
-        #endif
+            #endif
+        }
+        
+        return localInt32
     }
     
     // Initialize
