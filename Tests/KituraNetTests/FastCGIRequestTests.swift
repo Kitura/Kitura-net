@@ -287,33 +287,19 @@ class FastCGIRequestTests: KituraNetTest {
     }
     
     private func copyUInt16IntoBuffer(_ bytes: inout [UInt8], offset: Int, value: UInt16) {
-        var valueNetworkByteOrder: UInt16
-        #if os(Linux)
-            valueNetworkByteOrder = Glibc.htons(value)
-        #else
-            valueNetworkByteOrder = CFSwapInt16HostToBig(value)
-        #endif
-        let asBytes = UnsafeMutablePointer(&valueNetworkByteOrder)
-#if swift(>=4.2)
-        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyMemory(from: asBytes, byteCount: 2)
-#else
-        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyBytes(from: asBytes, count: 2)
-#endif
+        let valueNetworkByteOrder: UInt16 = value.bigEndian
+        
+        bytes[0] = UInt8( (valueNetworkByteOrder >> 8) & 0xff )
+        bytes[1] = UInt8( (valueNetworkByteOrder >> 0) & 0xff )
     }
     
     private func copyUInt32IntoBuffer(_ bytes: inout [UInt8], offset: Int, value: UInt32) {
-        var valueNetworkByteOrder: UInt32
-        #if os(Linux)
-            valueNetworkByteOrder = Glibc.htonl(value)
-        #else
-            valueNetworkByteOrder = CFSwapInt32HostToBig(value)
-        #endif
-        let asBytes = UnsafeMutablePointer(&valueNetworkByteOrder)
-#if swift(>=4.2)
-        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyMemory(from: asBytes, byteCount: 4)
-#else
-        (UnsafeMutableRawPointer(mutating: bytes)+offset).copyBytes(from: asBytes, count: 4)
-#endif
+        let valueNetworkByteOrder: UInt32 = value.bigEndian
+        
+        bytes[0] = UInt8( (valueNetworkByteOrder >> 24) & 0xff )
+        bytes[1] = UInt8( (valueNetworkByteOrder >> 16) & 0xff )
+        bytes[2] = UInt8( (valueNetworkByteOrder >> 8) & 0xff )
+        bytes[3] = UInt8( (valueNetworkByteOrder >> 0) & 0xff )
     }
 
     class TestDelegate : ServerDelegate {

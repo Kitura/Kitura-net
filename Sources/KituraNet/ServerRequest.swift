@@ -19,7 +19,7 @@ import Foundation
 /// The ServerRequest protocol allows requests to be abstracted 
 /// across different networking protocols in an agnostic way to the
 /// Kitura project Router.
-public protocol ServerRequest: class {
+public protocol ServerRequest: AnyObject {
     
     /// The set of headers received with the incoming request
     var headers : HeadersContainer { get }

@@ -264,7 +264,7 @@ public class HTTPServerResponse : ServerResponse {
             processor.write(from: utf8, length: utf8Length)
         }
         else {
-            buffer.append(UnsafePointer(utf8), length: utf8Length)
+            buffer.append(&utf8, length: utf8Length)
         }
     }
     

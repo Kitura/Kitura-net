@@ -19,7 +19,7 @@ import Foundation
 /// The ServerResponse protocol allows responses to be abstracted
 /// across different networking protocols in an agnostic way to the
 /// Kitura project Router.
-public protocol ServerResponse: class {
+public protocol ServerResponse: AnyObject {
     
     /// The status code to send in the HTTP response.
     var statusCode: HTTPStatusCode? { get set }
