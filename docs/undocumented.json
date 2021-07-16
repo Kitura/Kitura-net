@@ -1,40 +1,40 @@
 {
   "warnings": [
     {
-      "file": "/Users/dannys/projects/kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
+      "file": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
       "line": 17,
       "symbol": "KeepAliveState",
       "symbol_kind": "source.lang.swift.decl.enum",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/dannys/projects/kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
+      "file": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
       "line": 19,
       "symbol": "KeepAliveState.disabled",
       "symbol_kind": "source.lang.swift.decl.enumelement",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/dannys/projects/kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
+      "file": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
       "line": 20,
       "symbol": "KeepAliveState.unlimited",
       "symbol_kind": "source.lang.swift.decl.enumelement",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/dannys/projects/kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
+      "file": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net/Sources/KituraNet/HTTP/KeepAliveState.swift",
       "line": 21,
       "symbol": "KeepAliveState.limited(maxRequests:)",
       "symbol_kind": "source.lang.swift.decl.enumelement",
       "warning": "undocumented"
     },
     {
-      "file": "/Users/dannys/projects/kitura/Kitura-net/Sources/KituraNet/IncomingSocketProcessorCreator.swift",
+      "file": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net/Sources/KituraNet/IncomingSocketProcessorCreator.swift",
       "line": 25,
       "symbol": "IncomingSocketProcessorCreator.name",
       "symbol_kind": "source.lang.swift.decl.var.instance",
       "warning": "undocumented"
     }
   ],
-  "source_directory": "/Users/dannys/projects/kitura/Kitura-net"
+  "source_directory": "/Users/dsung/projects/3rdparty/Kitura/Kitura-net"
 }
