@@ -55,6 +55,11 @@ Add `KituraNet` to your target's dependencies:
   import KituraNet
   ```
 
+## Prerequisites
+
+As of Kitura-net 3.0.0, Swift 5.1+ is required.
+
+
 ## Contributing to Kitura-net
 
 All improvements to Kitura-net are very welcome! Here's how to get started with developing Kitura-net itself.
