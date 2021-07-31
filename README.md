@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <a href="https://ibm-swift.github.io/Kitura-net/index.html">
+    <a href="https://kitura.github.io/Kitura-net/index.html">
     <img src="https://img.shields.io/badge/apidoc-KituraNet-1FBCE4.svg?style=flat" alt="APIDoc">
     </a>
     <a href="https://travis-ci.org/Kitura/Kitura-net">
@@ -55,6 +55,11 @@ Add `KituraNet` to your target's dependencies:
   import KituraNet
   ```
 
+## Prerequisites
+
+As of Kitura-net 3.0.0, Swift 5.1+ is required.
+
+
 ## Contributing to Kitura-net
 
 All improvements to Kitura-net are very welcome! Here's how to get started with developing Kitura-net itself.
@@ -70,7 +75,7 @@ All improvements to Kitura-net are very welcome! Here's how to get started with 
 You can find more info on contributing to Kitura in our [contributing guidelines](https://github.com/Kitura/Kitura/blob/master/.github/CONTRIBUTING.md).
 
 ## API Documentation
-For more information visit our [API reference](https://ibm-swift.github.io/Kitura-net/index.html).
+For more information visit our [API reference](https://kitura.github.io/Kitura-net/index.html).
 
 ## Community
 
