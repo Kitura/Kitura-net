@@ -14,7 +14,7 @@ fi
 set -e
 echo ">> Building Kitura"
 travis_start "swift_build_kitura"
-cd .. && git clone https://github.com/IBM-Swift/Kitura && cd Kitura
+cd .. && git clone https://github.com/Kitura/Kitura && cd Kitura
 
 # Build once
 swift build
