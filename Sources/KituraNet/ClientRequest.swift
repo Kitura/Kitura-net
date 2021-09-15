@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import LoggerAPI
-import CCurl
-import Socket
 
+
+#if os(Linux) || os(macOS)
+import LoggerAPI
+import Socket
+import CCurl
 import Foundation
 
 // The public API for ClientRequest erroneously defines the port as an Int16, which is
@@ -855,3 +857,4 @@ private struct OneTimeInitializations {
     }
 }
 
+#endif

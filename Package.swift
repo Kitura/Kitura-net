@@ -18,6 +18,7 @@
  **/
 
 import PackageDescription
+import Foundation
 
 var dependencies: [Package.Dependency] = [
     .package(url: "https://github.com/Kitura/LoggerAPI.git", from: "2.0.0"),
@@ -29,9 +30,12 @@ var kituraNetDependencies: [Target.Dependency] = [
     .byName(name: "CHTTPParser"),
     .byName(name: "LoggerAPI"),
     .byName(name: "Socket"),
-    .target(name: "CCurl"),
     .byName(name: "SSLService")
 ]
+
+if ProcessInfo.processInfo.environment["KITURA_IOS"] == nil {
+    kituraNetDependencies.append(.target(name: "CCurl"))
+}
 
 #if os(Linux)
 dependencies.append(contentsOf: [
